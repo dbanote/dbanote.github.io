@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。规划多实例目录mkdir -p /u01/mysql             # 程序目录mkdir -p /u01/conf              # 配置文件mkdir -p /u01/data/3306         mkdir -p /u01/data/3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL DBA从小白到大神实战-05 MySQL DBA日常操作">
+<meta property="og:url" content="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。规划多实例目录mkdir -p /u01/mysql             # 程序目录mkdir -p /u01/conf              # 配置文件mkdir -p /u01/data/3306         mkdir -p /u01/data/3">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0224_mysql57_01.png">
+<meta property="og:updated_time" content="2017-05-17T05:39:10.032Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL DBA从小白到大神实战-05 MySQL DBA日常操作">
+<meta name="twitter:description" content="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。规划多实例目录mkdir -p /u01/mysql             # 程序目录mkdir -p /u01/conf              # 配置文件mkdir -p /u01/data/3306         mkdir -p /u01/data/3">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/0224_mysql57_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL DBA从小白到大神实战-05 MySQL DBA日常操作 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-02-23T16:00:00.000Z" itemprop="datePublished">2017-02-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL DBA从小白到大神实战-05 MySQL DBA日常操作
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><a href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。" class="headerlink" title="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。"></a>使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</h2><h3 id="规划多实例目录"><a href="#规划多实例目录" class="headerlink" title="规划多实例目录"></a>规划多实例目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">mkdir</span> -p /u01/mysql             <span class="comment"># 程序目录</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/conf              <span class="comment"># 配置文件</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3306</span>         </div><div class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3307</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/iblog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/binlog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3306</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3307</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3306</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3307</span></div><div class="line"></div><div class="line"><span class="keyword">chown</span> -R mysql:mysql /u01</div><div class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="重新编译安装mysql"><a href="#重新编译安装mysql" class="headerlink" title="重新编译安装mysql"></a>重新编译安装mysql</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cd /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span></div><div class="line">rm -rf CMakeCache.txt</div><div class="line"></div><div class="line">cmake \</div><div class="line">-DCMAKE_INSTALL_PREFIX=<span class="regexp">/u01/mysql</span> \</div><div class="line">-DINSTALL_DATADIR=<span class="regexp">/u01/data</span><span class="regexp">/3306  \</span></div><div class="line">-DDEFAULT_CHARSET=utf8 \</div><div class="line">-DDEFAULT_COLLATION=utf8_general_ci \</div><div class="line">-DEXTRA_CHARSETS=all \</div><div class="line">-DWITH_SSL=yes \</div><div class="line">-DWITH_EMBEDDED_SERVER=1 \</div><div class="line">-DENABLED_LOCAL_INFILE=1 \</div><div class="line">-DWITH_MYISAM_STORAGE_ENGINE=1 \</div><div class="line">-DWITH_INNOBASE_STORAGE_ENGINE=1 \</div><div class="line">-DWITH_ARCHIVE_STORAGE_ENGINE=1 \</div><div class="line">-DWITH_BLACKHOLE_STORAGE_ENGINE=1 \</div><div class="line">-DWITH_FEDERATED_STORAGE_ENGINE=1 \</div><div class="line">-DWITH_PARTITION_STORAGE_ENGINE=1 \</div><div class="line">-DMYSQL_UNIX_ADDR=/u01/run/<span class="number">3306</span>/mysql.sock \</div><div class="line">-DMYSQL_TCP_PORT=<span class="number">3306</span> \</div><div class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</div><div class="line">-DSYSCONFDIR=<span class="regexp">/etc \</span></div><div class="line">-DWITH_READLINE=on</div><div class="line"></div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<h3 id="配置多实例独自参数文件"><a href="#配置多实例独自参数文件" class="headerlink" title="配置多实例独自参数文件"></a>配置多实例独自参数文件</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cd /u01/conf</div><div class="line">vi my3306.cnf</div><div class="line">----------------------------------------------------------</div><div class="line">[client]</div><div class="line">port=<span class="number">3306</span></div><div class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock</div><div class="line"></div><div class="line">[mysql]</div><div class="line">pid_file=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysqld</span>.pid</div><div class="line"></div><div class="line">[mysqld]</div><div class="line">autocommit=<span class="number">1</span></div><div class="line">general_log=off</div><div class="line">explicit_defaults_for_timestamp=true</div><div class="line"></div><div class="line"><span class="comment"># system</span></div><div class="line">basedir=<span class="regexp">/u01/mysql</span></div><div class="line">datadir=<span class="regexp">/u01/data</span><span class="regexp">/3306</span></div><div class="line">max_allowed_packet=1g</div><div class="line">max_connections=3000</div><div class="line">max_user_connections=2800</div><div class="line">open_files_limit=65535</div><div class="line">pid_file=/u01/run/<span class="number">3306</span>/mysqld.pid</div><div class="line">port=<span class="number">3306</span></div><div class="line">server_id=<span class="number">3306</span></div><div class="line">skip_name_resolve=ON</div><div class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock</div><div class="line">tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3306</span></div><div class="line"></div><div class="line">#binlog</div><div class="line">log_bin=/u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog/binlog</div><div class="line">binlog_cache_size=<span class="number">32768</span></div><div class="line">binlog_format=row</div><div class="line">expire_logs_days=<span class="number">7</span></div><div class="line">log_slave_updates=ON</div><div class="line">max_binlog_cache_size=<span class="number">2147483648</span></div><div class="line">max_binlog_size=<span class="number">524288000</span></div><div class="line">sync_binlog=<span class="number">100</span></div><div class="line"></div><div class="line"><span class="comment">#logging</span></div><div class="line">log_error=<span class="regexp">/u01/log</span><span class="regexp">/3306/error</span>.log</div><div class="line">slow_query_log_file=<span class="regexp">/u01/log</span><span class="regexp">/3306/slow</span>.log</div><div class="line">log_queries_not_using_indexes=<span class="number">0</span></div><div class="line">slow_query_log=<span class="number">1</span></div><div class="line">log_slave_updates=ON</div><div class="line">log_slow_admin_statements=<span class="number">1</span></div><div class="line">long_query_time=<span class="number">1</span></div><div class="line"></div><div class="line"><span class="comment">#relay</span></div><div class="line">relay_log=<span class="regexp">/u01/log</span><span class="regexp">/3306/relaylog</span></div><div class="line">relay_log_index=<span class="regexp">/u01/log</span><span class="regexp">/3306/relay</span>.index</div><div class="line">relay_log_info_file=<span class="regexp">/u01/log</span><span class="regexp">/3306/relay</span>-log.info</div><div class="line"></div><div class="line"><span class="comment">#slave</span></div><div class="line">slave_load_tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3306</span></div><div class="line">slave_skip_errors=OFF</div><div class="line"></div><div class="line">#innodb</div><div class="line">innodb_data_home_dir=/u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</div><div class="line">innodb_log_group_home_dir=<span class="regexp">/u01/log</span><span class="regexp">/3306/iblog</span></div><div class="line">innodb_adaptive_flushing=ON</div><div class="line">innodb_adaptive_hash_index=ON</div><div class="line">innodb_autoinc_lock_mode=<span class="number">1</span></div><div class="line">innodb_buffer_pool_instances=<span class="number">8</span></div><div class="line"></div><div class="line"><span class="comment">#default</span></div><div class="line">innodb_change_buffering=inserts</div><div class="line">innodb_checksums=ON</div><div class="line">innodb_buffer_pool_size= <span class="number">128</span>M</div><div class="line">innodb_data_file_path=ibdata1:<span class="number">32</span>M;ibdata2:<span class="number">16</span>M:autoextend</div><div class="line">innodb_doublewrite=ON</div><div class="line">innodb_file_format=Barracuda</div><div class="line">innodb_file_per_table=ON</div><div class="line">innodb_flush_log_at_trx_commit=<span class="number">1</span></div><div class="line">innodb_flush_method=O_DIRECT</div><div class="line">innodb_io_capacity=<span class="number">1000</span></div><div class="line">innodb_lock_wait_timeout=<span class="number">10</span></div><div class="line">innodb_log_buffer_size=<span class="number">67108864</span></div><div class="line">innodb_log_file_size=<span class="number">1048576000</span></div><div class="line">innodb_log_files_in_group=<span class="number">4</span></div><div class="line">innodb_max_dirty_pages_pct=<span class="number">60</span></div><div class="line">innodb_open_files=<span class="number">60000</span></div><div class="line">innodb_purge_threads=<span class="number">1</span></div><div class="line">innodb_read_io_threads=<span class="number">4</span></div><div class="line">innodb_stats_on_metadata=OFF</div><div class="line">innodb_support_xa=ON</div><div class="line">innodb_use_native_aio=OFF</div><div class="line">innodb_write_io_threads=<span class="number">10</span></div><div class="line"></div><div class="line">[mysqld_safe]</div><div class="line">datadir=<span class="regexp">/u01/data</span><span class="regexp">/3306</span></div><div class="line">----------------------------------------------------------</div><div class="line"></div><div class="line"># 将上面内容中3306替换成3307，server编辑保存my3307.cnf</div><div class="line">vi my3307.cnf</div></pre></td></tr></table></figure>
+<h3 id="初始化多实例数据库"><a href="#初始化多实例数据库" class="headerlink" title="初始化多实例数据库"></a>初始化多实例数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">su - mysql</div><div class="line"></div><div class="line"><span class="comment"># 修改环境变量</span></div><div class="line">vi /home/mysql/.bash_profile</div><div class="line">----------------------------------------------------------</div><div class="line">PATH=$PATH:$HOME/bin:<span class="regexp">/u01/mysql</span><span class="regexp">/bin</span></div><div class="line">----------------------------------------------------------</div><div class="line"></div><div class="line"># 初始化数据库实例</div><div class="line">cd /u01/mysql/scripts</div><div class="line">./mysql_install_db --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf \</span></div><div class="line">--datadir=/u01/data/<span class="number">3306</span> --basedir=<span class="regexp">/u01/mysql</span> --user=mysql</div><div class="line"></div><div class="line">./mysql_install_db --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3307.cnf \</span></div><div class="line">--datadir=/u01/data/<span class="number">3307</span> --basedir=<span class="regexp">/u01/mysql</span> --user=mysql</div><div class="line"></div><div class="line"><span class="comment"># 使用独立参数启动实例</span></div><div class="line">mysqld_safe --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf &amp;</span></div><div class="line">mysqld_safe --defaults-file=/u01/conf/my3307.cnf &amp;</div><div class="line"></div><div class="line"><span class="comment"># 登陆3306实例</span></div><div class="line">mysql --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock</div><div class="line"></div><div class="line">show variables like <span class="string">'port'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| port          | <span class="number">3306</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line"><span class="comment"># 登陆3307实例</span></div><div class="line">mysql --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3307/mysql</span>.sock</div><div class="line"></div><div class="line">show variables like <span class="string">'port'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| port          | <span class="number">3307</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line"><span class="comment"># 关闭实例</span></div><div class="line">mysqladmin --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock <span class="keyword">shutdown</span> &amp;</div><div class="line">mysqladmin --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3307/mysql</span>.sock <span class="keyword">shutdown</span> &amp;</div></pre></td></tr></table></figure>
+<h3 id="修改-etc-my-cnf参数"><a href="#修改-etc-my-cnf参数" class="headerlink" title="修改/etc/my.cnf参数"></a>修改/etc/my.cnf参数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># root用户下操作</span></div><div class="line">vi /etc/my.cnf</div><div class="line">----------------------------------------------------------</div><div class="line">[mysqld_multi]</div><div class="line">    mysqld=<span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqld</span>_safe</div><div class="line">    mysqladmin=<span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqladmin</span></div><div class="line">    user=root</div><div class="line">    <span class="keyword">log</span>=<span class="regexp">/u01/log</span><span class="regexp">/multi.log</span></div><div class="line"></div><div class="line">[mysqld3306]</div><div class="line">    port=3306</div><div class="line">    basedir=/u01/mysql</div><div class="line">    datadir=<span class="regexp">/u01/data</span><span class="regexp">/3306</span></div><div class="line">    socket=/u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line">    server-id=<span class="number">3306</span></div><div class="line">    log_bin=<span class="regexp">/u01/log</span><span class="regexp">/3306/binlog</span><span class="regexp">/binlog</span></div><div class="line">    slow_query_log_file=/u01/<span class="keyword">log</span>/<span class="number">3306</span>/slow.log</div><div class="line">    innodb_data_home_dir=<span class="regexp">/u01/log</span><span class="regexp">/3306/iblog</span></div><div class="line">    innodb_log_group_home_dir=<span class="regexp">/u01/log</span><span class="regexp">/3306/iblog</span></div><div class="line">    log_error=<span class="regexp">/u01/log</span><span class="regexp">/3306/error</span>.log</div><div class="line">    pid_file=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysqld</span>.pid</div><div class="line">    tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3306</span></div><div class="line">    relay_log=/u01/<span class="keyword">log</span>/<span class="number">3306</span>/relaylog</div><div class="line">    relay_log_index=<span class="regexp">/u01/log</span><span class="regexp">/3306/relay</span>.index</div><div class="line">    relay_log_info_file=<span class="regexp">/u01/log</span><span class="regexp">/3306/relay</span>-log.info</div><div class="line">    slave_load_tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3306</span></div><div class="line"></div><div class="line">[mysqld3307]</div><div class="line">    port=3307</div><div class="line">    basedir=/u01/mysql</div><div class="line">    datadir=<span class="regexp">/u01/data</span><span class="regexp">/3307</span></div><div class="line">    socket=/u01/run/<span class="number">3307</span>/mysql.sock</div><div class="line">    server-id=<span class="number">3307</span></div><div class="line">    log_bin=<span class="regexp">/u01/log</span><span class="regexp">/3307/binlog</span><span class="regexp">/binlog</span></div><div class="line">    slow_query_log_file=/u01/<span class="keyword">log</span>/<span class="number">3307</span>/slow.log</div><div class="line">    innodb_data_home_dir=<span class="regexp">/u01/log</span><span class="regexp">/3307/iblog</span></div><div class="line">    innodb_log_group_home_dir=<span class="regexp">/u01/log</span><span class="regexp">/3307/iblog</span></div><div class="line">    log_error=<span class="regexp">/u01/log</span><span class="regexp">/3307/error</span>.log</div><div class="line">    pid_file=<span class="regexp">/u01/run</span><span class="regexp">/3307/mysqld</span>.pid</div><div class="line">    tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3307</span></div><div class="line">    relay_log=/u01/<span class="keyword">log</span>/<span class="number">3307</span>/relaylog</div><div class="line">    relay_log_index=<span class="regexp">/u01/log</span><span class="regexp">/3307/relay</span>.index</div><div class="line">    relay_log_info_file=<span class="regexp">/u01/log</span><span class="regexp">/3307/relay</span>-log.info</div><div class="line">    slave_load_tmpdir=<span class="regexp">/u01/tmp</span><span class="regexp">/3307</span></div><div class="line"></div><div class="line">[client]</div><div class="line">    port=3306</div><div class="line">    socket =/u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line"></div><div class="line">[mysqld]</div><div class="line">    autocommit=<span class="number">1</span></div><div class="line">    general_log=off</div><div class="line">    explicit_defaults_for_timestamp=true</div><div class="line">    max_allowed_packet=<span class="number">1</span>g</div><div class="line">    max_connections=<span class="number">3000</span></div><div class="line">    max_user_connections=<span class="number">2800</span></div><div class="line">    open_files_limit=<span class="number">65535</span></div><div class="line">    skip_name_resolve=ON</div><div class="line"></div><div class="line">    <span class="comment">#binlog</span></div><div class="line">    binlog_cache_size=<span class="number">32768</span></div><div class="line">    binlog_format=row</div><div class="line">    expire_logs_days=<span class="number">7</span></div><div class="line">    log_slave_updates=ON</div><div class="line">    max_binlog_cache_size=<span class="number">2147483648</span></div><div class="line">    max_binlog_size=<span class="number">524288000</span></div><div class="line">    sync_binlog=<span class="number">100</span></div><div class="line"></div><div class="line">    log_queries_not_using_indexes=<span class="number">0</span></div><div class="line">    slow_query_log=<span class="number">1</span></div><div class="line">    log_slave_updates=ON</div><div class="line">    log_slow_admin_statements=<span class="number">1</span></div><div class="line">    long_query_time=<span class="number">1</span></div><div class="line"></div><div class="line">    slave_skip_errors=OFF</div><div class="line"></div><div class="line">    innodb_adaptive_flushing=ON</div><div class="line">    innodb_adaptive_hash_index=ON</div><div class="line">    innodb_autoinc_lock_mode=<span class="number">1</span></div><div class="line">    innodb_buffer_pool_instances=<span class="number">8</span></div><div class="line"></div><div class="line">    <span class="comment">#default</span></div><div class="line">    innodb_change_buffering=inserts</div><div class="line">    innodb_checksums=ON</div><div class="line">    innodb_buffer_pool_size= <span class="number">128</span>M</div><div class="line">    innodb_data_file_path=ibdata1:<span class="number">32</span>M;ibdata2:<span class="number">16</span>M:autoextend</div><div class="line">    innodb_doublewrite=ON</div><div class="line">    innodb_file_format=Barracuda</div><div class="line">    innodb_file_per_table=ON</div><div class="line">    innodb_flush_log_at_trx_commit=<span class="number">1</span></div><div class="line">    innodb_flush_method=O_DIRECT</div><div class="line">    innodb_io_capacity=<span class="number">1000</span></div><div class="line">    innodb_lock_wait_timeout=<span class="number">10</span></div><div class="line">    innodb_log_buffer_size=<span class="number">67108864</span></div><div class="line">    innodb_log_file_size=<span class="number">1048576000</span></div><div class="line">    innodb_log_files_in_group=<span class="number">4</span></div><div class="line">    innodb_max_dirty_pages_pct=<span class="number">60</span></div><div class="line">    innodb_open_files=<span class="number">60000</span></div><div class="line">    innodb_purge_threads=<span class="number">1</span></div><div class="line">    innodb_read_io_threads=<span class="number">4</span></div><div class="line">    innodb_stats_on_metadata=OFF</div><div class="line">    innodb_support_xa=ON</div><div class="line">    innodb_use_native_aio=OFF</div><div class="line">    innodb_write_io_threads=<span class="number">10</span></div><div class="line">----------------------------------------------------------</div></pre></td></tr></table></figure>
+<h3 id="mysqld-multi启动-关闭多实例，查看多实例运行状态"><a href="#mysqld-multi启动-关闭多实例，查看多实例运行状态" class="headerlink" title="mysqld_multi启动/关闭多实例，查看多实例运行状态"></a>mysqld_multi启动/关闭多实例，查看多实例运行状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 启动多实例数据库</span></div><div class="line">mysqld_multi start             <span class="comment"># 启动全部配置的多实例</span></div><div class="line">mysqld_multi start <span class="number">3306</span>        <span class="comment"># 启动指定server-id的实例</span></div><div class="line">mysqld_multi start <span class="number">3306</span>-<span class="number">3307</span>   <span class="comment"># 启动指定server-id连续的实例</span></div><div class="line"></div><div class="line"><span class="comment"># 查看多实例运行状态</span></div><div class="line">mysqld_multi report</div><div class="line">Reporting MySQL servers</div><div class="line">MySQL server from group: mysqld3306 is running</div><div class="line">MySQL server from group: mysqld3307 is running</div><div class="line"></div><div class="line"><span class="comment"># 关闭多实例数据库</span></div><div class="line">mysqld_multi stop</div><div class="line">mysqld_multi stop <span class="number">3306</span></div><div class="line">mysqld_multi stop <span class="number">3306</span>-<span class="number">3307</span></div></pre></td></tr></table></figure>
+<h2 id="在线迁移MySQL-3306实例上的数据库jfedu到MySQL-3307上。"><a href="#在线迁移MySQL-3306实例上的数据库jfedu到MySQL-3307上。" class="headerlink" title="在线迁移MySQL 3306实例上的数据库jfedu到MySQL 3307上。"></a>在线迁移MySQL 3306实例上的数据库jfedu到MySQL 3307上。</h2><h3 id="登陆3306实例，创建jfedu数据库"><a href="#登陆3306实例，创建jfedu数据库" class="headerlink" title="登陆3306实例，创建jfedu数据库"></a>登陆3306实例，创建jfedu数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 登陆3306实例</span></div><div class="line">mysql -S /u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line"></div><div class="line"><span class="comment"># 查看port和server_id</span></div><div class="line">show variables like <span class="string">'port'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| port          | <span class="number">3306</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line">show variables like <span class="string">'server_id'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| server_id     | <span class="number">3306</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line"><span class="comment"># 创建jfedu数据库，创建表t1并插入数据</span></div><div class="line">create database jfedu;</div><div class="line"><span class="keyword">use</span> jfedu;</div><div class="line">create table t1(id <span class="keyword">int</span>,name varchar(<span class="number">10</span>));</div><div class="line">insert into t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'AAAAA'</span>);</div><div class="line">commit;</div></pre></td></tr></table></figure>
+<h3 id="在3306实例上创建一个复制帐号"><a href="#在3306实例上创建一个复制帐号" class="headerlink" title="在3306实例上创建一个复制帐号"></a>在3306实例上创建一个复制帐号</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">grant replication slave,replication client on *.* to <span class="string">'repl'</span>@'%' identified by <span class="string">'repl4Slave'</span>;</div></pre></td></tr></table></figure>
+<h3 id="备份jfedu数据库"><a href="#备份jfedu数据库" class="headerlink" title="备份jfedu数据库"></a>备份jfedu数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysqldump --single-transaction --master-data=<span class="number">2</span> -uroot jfedu &gt; <span class="regexp">/tmp/jfedu</span>.sql</div><div class="line"><span class="comment"># --single-transaction 不锁表</span></div><div class="line"><span class="comment"># --master-data=2 在备份文件中记录master_log_file和master_log_pos的值</span></div><div class="line"></div><div class="line"><span class="comment"># 设置主从复制时会用到master_log_file和master_log_pos的值</span></div><div class="line">cat /tmp/jfedu.sql | <span class="keyword">grep</span> MASTER_LOG_FILE</div><div class="line">-- CHANGE MASTER TO MASTER_LOG_FILE=<span class="string">'binlog.000022'</span>, MASTER_LOG_POS=<span class="number">750</span>;</div></pre></td></tr></table></figure>
+<h3 id="在3307实例上恢复jfedu数据库"><a href="#在3307实例上恢复jfedu数据库" class="headerlink" title="在3307实例上恢复jfedu数据库"></a>在3307实例上恢复jfedu数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 登陆3306实例</span></div><div class="line">mysql -S /u01/run/<span class="number">3307</span>/mysql.sock</div><div class="line"></div><div class="line"><span class="comment"># 查看port和server_id</span></div><div class="line">show variables like <span class="string">'port'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| port          | <span class="number">3307</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line">show variables like <span class="string">'server_id'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| server_id     | <span class="number">3307</span>  |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line"><span class="comment"># 在3307上创建jfedu数据库</span></div><div class="line">create database jfedu;</div><div class="line"></div><div class="line"><span class="comment"># 恢复数据库</span></div><div class="line"><span class="keyword">use</span> jfedu;</div><div class="line">source /tmp/jfedu.sql;</div></pre></td></tr></table></figure>
+<h3 id="3306实例在恢复时有数据插入"><a href="#3306实例在恢复时有数据插入" class="headerlink" title="3306实例在恢复时有数据插入"></a>3306实例在恢复时有数据插入</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">use</span> jfedu</div><div class="line">insert into t1 <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'BBBBB'</span>);</div><div class="line">commit;</div></pre></td></tr></table></figure>
+<h3 id="在3307实例上执行change-master设置主从复制，并启动复制"><a href="#在3307实例上执行change-master设置主从复制，并启动复制" class="headerlink" title="在3307实例上执行change master设置主从复制，并启动复制"></a>在3307实例上执行change master设置主从复制，并启动复制</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 设置主从复制</span></div><div class="line">change master to</div><div class="line">master_host=<span class="string">'127.0.0.1'</span>,</div><div class="line">master_port=<span class="number">3306</span>,</div><div class="line">master_user=<span class="string">'repl'</span>,</div><div class="line">master_password=<span class="string">'repl4Slave'</span>,</div><div class="line">master_log_file=<span class="string">'binlog.000022'</span>,</div><div class="line">master_log_pos=<span class="number">750</span>;</div><div class="line"></div><div class="line"><span class="comment"># 启动复制</span></div><div class="line">start slave;</div><div class="line"></div><div class="line"><span class="comment"># 查看复制状态</span></div><div class="line">show slave status\G;</div><div class="line"></div><div class="line">*************************** <span class="number">1</span>. row ***************************</div><div class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master to <span class="keyword">send</span> event</div><div class="line">                  Master_Host: <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span></div><div class="line">                  Master_User: repl</div><div class="line">                  Master_Port: <span class="number">3306</span></div><div class="line">                Connect_Retry: <span class="number">60</span></div><div class="line">              Master_Log_File: binlog.<span class="number">000022</span></div><div class="line">          Read_Master_Log_Pos: <span class="number">949</span></div><div class="line">               Relay_Log_File: relaylog.<span class="number">000002</span></div><div class="line">                Relay_Log_Pos: <span class="number">479</span></div><div class="line">        Relay_Master_Log_File: binlog.<span class="number">000022</span></div><div class="line">             Slave_IO_Running: Yes               <span class="comment"># Yes表示复制正常</span></div><div class="line">            Slave_SQL_Running: Yes               <span class="comment"># Yes表示复制正常</span></div><div class="line">......</div><div class="line"></div><div class="line"><span class="comment"># 观察3307上数据是否复制过来</span></div><div class="line"><span class="keyword">select</span> * from jfedu.t1;</div><div class="line">+------+-------+</div><div class="line">| id   | name  |</div><div class="line">+------+-------+</div><div class="line">|    <span class="number">1</span> | AAAAA |</div><div class="line">|    <span class="number">2</span> | BBBBB |</div><div class="line">+------+-------+</div></pre></td></tr></table></figure>
+<h3 id="3306实例设置成read-only"><a href="#3306实例设置成read-only" class="headerlink" title="3306实例设置成read only"></a>3306实例设置成read only</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">show variables like <span class="string">'read_only'</span>;</div><div class="line">+---------------+-------+</div><div class="line">| Variable_name | Value |</div><div class="line">+---------------+-------+</div><div class="line">| read_only     | OFF   |</div><div class="line">+---------------+-------+</div><div class="line"></div><div class="line">set global read_only=<span class="number">1</span>;</div></pre></td></tr></table></figure>
+<h3 id="数据全部一致后，停止复制"><a href="#数据全部一致后，停止复制" class="headerlink" title="数据全部一致后，停止复制"></a>数据全部一致后，停止复制</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">stop slave;</div></pre></td></tr></table></figure>
+<h2 id="MySQL5-6升级到MySQL5-7，正常登录到MySQL5-7，详细步骤。"><a href="#MySQL5-6升级到MySQL5-7，正常登录到MySQL5-7，详细步骤。" class="headerlink" title="MySQL5.6升级到MySQL5.7，正常登录到MySQL5.7，详细步骤。"></a>MySQL5.6升级到MySQL5.7，正常登录到MySQL5.7，详细步骤。</h2><h3 id="下载MySQL5-7"><a href="#下载MySQL5-7" class="headerlink" title="下载MySQL5.7"></a>下载MySQL5.7</h3><p>下载地址：<a href="https://dev.mysql.com/downloads/mysql" target="_blank" rel="external">https://dev.mysql.com/downloads/mysql </a><br><img src="http://oligvdnzp.bkt.clouddn.com/0224_mysql57_01.png" alt="mysql5.7下载"></p>
+<h3 id="上传并解压软件包"><a href="#上传并解压软件包" class="headerlink" title="上传并解压软件包"></a>上传并解压软件包</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">[mysql@mysql ~]$ cd /u01</div><div class="line"><span class="comment">#选择下载的软件包上传</span></div><div class="line">[mysql@mysql u01]$ rz</div><div class="line">[mysql@mysql u01]$ ll</div><div class="line">total <span class="number">698668</span></div><div class="line">drwxr-xr-<span class="keyword">x</span>   <span class="number">2</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> <span class="number">11</span>:<span class="number">16</span> conf</div><div class="line">drwxr-xr-<span class="keyword">x</span>   <span class="number">4</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> 09:<span class="number">45</span> data</div><div class="line">drwxr-xr-<span class="keyword">x</span>   <span class="number">4</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> <span class="number">11</span>:<span class="number">00</span> <span class="keyword">log</span></div><div class="line">drwxr-xr-<span class="keyword">x</span>  <span class="number">13</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> <span class="number">10</span>:<span class="number">16</span> mysql</div><div class="line">drwxr-xr-<span class="keyword">x</span>  <span class="number">35</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> <span class="number">10</span>:<span class="number">05</span> mysql-<span class="number">5.6</span>.<span class="number">35</span></div><div class="line">-rwxr-xr-x.  <span class="number">1</span> mysql mysql  <span class="number">32167628</span> Jan <span class="number">17</span> <span class="number">11</span>:<span class="number">16</span> mysql-<span class="number">5.6</span>.<span class="number">35</span>.tar.gz</div><div class="line">-rw-r--r--   <span class="number">1</span> mysql mysql <span class="number">683233280</span> Feb <span class="number">24</span> <span class="number">16</span>:<span class="number">36</span> mysql-<span class="number">5.7</span>.<span class="number">17</span>-linux-glibc2.<span class="number">5</span>-x86_64.tar   <span class="comment"># 这个就是二进制mysql5.7软件</span></div><div class="line">drwxr-xr-<span class="keyword">x</span>   <span class="number">4</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> 09:<span class="number">50</span> run</div><div class="line">drwxr-xr-<span class="keyword">x</span>   <span class="number">4</span> mysql mysql      <span class="number">4096</span> Feb <span class="number">24</span> 09:<span class="number">45</span> tmp</div><div class="line"></div><div class="line">tar -xpvf mysql-<span class="number">5.7</span>.<span class="number">17</span>-linux-glibc2.<span class="number">5</span>-x86_64.tar</div><div class="line">tar -xpvf mysql-<span class="number">5.7</span>.<span class="number">17</span>-linux-glibc2.<span class="number">5</span>-x86_64.tar.gz</div><div class="line"></div><div class="line"><span class="comment"># 因为是二进制包，解压后就可以用了，文件夹名改短些</span></div><div class="line">mv mysql-<span class="number">5.7</span>.<span class="number">17</span>-linux-glibc2.<span class="number">5</span>-x86_64 mysql5.<span class="number">7</span></div><div class="line"></div><div class="line"><span class="comment"># 修改环境变量</span></div><div class="line">vi /home/mysql/.bash_profile</div><div class="line">PATH=$PATH:$HOME/bin:<span class="regexp">/u01/mysql</span>5.<span class="number">7</span>/bin</div></pre></td></tr></table></figure>
+<h3 id="查看mysql版本信息"><a href="#查看mysql版本信息" class="headerlink" title="查看mysql版本信息"></a>查看mysql版本信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql -V</div><div class="line">--------------</div><div class="line">mysql  Ver <span class="number">14.14</span> Distrib <span class="number">5.7</span>.<span class="number">17</span>, <span class="keyword">for</span> linux-glibc2.<span class="number">5</span> (x86_64) using  EditLine wrapper</div><div class="line">--------------</div><div class="line"></div><div class="line">mysqld_multi start <span class="number">3306</span></div><div class="line">mysql -S /u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line"></div><div class="line">status;</div><div class="line">--------------</div><div class="line">mysql  Ver <span class="number">14.14</span> Distrib <span class="number">5.7</span>.<span class="number">17</span>, <span class="keyword">for</span> linux-glibc2.<span class="number">5</span> (x86_64) using  EditLine wrapper</div><div class="line"></div><div class="line">Connection id:          <span class="number">7</span></div><div class="line">Current database:</div><div class="line">Current user:           root@localhost</div><div class="line">SSL:                    Not in <span class="keyword">use</span></div><div class="line">Current pager:          stdout</div><div class="line">Using outfile:          <span class="string">''</span></div><div class="line">Using delimiter:        ;</div><div class="line">Server version:         <span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span> Source distribution</div><div class="line">Protocol version:       <span class="number">10</span></div><div class="line">Connection:             Localhost via UNIX <span class="keyword">socket</span></div><div class="line">Server characterset:    utf8</div><div class="line">Db     characterset:    utf8</div><div class="line">Client characterset:    utf8</div><div class="line">Conn.  characterset:    utf8</div><div class="line">UNIX <span class="keyword">socket</span>:            <span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock</div><div class="line">Uptime:                 <span class="number">3</span> min <span class="number">57</span> sec</div><div class="line"></div><div class="line">Threads: <span class="number">2</span>  Questions: <span class="number">16</span>  Slow queries: <span class="number">0</span>  Opens: <span class="number">70</span>  Flush tables: <span class="number">1</span>  Open tables: <span class="number">63</span>  Queries per second avg: <span class="number">0</span>.<span class="number">067</span></div><div class="line">--------------</div></pre></td></tr></table></figure>
+<h3 id="升级数据库字典"><a href="#升级数据库字典" class="headerlink" title="升级数据库字典"></a>升级数据库字典</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql_upgrade -S /u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line">--------------</div><div class="line">Checking <span class="keyword">if</span> update is needed.</div><div class="line">Checking server version.</div><div class="line">Error: Server version (<span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span>) does <span class="keyword">not</span> match with the version of</div><div class="line">the server (<span class="number">5.7</span>.<span class="number">17</span>) with which this program was built/distributed. You can</div><div class="line"><span class="keyword">use</span> --skip-version-check to skip this check.</div><div class="line">--------------</div><div class="line"></div><div class="line">mysql_upgrade -S /u01/run/<span class="number">3306</span>/mysql.sock --skip-version-check</div><div class="line">--------------</div><div class="line">Checking <span class="keyword">if</span> update is needed.</div><div class="line">Running queries to upgrade MySQL server.</div><div class="line">mysql_upgrade: [ERROR] <span class="number">1726</span>: Storage engine <span class="string">'InnoDB'</span> does <span class="keyword">not</span> support <span class="keyword">system</span> tables. [mysql.plugin]</div><div class="line">--------------</div><div class="line"></div><div class="line"><span class="comment"># 重启下数据库</span></div><div class="line">mysqld_multi stop</div><div class="line">mysqld --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf &amp;</span></div><div class="line">mysql_upgrade -S /u01/run/<span class="number">3306</span>/mysql.sock --skip-version-check</div><div class="line">--------------</div><div class="line">Checking <span class="keyword">if</span> update is needed.</div><div class="line">Running queries to upgrade MySQL server.</div><div class="line">Checking <span class="keyword">system</span> database.</div><div class="line">mysql.columns_priv                                 OK</div><div class="line">mysql.db                                           OK</div><div class="line">mysql.engine_cost                                  OK</div><div class="line">mysql.event                                        OK</div><div class="line">mysql.func                                         OK</div><div class="line">mysql.general_log                                  OK</div><div class="line">mysql.gtid_executed                                OK</div><div class="line">mysql.help_category                                OK</div><div class="line">mysql.help_keyword                                 OK</div><div class="line">mysql.help_relation                                OK</div><div class="line">mysql.help_topic                                   OK</div><div class="line">mysql.innodb_index_stats                           OK</div><div class="line">mysql.innodb_table_stats                           OK</div><div class="line">mysql.ndb_binlog_index                             OK</div><div class="line">mysql.plugin                                       OK</div><div class="line">......</div><div class="line">Repairing tables</div><div class="line">mysql_old.innodb_index_stats</div><div class="line">Error    : Unknown error <span class="number">1146</span></div><div class="line">status   : Operation failed</div><div class="line">mysql_old.innodb_table_stats</div><div class="line">Error    : Unknown error <span class="number">1146</span></div><div class="line">status   : Operation failed</div><div class="line">mysql_old.slave_master_info</div><div class="line">Error    : Unknown error <span class="number">1146</span></div><div class="line">status   : Operation failed</div><div class="line">mysql_old.slave_relay_log_info</div><div class="line">Error    : Unknown error <span class="number">1146</span></div><div class="line">status   : Operation failed</div><div class="line">mysql_old.slave_worker_info</div><div class="line">Error    : Unknown error <span class="number">1146</span></div><div class="line">status   : Operation failed</div><div class="line">Upgrade process completed successfully.</div><div class="line">Checking <span class="keyword">if</span> update is needed.</div><div class="line">--------------</div></pre></td></tr></table></figure>
+<h3 id="再查看mysql版本信息，升级完成"><a href="#再查看mysql版本信息，升级完成" class="headerlink" title="再查看mysql版本信息，升级完成"></a>再查看mysql版本信息，升级完成</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql -S /u01/run/<span class="number">3306</span>/mysql.sock</div><div class="line"></div><div class="line">mysql&gt; status;</div><div class="line">--------------</div><div class="line">mysql  Ver <span class="number">14.14</span> Distrib <span class="number">5.7</span>.<span class="number">17</span>, <span class="keyword">for</span> linux-glibc2.<span class="number">5</span> (x86_64) using  EditLine wrapper</div><div class="line"></div><div class="line">Connection id:          <span class="number">4</span></div><div class="line">Current database:</div><div class="line">Current user:           root@localhost</div><div class="line">SSL:                    Not in <span class="keyword">use</span></div><div class="line">Current pager:          stdout</div><div class="line">Using outfile:          <span class="string">''</span></div><div class="line">Using delimiter:        ;</div><div class="line">Server version:         <span class="number">5.7</span>.<span class="number">17</span>-<span class="keyword">log</span> MySQL Community Server (GPL)</div><div class="line">Protocol version:       <span class="number">10</span></div><div class="line">Connection:             Localhost via UNIX <span class="keyword">socket</span></div><div class="line">Server characterset:    latin1</div><div class="line">Db     characterset:    latin1</div><div class="line">Client characterset:    utf8</div><div class="line">Conn.  characterset:    utf8</div><div class="line">UNIX <span class="keyword">socket</span>:            <span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock</div><div class="line">Uptime:                 <span class="number">6</span> min <span class="number">3</span> sec</div><div class="line"></div><div class="line">Threads: <span class="number">1</span>  Questions: <span class="number">3174</span>  Slow queries: <span class="number">0</span>  Opens: <span class="number">368</span>  Flush tables: <span class="number">1</span>  Open tables: <span class="number">25</span>  Queries per second avg: <span class="number">8.743</span></div><div class="line">--------------</div><div class="line"></div><div class="line">mysql&gt; <span class="keyword">select</span> version();</div><div class="line">+------------+</div><div class="line">| version()  |</div><div class="line">+------------+</div><div class="line">| <span class="number">5.7</span>.<span class="number">17</span>-<span class="keyword">log</span> |</div><div class="line">+------------+</div></pre></td></tr></table></figure>
+<h2 id="课堂笔记整理"><a href="#课堂笔记整理" class="headerlink" title="课堂笔记整理"></a>课堂笔记整理</h2><h3 id="MySQL启动"><a href="#MySQL启动" class="headerlink" title="MySQL启动"></a>MySQL启动</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 推荐启动方式</span></div><div class="line">mysqld_safe --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf &amp;</span></div><div class="line"></div><div class="line"># 编译安装可以使用的启动方式（很少用）</div><div class="line">cd /u01/mysql/support-files/</div><div class="line">./mysql.server start</div><div class="line"></div><div class="line"><span class="comment"># rpm包安装可以使用的启动方式</span></div><div class="line">/etc/init.d/mysqld start</div><div class="line">service mysqld start</div><div class="line"></div><div class="line"><span class="comment"># mysqld的启动方式</span></div><div class="line">mysqld --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf &amp;</span></div><div class="line"></div><div class="line"># 多实例启动方式，需要先修改my.cnf参数，并放到/etc目录下（建议单个实例维护）</div><div class="line">mysqld_mutil start</div><div class="line"></div><div class="line"><span class="comment"># 查看mysql启动时参数my.cnf查找顺序</span></div><div class="line">mysqld --verbose --help | <span class="keyword">grep</span> my.cnf</div><div class="line"></div><div class="line"><span class="comment"># mysqld_safe方式启动mysql后相关进程，mysqld_safe进程有监控mysqld进程的作用，mysqld异常终止时，mysqld_safe会重启mysqld</span></div><div class="line">ps -ef | <span class="keyword">grep</span> mysql | <span class="keyword">grep</span> -v bash | <span class="keyword">grep</span> -v <span class="keyword">grep</span> | <span class="keyword">grep</span> -v su | <span class="keyword">grep</span> -v ps</div><div class="line">mysql     <span class="number">5503</span> <span class="number">18586</span>  <span class="number">0</span> <span class="number">16</span>:<span class="number">33</span> pts/<span class="number">1</span>    <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> /bin/sh /u01/mysql/bin/mysqld_safe --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf</span></div><div class="line">mysql     6342  5503  0 16:33 pts/<span class="number">1</span>    <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> /u01/mysql/bin/mysqld --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf --basedir=/u</span>01/mysql --datadir=<span class="regexp">/u01/data</span><span class="regexp">/3306 --plugin-dir=/u</span>01/mysql/lib/plugin --<span class="keyword">log</span>-error=<span class="regexp">/u01/log</span><span class="regexp">/3306/error</span>.log --<span class="keyword">open</span>-files-limit=<span class="number">65535</span> --pid-file=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysqld</span>.pid --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock --port=<span class="number">3306</span></div><div class="line"></div><div class="line"><span class="comment"># mysqld方式启动mysql后相关进程</span></div><div class="line">ps -ef | <span class="keyword">grep</span> mysql | <span class="keyword">grep</span> -v bash | <span class="keyword">grep</span> -v <span class="keyword">grep</span> | <span class="keyword">grep</span> -v su | <span class="keyword">grep</span> -v ps</div><div class="line">mysql     <span class="number">6401</span> <span class="number">18586</span>  <span class="number">2</span> <span class="number">16</span>:<span class="number">36</span> pts/<span class="number">1</span>    <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> mysqld --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf</span></div></pre></td></tr></table></figure>
+<h3 id="MySQL关闭"><a href="#MySQL关闭" class="headerlink" title="MySQL关闭"></a>MySQL关闭</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 使用mysqld_safe和mysqld启动的关闭方式（推荐的方式）</span></div><div class="line">mysqladmin <span class="keyword">shutdown</span></div><div class="line">mysqladmin --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock <span class="keyword">shutdown</span> &amp;</div><div class="line"></div><div class="line"><span class="comment"># 编译安装可以使用的关闭方式</span></div><div class="line">cd /u01/mysql/support-files/</div><div class="line">./mysql.server stop</div><div class="line"></div><div class="line"><span class="comment"># rpm安装可以使用的关闭方式</span></div><div class="line">/etc/init.d/mysqld stop</div><div class="line">service mysqld stop</div><div class="line"></div><div class="line"><span class="comment"># 多实例关闭方式</span></div><div class="line">mysqld_mutil stop</div><div class="line"></div><div class="line"><span class="comment"># kill进程</span></div><div class="line"><span class="keyword">kill</span> -<span class="number">9</span> pid</div></pre></td></tr></table></figure>
+<h3 id="MySQL登陆"><a href="#MySQL登陆" class="headerlink" title="MySQL登陆"></a>MySQL登陆</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 本地登陆</span></div><div class="line">mysql</div><div class="line">mysql -u$username -p$password</div><div class="line"></div><div class="line"><span class="comment"># 远程登陆</span></div><div class="line">mysql -u$username -p$password -h$ip</div><div class="line"></div><div class="line"><span class="comment"># 多实例</span></div><div class="line">mysql -u$username -p$password -P$port</div><div class="line">mysql --<span class="keyword">socket</span>=<span class="regexp">/u01/run</span><span class="regexp">/3306/mysql</span>.sock --port=<span class="number">3306</span></div></pre></td></tr></table></figure>
+<h3 id="帐户权限设置-创建-删除用户"><a href="#帐户权限设置-创建-删除用户" class="headerlink" title="帐户权限设置-创建/删除用户"></a>帐户权限设置-创建/删除用户</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">select</span> user,host,password from mysql.user;</div><div class="line">+------+-----------+----------+</div><div class="line">| user | host      | password |</div><div class="line">+------+-----------+----------+</div><div class="line">| root | localhost |          |     <span class="comment"># 密码都为空，不安全</span></div><div class="line">| root | mysql     |          |</div><div class="line">| root | <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span> |          |</div><div class="line">| root | ::<span class="number">1</span>       |          |</div><div class="line">|      | localhost |          |</div><div class="line">|      | mysql     |          |</div><div class="line">+------+-----------+----------+</div><div class="line"></div><div class="line"><span class="comment"># insert方式创建用户(用insert方式创建的用户，需要刷新缓存)</span></div><div class="line">insert into mysql.user(user,host,password) <span class="keyword">values</span>(<span class="string">'mytt'</span>,<span class="string">'127.0.0.1'</span>,password(<span class="number">123456</span>));</div><div class="line">flush privileges;</div><div class="line"></div><div class="line"><span class="keyword">select</span> user,host,password from mysql.user;</div><div class="line">+------+-----------+-------------------------------------------+</div><div class="line">| user | host      | password                                  |</div><div class="line">+------+-----------+-------------------------------------------+</div><div class="line">| root | localhost |                                           |</div><div class="line">| root | mysql     |                                           |</div><div class="line">| root | <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span> |                                           |</div><div class="line">| root | ::<span class="number">1</span>       |                                           |</div><div class="line">|      | localhost |                                           |</div><div class="line">|      | mysql     |                                           |</div><div class="line">| mytt | <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span> | *<span class="number">6</span>BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |</div><div class="line">+------+-----------+-------------------------------------------+</div><div class="line"></div><div class="line"><span class="comment"># mytt登陆mysql命令如下</span></div><div class="line">mysql -umytt -p123456 -h127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span></div><div class="line"></div><div class="line"><span class="keyword">select</span> user();</div><div class="line">+----------------+</div><div class="line">| user()         |</div><div class="line">+----------------+</div><div class="line">| mytt@127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span> |</div><div class="line">+----------------+</div><div class="line"></div><div class="line"><span class="comment"># create方式创建用户</span></div><div class="line">create user lyj@'%' identified by <span class="string">'123456'</span>;  <span class="comment"># %代表可以从任意位置登陆</span></div><div class="line">mysql -ulyj -p123456 -h127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span></div><div class="line"></div><div class="line"><span class="comment"># 删除用户</span></div><div class="line">drop user lyj;</div></pre></td></tr></table></figure>
+<h3 id="帐户权限设置-用户授权"><a href="#帐户权限设置-用户授权" class="headerlink" title="帐户权限设置-用户授权"></a>帐户权限设置-用户授权</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 创建新用户并授权</span></div><div class="line">grant all privileges on *.* to lyj@'%' identified by <span class="string">'123456'</span>;</div><div class="line"></div><div class="line"><span class="comment"># 查看用户权限</span></div><div class="line">show grants <span class="keyword">for</span> lyj@'%';</div><div class="line">+-------------------------------------------------------------------------------------------------------------+</div><div class="line">| Grants <span class="keyword">for</span> lyj@%                                                                                            |</div><div class="line">+-------------------------------------------------------------------------------------------------------------+</div><div class="line">| GRANT ALL PRIVILEGES ON *.* TO <span class="string">'lyj'</span>@'%' IDENTIFIED BY PASSWORD <span class="string">'*6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9'</span> |</div><div class="line">+-------------------------------------------------------------------------------------------------------------+</div><div class="line"></div><div class="line"><span class="comment"># 给已有用户授权</span></div><div class="line">grant <span class="keyword">select</span> on *.* to mytt@127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>;</div><div class="line">show grants <span class="keyword">for</span> mytt@127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>;</div><div class="line">+--------------------------------------------------------------------------------------------------------------+</div><div class="line">| Grants <span class="keyword">for</span> mytt@127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>                                                                                    |</div><div class="line">+--------------------------------------------------------------------------------------------------------------+</div><div class="line">| GRANT SELECT ON *.* TO <span class="string">'mytt'</span>@'<span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span><span class="string">' IDENTIFIED BY PASSWORD '</span>*<span class="number">6</span>BB4837EB74329105EE4568DDA7DC67ED2CA2AD9<span class="string">' |</span></div><div class="line">+--------------------------------------------------------------------------------------------------------------+</div></pre></td></tr></table></figure>
+<h3 id="帐户权限设置-权限等级"><a href="#帐户权限设置-权限等级" class="headerlink" title="帐户权限设置-权限等级"></a>帐户权限设置-权限等级</h3><ol>
+<li>核心开发权限 select/insert/delete/update</li>
+<li>管理权限–表级 create table/drop table/lock table</li>
+<li>管理权限–server级别 create database/create user等</li>
+</ol>
+<h3 id="MySQL数据库安全配置"><a href="#MySQL数据库安全配置" class="headerlink" title="MySQL数据库安全配置"></a>MySQL数据库安全配置</h3><p>1.禁用/删除多余的管理员帐号，设置用户密码<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 删除多余的帐号</span></div><div class="line"><span class="keyword">delete</span> from mysql.user where user !=<span class="string">'root'</span> <span class="keyword">and</span> password=<span class="string">''</span>;</div><div class="line">flush privileges;</div><div class="line"></div><div class="line"><span class="comment"># 使用set方式设置root用户密码</span></div><div class="line">set password <span class="keyword">for</span> root@localhost = password(<span class="string">'123456'</span>);</div><div class="line">set password <span class="keyword">for</span> root@127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span> = password(<span class="string">'123456'</span>);</div><div class="line"></div><div class="line"><span class="comment"># 使用mysqladmin工具设置密码</span></div><div class="line"><span class="comment">## 格式: mysqladmin -u用户名 -p旧密码 password 新密码</span></div><div class="line"><span class="comment">## 密码为空时，直接输入回车确认</span></div><div class="line">mysqladmin -uroot -p password <span class="number">654321</span></div><div class="line">Enter password: </div><div class="line">Warning: Using a password on the command line interface can be insecure.</div><div class="line"></div><div class="line"><span class="comment">## 修改已有密码</span></div><div class="line">mysqladmin -uroot -p654321 password <span class="number">123456</span></div><div class="line"><span class="comment">## 执行后会出现如下警告提示，可以忽略：</span></div><div class="line"><span class="comment">## Warning: Using a password on the command line interface can be insecure.</span></div><div class="line"><span class="comment">## 翻译过来的意思：在命令行界面上使用密码是不安全的。</span></div><div class="line"></div><div class="line"><span class="comment"># 登陆mysql</span></div><div class="line">mysql -uroot -p123456</div><div class="line"></div><div class="line"><span class="comment"># 删除所有密码为空的帐号</span></div><div class="line"><span class="keyword">delete</span> from mysql.user where password=<span class="string">''</span>;</div><div class="line">flush privileges;</div><div class="line"></div><div class="line"><span class="comment"># 确保所有用户都有密码</span></div><div class="line"><span class="keyword">select</span> user,host,password from mysql.user;</div><div class="line">+------+-----------+-------------------------------------------+</div><div class="line">| user | host      | password                                  |</div><div class="line">+------+-----------+-------------------------------------------+</div><div class="line">| root | localhost | *<span class="number">6</span>BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |</div><div class="line">| root | <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span> | *<span class="number">6</span>BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |</div><div class="line">| mytt | <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span> | *<span class="number">6</span>BB4837EB74329105EE4568DDA7DC67ED2CA2AD9 |</div><div class="line">+------+-----------+-------------------------------------------+</div></pre></td></tr></table></figure></p>
+<p>2.删除掉db表数据(test权限)<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">use</span> mysql;</div><div class="line"><span class="keyword">truncate</span> table mysql.db;</div></pre></td></tr></table></figure></p>
+<p>3.删除test库<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">drop database test;</div></pre></td></tr></table></figure></p>
+<p>4.修改管理员帐户名<br>5.密码复杂度要求<br>6.权限最小化</p>
+<h3 id="表操作–线上可以直接删除表吗"><a href="#表操作–线上可以直接删除表吗" class="headerlink" title="表操作–线上可以直接删除表吗?"></a>表操作–线上可以直接删除表吗?</h3><p>生产环境上，不可以直接删除表，要删除表步骤如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 构建环境</span></div><div class="line">drop database lyj;</div><div class="line">create database lyj;</div><div class="line"><span class="keyword">use</span> lyj;</div><div class="line">create table t1 (id <span class="keyword">int</span>, name varchar(<span class="number">10</span>));</div><div class="line">insert into t1 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'lyj'</span>);</div><div class="line"></div><div class="line"><span class="comment"># 1.查看表</span></div><div class="line">show tables;</div><div class="line"></div><div class="line"><span class="comment"># 2.检查表是否被访问</span></div><div class="line">show processlist;</div><div class="line"></div><div class="line"><span class="comment"># 3.重命名临时表</span></div><div class="line"><span class="keyword">rename</span> table t1 to t1_bak;</div><div class="line"></div><div class="line"><span class="comment"># 4.备份临时表</span></div><div class="line">mysqldump -uroot -p123456 lyj t1_bak &gt; <span class="regexp">/tmp/lyj</span>_t1_bak_20170223.sql</div><div class="line"></div><div class="line"><span class="comment"># 5.一段时间后删除临时表</span></div><div class="line">drop table t1_bak;</div><div class="line">show tables from lyj like <span class="string">'%t1%'</span>;</div></pre></td></tr></table></figure></p>
+<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">show databases;</div><div class="line"><span class="keyword">use</span> mysql;</div><div class="line">show tables;</div><div class="line"><span class="keyword">select</span> user,host,password from mysql.user;</div><div class="line">grant all privilege on *.* to test_1@'%';</div><div class="line">mysql -h127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span> -utest_1</div><div class="line"><span class="keyword">select</span> user();</div><div class="line">create database jianfeng;</div><div class="line">create table user(id <span class="keyword">int</span>,name varchar(<span class="number">10</span>));</div><div class="line">grant <span class="keyword">select</span> on jianfeng.user to test_1@'%';</div><div class="line">flush privileges;</div><div class="line">show master status\G;</div><div class="line">change master to xxx;</div><div class="line">show engine innodb status\G</div><div class="line">show tables from information_schema like <span class="string">'INNODB%'</span>;</div><div class="line">mysqld_safe --defaults-file=<span class="regexp">/u01/my</span>3306/my.cnf &amp;</div><div class="line">mysqladmin -S /u01/my3306/run/mysql.sock <span class="keyword">shutdown</span> &amp;</div><div class="line"></div><div class="line"><span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysql</span>_secure_installation</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">
+                    hexo解决代码块空行自动删除问题
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">
+                    MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><span class="toc-number">1.</span> <span class="toc-text">使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#规划多实例目录"><span class="toc-number">1.1.</span> <span class="toc-text">规划多实例目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重新编译安装mysql"><span class="toc-number">1.2.</span> <span class="toc-text">重新编译安装mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置多实例独自参数文件"><span class="toc-number">1.3.</span> <span class="toc-text">配置多实例独自参数文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化多实例数据库"><span class="toc-number">1.4.</span> <span class="toc-text">初始化多实例数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改-etc-my-cnf参数"><span class="toc-number">1.5.</span> <span class="toc-text">修改/etc/my.cnf参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysqld-multi启动-关闭多实例，查看多实例运行状态"><span class="toc-number">1.6.</span> <span class="toc-text">mysqld_multi启动/关闭多实例，查看多实例运行状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在线迁移MySQL-3306实例上的数据库jfedu到MySQL-3307上。"><span class="toc-number">2.</span> <span class="toc-text">在线迁移MySQL 3306实例上的数据库jfedu到MySQL 3307上。</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#登陆3306实例，创建jfedu数据库"><span class="toc-number">2.1.</span> <span class="toc-text">登陆3306实例，创建jfedu数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在3306实例上创建一个复制帐号"><span class="toc-number">2.2.</span> <span class="toc-text">在3306实例上创建一个复制帐号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#备份jfedu数据库"><span class="toc-number">2.3.</span> <span class="toc-text">备份jfedu数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在3307实例上恢复jfedu数据库"><span class="toc-number">2.4.</span> <span class="toc-text">在3307实例上恢复jfedu数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3306实例在恢复时有数据插入"><span class="toc-number">2.5.</span> <span class="toc-text">3306实例在恢复时有数据插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在3307实例上执行change-master设置主从复制，并启动复制"><span class="toc-number">2.6.</span> <span class="toc-text">在3307实例上执行change master设置主从复制，并启动复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3306实例设置成read-only"><span class="toc-number">2.7.</span> <span class="toc-text">3306实例设置成read only</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据全部一致后，停止复制"><span class="toc-number">2.8.</span> <span class="toc-text">数据全部一致后，停止复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL5-6升级到MySQL5-7，正常登录到MySQL5-7，详细步骤。"><span class="toc-number">3.</span> <span class="toc-text">MySQL5.6升级到MySQL5.7，正常登录到MySQL5.7，详细步骤。</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下载MySQL5-7"><span class="toc-number">3.1.</span> <span class="toc-text">下载MySQL5.7</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#上传并解压软件包"><span class="toc-number">3.2.</span> <span class="toc-text">上传并解压软件包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看mysql版本信息"><span class="toc-number">3.3.</span> <span class="toc-text">查看mysql版本信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#升级数据库字典"><span class="toc-number">3.4.</span> <span class="toc-text">升级数据库字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#再查看mysql版本信息，升级完成"><span class="toc-number">3.5.</span> <span class="toc-text">再查看mysql版本信息，升级完成</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#课堂笔记整理"><span class="toc-number">4.</span> <span class="toc-text">课堂笔记整理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL启动"><span class="toc-number">4.1.</span> <span class="toc-text">MySQL启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL关闭"><span class="toc-number">4.2.</span> <span class="toc-text">MySQL关闭</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL登陆"><span class="toc-number">4.3.</span> <span class="toc-text">MySQL登陆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#帐户权限设置-创建-删除用户"><span class="toc-number">4.4.</span> <span class="toc-text">帐户权限设置-创建/删除用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#帐户权限设置-用户授权"><span class="toc-number">4.5.</span> <span class="toc-text">帐户权限设置-用户授权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#帐户权限设置-权限等级"><span class="toc-number">4.6.</span> <span class="toc-text">帐户权限设置-权限等级</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL数据库安全配置"><span class="toc-number">4.7.</span> <span class="toc-text">MySQL数据库安全配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#表操作–线上可以直接删除表吗"><span class="toc-number">4.8.</span> <span class="toc-text">表操作–线上可以直接删除表吗?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用命令"><span class="toc-number">4.9.</span> <span class="toc-text">常用命令</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/" title="上一篇: hexo解决代码块空行自动删除问题">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/" title="下一篇: MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

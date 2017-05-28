@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="原文件地址(需登陆MOS)：https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;amp;id=1922396.1 
+Base Releases
+12.2.0.1.0  12.2.0.1.0 Download Page12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)">
+<meta property="og:url" content="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="原文件地址(需登陆MOS)：https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;amp;id=1922396.1 
+Base Releases
+12.2.0.1.0  12.2.0.1.0 Download Page12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc">
+<meta property="og:updated_time" content="2017-03-31T01:51:26.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)">
+<meta name="twitter:description" content="原文件地址(需登陆MOS)：https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;amp;id=1922396.1 
+Base Releases
+12.2.0.1.0  12.2.0.1.0 Download Page12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1) | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1" target="_blank" rel="external">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
+<h2 id="Base-Releases"><a href="#Base-Releases" class="headerlink" title="Base Releases"></a>Base Releases</h2><blockquote>
+<p>12.2.0.1.0  12.2.0.1.0 Download Page<br>12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br>11.2.0.1.0  11.2.0.1.0 Download Page<br>Older Versions  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br> 注意: 对于11.2.0.2或者更高的patchsets, 请参照patch的readme中”Software Availability”部分下的”Table 1 Installation Types and Associated Zip Files”来查找具体哪些zip文件需要下载。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Patchsets"><a href="#Patchsets" class="headerlink" title="Patchsets"></a>Patchsets</h2><p> l12.1.0.2 (12.1.0.2.0 PATCH SET FOR ORACLE DATABASE SERVER)     21419221<br> 11.2.0.4 (11.2.0.4.0 PATCH SET FOR ORACLE DATABASE SERVER)  13390677<br> 11.2.0.3 (11.2.0.3.0 PATCH SET FOR ORACLE DATABASE SERVER)  10404530<br> 11.2.0.2 (11.2.0.2.0 PATCH SET FOR ORACLE DATABASE SERVER)  10098816<br> 11.1.0.7 (11.1.0.7.0 PATCH SET FOR ORACLE DATABASE SERVER)  6890831<br> 10.2.0.5 (10.2.0.5 PATCH SET FOR ORACLE DATABASE SERVER)    8202632<br> d10.2.0.4 (10.2.0.4.0 PATCH SET FOR ORACLE DATABASE SERVER)     6810189<br> e10.2.0.3 (10.2.0.3 PATCH SET FOR ORACLE DATABASE SERVER)   5337014<br> 10.2.0.2 (10.2.0.2 PATCH SET FOR ORACLE DATABASE SERVER)    4547817<br> 10.1.0.5 (10.1.0.5 PATCH SET FOR ORACLE DATABASE SERVER)<br> 4505133<br> 10.1.0.4 (10.1.0.4 PATCH SET FOR ORACLE DATABASE SERVER)<br> 4163362<br> 10.1.0.3 (10.1.0.3 PATCH SET FOR ORACLE DATABASE SERVER)<br> 3761843<br> 9.2.0.8 (9.2.0.8 PATCH SET FOR ORACLE DATABASE SERVER)<br> 4547809<br> 9.2.0.7 (9.2.0.7 PATCH SET FOR ORACLE DATABASE SERVER)<br> 4163445<br> 9.2.0.6 (9.2.0.6 PATCH SET FOR ORACLE DATABASE SERVER)<br> 3948480<br> 9.2.0.5 (ORACLE 9I DATABASE SERVER RELEASE 2 - PATCH SET 4 VERSION 9.2.0.5.0)<br> 3501955<br> 9.2.0.4 (9.2.0.4 PATCH SET FOR ORACLE DATABASE SERVER)<br> 3095277<br> 9.2.0.3 (9.2.0.3 PATCH SET FOR ORACLE DATABASE SERVER)<br> 2761332<br> 9.2.0.2 (9.2.0.2 PATCH SET FOR ORACLE DATABASE SERVER)<br> 2632931<br> 9.0.1.5 (9.0.1.5 PATCHSET)<br> 3301544<br> 9.0.1.4 (9.0.1.4 PATCH SET FOR ORACLE DATABASE SERVER)<br> 2517300<br> 9.0.1.3 (9.0.1.3. PATCH SET FOR ORACLE DATA SERVER)<br> 2271678<br> 8.1.7.4 (8.1.7.4 PATCH SET FOR ORACLE DATA SERVER)<br> 2376472<br> 8.1.7.3 (8.1.7.3 PATCH SET FOR ORACLE DATA SERVER)<br> 2189751<br> 8.1.7.2 (8.1.7.2.1 PATCH SET FOR ORACLE DATA SERVER)<br> 1909158</p>
+<p>PSU, SPU(CPU), Bundle Patches</p>
+<p>12.1.0.2</p>
+<p> Description     PSU       GI PSU   Proactive Bundle Patch   Bundle Patch (Windows 32bit &amp; 64bit)<br> JAN2017     24732082 (12.1.0.2.170117)  24917825 (12.1.0.2.170117)  24968615 (12.1.0.2.170117)  25115951 (12.1.0.2.170117)<br> OCT2016     24006101 (12.1.0.2.161018)  24412235 (12.1.0.2.161018)  24448103 (12.1.0.2.161018)  24591642 (12.1.0.2.161018)<br> JUL2016     23054246 (12.1.0.2.160719)  23273629 (12.1.0.2.160719)  23273686 (12.1.0.2.160719)  23530387 (12.1.0.2.160719)<br> APR2016     22291127 (12.1.0.2.160419)  22646084 (12.1.0.2.160419)  22899531    22809813 (12.1.0.2.160419)<br> JAN2016     21948354 (12.1.0.2.160119)  22191349 (12.1.0.2.160119)  22243551    22310559 (12.1.0.2.160119)<br> OCT2015     21359755 (12.1.0.2.5)   21523234 (12.1.0.2.5)   21744410 (12.1.0.2.13)  21821214 (12.1.0.2.10)<br> JUL2015     20831110 (12.1.0.2.4)   20996835 (12.1.0.2.4)   21188742 (12.1.0.2.10)  21126814 (12.1.0.2.7)<br> APR2015     20299023 (12.1.0.2.3)   20485724 (12.1.0.2.3)   20698050 (12.1.0.2.7)   20684004 (12.1.0.2.4)<br> JAN2015     19769480 (12.1.0.2.2)   19954978 (12.1.0.2.2)   20141343 (12.1.0.2.4)   19720843 (12.1.0.2.1)<br> OCT2014     19303936 (12.1.0.2.1)   19392646 (12.1.0.2.1)   19404326 (12.1.0.2.1)   N/A</p>
+<p>12.1.0.1</p>
+<p> Description     PSU     GI PSU   Bundle Patch (Windows64bit)    Bundle Patch (Windows32bit)<br> JUL2016     23054354 (12.1.0.1.160719)  i23273935 / k23273958  (12.1.0.1.160719)   23530410 (12.1.0.1.160719)<br> APR2016     22291141 (12.1.0.1.160419)  i22654153 / k22654166 (12.1.0.1.160419)    22617408 (12.1.0.1.160419)<br> JAN2016     21951844 (12.1.0.1.160119)  j22191492 / k22191511 (12.1.0.1.160119)    22494866 (12.1.0.2.160119)<br> OCT2015     21352619 (12.1.0.1.9)   j21551666 / k21551685 (12.1.0.1.9) 21744907 (12.1.0.1.21)<br> JUL2015     20831107 (12.1.0.1.8)    j20996901 / k20996911 (12.1.0.1.8)    21076681  (12.1.0.1.20)<br> APR2015     20299016 (12.1.0.1.7)    j20485762 / k19971331 (12.1.0.1.7)    20558101 (12.1.0.1.18)<br> JAN2015     19769486 (12.1.0.1.6)   j19971324 / k19971331 (12.1.0.1.6) 20160748 (12.1.0.1.16)<br> OCT2014     19121550 (12.1.0.1.5)   j19392372 / k19392451 (12.1.0.1.5) 19542943 (12.1.0.1.14)<br> JUL2014     18522516 (12.1.0.1.4)   j18705901 / k18705972 (12.1.0.1.4) 19062327 (12.1.0.1.11)<br> APR2014     18031528 (12.1.0.1.3)   j18139660 / k18413105  (12.1.0.1.3)    18448604 (12.1.0.1.7)<br> JAN2014     17552800 (12.1.0.1.2)   17735306 (12.1.0.1.2)  17977915 (12.1.0.1.3)<br> OCT2013     17027533 (12.1.0.1.1)   17272829 (12.1.0.1.1)   17363796 (12.1.0.1.1)   17363795 (12.1.0.1.1)</p>
+<p>11.2.0.4</p>
+<p> Description     PSU     SPU(CPU)    GI PSU  Bundle Patch (Windows 32bit &amp; 64bit)<br> mJAN2017    N/A     N/A     N/A     N/A<br> OCT2016     24006111 (11.2.0.4.161018)  24433711 (11.2.0.4.161018)  24436338 (11.2.0.4.161018)  24922870 (11.2.0.4.161118)<br> JUL2016     23054359 (11.2.0.4.160719)  23177648 (11.2.0.4.160719)  23274134 (11.2.0.4.160719)  23530402 (11.2.0.4.160719)<br> APR2016     22502456 (11.2.0.4.160419)  22502493 (11.2.0.4.160419)  22646198 (11.2.0.4.160419)  22839608 (11.2.0.4.160419)<br> JAN2016     21948347 (11.2.0.4.160119)  21972320 (11.2.0.4.160119)  22191577 (11.2.0.4.160119)  22310544 (11.2.0.4.160119)<br> OCT2015     21352635 (11.2.0.4.8)   21352646    21523375 (11.2.0.4.8)   21821802 (11.2.0.4.20)<br> JUL2015     20760982 (11.2.0.4.7)   20803583    20996923 (11.2.0.4.7)   21469106 (11.2.0.4.18)<br> APR2015     20299013 (11.2.0.4.6)   20299015    20485808 (11.2.0.4.6)   20544696 (11.2.0.4.15)<br> JAN2015     19769489 (11.2.0.4.5)   19854503    19955028 (11.2.0.4.5)   20127071 (11.2.0.4.12)<br> OCT2014     19121551 (11.2.0.4.4)   19271443    19380115 (11.2.0.4.4)   19651773 (11.2.0.4.10)<br> JUL2014     18522509 (11.2.0.4.3)   18681862    18706472 (11.2.0.4.3)   18842982 (11.2.0.4.7)<br> APR2014     18031668 (11.2.0.4.2)   18139690    18139609 (11.2.0.4.2)   18296644 (11.2.0.4.4)<br> JAN2014     17478514 (11.2.0.4.1)   17551709    N/A     17987366 (11.2.0.4.1)</p>
+<p>11.2.0.3</p>
+<p> Description     PSU     SPU(CPU)    GI PSU  Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)<br> aJUL2015    20760997 (11.2.0.3.15)  20803576    20996944 (11.2.0.3.15)  21104036    21104035<br> APR2015     20299017 (11.2.0.3.14)  20299010    20485830 (11.2.0.3.14)  20420395    20420394<br> JAN2015     19769496 (11.2.0.3.13)  19854461    19971343 (11.2.0.3.13)  20233168    20233167<br> OCT2014     19121548 (11.2.0.3.12)  19271438    19440385 (11.2.0.3.12)  19618575    19618574<br> JUL2014     18522512 (11.2.0.3.11)  18681866    18706488 (11.2.0.3.11)  18940194    18940193<br> APR2014     18031683 (11.2.0.3.10)  18139695    18139678 (11.2.0.3.10)  18372244    18372243<br> JAN2014     17540582 (11.2.0.3.9)   17478415    17735354 (11.2.0.3.9)   18075406    17906981<br> OCT2013     16902043 (11.2.0.3.8)   17082364    17272731 (11.2.0.3.8)   17363850    17363844<br> JUL2013     16619892 (11.2.0.3.7)   16742095    16742216 (11.2.0.3.7)   16803775    16803774<br> APR2013     16056266 (11.2.0.3.6)   16294378    16083653 (11.2.0.3.6)   16345834    16345833<br> JAN2013     14727310 (11.2.0.3.5)   14841409    14727347 (11.2.0.3.5)   16042648    16042647<br> OCT2012     14275605 (11.2.0.3.4)   14390252    14275572 (11.2.0.3.4)   14613223    14613222<br> JUL2012     13923374 (11.2.0.3.3)   14038787    13919095 (11.2.0.3.3)   14223718    14223717<br> APR2012     13696216 (11.2.0.3.2)   13632717    13696251 (11.2.0.3.2)   13885389    13885388<br> JAN2012     13343438 (11.2.0.3.1)   13466801    13348650 (11.2.0.3.1)   13413168    13413167</p>
+<p>11.2.0.2</p>
+<p> Description     PSU      SPU(CPU)   GI PSU  Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)<br> aOCT2013    17082367 (11.2.0.2.12)  17082375    17272753 (11.2.0.2.12)  17363838    17363837<br> JUL2013     16619893 (11.2.0.2.11)  16742100    16742320 (11.2.0.2.11)  16345852    16345851<br> APR2013     16056267 (11.2.0.2.10)  16294412    16166868 (11.2.0.2.10)  16345846    16345845<br> JAN2013     14727315 (11.2.0.2.9)   14841437    14841385 (11.2.0.2.9)   16100399    16100398<br> OCT2012     14275621 (11.2.0.2.8)   14390377    14390437 (11.2.0.2.8)   14672268    14672267<br> JUL2012     13923804 (11.2.0.2.7)   14038791    14192201 (11.2.0.2.7)   14134043    14134042<br> APR2012     13696224 (11.2.0.2.6)   13632725    13696242 (11.2.0.2.6)   13697074    13697073<br> JAN2012     13343424 (11.2.0.2.5)   13343244    13653086 (11.2.0.2.5)   13413155    13413154<br> OCT2011     12827726 (11.2.0.2.4)   12828071    12827731 (11.2.0.2.4)   13038788    13038787<br> JUL2011     12419331 (11.2.0.2.3)   12419321    12419353 (11.2.0.2.3)   12714463    12714462<br> APR2011     11724916 (11.2.0.2.2)   11724984    12311357 (11.2.0.2.2)   11896292    11896290<br> JAN2011     10248523 (11.2.0.2.1)   N/A     N/A     10432053    10432052</p>
+<p>11.2.0.1</p>
+<p> Description     PSU     CPU     Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)<br> aJUL2011    12419378 (11.2.0.1.6)   12419278    12429529    12429528<br> APR2011     11724930 (11.2.0.1.5)   11724991    11731176    11883240<br> JAN2011     10248516 (11.2.0.1.4)   10249532    10432045    10432044<br> OCT2010     9952216 (11.2.0.1.3)    9952260     10100101    10100100<br> JUL2010     9654983 (11.2.0.1.2)    9655013     9736865     9736864<br> APR2010     9352237 (11.2.0.1.1)    9369797     N/A     N/A</p>
+<p>11.1.0.7</p>
+<p> Description     PSU     SPU(CPU)    Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)<br>JUL2015  20761024 (11.1.0.7.24)  20803573    21104030    21104029<br>APR2015  20299012 (11.1.0.7.23)  20299020    20420391    20420390<br>JAN2015  19769499 (11.1.0.7.22)  19854433    20126915    20126914<br>OCT2014  19152553 (11.1.0.7.21)  19274522    19609034    19609032<br>JUL2014  18522513 (11.1.0.7.20)  18681875    18944208    18944207<br>APR2014  18031726 (11.1.0.7.19)  18139703    18372258    18372257<br>JAN2014  17465583 (11.1.0.7.18)  17551415    17906936    17906935<br>OCT2013  17082366 (11.1.0.7.17)  17082374    17363760    17363759<br>JUL2013  16619896 (11.1.0.7.16)  16742110    16803788    16803787<br>APR2013  16056268 (11.1.0.7.15)  16308394    16345862    16345861<br>JAN2013  14739378 (11.1.0.7.14)  14841452    15848067    15848066<br>OCT2012  14275623 (11.1.0.7.13)  14390384    14672313    14672312<br> JUL2012     13923474 (11.1.0.7.12)  14038803    14109868    14109867<br> APR2012     13621679 (11.1.0.7.11)  13632731    13715810    13715809<br> JAN2012     13343461 (11.1.0.7.10)  13343453    13460956    13460955<br> OCT2011     12827740 (11.1.0.7.9)   12828097    12914916    12914915<br> JUL2011     12419384 (11.1.0.7.8)   12419265    12695278    12695277<br> APR2011     11724936 (11.1.0.7.7)   11724999    11741170    11741169<br> JAN2011     10248531 (11.1.0.7.6)   10249534    10350788    10350787<br> OCT2010     9952228  (11.1.0.7.5)   9952269     9773825     9773817<br> JUL2010     9654987 (11.1.0.7.4)    9655014     9869912     9869911<br> APR2010     9352179 (11.1.0.7.3)    9369783     9392335     9392331<br> JAN2010     9209238 (11.1.0.7.2)    9114072     9166861     9166858<br> OCT2009     8833297 (11.1.0.7.1)    8836375     8928977     8928976<br> JUL2009     N/A     8534338     8553515     8553512<br> APR2009     N/A     8290478     8343070     8343061</p>
+<p>11.1.0.6</p>
+<p> Description     CPU     Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)<br> aJUL2009    8534378     8563155     8563154<br> APR2009     8290402     8333657     8333655<br> JAN2009     7592335     7631981     7631980<br> OCT2008     7375639     7378393     7378392<br> JUL2008     7150417     7210197     7210195<br> APR2008     6864063     6867180     6867178 </p>
+<p>10.2.0.5</p>
+<p> Description     PSU     SPU(CPU)    Bundle Patch (Windows64bit)     Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> bJUL2015    20299014 (10.2.0.5.19)  20299021    20420387    20420386    N/A<br> APR2015     N/A     N/A     N/A     N/A     N/A<br> JAN2015     19769505 (10.2.0.5.18)  19854436    20126868    20126867    N/A<br> OCT2014     19274523 (10.2.0.5.17)  19274521    19618565    19618563    N/A<br> JUL2014     18522511 (10.2.0.5.16)  18681879    18940198    18940196    N/A<br> APR2014     18031728 (10.2.0.5.15)  18139709    18372261    18372259    N/A<br> JAN2014     17465584 (10.2.0.5.14)  17551414    17906974    17906972    N/A<br> OCT2014     17082365 (10.2.0.5.13)  17082371    N/A     17363822    N/A<br> JUL2013     16619894 (10.2.0.5.12)  16742123    16803782    16803780    16803781<br> APR2013     16056270 (10.2.0.5.11)  16270946    16345857    16345855    16345856<br> JAN2013     14727319 (10.2.0.5.10)  14841459    15848062    15848060    15848061<br> OCT2012     14275629 (10.2.0.5.9)   14390396    14553358    14553356    14553357<br> JUL2012     13923855 (10.2.0.5.8)   14038805    14134053    14134051    14134052<br> APR2012     13632743 (10.2.0.5.7)   13632738    13654815    13654814    13870404<br> JAN2012     13343471 (10.2.0.5.6)   13343467    13460968   13460967     N/A<br> OCT2011     12827745 (10.2.0.5.5)   12828105    c12914913   12914911    N/A<br> JUL2011     12419392 (10.2.0.5.4)   12419258    12429524    12429523    N/A<br> APR2011     11724962 (10.2.0.5.3)   11725006    12328269    12328268    N/A<br> JAN2011     10248542 (10.2.0.5.2)   10249537    10352673    10352672    N/A<br> OCT2010     9952230 (10.2.0.5.1)    9952270     10099855    10058290    N/A</p>
+<p>10.2.0.4</p>
+<p> Description     PSU     SPU(CPU)    Bundle Patch (Windows32bit)     Bundle Patch (Windows64bit)     Bundle Patch (WindowsItanium)<br> gJUL2013    16619897 (10.2.0.4.17)  16742253    N/A     N/A     N/A<br> gAPR2013    16056269 (10.2.0.4.16)  16270931    N/A     N/A     N/A<br> gJAN2013    14736542 (10.2.0.4.15)  14841471    N/A     N/A     N/A<br>gOCT2012     14275630 (10.2.0.4.14)  14390410    N/A     N/A     N/A<br>gJUL2012     13923851 (10.2.0.4.13)  14038814    N/A     N/A     N/A<br> aAPR2012    12879933 (10.2.0.4.12)  12879926    13928775    13928776    N/A<br> JAN2012     12879929 (10.2.0.4.11)  12879912    b13654060   N/A     N/A<br> OCT2011     12827778 (10.2.0.4.10)  12828112    12914908    12914910    12914909<br> JUL2011     12419397 (10.2.0.4.9)   12419249    12429519    12429521    12429520<br> APR2011     11724977 (10.2.0.4.8)   11725015    12328501    12328503    12328502<br> JAN2011     10248636 (10.2.0.4.7)   10249540    10349197    10349200    10349198<br> OCT2010     9952234 (10.2.0.4.6)    9952272     10084980    10084982    10084981<br> JUL2010     9654991 (10.2.0.4.5)    9655017     9777076     9777078     9777077<br> APR2010     9352164 (10.2.0.4.4)    9352191     9393548     9393550     9393549<br> JAN2010     9119284 (10.2.0.4.3)    9119226     9169457     9169460     9169458<br> OCT2009     8833280 (10.2.0.4.2)    8836308     8880857     8880861     8880858<br> JUL2009     8576156 (10.2.0.4.1)    8534387     8559466     8559467     8541782<br> APR2009     N/A     8290506     8307237     8307238     8333678<br> JAN2009     N/A     7592346     7584866     7584867     N/A<br> OCT2008     N/A     7375644     7386320     7386321     N/A<br> JUL2008     N/A     7150470     7218676     7218677     N/A</p>
+<p>10.2.0.3</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)   Bundle Patch (Windows64bit)<br> aJAN2009    7592354     7631956     7631958     7631957<br> OCT2008     7369190     7353782     7353784     7353785<br> JUL2008     7150622     7252496     7252497     7252498<br> APR2008     6864068     6867054     6867055     6867056<br> JAN2008     6646853     6637237     6637238     6637239<br> OCT2007     6394981     6430171     6430173     6430174<br> JUL2007     6079591     6116131     6038242     6116139<br> APR2007     5901891     5948242     5916262     5948243<br> JAN2007     5881721     5846376     5846377     5846378</p>
+<p>10.2.0.2</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)      Bundle Patch (Windows64bit)    Bundle Patch (WindowsItanium)<br> iJAN2009    7592355     N/A     N/A     N/A<br> hOCT2008    7375660     N/A     N/A     N/A<br> hJUL2008    7154083     N/A     N/A     N/A<br> hAPR2008    6864071     N/A     N/A     N/A<br> aJAN2008    6646850     N/A     N/A     N/A<br> fOCT2007    6394997     6397028     6397030     6397029<br> JUL2007     6079588     6013105     6013121     6013118<br> APR2007     5901881     5912173     5912179     5912176<br> JAN2007     5689957     5716143     5699839     5699824<br> OCT2006     5490848     5502226     5500921     5500894<br> JUL2006     5225799     5251025     5251028     5251026<br> APR2006     5079037     5140461     5140567     5140508</p>
+<p>10.2.0.1</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (Windows64bit)     Bundle Patch (WindowsItanium)<br> APR2007     5901880     N/A     N/A     N/A<br> JAN2007     5689937     5695784     5695786     5695785<br> OCT2006     5490846     5500927     5500954     5500951<br> JUL2006     5225798     5239698     5239701     5239699<br> APR2006     5049080     5059238     5059261     5059251<br> JAN2006     4751931     4751539     4770480     4751549</p>
+<p>10.1.0.5</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)      Bundle Patch (WindowsItanium)<br> JAN2012     13343482    13413002    13413003<br> OCT2011     12828135    12914905    12914906<br> JUL2011     12419228    12429517    12429518<br> APR2011     11725035    11731119    11731120<br> JAN2011     N/A     N/A     N/A<br> OCT2010     9952279     10089559    10089560<br> JUL2010     9655023     9683651     9683652<br> APR2010     9352208     9390288     9390289<br> JAN2010     9119261     9187104     9187105<br> OCT2009     8836540     8785211     8785212<br> JUL2009     8534394     8656224     8656226<br> APR2009     8290534     8300356     8300360<br> JAN2009     7592360     7486619     7586049<br> OCT2008     7375686     7367493     7367494<br> JUL2008     7154097     7047034     7047037<br> APR2008     6864078     6867107     6867108<br> JAN2008     6647005     6637274     6637275<br> OCT2007     6395024     6408393     6408394<br> JUL2007     6079585     6115804     6115818<br> APR2007     5901877     5907304     5907305<br> JAN2007     5689908     5716295     5634747<br> OCT2006     5490845     5500883     5500885<br> JUL2006     5225797     5251148     5251140<br> APR2006     5049074     5057606     5057609<br> JAN2006     4751932     4882231     4882236</p>
+<p>10.1.0.4</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> APR2007     5901876     5909871     5909879<br> JAN2007     5689894     5695771     5695772<br> OCT2006     5490844     5500878     5500880<br> JUL2006     5225796     5239736     5239737<br> APR2006     5049067     5059200     5059227<br> JAN2006     4751928     4751259     4745040<br> OCT2005     4567866     4579182     4579188<br> JUL2005     4392423     4440706     4404600<br> APR2005     4210374     4287619     4287611</p>
+<p>10.1.0.3</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> JAN2007     5923277     N/A     N/A<br> OCT2006     5566825     N/A     N/A<br> JUL2006     5435164     N/A     N/A<br> APR2006     5158022     N/A     N/A<br> JAN2006     4751926     4741077     4741084<br> OCT2005     4567863     4567518     4567523<br> JUL2005     4392409     4389012     4389014<br> APR2005     4193286     4269715     4158888<br> JAN2005     4003062     4074232     3990812</p>
+<p>10.1.0.2</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> APR2005     4193293     4181849     4213305<br> JUL2005     4400766     4388944     4388948<br> JAN2005     4003051     4104364     4083038</p>
+<p>9.2.0.8</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> JUL2010     9655027     9683644     9683645<br> APR2010     9352224     9390286     N/A<br> JAN2010     9119275     9187106     N/A<br> OCT2009     8836758     8785185     8785186<br> JUL2009     8534403     8427417     8427418<br> APR2009     8290549     8300340     8300346<br> JAN2009     7592365     7703210     7703212<br> OCT2008     7375695     7394394     7394402<br> JUL2008     7154111     7047026     7047029<br> APR2008     6864082     6867138     6867139<br> JAN2008     6646842     6637265     6637266<br> OCT2007     6395038     6417013     6417014<br> JUL2007     6079582     6130293     6130295<br> APR2007     5901875     5916268     5916275<br> JAN2007     N/A     N/A     N/A<br> OCT2006     5490859     5652380     5639519</p>
+<p>9.2.0.7</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> JUL2007     6079579     6146759     6146748<br> APR2007     5901872     5907274     5907275<br> JAN2007     5689875     5654905     5654909<br> OCT2006     5490841     5500873     5500874<br> JUL2006     5225794     5250980     5250981<br> APR2006     5049060     5064365     5064364<br> JAN2006     4751923     4751528     4741074<br> OCT2005     4567854     4579590     4579599<br> JUL2005     4547566     N/A     N/A   </p>
+<p>9.2.0.6</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> OCT2006     5490840     5500865     5500871<br> JUL2006     5225793     5239794     5239793<br> APR2006     5049051     5059614     5059615<br> JAN2006     4751921     4751261     4751262<br> OCT2005     4567846     4579093     4579097<br> JUL2005     4392392     4445852     4401917<br> APR2005     4193295     4269928     4213298</p>
+<p>9.2.0.5</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> OCT2006     5689708     N/A     N/A<br> JUL2006     5435138     N/A     N/A<br> APR2006     5219762     N/A     N/A<br> OCT2005     4560421     N/A     N/A<br> JUL2005     4392256     4387563     4391819<br> APR2005     4193299     4195791     4214192<br> JAN2005     4003006     4104374     3990809</p>
+<p>9.2.0.4</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)     Bundle Patch (WindowsItanium)<br> JAN2005     4002994     4104369     4083202</p>
+<p>8.1.7.4</p>
+<p> Description     CPU (Unix/Linux)    Bundle Patch (Windows32bit)<br> JAN2007     5689799     5686514<br> OCT2006     5490835     5496067<br> JUL2006     5225788     5236412<br> APR2006     5045247     5057601<br> JAN2006     4751906     4751570<br> OCT2005     4560405     4554818<br> JUL2005     4392446     4437058<br> APR2005     4193312     4180163<br> JAN2005     4002909     3921893<br>OJVM PSU Patches</p>
+<p>12.1.0.2</p>
+<p> Description     OJVM PSU (Linux/Unix)   OJVM BP (Windows)   Combo OJVM + DB PSU     Combo OJVM + GI PSU     Generic JDBC<br> JAN2017     24917972 (12.1.0.2.170117)  25112498 (12.1.0.2.170117)  24917069 (12.1.0.2.170117)  24917916 (12.1.0.2.170117)  Included in OJVM PSU<br> OCT2016     24315824 (12.1.0.2.161018)  24591630 (12.1.0.2.161018)  24433133 (12.1.0.2.161018)  24433148 (12.1.0.2.161018)  Included in OJVM PSU<br> JUL2016     23177536 (12.1.0.2.160719)  23515290 (12.1.0.2.160719)  23615289 (12.1.0.2.160719)  23615308 (12.1.0.2.160719)  23727148 (Included in OJVM PSU)<br> APR2016     22674709 (12.1.0.2.160419)  22839633 (12.1.0.2.160419)  22738582 (12.1.0.2.160419)  22738641 (12.1.0.2.160419)<br> JAN2016     22139226 (12.1.0.2.160119)  22311086 (12.1.0.2.160119)  22191659 (12.1.0.2.160119)  22191676 (12.1.0.2.160119)<br> OCT2015     21555660 (12.1.0.2.5)   21788394 (12.1.0.2.4)   21520444    21523260<br> JUL2015     21068507 (12.1.0.2.4)   21153530 (12.1.0.2.3)   21150768    21150782<br> APR2015     20415564 (12.1.0.2.3)   20391199 (12.1.0.2.2)   20834354    20834538<br> JAN2015     19877336 (12.1.0.2.2)   20225938 (12.1.0.2.1)   20132434    20132450<br> OCT2014 (12.1.0.2.1)    19282028        19791366    19791375</p>
+<p>12.1.0.1</p>
+<p> Description     OJVM PSU (Linux/Unix)   OJVM BP (Windows)   Combo OJVM + DB PSU     Combo OJVM + GI PSU     Generic JDBC<br> JUL2016 (12.1.0.1.160719)   23177541    23515285    23615355    23615368<br> 23727043 (Included in OJVM PSU)</p>
+<p> APR2016 (12.1.0.1.160419)   22674703    22839627    22738678    22738715    Included in OJVM PSU<br> JAN2016 (12.1.0.1.160119)   22139235    22311072    22191711    22191721<br> OCT2015 (12.1.0.1.5)    21555669    21788365    21744318    21744328<br> JUL2015 (12.1.0.1.4)    21068523    21153513    21150806    21150817<br> APR2015 (12.1.0.1.3)    20406245    20225909    20834568    20834579<br> JAN2015 (12.1.0.1.2)    19877342    20225916    20132482    20132489<br> OCT2014 (12.1.0.1.1)    19282024    19801531    19791363    19791360    19852357</p>
+<p>11.2.0.4</p>
+<p> Description     OJVM PSU (Linux/Unix)   OJVM BP (Windows)    Combo OJVM + DB PSU    Combo OJVM + DB SPU     Combo OJVM + GI PSU     Generic JDBC<br> JAN2017 (11.2.0.4.170117)   24917954    25043019    24918033    25367810    24918228<br> Included in OJVM PSU</p>
+<p> OCT2016 (11.2.0.4.161018)   24315821    24591637    24436313    24433791    24436346<br> Included in OJVM PSU</p>
+<p> JUL2016 (11.2.0.4.160719)   23177551    23515277    23615392    23615381    23615403<br> 23727132 (Included in OJVM PSU)</p>
+<p> APR2016 (11.2.0.4.160419)   22674697    22839614    22738777    22738732    22738793   Included in OJVM PSU<br> JAN2016 (11.2.0.4.160119)   22139245    22311053    22378146    22378121    22378167<br> OCT2015 (11.2.0.4.5)    21555791    21788344    21744343    21744335    21744348<br> JUL2015 (11.2.0.4.4)    21068539    21153498    21150851    21150829    21150864<br> APR2015 (11.2.0.4.3)    20406239    20225988    20834611    20834597    20834621<br> JAN2015 (11.2.0.4.2)    19877440    20225982    20132580    20132517    20132615<br> OCT2014 (11.2.0.4.1)    19282021   19799291     19791364    19791358    19791420    19852360</p>
+<p>11.2.0.3</p>
+<p> Description     OJVM PSU (Linux/Unix)   OJVM BP (Windows)  Combo OJVM + DB PSU  Combo OJVM + DB SPU    Combo OJVM + GI PSU  Generic JDBC<br> JUL2015 (11.2.0.3.4)   21068553     21153470   21150891    21150885     21150904   </p>
+<p> Included in OJVM PSU</p>
+<p> APR2015 (11.2.0.3.3)   20406220     20391185   20834670    20834653     20834686<br> JAN2015 (11.2.0.3.2)   19877443     20227195   20132646    20132635     20132651<br> OCT2014 (11.2.0.3.1)   19282015     19806120   19791427    19791426    19791428    19852361</p>
+<p>11.1.0.7</p>
+<p>Description OJVM PSU (Linux/Unix)    OJVM BP (Windows)  Combo OJVM + DB PSU Combo OJVM + DB SPU  Combo OJVM + GI PSU    Generic JDBC<br> JUL2015 (11.1.0.7.4)    21068565    21153423    21150939    21150929     N/A   </p>
+<p>  Included in OJVM PSU</p>
+<p> APR2015 (11.1.0.7.3)    20406213    20391156    20834724    20834712     N/A<br> JAN2015 (11.1.0.7.2)    19877446    20227146    20132677    20132669     N/A<br> OCT2014 (11.1.0.7.1)    19282002    19806118    19791436    19791434     N/A    19852363</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">
+                    GoldenGate 12.1.2 新特性参数部分解释
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">
+                    Oracle expdp中INCLUDE参数限制4000个字符的解决办法
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Base-Releases"><span class="toc-number">1.</span> <span class="toc-text">Base Releases</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patchsets"><span class="toc-number">2.</span> <span class="toc-text">Patchsets</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" title="上一篇: GoldenGate 12.1.2 新特性参数部分解释">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" title="下一篇: Oracle expdp中INCLUDE参数限制4000个字符的解决办法">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

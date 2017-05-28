@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="前言：我的博客之旅我用wordpress写过一段时间博客，因租用的外国空间访问速度不理想，放弃！我用vimwiki写过一段时间博客，因其配置、更新博客比较麻烦，且生成的html也需要存放到租用的空间上才能共享，放弃！我在类似CSDN免费空间上也写过一段时间博客，因没有客户端工具，在线编辑功能受限，且本地不能保存备份博客，放弃！这两年我一直用有道云笔记写博客，其本地编辑功能比较强大，有易用的分类目录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo+github搭建个人博客">
+<meta property="og:url" content="/2017/02/06/tools/hexo+github搭建个人博客/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="前言：我的博客之旅我用wordpress写过一段时间博客，因租用的外国空间访问速度不理想，放弃！我用vimwiki写过一段时间博客，因其配置、更新博客比较麻烦，且生成的html也需要存放到租用的空间上才能共享，放弃！我在类似CSDN免费空间上也写过一段时间博客，因没有客户端工具，在线编辑功能受限，且本地不能保存备份博客，放弃！这两年我一直用有道云笔记写博客，其本地编辑功能比较强大，有易用的分类目录">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-here.jpg">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-02.jpg">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-03.jpg">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-04.jpg">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/hexo_init.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/github_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/github_02.png">
+<meta property="og:updated_time" content="2017-03-02T07:24:57.003Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo+github搭建个人博客">
+<meta name="twitter:description" content="前言：我的博客之旅我用wordpress写过一段时间博客，因租用的外国空间访问速度不理想，放弃！我用vimwiki写过一段时间博客，因其配置、更新博客比较麻烦，且生成的html也需要存放到租用的空间上才能共享，放弃！我在类似CSDN免费空间上也写过一段时间博客，因没有客户端工具，在线编辑功能受限，且本地不能保存备份博客，放弃！这两年我一直用有道云笔记写博客，其本地编辑功能比较强大，有易用的分类目录">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/git-bash-here.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>hexo+github搭建个人博客 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-tools/hexo+github搭建个人博客" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/06/tools/hexo+github搭建个人博客/" class="article-date">
+      <time datetime="2017-02-06T07:25:40.979Z" itemprop="datePublished">2017-02-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      hexo+github搭建个人博客
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="前言：我的博客之旅"><a href="#前言：我的博客之旅" class="headerlink" title="前言：我的博客之旅"></a>前言：我的博客之旅</h2><p>我用<code>wordpress</code>写过一段时间博客，因租用的外国空间访问速度不理想，放弃！<br>我用<code>vimwiki</code>写过一段时间博客，因其配置、更新博客比较麻烦，且生成的html也需要存放到租用的空间上才能共享，放弃！<br>我在类似CSDN免费空间上也写过一段时间博客，因没有客户端工具，在线编辑功能受限，且本地不能保存备份博客，放弃！<br>这两年我一直用有道云笔记写博客，其本地编辑功能比较强大，有易用的分类目录和标签功能，单条博客也易于分享，但缺乏一个整体对外的窗口，文章中的代码也无法实现高亮显示，不够美观！<br>2017年初，偶然的机会知道了hexo，因有较强的markdown和git功底，决定开启hexo写博之旅。</p>
+<blockquote>
+<p><strong>hexo是什么?</strong><br>hexo是一款基于Node.js的静态博客框架。 hexo官网地址：<a href="https://hexo.io" target="_blank" rel="external">https://hexo.io</a></p>
+</blockquote>
+<a id="more"></a>
+<h2 id="为什么选择Hexo"><a href="#为什么选择Hexo" class="headerlink" title="为什么选择Hexo"></a>为什么选择Hexo</h2><p>目前比较流行的静态博客框架有<a href="http://jekyllrb.com/" target="_blank" rel="external">Jekyll</a>，Hexo，Simple，Octopress，Pelican以及Lo·gecho等。 这些静态博客框架各有各的好处，之所以选择Hexo，最主要的原因如下：</p>
+<ol>
+<li>Hexo基于Node.js实现，在Windows上安装Node.js环境简单；而其他的静态博客框架如Jekyll基于Ruby实现，不建议在Windows下搭建的。</li>
+<li>Hexo有本地WEB服务器，能实现本地预览，并直接发布到WEB容器(github)中实现同步；而Jekyll没有本地服务器，无法实现本地博文预览。</li>
+<li>Hexo主题丰富，基本直接就可以用，不需要太多的修改。</li>
+<li>支持Markdown语法。</li>
+</ol>
+<h2 id="搭建本地博客"><a href="#搭建本地博客" class="headerlink" title="搭建本地博客"></a>搭建本地博客</h2><h3 id="下载并安装git和Node-js"><a href="#下载并安装git和Node-js" class="headerlink" title="下载并安装git和Node.js"></a>下载并安装git和Node.js</h3><p>从以下地址下载所需的Windows版安装包，使用默认设置安装：</p>
+<ul>
+<li>Node.js: <a href="https://nodejs.org" target="_blank" rel="external">https://nodejs.org</a></li>
+<li>git: <a href="https://git-scm.com" target="_blank" rel="external">https://git-scm.com</a></li>
+</ul>
+<p>安装成功后，可通过以下命令查看安装版本：<br><figure class="highlight bash"><table><tr><td class="code"><pre><div class="line">$ node -v</div><div class="line">v6.9.4</div><div class="line"></div><div class="line">$ git --version</div><div class="line">git version 2.11.1.windows.1</div></pre></td></tr></table></figure></p>
+<h3 id="配置Git-Bash样式（可选）"><a href="#配置Git-Bash样式（可选）" class="headerlink" title="配置Git Bash样式（可选）"></a>配置Git Bash样式（可选）</h3><p>新建<code>D:\08_dbanote</code>目录做为博客根目录，进入目录，右键选择Git Bash Here<br><img src="http://oligvdnzp.bkt.clouddn.com/git-bash-here.jpg" alt="git-bash-here.jpg"></p>
+<p>在弹出的窗口上右键选择Options，设置窗口样式<br><img src="http://oligvdnzp.bkt.clouddn.com/git-bash-01.png" alt="git-bash-01.jpg"></p>
+<p>设置显示字体<br><img src="http://oligvdnzp.bkt.clouddn.com/git-bash-02.jpg" alt="git-bash-02.jpg"></p>
+<p>设置窗口大小(需重新开启Git Bash方可生效)<br><img src="http://oligvdnzp.bkt.clouddn.com/git-bash-03.jpg" alt="git-bash-03.jpg"></p>
+<p>设置鼠标右健直接粘贴<br><img src="http://oligvdnzp.bkt.clouddn.com/git-bash-04.jpg" alt="git-bash-04.jpg"></p>
+<h3 id="安装淘宝的cnpm源"><a href="#安装淘宝的cnpm源" class="headerlink" title="安装淘宝的cnpm源"></a>安装淘宝的cnpm源</h3><p>访问国外源速度较慢，建议安装淘宝的cnpm源，以后使用<code>cnpm</code>命令代替<code>npm</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</div></pre></td></tr></table></figure></p>
+<h3 id="安装hexo-g-是全局化安装"><a href="#安装hexo-g-是全局化安装" class="headerlink" title="安装hexo (-g 是全局化安装)"></a>安装hexo (-g 是全局化安装)</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm install hexo-cli -g</div></pre></td></tr></table></figure>
+<h3 id="初始化hexo博客"><a href="#初始化hexo博客" class="headerlink" title="初始化hexo博客"></a>初始化hexo博客</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 确保当前目录为博客根目录</span></div><div class="line">cd D:\08_dbanote</div><div class="line">hexo init</div><div class="line">cnpm install</div></pre></td></tr></table></figure>
+<h3 id="安装git部署包"><a href="#安装git部署包" class="headerlink" title="安装git部署包"></a>安装git部署包</h3><p>作用：通过<code>hexo d</code>这一条命令，将博客部署到git服务器上，如github<br><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm install hexo-deployer-git --save</div></pre></td></tr></table></figure></p>
+<h3 id="生成博客静态文件"><a href="#生成博客静态文件" class="headerlink" title="生成博客静态文件"></a>生成博客静态文件</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo g</div></pre></td></tr></table></figure>
+<h3 id="启动本地服务器"><a href="#启动本地服务器" class="headerlink" title="启动本地服务器"></a>启动本地服务器</h3><p>确保4000端口没有被占用<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 在windows命令行下执行</span></div><div class="line">netstat -ano | findstr <span class="string">"4000"</span></div><div class="line">  TCP    <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">4000</span>         <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>:<span class="number">0</span>              LISTENING       <span class="number">16360</span></div><div class="line">  TCP    <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">4000</span>         <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">53443</span>        ESTABLISHED     <span class="number">16360</span></div><div class="line">  TCP    <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">4000</span>         <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">63485</span>        CLOSE_WAIT      <span class="number">16360</span></div><div class="line">  TCP    <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">53443</span>        <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">4000</span>         ESTABLISHED     <span class="number">14256</span></div><div class="line">  TCP    <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">63485</span>        <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">4000</span>         FIN_WAIT_2      <span class="number">14256</span></div><div class="line"></div><div class="line"><span class="comment"># 4000端口被占用，查找进程号对应的程序</span></div><div class="line">tasklist | findstr <span class="string">"16360"</span></div><div class="line">FoxitProtect.exe             <span class="number">16360</span> Services                   <span class="number">0</span>     <span class="number">11</span>,<span class="number">628</span> K</div><div class="line"></div><div class="line"><span class="comment"># 结束该进程</span></div><div class="line">taskkill /f /t /im FoxitProtect.exe</div></pre></td></tr></table></figure></p>
+<p>启动本地服务器<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">hexo <span class="keyword">s</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line">INFO  Start processing</div><div class="line">INFO  Hexo is running at http:<span class="regexp">//localhost</span>:<span class="number">4000</span>/. Press Ctrl+C to stop.</div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div></pre></td></tr></table></figure></p>
+<h3 id="本地预览博客"><a href="#本地预览博客" class="headerlink" title="本地预览博客"></a>本地预览博客</h3><p>打开浏览器，输入<a href="http://localhost:4000" target="_blank" rel="external">http://localhost:4000</a><br><img src="http://oligvdnzp.bkt.clouddn.com/hexo_init.png" alt="hexo_init.png"></p>
+<h3 id="配置博客网站基本信息"><a href="#配置博客网站基本信息" class="headerlink" title="配置博客网站基本信息"></a>配置博客网站基本信息</h3><p>编辑修改根目录下的<code>_config.yml</code>文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 站点基本信息修改</span></div><div class="line"><span class="comment"># Site</span></div><div class="line">title: 一个DBA的工作学习笔记</div><div class="line">subtitle: 欲事之无繁，则必劳于始而逸于终</div><div class="line">author: 刘雅君</div><div class="line"></div><div class="line"><span class="comment"># 设置网站url</span></div><div class="line"><span class="comment"># URL</span></div><div class="line">url: http:<span class="regexp">//dbanote</span>.github.io</div><div class="line"></div><div class="line"><span class="comment"># 取消代码段行号显示</span></div><div class="line"><span class="comment"># Writing</span></div><div class="line">highlight:</div><div class="line">  enable: true</div><div class="line">  line_number: false</div></pre></td></tr></table></figure></p>
+<h2 id="部署远程博客"><a href="#部署远程博客" class="headerlink" title="部署远程博客"></a>部署远程博客</h2><h3 id="注册Github账号"><a href="#注册Github账号" class="headerlink" title="注册Github账号"></a>注册Github账号</h3><p>因为是托管到<a href="https://github.com/" target="_blank" rel="external">Github</a>上，所以第一步需要注册一个账号。这里我新注册了一个dbanote的帐号，步骤很简单，这里不做赘述。</p>
+<h3 id="建立和用户名对应的仓库"><a href="#建立和用户名对应的仓库" class="headerlink" title="建立和用户名对应的仓库"></a>建立和用户名对应的仓库</h3><p>建立和用户名相对应的仓库，这是什么意思呢？以我的例子来说，我的用户名是dbanote,那么我的博客仓库就必须是dbanote.github.io。<br><img src="http://oligvdnzp.bkt.clouddn.com/github_01.png" alt="创建新仓库"><br><img src="http://oligvdnzp.bkt.clouddn.com/github_02.png" alt="创建新仓库"></p>
+<h3 id="配置SSH公钥"><a href="#配置SSH公钥" class="headerlink" title="配置SSH公钥"></a>配置SSH公钥</h3><p>远程代码是基于SSH的，所以需要SSH的相关配置。方法是现在本地生成SSH公钥，然后添加到Github上面。打开<code>git bash</code>，具体的操作如下：</p>
+<h4 id="1-设置你的邮箱和用户名"><a href="#1-设置你的邮箱和用户名" class="headerlink" title="1. 设置你的邮箱和用户名"></a>1. 设置你的邮箱和用户名</h4><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">git config --global user.name <span class="string">"dbanote"</span></div><div class="line">git config --global user.email <span class="string">"15004618839@139.com"</span></div></pre></td></tr></table></figure>
+<h4 id="2-生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）"><a href="#2-生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）" class="headerlink" title="2. 生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）"></a>2. 生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）</h4><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">ssh-keygen -t rsa -C <span class="string">"15004618839@139.com"</span></div></pre></td></tr></table></figure>
+<p>上述的命令成功后，会得到<code>id_rsa</code>和<code>id_rsa.pub</code>两个文件，一般在<code>C:\Users\&lt;用户名&gt;\.ssh</code>文件夹里，没有的话，就用Everything搜一下。</p>
+<h4 id="3-把SSH密钥添加到Github上"><a href="#3-把SSH密钥添加到Github上" class="headerlink" title="3. 把SSH密钥添加到Github上"></a>3. 把SSH密钥添加到Github上</h4><p>登陆<code>Github</code>后，点击<code>settings</code>，然后进入<code>SSH keys</code>，把<code>id_rsa.pub</code>文件里内容添加进去就好了。 测试配置是否正确<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">$ ssh -T git@github.com</div><div class="line">Hi dbanote! You’ve successfully authenticated, but GitHub does <span class="keyword">not</span> provide shell access.</div></pre></td></tr></table></figure></p>
+<h3 id="部署远程博客-1"><a href="#部署远程博客-1" class="headerlink" title="部署远程博客"></a>部署远程博客</h3><h4 id="1-编辑修改根目录下的-config-yml文件"><a href="#1-编辑修改根目录下的-config-yml文件" class="headerlink" title="1. 编辑修改根目录下的_config.yml文件"></a>1. 编辑修改根目录下的<code>_config.yml</code>文件</h4><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 设置部署到github(https方式出现错误，使用ssh方式成功)</span></div><div class="line"><span class="comment"># Deployment</span></div><div class="line"><span class="comment">## Docs: https://hexo.io/docs/deployment.html</span></div><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repository: git@github.com:dbanote/dbanote.github.io.git</div><div class="line">  branch: master</div></pre></td></tr></table></figure>
+<h4 id="2-部署远程博客，输入以下命令"><a href="#2-部署远程博客，输入以下命令" class="headerlink" title="2. 部署远程博客，输入以下命令"></a>2. 部署远程博客，输入以下命令</h4><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 生成静态页</span></div><div class="line">hexo g</div><div class="line"></div><div class="line"><span class="comment"># 部署到github上</span></div><div class="line">hexo d</div></pre></td></tr></table></figure>
+<p>部署好了后，在浏览器地址栏中输入你的仓库名来访问，我的是<a href="http://dbanote.github.io" target="_blank" rel="external">dbanote.github.io</a>。注意一点，第一次部署的话，可能需要等待一会（一般不到10分钟就好了）才能生效，以后每次部署就可以直接访问。到这里基本的博客就搭建好了。</p>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ol>
+<li>注意一定要验证Github的验证邮件。</li>
+<li><p>出现其他任何的问题，先删除博客目录下的<code>db.json</code>文件，然后清理再部署远程博客，操作时输入以下的命令</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">hexo clean</div><div class="line">hexo d -g</div></pre></td></tr></table></figure>
+</li>
+<li><p>Hexo的基本命令</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">hexo g = hexo generate  <span class="comment">#生成</span></div><div class="line">hexo <span class="keyword">s</span> = hexo server  <span class="comment">#启动本地预览</span></div><div class="line">hexo d = hexo deploy  <span class="comment">#远程部署</span></div><div class="line">hexo n <span class="string">"文章标题"</span> = hexo new <span class="string">"文章标题"</span>  <span class="comment">#新建一篇博文</span></div><div class="line"></div><div class="line">hexo <span class="keyword">s</span> -g  <span class="comment">#等同先输入hexo g，再输入hexo s</span></div><div class="line">hexo d -g  <span class="comment">#等同先输入hexo g，再输入hexo d</span></div></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">
+                    MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/01/30/tools/Sublime常用快捷键/">
+                    Sublime Text 常用快捷键
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言：我的博客之旅"><span class="toc-number">1.</span> <span class="toc-text">前言：我的博客之旅</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么选择Hexo"><span class="toc-number">2.</span> <span class="toc-text">为什么选择Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建本地博客"><span class="toc-number">3.</span> <span class="toc-text">搭建本地博客</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下载并安装git和Node-js"><span class="toc-number">3.1.</span> <span class="toc-text">下载并安装git和Node.js</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置Git-Bash样式（可选）"><span class="toc-number">3.2.</span> <span class="toc-text">配置Git Bash样式（可选）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装淘宝的cnpm源"><span class="toc-number">3.3.</span> <span class="toc-text">安装淘宝的cnpm源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装hexo-g-是全局化安装"><span class="toc-number">3.4.</span> <span class="toc-text">安装hexo (-g 是全局化安装)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化hexo博客"><span class="toc-number">3.5.</span> <span class="toc-text">初始化hexo博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装git部署包"><span class="toc-number">3.6.</span> <span class="toc-text">安装git部署包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生成博客静态文件"><span class="toc-number">3.7.</span> <span class="toc-text">生成博客静态文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动本地服务器"><span class="toc-number">3.8.</span> <span class="toc-text">启动本地服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地预览博客"><span class="toc-number">3.9.</span> <span class="toc-text">本地预览博客</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置博客网站基本信息"><span class="toc-number">3.10.</span> <span class="toc-text">配置博客网站基本信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署远程博客"><span class="toc-number">4.</span> <span class="toc-text">部署远程博客</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#注册Github账号"><span class="toc-number">4.1.</span> <span class="toc-text">注册Github账号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#建立和用户名对应的仓库"><span class="toc-number">4.2.</span> <span class="toc-text">建立和用户名对应的仓库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置SSH公钥"><span class="toc-number">4.3.</span> <span class="toc-text">配置SSH公钥</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-设置你的邮箱和用户名"><span class="toc-number">4.3.1.</span> <span class="toc-text">1. 设置你的邮箱和用户名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）"><span class="toc-number">4.3.2.</span> <span class="toc-text">2. 生成密钥，设置密码，输入的密码不显示（也可以不设置，按三次回车，密码为空）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-把SSH密钥添加到Github上"><span class="toc-number">4.3.3.</span> <span class="toc-text">3. 把SSH密钥添加到Github上</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署远程博客-1"><span class="toc-number">4.4.</span> <span class="toc-text">部署远程博客</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-编辑修改根目录下的-config-yml文件"><span class="toc-number">4.4.1.</span> <span class="toc-text">1. 编辑修改根目录下的_config.yml文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-部署远程博客，输入以下命令"><span class="toc-number">4.4.2.</span> <span class="toc-text">2. 部署远程博客，输入以下命令</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tips"><span class="toc-number">5.</span> <span class="toc-text">Tips</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/" title="上一篇: MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/01/30/tools/Sublime常用快捷键/" title="下一篇: Sublime Text 常用快捷键">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

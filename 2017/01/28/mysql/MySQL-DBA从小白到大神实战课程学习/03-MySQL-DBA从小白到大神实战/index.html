@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="1. thread pool的原理是什么？线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。
+MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL DBA从小白到大神实战-03 深入MySQL体系结构">
+<meta property="og:url" content="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="1. thread pool的原理是什么？线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。
+MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/mysql_innodb_architecture_00.jpg">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/mysql_innodb_architecture_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/mysql_utilities_download_00.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/mysql_utilities_download_01.png">
+<meta property="og:updated_time" content="2017-05-17T03:44:05.573Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL DBA从小白到大神实战-03 深入MySQL体系结构">
+<meta name="twitter:description" content="1. thread pool的原理是什么？线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。
+MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/mysql_innodb_architecture_00.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL DBA从小白到大神实战-03 深入MySQL体系结构 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-01-28T05:42:00.000Z" itemprop="datePublished">2017-01-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL DBA从小白到大神实战-03 深入MySQL体系结构
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="1-thread-pool的原理是什么？"><a href="#1-thread-pool的原理是什么？" class="headerlink" title="1. thread pool的原理是什么？"></a>1. thread pool的原理是什么？</h2><p>线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。</p>
+<p>MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。</p>
+<p>在传统方式下，MySQL线程调度方式有两种：每个连接一个线程(one-thread-per-connection)和所有连接一个线程（no-threads）。在实际生产中，一般用的是前者。即每当有一个客户端连接到MySQL服务器，MySQL服务器都会为该客户端创建一个单独的线程，请求结束后，销毁线程。连接数越多，则相应的线程会越多。这种方式在高并发情况下，会导致线程的频繁创建和释放。</p>
+<a id="more"></a>
+<h2 id="2-为什么用double-write就能解决page坏的问题？"><a href="#2-为什么用double-write就能解决page坏的问题？" class="headerlink" title="2. 为什么用double write就能解决page坏的问题？"></a>2. 为什么用double write就能解决page坏的问题？</h2><p>InnoDB 的Page Size一般是16KB，其数据校验也是针对这16KB来计算的，将数据写入到磁盘是以Page为单位进行操作的，mysql的page size跟系统文件的page size是不一致的，在写数据的时候, 系统并不是把整个buffer pool page一次性写到disk上，在极端情况下（比如断电）往往并不能保证这一操作的原子性，16K的数据，写入4K时，发生了系统断电/OS crash ，只有一部分写是成功的，这种情况下就是partial page write问题。</p>
+<p>mysql在恢复的过程中是检查page的checksum（检验和），checksum就是pgae的最后事务号，发生partial page write问题时，page已经损坏，找不到该page中的事务号，就无法恢复（redo里面是没有保留这个损坏page完全的镜像，就无法从REDO里恢复）。</p>
+<p>为了解决 partial page write 问题 ，当mysql将脏数据flush到data file的时候, 先使用memcopy 将脏数据复制到内存中的double write buffer ，之后通过double write buffer再分2次，每次写入1MB到共享表空间，然后马上调用fsync函数，同步到磁盘上，避免缓冲带来的问题，在这个过程中，doublewrite是顺序写，开销并不大，在完成doublewrite写入后，在将double write buffer写入各表空间文件，这时是离散写入。如果发生了极端情况（断电），InnoDB再次启动后，发现了一个Page数据已经损坏，那么此时就可以从double write buffer中进行数据恢复了。</p>
+<ul>
+<li><strong>double write的优点是什么?</strong><br>double write解决了partial page write的问题，它能保证即使double write部分发生了partial page write但也能恢复。另外一个好处就是double write能减少redo log的量, 有了double write，redo log只记录了二进制的变化量，也就等同于binary log，而通过前段时间的测试确实发现，在double write关闭的情况下，redo log比binary logs要大。</li>
+</ul>
+<ul>
+<li><strong>double write的缺点是什么?</strong><br>虽然mysql称double write是一个buffer, 但其实它是开在物理文件上的一个buffer, 其实也就是file, 所以它会导致系统有更多的fsync操作, 而我们知道硬盘的fsync性能是很慢的, 所以它会降低mysql的整体性能. 但是并不会降低到原来的50%. 这主要是因为: <ol>
+<li>double write是一个连接的存储空间, 所以硬盘在写数据的时候是顺序写, 而不是随机写, 这样性能更高。 </li>
+<li>另外将数据从double write buffer写到真正的segment中的时候, 系统会自动合并连接空间刷新的方式, 每次可以刷新多个pages。另外将数据从double write buffer写到真正的segment中的时候, 系统会自动合并连接空间刷新的方式, 每次可以刷新多个pages。</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><strong>double write在恢复的时候是如何工作的?</strong><br>如果是写double write buffer本身失败，那么这些数据不会被写到磁盘，innodb此时会从磁盘载入原始的数据，然后通过innodb的事务日志来计算出正确的数据，重新写入到double write buffer。如果double write buffer写成功的话，但是写磁盘失败，innodb就不用通过事务日志来计算了，而是直接用buffer的数据再写一遍。在恢复的时候，innodb直接比较页面的checksum，如果不对的话，就从硬盘载入原始数据，再由事务日志开始推演出正确的数据，所以innodb的恢复通常需要较长的时间。</li>
+</ul>
+<ul>
+<li><strong>查看是否开启double write</strong><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> <span class="keyword">variables</span> <span class="keyword">like</span> <span class="string">'%double%'</span>;</div><div class="line">+<span class="comment">--------------------+-------+</span></div><div class="line">| Variable_name      | Value |</div><div class="line">+<span class="comment">--------------------+-------+</span></div><div class="line">| innodb_doublewrite | ON    |</div><div class="line">+<span class="comment">--------------------+-------+</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="3-InnoDB-redo-log与binlog有什么区别？有了InnoDB-redo-log为什么还要binlog"><a href="#3-InnoDB-redo-log与binlog有什么区别？有了InnoDB-redo-log为什么还要binlog" class="headerlink" title="3. InnoDB redo log与binlog有什么区别？有了InnoDB redo log为什么还要binlog?"></a>3. InnoDB redo log与binlog有什么区别？有了InnoDB redo log为什么还要binlog?</h2><ul>
+<li>binlog会记录所有与MySQL数据库有关的日志记录，包括InnoDB、MyISAM、Heap等其他存储引擎的日志；而InnoDB存储引擎的redo log只记录有关该引擎本身的事务日志。</li>
+<li>无论将binlog文件记录的格式设为STATEMENT还是ROW，又或是MIXED，其记录的都是关于一个事务的具体操作内容，即该日志是逻辑日志；而InnoDB存储引擎的redo log是关于每个页（page）更改的物理情况。</li>
+<li>binlog文件仅在事务提交后进行写入，即只写磁盘一次，不论这时该事务多大；而在事务进行的过程中，却不断有重做日志条目（redo entry）被写入到重做日志文件中。</li>
+</ul>
+<p>binlog是MySQL Server层记录的日志，所有引擎产生的日志都会通过binlog进行封装；MySQL的特点就是支持多存储引擎，为了兼容绝大部分引擎来支持类似复制这样的特性，就需要采用binlog日志来用实现。简单的说，binlog 是mysqld 记录全局数据结构变化的log，用于复制和恢复；innodb redo log 是innodb 引擎自己记录事务过程的log，用于回滚和crash 恢复。</p>
+<h2 id="4-课程笔记"><a href="#4-课程笔记" class="headerlink" title="4. 课程笔记"></a>4. 课程笔记</h2><ol>
+<li>MySQL是单进程多线程</li>
+<li>MySQL存储引擎是可插拔的，有InnoDB，MyISAM(早期)等</li>
+<li>存储引擎是用来处理数据库相关的CRUD的操作</li>
+<li>CRUD是指在做计算处理时的增加(Create)、读取(Retrieve)(重新得到数据)、更新(Update)和删除(Delete)几个单词的首字母简写</li>
+<li>存储引擎的对象是表</li>
+<li>MySQL数据库与实例的关系是一对一的</li>
+<li>MySQL的数据库是物理操作系统文件或其他形式文件类型的集合，实例是由数据库后台进程/线程以及一个共享内存区组成</li>
+<li><p>MySQL 5.6 InnoDB架构中Buffer Pool<br><img src="http://oligvdnzp.bkt.clouddn.com/mysql_innodb_architecture_00.jpg" alt="mysql_innodb_architecture_00"><br>(1) <code>index page</code>: 数据缓存放在index page里，因MySQL数据的存储结构是Btree，所以称index page，page的概念相当于oracle中的buffer，1 page默认大小16k<br>(2) <code>data dictionary</code>: 数据字典的缓冲，其文件是存放在iblog目录下的ibdata中，如<code>/u01/my3306/log/iblog/ibdata1</code><br><img src="http://oligvdnzp.bkt.clouddn.com/mysql_innodb_architecture_01.png" alt="mysql_innodb_architecture_01"><br>(3) <code>lock info</code>: 行锁放在lock info中，当行锁达到一定值的时候，行锁就会升级为表锁<br>(4) <code>undo page</code>: 缓存UNDO操作，DML操作修改前镜像放到undo page中，其文件也是存放在iblog目录下的ibdata中<br>(5) <code>insert buffer page</code>: 缓存二级索引（非唯一索引，或称辅助索引）<br>(6) <code>adaptive hash index</code>: 自适应哈希索引，InnoDB存储引擎会监控对表上索引的查找，如果观察到建立哈希索引可以带来速度的提升，则建立哈希索引，所以称之为自适应（adaptive）的。自适应哈希索引通过缓冲池的B+树构造而来，因此建立的速度很快。而且不需要将整个表都建哈希索引，InnoDB存储引擎会自动根据访问的频率和模式来为某些页建立哈希索引。<br>(7) <code>Buffer Pool</code>的大小一般设置为物理内存的60%-80%，在MySQL中可以通过以下命令查询：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like '%buffer_pool_size%';</div><div class="line">+-------------------------+-----------+</div><div class="line">| Variable_name           | Value     |</div><div class="line">+-------------------------+-----------+</div><div class="line">| innodb_buffer_pool_size | 134217728 |</div><div class="line">+-------------------------+-----------+</div></pre></td></tr></table></figure>
+</li>
+<li><p><code>redo log buffer</code>: 缓存redo log，通过redo log thead写到redo log文件中存放在iblog目录下的ibdata中，如<code>/u01/my3306/log/iblog/ib_logfile0</code></p>
+</li>
+<li>查找算法：链表遍历、二分查找、Btree查找、HASH查找</li>
+<li><p>当数据库关闭时，把热块保存(缓存)到文件，在打开时再从文件加载到内存里，参数和设置方法如下：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">show variables like <span class="string">'%dump%'</span>;</div><div class="line">+-------------------------------------+-------+</div><div class="line">| Variable_name                       | Value |</div><div class="line">+-------------------------------------+-------+</div><div class="line">| innodb_buffer_pool_dump_at_shutdown | OFF   |</div><div class="line">| innodb_buffer_pool_dump_now         | OFF   |</div><div class="line">+-------------------------------------+-------+</div><div class="line"></div><div class="line">set global innodb_buffer_pool_dump_at_shutdown=<span class="number">1</span>;</div><div class="line">set global innodb_buffer_pool_dump_now=<span class="number">1</span>;</div><div class="line"></div><div class="line"><span class="keyword">exit</span></div><div class="line"></div><div class="line"><span class="comment"># 关闭数据库</span></div><div class="line">mysqladmin <span class="keyword">shutdown</span></div><div class="line"></div><div class="line"><span class="comment"># 查看缓存的文件</span></div><div class="line">ll /u01/my3306/<span class="keyword">log</span>/iblog/</div><div class="line">total <span class="number">4145172</span></div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql        <span class="number">884</span> Jan <span class="number">24</span> <span class="number">17</span>:<span class="number">38</span> ib_buffer_pool   //这个就是缓存的文件</div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql   <span class="number">33554432</span> Jan <span class="number">24</span> <span class="number">17</span>:<span class="number">38</span> ibdata1</div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql   <span class="number">16777216</span> Jan <span class="number">24</span> <span class="number">17</span>:<span class="number">38</span> ibdata2</div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">1048576000</span> Jan <span class="number">24</span> <span class="number">17</span>:<span class="number">38</span> ib_logfile<span class="number">0</span></div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">1048576000</span> Jan <span class="number">17</span> <span class="number">17</span>:<span class="number">37</span> ib_logfile1</div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">1048576000</span> Jan <span class="number">17</span> <span class="number">17</span>:<span class="number">37</span> ib_logfile2</div><div class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">1048576000</span> Jan <span class="number">17</span> <span class="number">17</span>:<span class="number">37</span> ib_logfile3</div><div class="line"></div><div class="line"><span class="comment"># 指定参数启动数据库</span></div><div class="line">mysqld_safe --defaults-file=<span class="regexp">/u01/my</span>3306/my.cnf &amp;</div></pre></td></tr></table></figure>
+</li>
+<li><p>安装MySQL Utilities<br>(1)选择MySQL Utilities适合的版本下载：<a href="https://dev.mysql.com/downloads/utilities/" target="_blank" rel="external">https://dev.mysql.com/downloads/utilities/</a><br><img src="http://oligvdnzp.bkt.clouddn.com/mysql_utilities_download_00.png" alt="mysql_utilities_download_00"><br>(2)选择Connector/Python适合的版本下载（依赖包）：<a href="https://dev.mysql.com/downloads/connector/python/" target="_blank" rel="external">https://dev.mysql.com/downloads/connector/python/</a><br><img src="http://oligvdnzp.bkt.clouddn.com/mysql_utilities_download_01.png" alt="mysql_utilities_download_01"><br>(3)上传安装包到服务器/tmp目录，并安装（root用户下）</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">ll</div><div class="line">total <span class="number">32836</span></div><div class="line">-rw-r--r--. <span class="number">1</span> root root    <span class="number">258776</span> Jan <span class="number">25</span> <span class="number">11</span>:<span class="number">50</span> mysql-connector-python-<span class="number">2.1</span>.<span class="number">5</span>-<span class="number">1</span>.el6.x86_64.rpm</div><div class="line">-rw-r--r--. <span class="number">1</span> root root    <span class="number">892500</span> Jan <span class="number">25</span> <span class="number">11</span>:<span class="number">39</span> mysql-utilities-<span class="number">1.6</span>.<span class="number">4</span>-<span class="number">1</span>.el6.noarch.rpm</div><div class="line"></div><div class="line">rpm -ivh mysql-connector-python-<span class="number">2.1</span>.<span class="number">5</span>-<span class="number">1</span>.el6.x86_64.rpm</div><div class="line">rpm -ivh mysql-utilities-<span class="number">1.6</span>.<span class="number">4</span>-<span class="number">1</span>.el6.noarch.rpm</div></pre></td></tr></table></figure>
+<p>(4)MySQL Utilities–mysqlfrm</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 以诊断模式查看表结构定义文件</span></div><div class="line">mysqlfrm --diagnostic user.frm</div></pre></td></tr></table></figure>
+</li>
+<li><p>查看错误日志所在位置</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like <span class="string">'%log_error%'</span>;</div><div class="line">+---------------------+---------------------------+</div><div class="line">| Variable_name       | Value                     |</div><div class="line">+---------------------+---------------------------+</div><div class="line">| binlog_error_action | IGNORE_ERROR              |</div><div class="line">| log_error           | <span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/error.log |  <span class="comment"># 错误日志所在位置</span></div><div class="line">+---------------------+---------------------------+</div></pre></td></tr></table></figure>
+</li>
+<li><p>开启慢查询</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like <span class="string">'%slow%'</span>;</div><div class="line">+---------------------------+--------------------------+</div><div class="line">| Variable_name             | Value                    |</div><div class="line">+---------------------------+--------------------------+</div><div class="line">| log_slow_admin_statements | ON                       |</div><div class="line">| log_slow_slave_statements | OFF                      |</div><div class="line">| slow_launch_time          | <span class="number">2</span>                        |</div><div class="line">| slow_query_log            | ON                       |   <span class="comment"># 开启慢查询</span></div><div class="line">| slow_query_log_file       | <span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/slow.log |   <span class="comment"># 慢查询日志位置</span></div><div class="line">+---------------------------+--------------------------+ </div><div class="line"></div><div class="line">mysql&gt; show variables like <span class="string">'%query_time%'</span>;</div><div class="line">+-----------------+----------+</div><div class="line">| Variable_name   | Value    |</div><div class="line">+-----------------+----------+</div><div class="line">| long_query_time | <span class="number">1.000000</span> |   <span class="comment"># 慢查询时间为1s</span></div><div class="line">+-----------------+----------+</div></pre></td></tr></table></figure>
+</li>
+<li><p>通用日志默认是不开启的（通用日志主要用在数据库审计）</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like &apos;%gen%&apos;;</div><div class="line">+------------------+----------------------------+</div><div class="line">| Variable_name    | Value                      |</div><div class="line">+------------------+----------------------------+</div><div class="line">| general_log      | OFF                        |</div><div class="line">| general_log_file | /u01/my3306/data/mysql.log |</div><div class="line">+------------------+----------------------------+</div></pre></td></tr></table></figure>
+</li>
+<li><p>最大用户连接数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like &apos;%max_user_connect%&apos;;</div><div class="line">+----------------------+-------+</div><div class="line">| Variable_name        | Value |</div><div class="line">+----------------------+-------+</div><div class="line">| max_user_connections | 2800  |</div><div class="line">+----------------------+-------+</div></pre></td></tr></table></figure>
+</li>
+<li><p>查出mysqld进程号为27507</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">ps -ef | <span class="keyword">grep</span> <span class="number">3306</span></div><div class="line"></div><div class="line">root      <span class="number">5475</span>  <span class="number">5183</span>  <span class="number">0</span> <span class="number">11</span>:<span class="number">44</span> pts/<span class="number">1</span>    <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> <span class="keyword">grep</span> <span class="number">3306</span></div><div class="line">mysql    <span class="number">26656</span>     <span class="number">1</span>  <span class="number">0</span> Jan17 ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> /bin/sh /u01/my3306/bin/mysqld_safe --defaults-file=<span class="regexp">/u01/my</span>3306/my.cnf --user=mysql</div><div class="line">mysql    <span class="number">27507</span> <span class="number">26656</span>  <span class="number">0</span> Jan17 ?        <span class="number">00</span>:<span class="number">01</span>:<span class="number">32</span> /u01/my3306/bin/mysqld --defaults-file=<span class="regexp">/u01/my</span>3306/my.cnf --basedir=<span class="regexp">/u01/my</span>3306 --datadir=<span class="regexp">/u01/my</span>3306/data --plugin-dir=<span class="regexp">/u01/my</span>3306/lib/plugin --<span class="keyword">log</span>-error=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/error.log --<span class="keyword">open</span>-files-limit=<span class="number">65535</span> --pid-file=<span class="regexp">/u01/my</span>3306/run/mysqld.pid --<span class="keyword">socket</span>=<span class="regexp">/u01/my</span>3306/run/mysql.sock --port=<span class="number">3306</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>查看mysqld进程27507下所有线程</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">pstack <span class="number">27507</span></div><div class="line"></div><div class="line">Thread <span class="number">28</span> (Thread <span class="number">0x7f9b070c4700</span> (LWP <span class="number">27508</span>)):</div><div class="line"><span class="comment">#0  0x00000038a040b68c in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span></div><div class="line"><span class="comment">#1  0x00000000009536bb in os_event_wait_low(os_event*, long) ()</span></div><div class="line"><span class="comment">#2  0x0000000000950aa6 in os_aio_simulated_handle(unsigned long, fil_node_t**, void**, unsigned long*) ()</span></div><div class="line"><span class="comment">#3  0x0000000000a49ed7 in fil_aio_wait(unsigned long) ()</span></div><div class="line"><span class="comment">#4  0x00000000009b9638 in io_handler_thread ()</span></div><div class="line"><span class="comment">#5  0x00000038a0407aa1 in start_thread () from /lib64/libpthread.so.0</span></div><div class="line"><span class="comment">#6  0x00000038a00e8aad in clone () from /lib64/libc.so.6</span></div><div class="line"><span class="comment"># ...... 中间略过</span></div><div class="line">Thread <span class="number">1</span> (Thread <span class="number">0x7f9b18f637e0</span> (LWP <span class="number">27507</span>)):</div><div class="line"><span class="comment">#0  0x00000038a00df283 in poll () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#1  0x0000000000585284 in handle_connections_sockets() ()</span></div><div class="line"><span class="comment">#2  0x000000000058cd51 in mysqld_main(int, char**) ()</span></div><div class="line"><span class="comment">#3  0x00000038a001ed1d in __libc_start_main () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#4  0x000000000057dbc1 in _start ()</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>read/write thread</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like <span class="string">'%io_thread%'</span>;</div><div class="line">+-------------------------+-------+</div><div class="line">| Variable_name           | Value |</div><div class="line">+-------------------------+-------+</div><div class="line">| innodb_read_io_threads  | <span class="number">4</span>     |     <span class="comment"># 预读</span></div><div class="line">| innodb_write_io_threads | <span class="number">10</span>    |</div><div class="line">+-------------------------+-------+</div></pre></td></tr></table></figure>
+</li>
+<li><p>purge thread: 清undo page</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql&gt; show variables like <span class="string">'%purge%'</span>;</div><div class="line">+----------------------------+-------+</div><div class="line">| Variable_name              | Value |</div><div class="line">+----------------------------+-------+</div><div class="line">| gtid_purged                |       |</div><div class="line">| innodb_max_purge_lag       | <span class="number">0</span>     |</div><div class="line">| innodb_max_purge_lag_delay | <span class="number">0</span>     |</div><div class="line">| innodb_purge_batch_size    | <span class="number">300</span>   |</div><div class="line">| innodb_purge_threads       | <span class="number">1</span>     |</div><div class="line">| relay_log_purge            | ON    |</div><div class="line">+----------------------------+-------+</div></pre></td></tr></table></figure></li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/01/30/tools/Sublime常用快捷键/">
+                    Sublime Text 常用快捷键
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/01/28/tools/vim常用命令/">
+                    VIM常用命令
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-thread-pool的原理是什么？"><span class="toc-text">1. thread pool的原理是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-为什么用double-write就能解决page坏的问题？"><span class="toc-text">2. 为什么用double write就能解决page坏的问题？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-InnoDB-redo-log与binlog有什么区别？有了InnoDB-redo-log为什么还要binlog"><span class="toc-text">3. InnoDB redo log与binlog有什么区别？有了InnoDB redo log为什么还要binlog?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-课程笔记"><span class="toc-text">4. 课程笔记</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/01/30/tools/Sublime常用快捷键/" title="上一篇: Sublime Text 常用快捷键">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/01/28/tools/vim常用命令/" title="下一篇: VIM常用命令">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
