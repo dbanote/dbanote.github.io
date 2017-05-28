@@ -4,7 +4,7 @@
   
     
     <entry>
-      <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB]]></title>
+      <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB]]></title>
       <url>/2017/05/24/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/04_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> pdbs;</div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></div><div class="line">         2 PDB$SEED                       READ ONLY  NO</div><div class="line">         3 PDB1                           READ WRITE NO</div><div class="line">         4 PDB2                           READ WRITE NO</div><div class="line"></div><div class="line"><span class="keyword">show</span> con_name</div><div class="line">CON_NAME</div><div class="line"><span class="comment">------------------------------</span></div><div class="line">CDB$ROOT</div></pre></td></tr></table></figure></p>
 <a id="more"></a>
@@ -65,9 +65,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> iDARC </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -107,37 +107,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Hugepage计算脚本]]></title>
-      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
-      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
-<li>Oracle Database instance(s) are up and running</li>
-<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
-<li>The shared memory segments can be listed by command “ipcs -m”</li>
-<li>Oracle Linux</li>
-<li>Package ‘bc’ installed<a id="more"></a>
-</li>
-</ol>
-<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
-<li>Create a text file named hugepages_settings.sh</li>
-<li><p>Copy the contents below in the file</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># hugepages_settings.sh</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Linux bash script to compute values for the</span></div><div class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></div><div class="line"><span class="comment"># on Oracle Linux</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></div><div class="line"><span class="comment"># segments available when the script is run, no matter it</span></div><div class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></div><div class="line"><span class="comment"># http://support.oracle.com</span></div><div class="line"></div><div class="line"><span class="comment"># Welcome text</span></div><div class="line">echo <span class="string">"</span></div><div class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </div><div class="line">(http://support.oracle.com) where it is intended to compute values for </div><div class="line">the recommended HugePages/HugeTLB configuration for the current shared </div><div class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</div><div class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</div><div class="line"> * The 'pga_aggregate_target' is outside the SGA and </div><div class="line">   you should accommodate this while calculating SGA size.</div><div class="line"> * In case you changes the DB SGA size, </div><div class="line">   as the new SGA will not fit in the previous HugePages configuration, </div><div class="line">   it had better disable the whole HugePages, </div><div class="line">   start the DB with new SGA size and run the script again.</div><div class="line">And make sure that:</div><div class="line"> * Oracle Database instance(s) are up and running</div><div class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </div><div class="line">   (See Doc ID 749851.1)</div><div class="line"> * The shared memory segments can be listed by command:</div><div class="line">     # ipcs -m</div><div class="line"></div><div class="line"></div><div class="line">Press Enter to proceed..."</div><div class="line"></div><div class="line"><span class="keyword">read</span></div><div class="line"></div><div class="line"><span class="comment"># Check for the kernel version</span></div><div class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></div><div class="line"></div><div class="line"><span class="comment"># Find out the HugePage size</span></div><div class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></div><div class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</div><div class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></div><div class="line">    <span class="keyword">exit</span> <span class="number">1</span></div><div class="line">fi</div><div class="line"></div><div class="line"><span class="comment"># Initialize the counter</span></div><div class="line">NUM_PG=<span class="number">0</span></div><div class="line"></div><div class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></div><div class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></div><div class="line"><span class="keyword">do</span></div><div class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></div><div class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</div><div class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></div><div class="line">    fi</div><div class="line">done</div><div class="line"></div><div class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></div><div class="line"></div><div class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></div><div class="line"><span class="comment"># Bail out if that is the case</span></div><div class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</div><div class="line">    echo <span class="string">"***********"</span></div><div class="line">    echo <span class="string">"** ERROR **"</span></div><div class="line">    echo <span class="string">"***********"</span></div><div class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span></div><div class="line">HugePages configuration. HugePages can only be used for shared memory segments </div><div class="line">that you can list by command:</div><div class="line"></div><div class="line">    # ipcs -m</div><div class="line"></div><div class="line">of a size that can match an Oracle Database SGA. Please make sure that:</div><div class="line"> * Oracle Database instance is up and running </div><div class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</div><div class="line">    <span class="keyword">exit</span> <span class="number">1</span></div><div class="line">fi</div><div class="line"></div><div class="line"><span class="comment"># Finish with results</span></div><div class="line">case $KERN in</div><div class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</div><div class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</div><div class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</div><div class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">esac</div><div class="line"></div><div class="line"><span class="comment"># End</span></div></pre></td></tr></table></figure>
-</li>
-<li><p>Run:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</div><div class="line">./hugepages_settings.sh</div></pre></td></tr></table></figure>
-</li>
-</ol>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化]]></title>
       <url>/2017/05/08/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/02_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">uname –a</div><div class="line">cat /etc/redhat-release</div><div class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</div><div class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</div><div class="line">df -hT</div></pre></td></tr></table></figure>
@@ -164,6 +133,37 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hugepage计算脚本]]></title>
+      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
+<li>Oracle Database instance(s) are up and running</li>
+<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
+<li>The shared memory segments can be listed by command “ipcs -m”</li>
+<li>Oracle Linux</li>
+<li>Package ‘bc’ installed<a id="more"></a>
+</li>
+</ol>
+<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
+<li>Create a text file named hugepages_settings.sh</li>
+<li><p>Copy the contents below in the file</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># hugepages_settings.sh</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Linux bash script to compute values for the</span></div><div class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></div><div class="line"><span class="comment"># on Oracle Linux</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></div><div class="line"><span class="comment"># segments available when the script is run, no matter it</span></div><div class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></div><div class="line"><span class="comment"># http://support.oracle.com</span></div><div class="line"></div><div class="line"><span class="comment"># Welcome text</span></div><div class="line">echo <span class="string">"</span></div><div class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </div><div class="line">(http://support.oracle.com) where it is intended to compute values for </div><div class="line">the recommended HugePages/HugeTLB configuration for the current shared </div><div class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</div><div class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</div><div class="line"> * The 'pga_aggregate_target' is outside the SGA and </div><div class="line">   you should accommodate this while calculating SGA size.</div><div class="line"> * In case you changes the DB SGA size, </div><div class="line">   as the new SGA will not fit in the previous HugePages configuration, </div><div class="line">   it had better disable the whole HugePages, </div><div class="line">   start the DB with new SGA size and run the script again.</div><div class="line">And make sure that:</div><div class="line"> * Oracle Database instance(s) are up and running</div><div class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </div><div class="line">   (See Doc ID 749851.1)</div><div class="line"> * The shared memory segments can be listed by command:</div><div class="line">     # ipcs -m</div><div class="line"></div><div class="line"></div><div class="line">Press Enter to proceed..."</div><div class="line"></div><div class="line"><span class="keyword">read</span></div><div class="line"></div><div class="line"><span class="comment"># Check for the kernel version</span></div><div class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></div><div class="line"></div><div class="line"><span class="comment"># Find out the HugePage size</span></div><div class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></div><div class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</div><div class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></div><div class="line">    <span class="keyword">exit</span> <span class="number">1</span></div><div class="line">fi</div><div class="line"></div><div class="line"><span class="comment"># Initialize the counter</span></div><div class="line">NUM_PG=<span class="number">0</span></div><div class="line"></div><div class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></div><div class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></div><div class="line"><span class="keyword">do</span></div><div class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></div><div class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</div><div class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></div><div class="line">    fi</div><div class="line">done</div><div class="line"></div><div class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></div><div class="line"></div><div class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></div><div class="line"><span class="comment"># Bail out if that is the case</span></div><div class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</div><div class="line">    echo <span class="string">"***********"</span></div><div class="line">    echo <span class="string">"** ERROR **"</span></div><div class="line">    echo <span class="string">"***********"</span></div><div class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span></div><div class="line">HugePages configuration. HugePages can only be used for shared memory segments </div><div class="line">that you can list by command:</div><div class="line"></div><div class="line">    # ipcs -m</div><div class="line"></div><div class="line">of a size that can match an Oracle Database SGA. Please make sure that:</div><div class="line"> * Oracle Database instance is up and running </div><div class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</div><div class="line">    <span class="keyword">exit</span> <span class="number">1</span></div><div class="line">fi</div><div class="line"></div><div class="line"><span class="comment"># Finish with results</span></div><div class="line">case $KERN in</div><div class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</div><div class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</div><div class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</div><div class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</div><div class="line">esac</div><div class="line"></div><div class="line"><span class="comment"># End</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>Run:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</div><div class="line">./hugepages_settings.sh</div></pre></td></tr></table></figure>
+</li>
+</ol>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
             
         </tags>
         
@@ -603,24 +603,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
-      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
-      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> goldengate </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)]]></title>
       <url>/2017/03/31/oracle/Oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A5%E4%B8%81%E5%8F%B7%E7%A0%81%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83%20(%E6%96%87%E6%A1%A3%20ID%201922396.1)/</url>
       <content type="html"><![CDATA[<p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1" target="_blank" rel="external">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
@@ -700,6 +682,24 @@
         <tags>
             
             <tag> oracle </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
+      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
+      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> goldengate </tag>
             
         </tags>
         
@@ -1442,63 +1442,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[hexo更换主题并个性化定制]]></title>
-      <url>/2017/02/10/tools/hexo%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98%E5%B9%B6%E4%B8%AA%E6%80%A7%E5%8C%96%E5%AE%9A%E5%88%B6/</url>
-      <content type="html"><![CDATA[<blockquote>
-<p>hexo系统默认的主题虽然也不错，但我更喜欢<a href="http://moxfive.xyz/yelee" target="_blank" rel="external">yelee</a>和<a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="external">yilia</a>这两款主题</p>
-</blockquote>
-<h2 id="安装yelee主题"><a href="#安装yelee主题" class="headerlink" title="安装yelee主题"></a>安装yelee主题</h2><ol>
-<li><p>主题说明文档：<a href="http://moxfive.coding.me/yelee" target="_blank" rel="external"><code>http://moxfive.coding.me/yelee/</code></a></p>
-</li>
-<li><p>在博客根目录下执行以下命令</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></div><div class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/MOxFIVE/hexo-theme-yelee.git themes/yelee</div></pre></td></tr></table></figure>
-</li>
-<li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># theme: landscape</span></div><div class="line">theme: yelee</div></pre></td></tr></table></figure>
-</li>
-<li><p>更换主题后需要清理并重新生成静态页</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</div></pre></td></tr></table></figure>
-</li>
-<li><p>安装搜索插件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm install hexo-generator-search --save</div></pre></td></tr></table></figure>
-</li>
-<li><p>参照文档修改<code>themes\yelee</code>目录下的<code>_config.yml</code>文件</p>
-</li>
-</ol>
-<a id="more"></a>
-<h2 id="安装yilia主题"><a href="#安装yilia主题" class="headerlink" title="安装yilia主题"></a>安装yilia主题</h2><ol>
-<li><p>在博客根目录下执行以下命令</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">git clone https:<span class="regexp">//github</span>.com/litten/hexo-theme-yilia.git themes/yilia</div><div class="line"><span class="comment"># 或者</span></div><div class="line">git clone git@github.com:litten/hexo-theme-yilia.git themes/yilia</div><div class="line"></div><div class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></div><div class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/litten/hexo-theme-yilia.git themes/yilia</div></pre></td></tr></table></figure>
-</li>
-<li><p>在博客根目录（注意不是yilia根目录）执行以下命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm i hexo-generator-json-content --save</div></pre></td></tr></table></figure>
-</li>
-<li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># theme: landscape</span></div><div class="line">theme: yilia</div><div class="line"></div><div class="line"><span class="comment"># 添加以下内容</span></div><div class="line"><span class="comment"># jsonContent</span></div><div class="line">jsonContent:</div><div class="line">    meta: false</div><div class="line">    pages: false</div><div class="line">    posts:</div><div class="line">      title: true</div><div class="line">      date: true</div><div class="line">      path: true</div><div class="line">      text: true</div><div class="line">      raw: false</div><div class="line">      content: false</div><div class="line">      slug: false</div><div class="line">      updated: false</div><div class="line">      comments: false</div><div class="line">      <span class="keyword">link</span>: false</div><div class="line">      permalink: false</div><div class="line">      excerpt: false</div><div class="line">      categories: false</div><div class="line">      tags: true</div></pre></td></tr></table></figure>
-</li>
-<li><p>更换主题后需要清理并重新生成静态页</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo clean</div><div class="line">hexo g</div><div class="line">hexo s</div></pre></td></tr></table></figure>
-</li>
-<li><p>更换后效果<br><img src="http://oligvdnzp.bkt.clouddn.com/update_theme.png" alt="update_theme.png"></p>
-</li>
-<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 修改menu</span></div><div class="line">menu:</div><div class="line">  主页: <span class="regexp">/</span></div><div class="line">  归档: /archives<span class="regexp">/</span></div><div class="line">  #随笔: /tags<span class="regexp">/随笔/</span></div><div class="line"></div><div class="line"><span class="comment"># 修改并注释掉不需要的项</span></div><div class="line"><span class="comment"># SubNav</span></div><div class="line">subnav:</div><div class="line">  github: <span class="string">"https://github.com/dbanote"</span></div><div class="line">  weibo: <span class="string">"http://weibo.com/foxbei"</span></div><div class="line">  <span class="comment">#rss: "#"</span></div><div class="line">  <span class="comment">#zhihu: "#"</span></div><div class="line">  qq: <span class="string">"http://sighttp.qq.com/msgrd?v=1&amp;uin=9320802"</span></div><div class="line">  <span class="comment">#weixin: "#"</span></div><div class="line">  <span class="comment">#jianshu: "#"</span></div><div class="line">  <span class="comment">#douban: "#"</span></div><div class="line">  mail: <span class="string">"mailto:15004618839@139.com"</span></div><div class="line"></div><div class="line"><span class="comment"># 文章太长，截断按钮文字</span></div><div class="line"><span class="comment"># 截断需要在文章中添加 &lt;!--more--&gt;</span></div><div class="line"><span class="comment">#excerpt_link: more</span></div><div class="line">excerpt_link: false</div><div class="line"></div><div class="line"><span class="comment"># 设置打赏二维码</span></div><div class="line"><span class="comment"># 打赏基础设定：0-关闭打赏； 1-文章对应的md文件里有reward:true属性，才有打赏； 2-所有文章均有打赏</span></div><div class="line">reward_type: <span class="number">2</span></div><div class="line"><span class="comment"># 打赏wording</span></div><div class="line">reward_wording: <span class="string">'喜欢的话，支付1元请我吃糖吧！'</span></div><div class="line"></div><div class="line"><span class="comment"># 支付宝二维码图片地址，跟你设置头像的方式一样。比如：/assets/img/alipay.jpg</span></div><div class="line"><span class="comment"># 支付宝收款1元二维码图片</span></div><div class="line">alipay: <span class="regexp">/img/zhifubao</span>01.png</div><div class="line"><span class="comment"># 支付宝收款无金额设置二维码图片</span></div><div class="line"><span class="comment"># alipay: /img/zhifubao.png</span></div><div class="line"></div><div class="line"><span class="comment"># 微信二维码图片地址</span></div><div class="line"><span class="comment"># 微信收款1元二维码图片</span></div><div class="line">weixin: <span class="regexp">/img/weixin</span>01.png</div><div class="line"><span class="comment"># 微信收款无金额设置二维码图片</span></div><div class="line"><span class="comment"># alipay: /img/weixin.png</span></div><div class="line"></div><div class="line"><span class="comment"># 修改网站收藏夹图标</span></div><div class="line">favicon: <span class="regexp">/img/favicon</span>.png</div><div class="line"></div><div class="line"><span class="comment">#你的头像url</span></div><div class="line">avatar: <span class="regexp">/img/avatar</span>.jpg</div><div class="line"></div><div class="line"><span class="comment"># 根据需要修改以下内容</span></div><div class="line"><span class="comment"># 智能菜单</span></div><div class="line"><span class="comment"># 如不需要，将该对应项置为false</span></div><div class="line"><span class="comment"># 比如</span></div><div class="line"><span class="comment">#smart_menu:</span></div><div class="line"><span class="comment">#  friends: false</span></div><div class="line">smart_menu:</div><div class="line">  innerArchive: <span class="string">'所有文章'</span></div><div class="line">  friends: <span class="string">'常用网站'</span></div><div class="line">  aboutme: <span class="string">'关于我'</span></div><div class="line"></div><div class="line">friends:</div><div class="line">  My Oracle Support: https:<span class="regexp">//support</span>.oracle.com/</div><div class="line">  Oracle Edelivery: https:<span class="regexp">//edelivery</span>.oracle.com/</div><div class="line">  Oracle Help Center: http:<span class="regexp">//docs</span>.oracle.com/</div><div class="line">  练数成金: http:<span class="regexp">//www</span>.dataguru.cn/</div><div class="line">  三通IT论坛: http:<span class="regexp">//www</span>.santongit.com/</div><div class="line">  一起自学吧: http:<span class="regexp">//www</span>.<span class="number">17</span>zixueba.com/</div><div class="line"></div><div class="line">aboutme: DBA&lt;br&gt;&lt;br&gt;工作学习笔记&lt;br&gt;谢谢大家</div></pre></td></tr></table></figure>
-</li>
-</ol>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> tools </tag>
-            
-            <tag> hexo </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[hexo博客添加常用插件]]></title>
       <url>/2017/02/10/tools/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/</url>
       <content type="html"><![CDATA[<p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/" target="_blank" rel="external"><code>http://hexo.io/plugins</code></a></p>
@@ -1547,6 +1490,63 @@
 <li><a href="http://www.ituring.com.cn/article/199624" target="_blank" rel="external">Hexo站点中添加文章目录以及归档</a></li>
 <li><a href="http://www.cnblogs.com/peihao/p/5269131.html" target="_blank" rel="external">hexo优化目录</a></li>
 </ul>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> tools </tag>
+            
+            <tag> hexo </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[hexo更换主题并个性化定制]]></title>
+      <url>/2017/02/10/tools/hexo%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98%E5%B9%B6%E4%B8%AA%E6%80%A7%E5%8C%96%E5%AE%9A%E5%88%B6/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>hexo系统默认的主题虽然也不错，但我更喜欢<a href="http://moxfive.xyz/yelee" target="_blank" rel="external">yelee</a>和<a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="external">yilia</a>这两款主题</p>
+</blockquote>
+<h2 id="安装yelee主题"><a href="#安装yelee主题" class="headerlink" title="安装yelee主题"></a>安装yelee主题</h2><ol>
+<li><p>主题说明文档：<a href="http://moxfive.coding.me/yelee" target="_blank" rel="external"><code>http://moxfive.coding.me/yelee/</code></a></p>
+</li>
+<li><p>在博客根目录下执行以下命令</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></div><div class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/MOxFIVE/hexo-theme-yelee.git themes/yelee</div></pre></td></tr></table></figure>
+</li>
+<li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># theme: landscape</span></div><div class="line">theme: yelee</div></pre></td></tr></table></figure>
+</li>
+<li><p>更换主题后需要清理并重新生成静态页</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</div></pre></td></tr></table></figure>
+</li>
+<li><p>安装搜索插件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm install hexo-generator-search --save</div></pre></td></tr></table></figure>
+</li>
+<li><p>参照文档修改<code>themes\yelee</code>目录下的<code>_config.yml</code>文件</p>
+</li>
+</ol>
+<a id="more"></a>
+<h2 id="安装yilia主题"><a href="#安装yilia主题" class="headerlink" title="安装yilia主题"></a>安装yilia主题</h2><ol>
+<li><p>在博客根目录下执行以下命令</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">git clone https:<span class="regexp">//github</span>.com/litten/hexo-theme-yilia.git themes/yilia</div><div class="line"><span class="comment"># 或者</span></div><div class="line">git clone git@github.com:litten/hexo-theme-yilia.git themes/yilia</div><div class="line"></div><div class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></div><div class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/litten/hexo-theme-yilia.git themes/yilia</div></pre></td></tr></table></figure>
+</li>
+<li><p>在博客根目录（注意不是yilia根目录）执行以下命令：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm i hexo-generator-json-content --save</div></pre></td></tr></table></figure>
+</li>
+<li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># theme: landscape</span></div><div class="line">theme: yilia</div><div class="line"></div><div class="line"><span class="comment"># 添加以下内容</span></div><div class="line"><span class="comment"># jsonContent</span></div><div class="line">jsonContent:</div><div class="line">    meta: false</div><div class="line">    pages: false</div><div class="line">    posts:</div><div class="line">      title: true</div><div class="line">      date: true</div><div class="line">      path: true</div><div class="line">      text: true</div><div class="line">      raw: false</div><div class="line">      content: false</div><div class="line">      slug: false</div><div class="line">      updated: false</div><div class="line">      comments: false</div><div class="line">      <span class="keyword">link</span>: false</div><div class="line">      permalink: false</div><div class="line">      excerpt: false</div><div class="line">      categories: false</div><div class="line">      tags: true</div></pre></td></tr></table></figure>
+</li>
+<li><p>更换主题后需要清理并重新生成静态页</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo clean</div><div class="line">hexo g</div><div class="line">hexo s</div></pre></td></tr></table></figure>
+</li>
+<li><p>更换后效果<br><img src="http://oligvdnzp.bkt.clouddn.com/update_theme.png" alt="update_theme.png"></p>
+</li>
+<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 修改menu</span></div><div class="line">menu:</div><div class="line">  主页: <span class="regexp">/</span></div><div class="line">  归档: /archives<span class="regexp">/</span></div><div class="line">  #随笔: /tags<span class="regexp">/随笔/</span></div><div class="line"></div><div class="line"><span class="comment"># 修改并注释掉不需要的项</span></div><div class="line"><span class="comment"># SubNav</span></div><div class="line">subnav:</div><div class="line">  github: <span class="string">"https://github.com/dbanote"</span></div><div class="line">  weibo: <span class="string">"http://weibo.com/foxbei"</span></div><div class="line">  <span class="comment">#rss: "#"</span></div><div class="line">  <span class="comment">#zhihu: "#"</span></div><div class="line">  qq: <span class="string">"http://sighttp.qq.com/msgrd?v=1&amp;uin=9320802"</span></div><div class="line">  <span class="comment">#weixin: "#"</span></div><div class="line">  <span class="comment">#jianshu: "#"</span></div><div class="line">  <span class="comment">#douban: "#"</span></div><div class="line">  mail: <span class="string">"mailto:15004618839@139.com"</span></div><div class="line"></div><div class="line"><span class="comment"># 文章太长，截断按钮文字</span></div><div class="line"><span class="comment"># 截断需要在文章中添加 &lt;!--more--&gt;</span></div><div class="line"><span class="comment">#excerpt_link: more</span></div><div class="line">excerpt_link: false</div><div class="line"></div><div class="line"><span class="comment"># 设置打赏二维码</span></div><div class="line"><span class="comment"># 打赏基础设定：0-关闭打赏； 1-文章对应的md文件里有reward:true属性，才有打赏； 2-所有文章均有打赏</span></div><div class="line">reward_type: <span class="number">2</span></div><div class="line"><span class="comment"># 打赏wording</span></div><div class="line">reward_wording: <span class="string">'喜欢的话，支付1元请我吃糖吧！'</span></div><div class="line"></div><div class="line"><span class="comment"># 支付宝二维码图片地址，跟你设置头像的方式一样。比如：/assets/img/alipay.jpg</span></div><div class="line"><span class="comment"># 支付宝收款1元二维码图片</span></div><div class="line">alipay: <span class="regexp">/img/zhifubao</span>01.png</div><div class="line"><span class="comment"># 支付宝收款无金额设置二维码图片</span></div><div class="line"><span class="comment"># alipay: /img/zhifubao.png</span></div><div class="line"></div><div class="line"><span class="comment"># 微信二维码图片地址</span></div><div class="line"><span class="comment"># 微信收款1元二维码图片</span></div><div class="line">weixin: <span class="regexp">/img/weixin</span>01.png</div><div class="line"><span class="comment"># 微信收款无金额设置二维码图片</span></div><div class="line"><span class="comment"># alipay: /img/weixin.png</span></div><div class="line"></div><div class="line"><span class="comment"># 修改网站收藏夹图标</span></div><div class="line">favicon: <span class="regexp">/img/favicon</span>.png</div><div class="line"></div><div class="line"><span class="comment">#你的头像url</span></div><div class="line">avatar: <span class="regexp">/img/avatar</span>.jpg</div><div class="line"></div><div class="line"><span class="comment"># 根据需要修改以下内容</span></div><div class="line"><span class="comment"># 智能菜单</span></div><div class="line"><span class="comment"># 如不需要，将该对应项置为false</span></div><div class="line"><span class="comment"># 比如</span></div><div class="line"><span class="comment">#smart_menu:</span></div><div class="line"><span class="comment">#  friends: false</span></div><div class="line">smart_menu:</div><div class="line">  innerArchive: <span class="string">'所有文章'</span></div><div class="line">  friends: <span class="string">'常用网站'</span></div><div class="line">  aboutme: <span class="string">'关于我'</span></div><div class="line"></div><div class="line">friends:</div><div class="line">  My Oracle Support: https:<span class="regexp">//support</span>.oracle.com/</div><div class="line">  Oracle Edelivery: https:<span class="regexp">//edelivery</span>.oracle.com/</div><div class="line">  Oracle Help Center: http:<span class="regexp">//docs</span>.oracle.com/</div><div class="line">  练数成金: http:<span class="regexp">//www</span>.dataguru.cn/</div><div class="line">  三通IT论坛: http:<span class="regexp">//www</span>.santongit.com/</div><div class="line">  一起自学吧: http:<span class="regexp">//www</span>.<span class="number">17</span>zixueba.com/</div><div class="line"></div><div class="line">aboutme: DBA&lt;br&gt;&lt;br&gt;工作学习笔记&lt;br&gt;谢谢大家</div></pre></td></tr></table></figure>
+</li>
+</ol>
 ]]></content>
       
         
