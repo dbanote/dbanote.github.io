@@ -339,6 +339,80 @@
 
 
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
+<span class="line">yum -<span class="keyword">y</span> install make automake libtool pkgconfig libaio-devel vim-common</span>
+<span class="line">yum -<span class="keyword">y</span> install mysql-devel</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 编译源码安装，下载地址：https://codeload.github.com/akopytov/Sysbench/zip/1.0.5</span></span>
+<span class="line">unzip sysbench-<span class="number">1.0</span>.<span class="number">5</span>.zip</span>
+<span class="line">cd sysbench-<span class="number">1.0</span>.<span class="number">5</span></span>
+<span class="line">./autogen.sh</span>
+<span class="line">./configure --with-mysql-includes=<span class="regexp">/usr/include</span><span class="regexp">/mysql --with-mysql-libs=/usr</span><span class="regexp">/lib64/mysql</span>   <span class="comment"># 注意修改路径</span></span>
+<span class="line">make &amp;&amp; make install</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/ORA/ORA-27086" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -399,80 +473,6 @@
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
     </div>
 
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
-<span class="line">yum -<span class="keyword">y</span> install make automake libtool pkgconfig libaio-devel vim-common</span>
-<span class="line">yum -<span class="keyword">y</span> install mysql-devel</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 编译源码安装，下载地址：https://codeload.github.com/akopytov/Sysbench/zip/1.0.5</span></span>
-<span class="line">unzip sysbench-<span class="number">1.0</span>.<span class="number">5</span>.zip</span>
-<span class="line">cd sysbench-<span class="number">1.0</span>.<span class="number">5</span></span>
-<span class="line">./autogen.sh</span>
-<span class="line">./configure --with-mysql-includes=<span class="regexp">/usr/include</span><span class="regexp">/mysql --with-mysql-libs=/usr</span><span class="regexp">/lib64/mysql</span>   <span class="comment"># 注意修改路径</span></span>
-<span class="line">make &amp;&amp; make install</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>

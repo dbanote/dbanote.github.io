@@ -239,9 +239,9 @@
         
         <tags>
             
-            <tag> iDARC </tag>
-            
             <tag> tools </tag>
+            
+            <tag> iDARC </tag>
             
         </tags>
         
@@ -906,133 +906,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Hugepage计算脚本]]></title>
-      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
-      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
-<li>Oracle Database instance(s) are up and running</li>
-<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
-<li>The shared memory segments can be listed by command “ipcs -m”</li>
-<li>Oracle Linux</li>
-<li>Package ‘bc’ installed<a id="more"></a>
-</li>
-</ol>
-<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
-<li>Create a text file named hugepages_settings.sh</li>
-<li><p>Copy the contents below in the file</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># hugepages_settings.sh</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># Linux bash script to compute values for the</span></span>
-<span class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></span>
-<span class="line"><span class="comment"># on Oracle Linux</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></span>
-<span class="line"><span class="comment"># segments available when the script is run, no matter it</span></span>
-<span class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></span>
-<span class="line"><span class="comment"># http://support.oracle.com</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Welcome text</span></span>
-<span class="line">echo <span class="string">"</span>
-<span class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </span>
-<span class="line">(http://support.oracle.com) where it is intended to compute values for </span>
-<span class="line">the recommended HugePages/HugeTLB configuration for the current shared </span>
-<span class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</span>
-<span class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</span>
-<span class="line"> * The 'pga_aggregate_target' is outside the SGA and </span>
-<span class="line">   you should accommodate this while calculating SGA size.</span>
-<span class="line"> * In case you changes the DB SGA size, </span>
-<span class="line">   as the new SGA will not fit in the previous HugePages configuration, </span>
-<span class="line">   it had better disable the whole HugePages, </span>
-<span class="line">   start the DB with new SGA size and run the script again.</span>
-<span class="line">And make sure that:</span>
-<span class="line"> * Oracle Database instance(s) are up and running</span>
-<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </span>
-<span class="line">   (See Doc ID 749851.1)</span>
-<span class="line"> * The shared memory segments can be listed by command:</span>
-<span class="line">     # ipcs -m</span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line">Press Enter to proceed..."</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">read</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Check for the kernel version</span></span>
-<span class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Find out the HugePage size</span></span>
-<span class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></span>
-<span class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</span>
-<span class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></span>
-<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
-<span class="line">fi</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Initialize the counter</span></span>
-<span class="line">NUM_PG=<span class="number">0</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></span>
-<span class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></span>
-<span class="line"><span class="keyword">do</span></span>
-<span class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></span>
-<span class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</span>
-<span class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></span>
-<span class="line">    fi</span>
-<span class="line">done</span>
-<span class="line"></span>
-<span class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></span>
-<span class="line"><span class="comment"># Bail out if that is the case</span></span>
-<span class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</span>
-<span class="line">    echo <span class="string">"***********"</span></span>
-<span class="line">    echo <span class="string">"** ERROR **"</span></span>
-<span class="line">    echo <span class="string">"***********"</span></span>
-<span class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span>
-<span class="line">HugePages configuration. HugePages can only be used for shared memory segments </span>
-<span class="line">that you can list by command:</span>
-<span class="line"></span>
-<span class="line">    # ipcs -m</span>
-<span class="line"></span>
-<span class="line">of a size that can match an Oracle Database SGA. Please make sure that:</span>
-<span class="line"> * Oracle Database instance is up and running </span>
-<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</span></span>
-<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
-<span class="line">fi</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Finish with results</span></span>
-<span class="line">case $KERN in</span>
-<span class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</span>
-<span class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</span>
-<span class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</span>
-<span class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">esac</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># End</span></span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>Run:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</span>
-<span class="line">./hugepages_settings.sh</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化]]></title>
       <url>/2017/05/08/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/02_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
@@ -1225,6 +1098,133 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hugepage计算脚本]]></title>
+      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
+<li>Oracle Database instance(s) are up and running</li>
+<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
+<li>The shared memory segments can be listed by command “ipcs -m”</li>
+<li>Oracle Linux</li>
+<li>Package ‘bc’ installed<a id="more"></a>
+</li>
+</ol>
+<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
+<li>Create a text file named hugepages_settings.sh</li>
+<li><p>Copy the contents below in the file</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># hugepages_settings.sh</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># Linux bash script to compute values for the</span></span>
+<span class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></span>
+<span class="line"><span class="comment"># on Oracle Linux</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></span>
+<span class="line"><span class="comment"># segments available when the script is run, no matter it</span></span>
+<span class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></span>
+<span class="line"><span class="comment"># http://support.oracle.com</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Welcome text</span></span>
+<span class="line">echo <span class="string">"</span>
+<span class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </span>
+<span class="line">(http://support.oracle.com) where it is intended to compute values for </span>
+<span class="line">the recommended HugePages/HugeTLB configuration for the current shared </span>
+<span class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</span>
+<span class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</span>
+<span class="line"> * The 'pga_aggregate_target' is outside the SGA and </span>
+<span class="line">   you should accommodate this while calculating SGA size.</span>
+<span class="line"> * In case you changes the DB SGA size, </span>
+<span class="line">   as the new SGA will not fit in the previous HugePages configuration, </span>
+<span class="line">   it had better disable the whole HugePages, </span>
+<span class="line">   start the DB with new SGA size and run the script again.</span>
+<span class="line">And make sure that:</span>
+<span class="line"> * Oracle Database instance(s) are up and running</span>
+<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </span>
+<span class="line">   (See Doc ID 749851.1)</span>
+<span class="line"> * The shared memory segments can be listed by command:</span>
+<span class="line">     # ipcs -m</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Press Enter to proceed..."</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">read</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Check for the kernel version</span></span>
+<span class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Find out the HugePage size</span></span>
+<span class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></span>
+<span class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</span>
+<span class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></span>
+<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
+<span class="line">fi</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Initialize the counter</span></span>
+<span class="line">NUM_PG=<span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></span>
+<span class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></span>
+<span class="line"><span class="keyword">do</span></span>
+<span class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></span>
+<span class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</span>
+<span class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></span>
+<span class="line">    fi</span>
+<span class="line">done</span>
+<span class="line"></span>
+<span class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></span>
+<span class="line"><span class="comment"># Bail out if that is the case</span></span>
+<span class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</span>
+<span class="line">    echo <span class="string">"***********"</span></span>
+<span class="line">    echo <span class="string">"** ERROR **"</span></span>
+<span class="line">    echo <span class="string">"***********"</span></span>
+<span class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span>
+<span class="line">HugePages configuration. HugePages can only be used for shared memory segments </span>
+<span class="line">that you can list by command:</span>
+<span class="line"></span>
+<span class="line">    # ipcs -m</span>
+<span class="line"></span>
+<span class="line">of a size that can match an Oracle Database SGA. Please make sure that:</span>
+<span class="line"> * Oracle Database instance is up and running </span>
+<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</span></span>
+<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
+<span class="line">fi</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Finish with results</span></span>
+<span class="line">case $KERN in</span>
+<span class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</span>
+<span class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</span>
+<span class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</span>
+<span class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">esac</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># End</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>Run:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</span>
+<span class="line">./hugepages_settings.sh</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
             
         </tags>
         
@@ -2184,40 +2184,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
-      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
-      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
-<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
-<span class="line">......</span>
-<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
-<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
-<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
-<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
-<span class="line">Additional information: <span class="number">10</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
-<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
-<span class="line"></span>
-<span class="line">vi /etc</span><span class="regexp">/fstab</span>
-<span class="line">#------------------------------------------------------------------------</span>
-<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
-<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> ORA- </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划]]></title>
       <url>/2017/04/13/mysql/MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/12-MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98/</url>
       <content type="html"><![CDATA[<h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
@@ -2419,6 +2385,40 @@
             <tag> mysql </tag>
             
             <tag> sysbench </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
+      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
+      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
+<span class="line"></span>
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> ORA- </tag>
             
         </tags>
         
