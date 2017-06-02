@@ -4,23 +4,6 @@
   
     
     <entry>
-      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
-      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
-      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
-<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
-<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> Linux </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB]]></title>
       <url>/2017/05/24/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/04_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
@@ -223,6 +206,23 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
+      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
+      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
+<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
+<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> Linux </tag>
             
         </tags>
         
@@ -3256,24 +3256,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
-      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
-      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> goldengate </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)]]></title>
       <url>/2017/03/31/oracle/Oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A5%E4%B8%81%E5%8F%B7%E7%A0%81%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83%20(%E6%96%87%E6%A1%A3%20ID%201922396.1)/</url>
       <content type="html"><![CDATA[<p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1" target="_blank" rel="external">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
@@ -3353,6 +3335,24 @@
         <tags>
             
             <tag> oracle </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
+      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
+      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> goldengate </tag>
             
         </tags>
         
@@ -6178,9 +6178,9 @@
         
         <tags>
             
-            <tag> hexo </tag>
-            
             <tag> tools </tag>
+            
+            <tag> hexo </tag>
             
         </tags>
         
@@ -7368,80 +7368,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[hexo博客添加常用插件]]></title>
-      <url>/2017/02/10/tools/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/</url>
-      <content type="html"><![CDATA[<p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/" target="_blank" rel="external"><code>http://hexo.io/plugins</code></a></p>
-<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf" target="_blank" rel="external">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
-</pre></td></tr></table></figure>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
-<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
-</pre></td></tr></table></figure>
-<a id="more"></a>
-<h2 id="添加生成文章目录插件hexo-toc"><a href="#添加生成文章目录插件hexo-toc" class="headerlink" title="添加生成文章目录插件hexo-toc"></a>添加生成文章目录插件hexo-toc</h2><ol>
-<li><p>安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-toc --save</span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>配置<br>在博客根目录下的<code>_config.yml</code>中如下配置：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toc:</span>
-<span class="line">  maxdepth: 3</span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>使用<br>在Markdown中需要显示文章目录的地方添加 </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!-- toc --&gt;</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="添加百度统计支持"><a href="#添加百度统计支持" class="headerlink" title="添加百度统计支持"></a>添加百度统计支持</h2><p><code>yilia</code>主题自带统计支持</p>
-<ol>
-<li><p>打开<a href="http://tongji.baidu.com/web/welcome/login" target="_blank" rel="external">百度统计</a>网站，注册账号<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_01.png" alt="baidu_stat_01.png"></p>
-</li>
-<li><p>填写注册信息<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_02.png" alt="baidu_stat_02.png"></p>
-</li>
-<li><p>记录百度统计ID号码<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_03.png" alt="baidu_stat_03.png"></p>
-</li>
-<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Miscellaneous</span></span>
-<span class="line">baidu_analytics: <span class="string">'xxxxxxxxxxxx'</span>   <span class="comment"># xxxxxx是刚获得的百度统计ID号码</span></span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>统计代码安装检查，确保代码安装正确<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_04.png" alt="baidu_stat_04.png"></p>
-</li>
-</ol>
-<h2 id="添加多说评论支持"><a href="#添加多说评论支持" class="headerlink" title="添加多说评论支持"></a>添加多说评论支持</h2><ol>
-<li><p>打开<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>网站<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_01.png" alt="duoshuo_01.png"></p>
-</li>
-<li><p>选择微信登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_02.png" alt="duoshuo_02.png"></p>
-</li>
-<li><p>点击<code>我要安装</code><br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_03.png" alt="duoshuo_03.png"></p>
-</li>
-<li><p>填写相应信息<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_04.png" alt="duoshuo_04.png"></p>
-</li>
-<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#是否开启多说评论，开启填写你在多说申请的项目的short_name: dbanote</span></span>
-<span class="line"><span class="comment">#duoshuo: false</span></span>
-<span class="line">duoshuo: dbanote</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="http://www.ituring.com.cn/article/199624" target="_blank" rel="external">Hexo站点中添加文章目录以及归档</a></li>
-<li><a href="http://www.cnblogs.com/peihao/p/5269131.html" target="_blank" rel="external">hexo优化目录</a></li>
-</ul>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> hexo </tag>
-            
-            <tag> tools </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[hexo更换主题并个性化定制]]></title>
       <url>/2017/02/10/tools/hexo%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98%E5%B9%B6%E4%B8%AA%E6%80%A7%E5%8C%96%E5%AE%9A%E5%88%B6/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -7597,9 +7523,83 @@
         
         <tags>
             
+            <tag> tools </tag>
+            
             <tag> hexo </tag>
             
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[hexo博客添加常用插件]]></title>
+      <url>/2017/02/10/tools/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/</url>
+      <content type="html"><![CDATA[<p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/" target="_blank" rel="external"><code>http://hexo.io/plugins</code></a></p>
+<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf" target="_blank" rel="external">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
+</pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
+<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="添加生成文章目录插件hexo-toc"><a href="#添加生成文章目录插件hexo-toc" class="headerlink" title="添加生成文章目录插件hexo-toc"></a>添加生成文章目录插件hexo-toc</h2><ol>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-toc --save</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>配置<br>在博客根目录下的<code>_config.yml</code>中如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toc:</span>
+<span class="line">  maxdepth: 3</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>使用<br>在Markdown中需要显示文章目录的地方添加 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!-- toc --&gt;</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="添加百度统计支持"><a href="#添加百度统计支持" class="headerlink" title="添加百度统计支持"></a>添加百度统计支持</h2><p><code>yilia</code>主题自带统计支持</p>
+<ol>
+<li><p>打开<a href="http://tongji.baidu.com/web/welcome/login" target="_blank" rel="external">百度统计</a>网站，注册账号<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_01.png" alt="baidu_stat_01.png"></p>
+</li>
+<li><p>填写注册信息<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_02.png" alt="baidu_stat_02.png"></p>
+</li>
+<li><p>记录百度统计ID号码<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_03.png" alt="baidu_stat_03.png"></p>
+</li>
+<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Miscellaneous</span></span>
+<span class="line">baidu_analytics: <span class="string">'xxxxxxxxxxxx'</span>   <span class="comment"># xxxxxx是刚获得的百度统计ID号码</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>统计代码安装检查，确保代码安装正确<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_04.png" alt="baidu_stat_04.png"></p>
+</li>
+</ol>
+<h2 id="添加多说评论支持"><a href="#添加多说评论支持" class="headerlink" title="添加多说评论支持"></a>添加多说评论支持</h2><ol>
+<li><p>打开<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>网站<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_01.png" alt="duoshuo_01.png"></p>
+</li>
+<li><p>选择微信登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_02.png" alt="duoshuo_02.png"></p>
+</li>
+<li><p>点击<code>我要安装</code><br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_03.png" alt="duoshuo_03.png"></p>
+</li>
+<li><p>填写相应信息<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_04.png" alt="duoshuo_04.png"></p>
+</li>
+<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#是否开启多说评论，开启填写你在多说申请的项目的short_name: dbanote</span></span>
+<span class="line"><span class="comment">#duoshuo: false</span></span>
+<span class="line">duoshuo: dbanote</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="http://www.ituring.com.cn/article/199624" target="_blank" rel="external">Hexo站点中添加文章目录以及归档</a></li>
+<li><a href="http://www.cnblogs.com/peihao/p/5269131.html" target="_blank" rel="external">hexo优化目录</a></li>
+</ul>
+]]></content>
+      
+        
+        <tags>
+            
             <tag> tools </tag>
+            
+            <tag> hexo </tag>
             
         </tags>
         
@@ -7850,9 +7850,9 @@
         
         <tags>
             
-            <tag> hexo </tag>
-            
             <tag> tools </tag>
+            
+            <tag> hexo </tag>
             
         </tags>
         
