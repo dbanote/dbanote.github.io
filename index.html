@@ -266,70 +266,6 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> pdbs;</div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></div><div class="line">         2 PDB$SEED                       READ ONLY  NO</div><div class="line">         3 PDB1                           READ WRITE NO</div><div class="line">         4 PDB2                           READ WRITE NO</div><div class="line"></div><div class="line"><span class="keyword">show</span> con_name</div><div class="line">CON_NAME</div><div class="line"><span class="comment">------------------------------</span></div><div class="line">CDB$ROOT</div></pre></td></tr></table></figure></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -376,6 +312,81 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></span>
+<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         3 PDB1                           READ WRITE NO</span>
+<span class="line">         4 PDB2                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">show</span> con_name</span>
+<span class="line">CON_NAME</span>
+<span class="line"><span class="comment">------------------------------</span></span>
+<span class="line">CDB$ROOT</span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -487,7 +498,21 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="手工创建cdb数据库-create-database语句"><a href="#手工创建cdb数据库-create-database语句" class="headerlink" title="手工创建cdb数据库(create database语句)"></a>手工创建cdb数据库(create database语句)</h2><h3 id="创建前的准备工作"><a href="#创建前的准备工作" class="headerlink" title="创建前的准备工作"></a>创建前的准备工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 创建密码文件</span></div><div class="line">orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></div><div class="line"></div><div class="line"><span class="comment"># 创建参数文件</span></div><div class="line">vi spfileorcl1.ora</div><div class="line"><span class="comment">#---------------------------------------------------</span></div><div class="line">db_name=orcl1</div><div class="line">sga_target=<span class="number">2048</span>M</div><div class="line">db_create_file_dest=<span class="string">'/u01/app/oracle/oradata/orcl1'</span></div><div class="line">enable_pluggable_database=true</div><div class="line"><span class="comment">#---------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 创建所需目录</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl1</div></pre></td></tr></table></figure>
+              <h2 id="手工创建cdb数据库-create-database语句"><a href="#手工创建cdb数据库-create-database语句" class="headerlink" title="手工创建cdb数据库(create database语句)"></a>手工创建cdb数据库(create database语句)</h2><h3 id="创建前的准备工作"><a href="#创建前的准备工作" class="headerlink" title="创建前的准备工作"></a>创建前的准备工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建密码文件</span></span>
+<span class="line">orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建参数文件</span></span>
+<span class="line">vi spfileorcl1.ora</span>
+<span class="line"><span class="comment">#---------------------------------------------------</span></span>
+<span class="line">db_name=orcl1</span>
+<span class="line">sga_target=<span class="number">2048</span>M</span>
+<span class="line">db_create_file_dest=<span class="string">'/u01/app/oracle/oradata/orcl1'</span></span>
+<span class="line">enable_pluggable_database=true</span>
+<span class="line"><span class="comment">#---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建所需目录</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl1</span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -504,70 +529,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">uname –a</div><div class="line">cat /etc/redhat-release</div><div class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</div><div class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</div><div class="line">df -hT</div></pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -637,6 +598,75 @@
       
         <p class="article-more-link">
           <a href="/2017/05/08/oracle/hugepage计算脚本/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
+<span class="line">cat /etc/redhat-release</span>
+<span class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</span>
+<span class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</span>
+<span class="line">df -hT</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -749,7 +779,43 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="通过gdb工具分析mysqld进程启动的过程"><a href="#通过gdb工具分析mysqld进程启动的过程" class="headerlink" title="通过gdb工具分析mysqld进程启动的过程"></a>通过gdb工具分析mysqld进程启动的过程</h2><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">gdb --args /u01/mysql/bin/mysqld</div><div class="line"><span class="comment">#--------------------------------------------------------------------------------</span></div><div class="line">GNU gdb (GDB) Red Hat Enterprise Linux (<span class="number">7.2</span>-<span class="number">90</span>.el6)</div><div class="line">Copyright (C) <span class="number">2010</span> Free Software Foundation, Inc.</div><div class="line">License GPLv3+: GNU GPL version <span class="number">3</span> <span class="keyword">or</span> later &lt;http:<span class="regexp">//gnu</span>.org/licenses/gpl.html&gt;</div><div class="line">This is free software: you are free to change <span class="keyword">and</span> redistribute it.</div><div class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></div><div class="line"><span class="keyword">and</span> <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</div><div class="line">This GDB was configured as <span class="string">"x86_64-redhat-linux-gnu"</span>.</div><div class="line">For bug reporting instructions, please see:</div><div class="line">&lt;http:<span class="regexp">//www</span>.gnu.org/software/gdb/bugs/&gt;...</div><div class="line">Reading symbols from /u01/mysql/bin/mysqld...done.</div><div class="line">(gdb) b mysqld_main   <span class="comment"># 设置断点</span></div><div class="line">Breakpoint <span class="number">1</span> at <span class="number">0x58c0e4</span>: file /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc, line <span class="number">5245</span>.</div><div class="line">(gdb) r   <span class="comment"># 运行</span></div><div class="line">Starting program: <span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqld</span> </div><div class="line">[Thread debugging using libthread_db enabled]</div><div class="line"></div><div class="line">Breakpoint <span class="number">1</span>, mysqld_main (argc=<span class="number">1</span>, argv=<span class="number">0x7fffffffe668</span>) at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc:<span class="number">5245</span></div><div class="line"><span class="number">5245</span>    &#123;</div><div class="line">Missing separate debuginfos, <span class="keyword">use</span>: debuginfo-install glibc-<span class="number">2.12</span>-<span class="number">1.192</span>.el6.x86_64 keyutils-libs-<span class="number">1.4</span>-<span class="number">5.0</span>.<span class="number">1</span>.el6.x86_64 </div><div class="line">krb5-libs-<span class="number">1.10</span>.<span class="number">3</span>-<span class="number">57</span>.el6.x86_64 libcom_err-<span class="number">1.42</span>.<span class="number">8</span>-<span class="number">1.0</span>.<span class="number">2</span>.el6.x86_64 libgcc-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 </div><div class="line">libselinux-<span class="number">2.0</span>.<span class="number">94</span>-<span class="number">7</span>.el6.x86_64  libstdc++-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 nss-softokn-freebl-<span class="number">3.14</span>.<span class="number">3</span>-<span class="number">23</span>.el6_7.x86_64 </div><div class="line">openssl-<span class="number">1.0</span>.<span class="number">1</span>e-<span class="number">48</span>.el6.x86_64 zlib-<span class="number">1.2</span>.<span class="number">3</span>-<span class="number">29</span>.el6.x86_64</div><div class="line">(gdb) n   <span class="comment"># 向下</span></div><div class="line"><span class="number">5250</span>      my_progname= argv[<span class="number">0</span>];</div><div class="line">(gdb) n</div><div class="line"><span class="number">5254</span>      <span class="keyword">if</span> (my_init())                 // init my_sys library &amp; pthreads</div><div class="line">(gdb) <span class="keyword">s</span>   <span class="comment"># 看源码位置</span></div><div class="line">my_init () at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/mysys/my_init.c:<span class="number">69</span></div><div class="line"><span class="number">69</span>        <span class="keyword">if</span> (my_init_done)</div><div class="line">(gdb) n</div><div class="line"><span class="number">74</span>        my_umask= <span class="number">0660</span>;                       <span class="regexp">/* Default umask for new files */</span></div><div class="line">(gdb) n</div><div class="line"><span class="number">75</span>        my_umask_dir= <span class="number">0700</span>;                   <span class="regexp">/* Default umask for new directories */</span></div><div class="line"><span class="comment">#--------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
+              <h2 id="通过gdb工具分析mysqld进程启动的过程"><a href="#通过gdb工具分析mysqld进程启动的过程" class="headerlink" title="通过gdb工具分析mysqld进程启动的过程"></a>通过gdb工具分析mysqld进程启动的过程</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">gdb --args /u01/mysql/bin/mysqld</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line">GNU gdb (GDB) Red Hat Enterprise Linux (<span class="number">7.2</span>-<span class="number">90</span>.el6)</span>
+<span class="line">Copyright (C) <span class="number">2010</span> Free Software Foundation, Inc.</span>
+<span class="line">License GPLv3+: GNU GPL version <span class="number">3</span> <span class="keyword">or</span> later &lt;http:<span class="regexp">//gnu</span>.org/licenses/gpl.html&gt;</span>
+<span class="line">This is free software: you are free to change <span class="keyword">and</span> redistribute it.</span>
+<span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span>
+<span class="line"><span class="keyword">and</span> <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span>
+<span class="line">This GDB was configured as <span class="string">"x86_64-redhat-linux-gnu"</span>.</span>
+<span class="line">For bug reporting instructions, please see:</span>
+<span class="line">&lt;http:<span class="regexp">//www</span>.gnu.org/software/gdb/bugs/&gt;...</span>
+<span class="line">Reading symbols from /u01/mysql/bin/mysqld...done.</span>
+<span class="line">(gdb) b mysqld_main   <span class="comment"># 设置断点</span></span>
+<span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x58c0e4</span>: file /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc, line <span class="number">5245</span>.</span>
+<span class="line">(gdb) r   <span class="comment"># 运行</span></span>
+<span class="line">Starting program: <span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqld</span> </span>
+<span class="line">[Thread debugging using libthread_db enabled]</span>
+<span class="line"></span>
+<span class="line">Breakpoint <span class="number">1</span>, mysqld_main (argc=<span class="number">1</span>, argv=<span class="number">0x7fffffffe668</span>) at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc:<span class="number">5245</span></span>
+<span class="line"><span class="number">5245</span>    &#123;</span>
+<span class="line">Missing separate debuginfos, <span class="keyword">use</span>: debuginfo-install glibc-<span class="number">2.12</span>-<span class="number">1.192</span>.el6.x86_64 keyutils-libs-<span class="number">1.4</span>-<span class="number">5.0</span>.<span class="number">1</span>.el6.x86_64 </span>
+<span class="line">krb5-libs-<span class="number">1.10</span>.<span class="number">3</span>-<span class="number">57</span>.el6.x86_64 libcom_err-<span class="number">1.42</span>.<span class="number">8</span>-<span class="number">1.0</span>.<span class="number">2</span>.el6.x86_64 libgcc-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 </span>
+<span class="line">libselinux-<span class="number">2.0</span>.<span class="number">94</span>-<span class="number">7</span>.el6.x86_64  libstdc++-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 nss-softokn-freebl-<span class="number">3.14</span>.<span class="number">3</span>-<span class="number">23</span>.el6_7.x86_64 </span>
+<span class="line">openssl-<span class="number">1.0</span>.<span class="number">1</span>e-<span class="number">48</span>.el6.x86_64 zlib-<span class="number">1.2</span>.<span class="number">3</span>-<span class="number">29</span>.el6.x86_64</span>
+<span class="line">(gdb) n   <span class="comment"># 向下</span></span>
+<span class="line"><span class="number">5250</span>      my_progname= argv[<span class="number">0</span>];</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">5254</span>      <span class="keyword">if</span> (my_init())                 // init my_sys library &amp; pthreads</span>
+<span class="line">(gdb) <span class="keyword">s</span>   <span class="comment"># 看源码位置</span></span>
+<span class="line">my_init () at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/mysys/my_init.c:<span class="number">69</span></span>
+<span class="line"><span class="number">69</span>        <span class="keyword">if</span> (my_init_done)</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">74</span>        my_umask= <span class="number">0660</span>;                       <span class="regexp">/* Default umask for new files */</span></span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">75</span>        my_umask_dir= <span class="number">0700</span>;                   <span class="regexp">/* Default umask for new directories */</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -883,7 +949,22 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="用oak对表sbtest1做添加字段和增加索引的Online-DDL"><a href="#用oak对表sbtest1做添加字段和增加索引的Online-DDL" class="headerlink" title="用oak对表sbtest1做添加字段和增加索引的Online DDL"></a>用oak对表sbtest1做添加字段和增加索引的Online DDL</h2><h3 id="用sysbench工具准备测试环境"><a href="#用sysbench工具准备测试环境" class="headerlink" title="用sysbench工具准备测试环境"></a>用sysbench工具准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 创建数据库</span></div><div class="line">mysql&gt; create database lyj;</div><div class="line"></div><div class="line"><span class="comment"># 用sysbench工具准备测试环境</span></div><div class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</div><div class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</div><div class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</div><div class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</div><div class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</div><div class="line"></div><div class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</div><div class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</div><div class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</div><div class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</div><div class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</div></pre></td></tr></table></figure>
+              <h2 id="用oak对表sbtest1做添加字段和增加索引的Online-DDL"><a href="#用oak对表sbtest1做添加字段和增加索引的Online-DDL" class="headerlink" title="用oak对表sbtest1做添加字段和增加索引的Online DDL"></a>用oak对表sbtest1做添加字段和增加索引的Online DDL</h2><h3 id="用sysbench工具准备测试环境"><a href="#用sysbench工具准备测试环境" class="headerlink" title="用sysbench工具准备测试环境"></a>用sysbench工具准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据库</span></span>
+<span class="line">mysql&gt; create database lyj;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 用sysbench工具准备测试环境</span></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
+<span class="line"></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
+</pre></td></tr></table></figure>
           
       
     </div>

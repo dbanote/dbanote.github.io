@@ -307,23 +307,342 @@
           
         <h2 id="为什么数据目录和日志目录需要分开"><a href="#为什么数据目录和日志目录需要分开" class="headerlink" title="为什么数据目录和日志目录需要分开?"></a>为什么数据目录和日志目录需要分开?</h2><p>这里的分开，我理解是将MySQL的数据目录和日志目录分别放到不同类型的磁盘中。<br>假设生产环境中服务器上有两种类型的磁盘，分别是SSD和SAS，SSD比SAS的响应时间要快（SSD响应时间约0.1毫秒，SAS的响应时间约10毫秒），为了更好的利用磁盘，一般会把活跃的数据放到SSD上，冷数据放到SAS磁盘上。<br>数据目录下的数据一般是随机读写的热数据，放到SSD盘中会有较高的响应速度；<br>日志目录下的日志是顺序读写的冷数据，放到SAS盘中满足写日志高吞吐量的需求。<br><a id="more"></a></p>
 <h2 id="如何标准化配置多实例-（例如：一台物理主机上部署3306与3307两个实例）"><a href="#如何标准化配置多实例-（例如：一台物理主机上部署3306与3307两个实例）" class="headerlink" title="如何标准化配置多实例?（例如：一台物理主机上部署3306与3307两个实例）"></a>如何标准化配置多实例?（例如：一台物理主机上部署3306与3307两个实例）</h2><p>标准化配置多实例，主要是标准化每个实例的目录和内存设置，这样每个实例的参数设置也很容易达到标准化。标准化配置的MYSQL实例，方便实施监控及运维管理。<br>因一个MySQL实例最多占用64G的物理内存，所以在物理内存较高的服务器上，一般会安装多个MySQL实例，MySQL不同实例是通过端口来区别的。<br>例如：一台64G的物理主机上部署3306与3307两个MYSQL实例  </p>
-<h3 id="标准化目录"><a href="#标准化目录" class="headerlink" title="标准化目录"></a>标准化目录</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">实例1：</div><div class="line">/data/my3306</div><div class="line">/log/my3306</div><div class="line"></div><div class="line">实例2：</div><div class="line">/data/my3307</div><div class="line">/log/my3307</div><div class="line"></div><div class="line"># /data 目录挂载到SSD盘上</div><div class="line"># /log  目录挂载到SAS盘上</div></pre></td></tr></table></figure>
-<h3 id="标准化内存"><a href="#标准化内存" class="headerlink" title="标准化内存"></a>标准化内存</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">实例1：</div><div class="line">15G: InnoDB buffer cache</div><div class="line">5G : mysql server层</div><div class="line"></div><div class="line">实例2：</div><div class="line">15G: InnoDB buffer cache</div><div class="line">5G : mysql server层</div><div class="line"></div><div class="line">OS:</div><div class="line">24G</div></pre></td></tr></table></figure>
+<h3 id="标准化目录"><a href="#标准化目录" class="headerlink" title="标准化目录"></a>标准化目录</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">实例1：</span>
+<span class="line">/data/my3306</span>
+<span class="line">/log/my3306</span>
+<span class="line"></span>
+<span class="line">实例2：</span>
+<span class="line">/data/my3307</span>
+<span class="line">/log/my3307</span>
+<span class="line"></span>
+<span class="line"># /data 目录挂载到SSD盘上</span>
+<span class="line"># /log  目录挂载到SAS盘上</span>
+</pre></td></tr></table></figure>
+<h3 id="标准化内存"><a href="#标准化内存" class="headerlink" title="标准化内存"></a>标准化内存</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">实例1：</span>
+<span class="line">15G: InnoDB buffer cache</span>
+<span class="line">5G : mysql server层</span>
+<span class="line"></span>
+<span class="line">实例2：</span>
+<span class="line">15G: InnoDB buffer cache</span>
+<span class="line">5G : mysql server层</span>
+<span class="line"></span>
+<span class="line">OS:</span>
+<span class="line">24G</span>
+</pre></td></tr></table></figure>
 <h3 id="标准化参数"><a href="#标准化参数" class="headerlink" title="标准化参数"></a>标准化参数</h3><p>结合标准化的目录及内存设置，设置标准化的参数</p>
-<h2 id="详细描述MySQL编译安装的过程（截图安装步骤）"><a href="#详细描述MySQL编译安装的过程（截图安装步骤）" class="headerlink" title="详细描述MySQL编译安装的过程（截图安装步骤）"></a>详细描述MySQL编译安装的过程（截图安装步骤）</h2><h3 id="关闭防火墙和SELINUX"><a href="#关闭防火墙和SELINUX" class="headerlink" title="关闭防火墙和SELINUX"></a>关闭防火墙和SELINUX</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">service iptables status</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">Table: filter</div><div class="line">Chain INPUT (policy ACCEPT)</div><div class="line">num  target     prot opt source               destination         </div><div class="line"><span class="number">1</span>    ACCEPT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           <span class="keyword">state</span> RELATED,ESTABLISHED </div><div class="line"><span class="number">2</span>    ACCEPT     icmp --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           </div><div class="line"><span class="number">3</span>    ACCEPT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           </div><div class="line"><span class="number">4</span>    ACCEPT     tcp  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           <span class="keyword">state</span> NEW tcp dpt:<span class="number">22</span> </div><div class="line"><span class="number">5</span>    REJECT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           reject-with icmp-host-prohibited </div><div class="line"></div><div class="line">Chain FORWARD (policy ACCEPT)</div><div class="line">num  target     prot opt source               destination         </div><div class="line"><span class="number">1</span>    REJECT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           reject-with icmp-host-prohibited </div><div class="line"></div><div class="line">Chain OUTPUT (policy ACCEPT)</div><div class="line">num  target     prot opt source               destination         </div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"></div><div class="line">service iptables stop</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">iptables: Setting chains to policy ACCEPT: filter          [  OK  ]</div><div class="line">iptables: Flushing firewall rules:                         [  OK  ]</div><div class="line">iptables: Unloading modules:                               [  OK  ]</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"></div><div class="line">service iptables status</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">iptables: Firewall is <span class="keyword">not</span> running.</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"></div><div class="line">chkconfig iptables off</div><div class="line"></div><div class="line">vi /etc/selinux/config</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">SELINUX=disabled</div><div class="line"><span class="comment">#------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h3 id="配置sysctl-conf"><a href="#配置sysctl-conf" class="headerlink" title="配置sysctl.conf"></a>配置sysctl.conf</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 查看服务器内存</span></div><div class="line">free</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:       <span class="number">8174352</span>     <span class="number">616628</span>    <span class="number">7557724</span>        <span class="number">172</span>     <span class="number">151904</span>     <span class="number">253892</span></div><div class="line">-<span class="regexp">/+ buffers/cache</span>:     <span class="number">210832</span>    <span class="number">7963520</span></div><div class="line">Swap:     <span class="number">16531452</span>          <span class="number">0</span>   <span class="number">16531452</span></div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"></div><div class="line">vi /etc/sysctl.conf</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"><span class="comment"># 修改</span></div><div class="line">kernel.shmmax = <span class="number">4398046511104</span></div><div class="line"></div><div class="line"><span class="comment"># 添加</span></div><div class="line">fs.file-max = <span class="number">6815744</span></div><div class="line">kernel.sem = <span class="number">250</span> <span class="number">32000</span> <span class="number">100</span> <span class="number">128</span></div><div class="line">kernel.shmmni = <span class="number">4096</span></div><div class="line">kernel.panic_on_oops = <span class="number">1</span></div><div class="line">net.core.rmem_default = <span class="number">262144</span></div><div class="line">net.core.rmem_max = <span class="number">4194304</span></div><div class="line">net.core.wmem_default = <span class="number">262144</span></div><div class="line">net.core.wmem_max = <span class="number">1048576</span></div><div class="line">fs.aio-max-nr = <span class="number">1048576</span></div><div class="line">net.ipv4.ip_local_port_range = <span class="number">9000</span> <span class="number">65500</span></div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"><span class="comment"># kernel.shmmax算法：修改为物理内容的50%、60%</span></div><div class="line"><span class="comment"># 8G:kernel.shmmax = (8G*1024*1024*1024*1024)*50% = 4398046511104</span></div><div class="line"></div><div class="line"><span class="comment"># 使配置立即生效</span></div><div class="line">sysctl -p</div></pre></td></tr></table></figure>
-<h3 id="检查是否已安装MySQL"><a href="#检查是否已安装MySQL" class="headerlink" title="检查是否已安装MySQL"></a>检查是否已安装MySQL</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">rpm -qa | <span class="keyword">grep</span> mysql</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">mysql-libs-<span class="number">5.1</span>.<span class="number">73</span>-<span class="number">7</span>.el6.x86_64</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 删除mysql-libs-5.1.73-7.el6.x86_64包</span></div><div class="line">rpm -e --nodeps mysql-libs-<span class="number">5.1</span>.<span class="number">73</span>-<span class="number">7</span>.el6.x86_64</div></pre></td></tr></table></figure>
-<h3 id="下载MySQL源码"><a href="#下载MySQL源码" class="headerlink" title="下载MySQL源码"></a>下载MySQL源码</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">Download MySQL Community Server  https:<span class="regexp">//dev</span>.mysql.com/downloads/mysql/<span class="number">5.6</span>.html<span class="comment">#downloads</span></div><div class="line">Select Version: <span class="number">5.6</span>.<span class="number">35</span> -&gt; Select Platform: Source Code</div><div class="line">-&gt; 选择【Generic Linux (Architecture Independent), Compressed TAR Archive】下载 </div><div class="line"></div><div class="line"><span class="comment"># 配置yum源，安装lrzsz(代替ftp上传和下载的工具)</span></div><div class="line"><span class="keyword">mkdir</span> /media/disk</div><div class="line"><span class="keyword">mkdir</span> /media/cdrom</div><div class="line">mount /dev/cdrom /media/cdrom</div><div class="line"></div><div class="line">cp -rf /media/cdrom/* <span class="regexp">/media/disk</span></div><div class="line">umount /media/cdrom</div><div class="line"></div><div class="line">cp /etc/yum.repos.d/public-yum-ol6.repo /etc/yum.repos.d/public-yum-ol6.repo.bak</div><div class="line">vi /etc/yum.repos.d/public-yum-ol6.repo</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">name=Oracle Linux $releasever Latest ($basearch)</div><div class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span><span class="regexp">/Server</span></div><div class="line">gpgcheck=0</div><div class="line">enabled=1</div><div class="line">#------------------------------------------------</div><div class="line"></div><div class="line">yum -y install lrzsz</div><div class="line"></div><div class="line"># 上传到服务器的/u01目录下</div><div class="line"><span class="keyword">mkdir</span> /u01</div><div class="line">cd /u01</div><div class="line">rz</div><div class="line"></div><div class="line"><span class="comment"># 选择mysql源码包，上传</span></div><div class="line">rz waiting to receive.</div><div class="line">Starting zmodem transfer.  Press Ctrl+C to cancel.</div><div class="line">Transferring mysql-<span class="number">5.6</span>.<span class="number">35</span>.tar.gz...</div><div class="line">  <span class="number">100</span>%   <span class="number">31413</span> KB    <span class="number">15706</span> KB/sec    <span class="number">00</span>:<span class="number">00</span>:<span class="number">02</span>       <span class="number">0</span> Errors </div><div class="line"></div><div class="line">ll /u01/mysql*</div><div class="line">-rw-r--r--. <span class="number">1</span> root root <span class="number">32167628</span> Jan <span class="number">17</span> <span class="number">11</span>:<span class="number">16</span> /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>.tar.gz</div></pre></td></tr></table></figure>
-<h3 id="添加MySQL用户和组"><a href="#添加MySQL用户和组" class="headerlink" title="添加MySQL用户和组"></a>添加MySQL用户和组</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">groupadd -g <span class="number">501</span> mysql</div><div class="line">useradd -u <span class="number">501</span> mysql -g mysql</div><div class="line">echo <span class="string">"mysql123"</span> | passwd --stdin mysql</div><div class="line"></div><div class="line">id mysql</div><div class="line">uid=<span class="number">501</span>(mysql) gid=<span class="number">501</span>(mysql) groups=<span class="number">501</span>(mysql)</div></pre></td></tr></table></figure>
-<h3 id="配MySQL环境变量"><a href="#配MySQL环境变量" class="headerlink" title="配MySQL环境变量"></a>配MySQL环境变量</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">vi /home/mysql/.bash_profile</div><div class="line"><span class="comment">#------------------------------------------------</span></div><div class="line">PATH=$PATH:$HOME/bin:<span class="regexp">/u01/my</span>3306/bin</div><div class="line"><span class="comment">#------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h3 id="创建目录及授权"><a href="#创建目录及授权" class="headerlink" title="创建目录及授权"></a>创建目录及授权</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">mkdir</span> -p /u01/my3306/data</div><div class="line"><span class="keyword">mkdir</span> -p /u01/my3306/<span class="keyword">log</span>/iblog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/my3306/<span class="keyword">log</span>/binlog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/my3306/run</div><div class="line"><span class="keyword">mkdir</span> -p /u01/my3306/tmp</div><div class="line"></div><div class="line"><span class="keyword">chown</span> -R mysql:mysql /u01/my3306</div><div class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01/my3306</div></pre></td></tr></table></figure>
-<h3 id="解压mysql5-6"><a href="#解压mysql5-6" class="headerlink" title="解压mysql5.6"></a>解压mysql5.6</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cd /u01</div><div class="line">tar xvpf mysql-5.6.35.tar.gz</div></pre></td></tr></table></figure>
-<h3 id="安装cmake及相关依赖包"><a href="#安装cmake及相关依赖包" class="headerlink" title="安装cmake及相关依赖包"></a>安装cmake及相关依赖包</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">yum install -y  cmake gcc gcc-c++ ncurses-devel bison zlib libxml openssl</div></pre></td></tr></table></figure>
-<h3 id="编译并安装"><a href="#编译并安装" class="headerlink" title="编译并安装"></a>编译并安装</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cd /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span></div><div class="line"></div><div class="line">cmake \</div><div class="line">-DCMAKE_INSTALL_PREFIX=<span class="regexp">/u01/my</span>3306 \</div><div class="line">-DINSTALL_DATADIR=<span class="regexp">/u01/my</span>3306/data  \</div><div class="line">-DDEFAULT_CHARSET=utf8 \</div><div class="line">-DDEFAULT_COLLATION=utf8_general_ci \</div><div class="line">-DEXTRA_CHARSETS=all \</div><div class="line">-DWITH_SSL=yes \</div><div class="line">-DWITH_EMBEDDED_SERVER=<span class="number">1</span> \</div><div class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</div><div class="line">-DWITH_MYISAM_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DWITH_INNOBASE_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DWITH_ARCHIVE_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DWITH_BLACKHOLE_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DWITH_FEDERATED_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DWITH_PARTITION_STORAGE_ENGINE=<span class="number">1</span> \</div><div class="line">-DMYSQL_UNIX_ADDR=<span class="regexp">/u01/my</span>3306/run/mysql.sock \</div><div class="line">-DMYSQL_TCP_PORT=<span class="number">3306</span> \</div><div class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</div><div class="line">-DSYSCONFDIR=<span class="regexp">/etc \</span></div><div class="line">-DWITH_READLINE=on</div><div class="line"></div><div class="line"># 第一次CMAKE出现错误提示</div><div class="line">#---------------------------------------------------------------------------------------------</div><div class="line">CMake Error: The following variables are used in this project, but they are set to NOTFOUND.</div><div class="line">Please set them or make sure they are set and tested correctly in the CMake files:</div><div class="line">OPENSSL_INCLUDE_DIR</div><div class="line">   used as include directory in directory /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/CMakeFiles/CMakeTmp</div><div class="line"><span class="comment">#---------------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment">#安装openssl-devel包</span></div><div class="line">yum -<span class="keyword">y</span> install openssl-devel</div><div class="line"></div><div class="line"><span class="comment">#重新cmake需要删除当前目录下CMakeCache.txt，然后再重新执行</span></div><div class="line">rm -rf CMakeCache.txt</div><div class="line"></div><div class="line"><span class="comment">#编译并安装</span></div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
-<h3 id="MySQL参数配置"><a href="#MySQL参数配置" class="headerlink" title="MySQL参数配置"></a>MySQL参数配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cd /u01/my3306</div><div class="line">vi my.cnf</div><div class="line"><span class="comment">#----------------------------------------------------------</span></div><div class="line">[client]</div><div class="line">port=<span class="number">3306</span></div><div class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/my</span>3306/mysql.sock</div><div class="line"></div><div class="line">[mysql]</div><div class="line">pid_file=<span class="regexp">/u01/my</span>3306/run/mysqld.pid</div><div class="line"></div><div class="line">[mysqld]</div><div class="line">autocommit=<span class="number">1</span></div><div class="line">general_log=off</div><div class="line">explicit_defaults_for_timestamp=true</div><div class="line"></div><div class="line"><span class="comment"># system</span></div><div class="line">basedir=<span class="regexp">/u01/my</span>3306</div><div class="line">datadir=<span class="regexp">/u01/my</span>3306/data</div><div class="line">max_allowed_packet=<span class="number">1</span>g</div><div class="line">max_connections=<span class="number">3000</span></div><div class="line">max_user_connections=<span class="number">2800</span></div><div class="line">open_files_limit=<span class="number">65535</span></div><div class="line">pid_file=<span class="regexp">/u01/my</span>3306/run/mysqld.pid</div><div class="line">port=<span class="number">3306</span></div><div class="line">server_id=<span class="number">101</span></div><div class="line">skip_name_resolve=ON</div><div class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/my</span>3306/run/mysql.sock</div><div class="line">tmpdir=<span class="regexp">/u01/my</span>3306/tmp</div><div class="line"></div><div class="line"><span class="comment">#binlog</span></div><div class="line">log_bin=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/binlog/binlog</div><div class="line">binlog_cache_size=<span class="number">32768</span></div><div class="line">binlog_format=row</div><div class="line">expire_logs_days=<span class="number">7</span></div><div class="line">log_slave_updates=ON</div><div class="line">max_binlog_cache_size=<span class="number">2147483648</span></div><div class="line">max_binlog_size=<span class="number">524288000</span></div><div class="line">sync_binlog=<span class="number">100</span></div><div class="line"></div><div class="line"><span class="comment">#logging</span></div><div class="line">log_error=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/error.log</div><div class="line">slow_query_log_file=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/slow.log</div><div class="line">log_queries_not_using_indexes=<span class="number">0</span></div><div class="line">slow_query_log=<span class="number">1</span></div><div class="line">log_slave_updates=ON</div><div class="line">log_slow_admin_statements=<span class="number">1</span></div><div class="line">long_query_time=<span class="number">1</span></div><div class="line"></div><div class="line"><span class="comment">#relay</span></div><div class="line">relay_log=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relaylog</div><div class="line">relay_log_index=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relay.index</div><div class="line">relay_log_info_file=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relay-log.info</div><div class="line"></div><div class="line"><span class="comment">#slave</span></div><div class="line">slave_load_tmpdir=<span class="regexp">/u01/my</span>3306/tmp</div><div class="line">slave_skip_errors=OFF</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">#innodb</span></div><div class="line">innodb_data_home_dir=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/iblog</div><div class="line">innodb_log_group_home_dir=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/iblog</div><div class="line">innodb_adaptive_flushing=ON</div><div class="line">innodb_adaptive_hash_index=ON</div><div class="line">innodb_autoinc_lock_mode=<span class="number">1</span></div><div class="line">innodb_buffer_pool_instances=<span class="number">8</span></div><div class="line"></div><div class="line"><span class="comment">#default</span></div><div class="line">innodb_change_buffering=inserts</div><div class="line">innodb_checksums=ON</div><div class="line">innodb_buffer_pool_size= <span class="number">128</span>M</div><div class="line">innodb_data_file_path=ibdata1:<span class="number">32</span>M;ibdata2:<span class="number">16</span>M:autoextend</div><div class="line">innodb_doublewrite=ON</div><div class="line">innodb_file_format=Barracuda</div><div class="line">innodb_file_per_table=ON</div><div class="line">innodb_flush_log_at_trx_commit=<span class="number">1</span></div><div class="line">innodb_flush_method=O_DIRECT</div><div class="line">innodb_io_capacity=<span class="number">1000</span></div><div class="line">innodb_lock_wait_timeout=<span class="number">10</span></div><div class="line">innodb_log_buffer_size=<span class="number">67108864</span></div><div class="line">innodb_log_file_size=<span class="number">1048576000</span></div><div class="line">innodb_log_files_in_group=<span class="number">4</span></div><div class="line">innodb_max_dirty_pages_pct=<span class="number">60</span></div><div class="line">innodb_open_files=<span class="number">60000</span></div><div class="line">innodb_purge_threads=<span class="number">1</span></div><div class="line">innodb_read_io_threads=<span class="number">4</span></div><div class="line">innodb_stats_on_metadata=OFF</div><div class="line">innodb_support_xa=ON</div><div class="line">innodb_use_native_aio=OFF</div><div class="line">innodb_write_io_threads=<span class="number">10</span></div><div class="line"></div><div class="line">[mysqld_safe]</div><div class="line">datadir=<span class="regexp">/u01/my</span>3306/data</div><div class="line"><span class="comment">#----------------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 编译后重新修改目录权限</span></div><div class="line"><span class="keyword">chown</span> -R mysql:mysql /u01/my3306</div></pre></td></tr></table></figure>
-<h3 id="初始化MySQL脚本"><a href="#初始化MySQL脚本" class="headerlink" title="初始化MySQL脚本"></a>初始化MySQL脚本</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">su - mysql</div><div class="line">cd /u01/my3306/scripts</div><div class="line">./mysql_install_db --defaults-file=/u01/my3306/my.cnf \</div><div class="line">--datadir=/u01/my3306/data --basedir=/u01/my3306 --user=mysql</div></pre></td></tr></table></figure>
-<h3 id="启动MySQL"><a href="#启动MySQL" class="headerlink" title="启动MySQL"></a>启动MySQL</h3><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">/u01/my3306/bin/mysqld_safe --defaults-file=/u01/my3306/my.cnf --user=mysql &amp;</div></pre></td></tr></table></figure>
-<h3 id="登录MySQL"><a href="#登录MySQL" class="headerlink" title="登录MySQL"></a>登录MySQL</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">mysql</div><div class="line"><span class="comment"># 或者</span></div><div class="line">mysql -h127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span> -uroot</div><div class="line"></div><div class="line">Welcome to the MySQL monitor.  Commands end with ; <span class="keyword">or</span> \g.</div><div class="line">Your MySQL connection id is <span class="number">2</span></div><div class="line">Server version: <span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span> Source distribution</div><div class="line"></div><div class="line">Copyright (c) <span class="number">2000</span>, <span class="number">2016</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates. All rights reserved.</div><div class="line"></div><div class="line">Oracle is a registered trademark of Oracle Corporation <span class="keyword">and</span>/<span class="keyword">or</span> its</div><div class="line">affiliates. Other names may be trademarks of their respective</div><div class="line">owners.</div><div class="line"></div><div class="line">Type <span class="string">'help;'</span> <span class="keyword">or</span> <span class="string">'\h'</span> <span class="keyword">for</span> help. Type <span class="string">'\c'</span> to clear the current input statement.</div><div class="line"></div><div class="line">mysql&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| test               |</div><div class="line">+--------------------+</div><div class="line"><span class="number">4</span> rows in set (<span class="number">0</span>.<span class="number">01</span> sec)</div></pre></td></tr></table></figure>
+<h2 id="详细描述MySQL编译安装的过程（截图安装步骤）"><a href="#详细描述MySQL编译安装的过程（截图安装步骤）" class="headerlink" title="详细描述MySQL编译安装的过程（截图安装步骤）"></a>详细描述MySQL编译安装的过程（截图安装步骤）</h2><h3 id="关闭防火墙和SELINUX"><a href="#关闭防火墙和SELINUX" class="headerlink" title="关闭防火墙和SELINUX"></a>关闭防火墙和SELINUX</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">service iptables status</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">Table: filter</span>
+<span class="line">Chain INPUT (policy ACCEPT)</span>
+<span class="line">num  target     prot opt source               destination         </span>
+<span class="line"><span class="number">1</span>    ACCEPT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           <span class="keyword">state</span> RELATED,ESTABLISHED </span>
+<span class="line"><span class="number">2</span>    ACCEPT     icmp --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           </span>
+<span class="line"><span class="number">3</span>    ACCEPT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           </span>
+<span class="line"><span class="number">4</span>    ACCEPT     tcp  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           <span class="keyword">state</span> NEW tcp dpt:<span class="number">22</span> </span>
+<span class="line"><span class="number">5</span>    REJECT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           reject-with icmp-host-prohibited </span>
+<span class="line"></span>
+<span class="line">Chain FORWARD (policy ACCEPT)</span>
+<span class="line">num  target     prot opt source               destination         </span>
+<span class="line"><span class="number">1</span>    REJECT     all  --  <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>            <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">0</span>           reject-with icmp-host-prohibited </span>
+<span class="line"></span>
+<span class="line">Chain OUTPUT (policy ACCEPT)</span>
+<span class="line">num  target     prot opt source               destination         </span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">service iptables stop</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">iptables: Setting chains to policy ACCEPT: filter          [  OK  ]</span>
+<span class="line">iptables: Flushing firewall rules:                         [  OK  ]</span>
+<span class="line">iptables: Unloading modules:                               [  OK  ]</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">service iptables status</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">iptables: Firewall is <span class="keyword">not</span> running.</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chkconfig iptables off</span>
+<span class="line"></span>
+<span class="line">vi /etc/selinux/config</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">SELINUX=disabled</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="配置sysctl-conf"><a href="#配置sysctl-conf" class="headerlink" title="配置sysctl.conf"></a>配置sysctl.conf</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看服务器内存</span></span>
+<span class="line">free</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">             total       used       free     shared    buffers     cached</span>
+<span class="line">Mem:       <span class="number">8174352</span>     <span class="number">616628</span>    <span class="number">7557724</span>        <span class="number">172</span>     <span class="number">151904</span>     <span class="number">253892</span></span>
+<span class="line">-<span class="regexp">/+ buffers/cache</span>:     <span class="number">210832</span>    <span class="number">7963520</span></span>
+<span class="line">Swap:     <span class="number">16531452</span>          <span class="number">0</span>   <span class="number">16531452</span></span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi /etc/sysctl.conf</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"><span class="comment"># 修改</span></span>
+<span class="line">kernel.shmmax = <span class="number">4398046511104</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 添加</span></span>
+<span class="line">fs.file-max = <span class="number">6815744</span></span>
+<span class="line">kernel.sem = <span class="number">250</span> <span class="number">32000</span> <span class="number">100</span> <span class="number">128</span></span>
+<span class="line">kernel.shmmni = <span class="number">4096</span></span>
+<span class="line">kernel.panic_on_oops = <span class="number">1</span></span>
+<span class="line">net.core.rmem_default = <span class="number">262144</span></span>
+<span class="line">net.core.rmem_max = <span class="number">4194304</span></span>
+<span class="line">net.core.wmem_default = <span class="number">262144</span></span>
+<span class="line">net.core.wmem_max = <span class="number">1048576</span></span>
+<span class="line">fs.aio-max-nr = <span class="number">1048576</span></span>
+<span class="line">net.ipv4.ip_local_port_range = <span class="number">9000</span> <span class="number">65500</span></span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"><span class="comment"># kernel.shmmax算法：修改为物理内容的50%、60%</span></span>
+<span class="line"><span class="comment"># 8G:kernel.shmmax = (8G*1024*1024*1024*1024)*50% = 4398046511104</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使配置立即生效</span></span>
+<span class="line">sysctl -p</span>
+</pre></td></tr></table></figure>
+<h3 id="检查是否已安装MySQL"><a href="#检查是否已安装MySQL" class="headerlink" title="检查是否已安装MySQL"></a>检查是否已安装MySQL</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">rpm -qa | <span class="keyword">grep</span> mysql</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">mysql-libs-<span class="number">5.1</span>.<span class="number">73</span>-<span class="number">7</span>.el6.x86_64</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除mysql-libs-5.1.73-7.el6.x86_64包</span></span>
+<span class="line">rpm -e --nodeps mysql-libs-<span class="number">5.1</span>.<span class="number">73</span>-<span class="number">7</span>.el6.x86_64</span>
+</pre></td></tr></table></figure>
+<h3 id="下载MySQL源码"><a href="#下载MySQL源码" class="headerlink" title="下载MySQL源码"></a>下载MySQL源码</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">Download MySQL Community Server  https:<span class="regexp">//dev</span>.mysql.com/downloads/mysql/<span class="number">5.6</span>.html<span class="comment">#downloads</span></span>
+<span class="line">Select Version: <span class="number">5.6</span>.<span class="number">35</span> -&gt; Select Platform: Source Code</span>
+<span class="line">-&gt; 选择【Generic Linux (Architecture Independent), Compressed TAR Archive】下载 </span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置yum源，安装lrzsz(代替ftp上传和下载的工具)</span></span>
+<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
+<span class="line"><span class="keyword">mkdir</span> /media/cdrom</span>
+<span class="line">mount /dev/cdrom /media/cdrom</span>
+<span class="line"></span>
+<span class="line">cp -rf /media/cdrom/* <span class="regexp">/media/disk</span></span>
+<span class="line">umount /media/cdrom</span>
+<span class="line"></span>
+<span class="line">cp /etc/yum.repos.d/public-yum-ol6.repo /etc/yum.repos.d/public-yum-ol6.repo.bak</span>
+<span class="line">vi /etc/yum.repos.d/public-yum-ol6.repo</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">name=Oracle Linux $releasever Latest ($basearch)</span>
+<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span><span class="regexp">/Server</span>
+<span class="line">gpgcheck=0</span>
+<span class="line">enabled=1</span>
+<span class="line">#------------------------------------------------</span>
+<span class="line"></span>
+<span class="line">yum -y install lrzsz</span>
+<span class="line"></span>
+<span class="line"># 上传到服务器的/u</span>01目录下</span>
+<span class="line"><span class="keyword">mkdir</span> /u01</span>
+<span class="line">cd /u01</span>
+<span class="line">rz</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 选择mysql源码包，上传</span></span>
+<span class="line">rz waiting to receive.</span>
+<span class="line">Starting zmodem transfer.  Press Ctrl+C to cancel.</span>
+<span class="line">Transferring mysql-<span class="number">5.6</span>.<span class="number">35</span>.tar.gz...</span>
+<span class="line">  <span class="number">100</span>%   <span class="number">31413</span> KB    <span class="number">15706</span> KB/sec    <span class="number">00</span>:<span class="number">00</span>:<span class="number">02</span>       <span class="number">0</span> Errors </span>
+<span class="line"></span>
+<span class="line">ll /u01/mysql*</span>
+<span class="line">-rw-r--r--. <span class="number">1</span> root root <span class="number">32167628</span> Jan <span class="number">17</span> <span class="number">11</span>:<span class="number">16</span> /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>.tar.gz</span>
+</pre></td></tr></table></figure>
+<h3 id="添加MySQL用户和组"><a href="#添加MySQL用户和组" class="headerlink" title="添加MySQL用户和组"></a>添加MySQL用户和组</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">groupadd -g <span class="number">501</span> mysql</span>
+<span class="line">useradd -u <span class="number">501</span> mysql -g mysql</span>
+<span class="line">echo <span class="string">"mysql123"</span> | passwd --stdin mysql</span>
+<span class="line"></span>
+<span class="line">id mysql</span>
+<span class="line">uid=<span class="number">501</span>(mysql) gid=<span class="number">501</span>(mysql) groups=<span class="number">501</span>(mysql)</span>
+</pre></td></tr></table></figure>
+<h3 id="配MySQL环境变量"><a href="#配MySQL环境变量" class="headerlink" title="配MySQL环境变量"></a>配MySQL环境变量</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /home/mysql/.bash_profile</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+<span class="line">PATH=$PATH:$HOME/bin:<span class="regexp">/u01/my</span>3306/bin</span>
+<span class="line"><span class="comment">#------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="创建目录及授权"><a href="#创建目录及授权" class="headerlink" title="创建目录及授权"></a>创建目录及授权</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p /u01/my3306/data</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/my3306/<span class="keyword">log</span>/iblog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/my3306/<span class="keyword">log</span>/binlog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/my3306/run</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/my3306/tmp</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">chown</span> -R mysql:mysql /u01/my3306</span>
+<span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01/my3306</span>
+</pre></td></tr></table></figure>
+<h3 id="解压mysql5-6"><a href="#解压mysql5-6" class="headerlink" title="解压mysql5.6"></a>解压mysql5.6</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /u01</span>
+<span class="line">tar xvpf mysql-5.6.35.tar.gz</span>
+</pre></td></tr></table></figure>
+<h3 id="安装cmake及相关依赖包"><a href="#安装cmake及相关依赖包" class="headerlink" title="安装cmake及相关依赖包"></a>安装cmake及相关依赖包</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y  cmake gcc gcc-c++ ncurses-devel bison zlib libxml openssl</span>
+</pre></td></tr></table></figure>
+<h3 id="编译并安装"><a href="#编译并安装" class="headerlink" title="编译并安装"></a>编译并安装</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span></span>
+<span class="line"></span>
+<span class="line">cmake \</span>
+<span class="line">-DCMAKE_INSTALL_PREFIX=<span class="regexp">/u01/my</span>3306 \</span>
+<span class="line">-DINSTALL_DATADIR=<span class="regexp">/u01/my</span>3306/data  \</span>
+<span class="line">-DDEFAULT_CHARSET=utf8 \</span>
+<span class="line">-DDEFAULT_COLLATION=utf8_general_ci \</span>
+<span class="line">-DEXTRA_CHARSETS=all \</span>
+<span class="line">-DWITH_SSL=yes \</span>
+<span class="line">-DWITH_EMBEDDED_SERVER=<span class="number">1</span> \</span>
+<span class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_MYISAM_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_INNOBASE_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_ARCHIVE_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_BLACKHOLE_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_FEDERATED_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DWITH_PARTITION_STORAGE_ENGINE=<span class="number">1</span> \</span>
+<span class="line">-DMYSQL_UNIX_ADDR=<span class="regexp">/u01/my</span>3306/run/mysql.sock \</span>
+<span class="line">-DMYSQL_TCP_PORT=<span class="number">3306</span> \</span>
+<span class="line">-DENABLED_LOCAL_INFILE=<span class="number">1</span> \</span>
+<span class="line">-DSYSCONFDIR=<span class="regexp">/etc \</span>
+<span class="line">-DWITH_READLINE=on</span>
+<span class="line"></span>
+<span class="line"># 第一次CMAKE出现错误提示</span>
+<span class="line">#---------------------------------------------------------------------------------------------</span>
+<span class="line">CMake Error: The following variables are used in this project, but they are set to NOTFOUND.</span>
+<span class="line">Please set them or make sure they are set and tested correctly in the CMake files:</span>
+<span class="line">OPENSSL_INCLUDE_DIR</span>
+<span class="line">   used as include directory in directory /u</span>01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/CMakeFiles/CMakeTmp</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#安装openssl-devel包</span></span>
+<span class="line">yum -<span class="keyword">y</span> install openssl-devel</span>
+<span class="line"></span>
+<span class="line"><span class="comment">#重新cmake需要删除当前目录下CMakeCache.txt，然后再重新执行</span></span>
+<span class="line">rm -rf CMakeCache.txt</span>
+<span class="line"></span>
+<span class="line"><span class="comment">#编译并安装</span></span>
+<span class="line">make</span>
+<span class="line">make install</span>
+</pre></td></tr></table></figure>
+<h3 id="MySQL参数配置"><a href="#MySQL参数配置" class="headerlink" title="MySQL参数配置"></a>MySQL参数配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /u01/my3306</span>
+<span class="line">vi my.cnf</span>
+<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
+<span class="line">[client]</span>
+<span class="line">port=<span class="number">3306</span></span>
+<span class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/my</span>3306/mysql.sock</span>
+<span class="line"></span>
+<span class="line">[mysql]</span>
+<span class="line">pid_file=<span class="regexp">/u01/my</span>3306/run/mysqld.pid</span>
+<span class="line"></span>
+<span class="line">[mysqld]</span>
+<span class="line">autocommit=<span class="number">1</span></span>
+<span class="line">general_log=off</span>
+<span class="line">explicit_defaults_for_timestamp=true</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># system</span></span>
+<span class="line">basedir=<span class="regexp">/u01/my</span>3306</span>
+<span class="line">datadir=<span class="regexp">/u01/my</span>3306/data</span>
+<span class="line">max_allowed_packet=<span class="number">1</span>g</span>
+<span class="line">max_connections=<span class="number">3000</span></span>
+<span class="line">max_user_connections=<span class="number">2800</span></span>
+<span class="line">open_files_limit=<span class="number">65535</span></span>
+<span class="line">pid_file=<span class="regexp">/u01/my</span>3306/run/mysqld.pid</span>
+<span class="line">port=<span class="number">3306</span></span>
+<span class="line">server_id=<span class="number">101</span></span>
+<span class="line">skip_name_resolve=ON</span>
+<span class="line"><span class="keyword">socket</span>=<span class="regexp">/u01/my</span>3306/run/mysql.sock</span>
+<span class="line">tmpdir=<span class="regexp">/u01/my</span>3306/tmp</span>
+<span class="line"></span>
+<span class="line"><span class="comment">#binlog</span></span>
+<span class="line">log_bin=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/binlog/binlog</span>
+<span class="line">binlog_cache_size=<span class="number">32768</span></span>
+<span class="line">binlog_format=row</span>
+<span class="line">expire_logs_days=<span class="number">7</span></span>
+<span class="line">log_slave_updates=ON</span>
+<span class="line">max_binlog_cache_size=<span class="number">2147483648</span></span>
+<span class="line">max_binlog_size=<span class="number">524288000</span></span>
+<span class="line">sync_binlog=<span class="number">100</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#logging</span></span>
+<span class="line">log_error=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/error.log</span>
+<span class="line">slow_query_log_file=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/slow.log</span>
+<span class="line">log_queries_not_using_indexes=<span class="number">0</span></span>
+<span class="line">slow_query_log=<span class="number">1</span></span>
+<span class="line">log_slave_updates=ON</span>
+<span class="line">log_slow_admin_statements=<span class="number">1</span></span>
+<span class="line">long_query_time=<span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#relay</span></span>
+<span class="line">relay_log=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relaylog</span>
+<span class="line">relay_log_index=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relay.index</span>
+<span class="line">relay_log_info_file=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/relay-log.info</span>
+<span class="line"></span>
+<span class="line"><span class="comment">#slave</span></span>
+<span class="line">slave_load_tmpdir=<span class="regexp">/u01/my</span>3306/tmp</span>
+<span class="line">slave_skip_errors=OFF</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#innodb</span></span>
+<span class="line">innodb_data_home_dir=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/iblog</span>
+<span class="line">innodb_log_group_home_dir=<span class="regexp">/u01/my</span>3306/<span class="keyword">log</span>/iblog</span>
+<span class="line">innodb_adaptive_flushing=ON</span>
+<span class="line">innodb_adaptive_hash_index=ON</span>
+<span class="line">innodb_autoinc_lock_mode=<span class="number">1</span></span>
+<span class="line">innodb_buffer_pool_instances=<span class="number">8</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#default</span></span>
+<span class="line">innodb_change_buffering=inserts</span>
+<span class="line">innodb_checksums=ON</span>
+<span class="line">innodb_buffer_pool_size= <span class="number">128</span>M</span>
+<span class="line">innodb_data_file_path=ibdata1:<span class="number">32</span>M;ibdata2:<span class="number">16</span>M:autoextend</span>
+<span class="line">innodb_doublewrite=ON</span>
+<span class="line">innodb_file_format=Barracuda</span>
+<span class="line">innodb_file_per_table=ON</span>
+<span class="line">innodb_flush_log_at_trx_commit=<span class="number">1</span></span>
+<span class="line">innodb_flush_method=O_DIRECT</span>
+<span class="line">innodb_io_capacity=<span class="number">1000</span></span>
+<span class="line">innodb_lock_wait_timeout=<span class="number">10</span></span>
+<span class="line">innodb_log_buffer_size=<span class="number">67108864</span></span>
+<span class="line">innodb_log_file_size=<span class="number">1048576000</span></span>
+<span class="line">innodb_log_files_in_group=<span class="number">4</span></span>
+<span class="line">innodb_max_dirty_pages_pct=<span class="number">60</span></span>
+<span class="line">innodb_open_files=<span class="number">60000</span></span>
+<span class="line">innodb_purge_threads=<span class="number">1</span></span>
+<span class="line">innodb_read_io_threads=<span class="number">4</span></span>
+<span class="line">innodb_stats_on_metadata=OFF</span>
+<span class="line">innodb_support_xa=ON</span>
+<span class="line">innodb_use_native_aio=OFF</span>
+<span class="line">innodb_write_io_threads=<span class="number">10</span></span>
+<span class="line"></span>
+<span class="line">[mysqld_safe]</span>
+<span class="line">datadir=<span class="regexp">/u01/my</span>3306/data</span>
+<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 编译后重新修改目录权限</span></span>
+<span class="line"><span class="keyword">chown</span> -R mysql:mysql /u01/my3306</span>
+</pre></td></tr></table></figure>
+<h3 id="初始化MySQL脚本"><a href="#初始化MySQL脚本" class="headerlink" title="初始化MySQL脚本"></a>初始化MySQL脚本</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">su - mysql</span>
+<span class="line">cd /u01/my3306/scripts</span>
+<span class="line">./mysql_install_db --defaults-file=/u01/my3306/my.cnf \</span>
+<span class="line">--datadir=/u01/my3306/data --basedir=/u01/my3306 --user=mysql</span>
+</pre></td></tr></table></figure>
+<h3 id="启动MySQL"><a href="#启动MySQL" class="headerlink" title="启动MySQL"></a>启动MySQL</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/u01/my3306/bin/mysqld_safe --defaults-file=/u01/my3306/my.cnf --user=mysql &amp;</span>
+</pre></td></tr></table></figure>
+<h3 id="登录MySQL"><a href="#登录MySQL" class="headerlink" title="登录MySQL"></a>登录MySQL</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql</span>
+<span class="line"><span class="comment"># 或者</span></span>
+<span class="line">mysql -h127.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span> -uroot</span>
+<span class="line"></span>
+<span class="line">Welcome to the MySQL monitor.  Commands end with ; <span class="keyword">or</span> \g.</span>
+<span class="line">Your MySQL connection id is <span class="number">2</span></span>
+<span class="line">Server version: <span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span> Source distribution</span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">2000</span>, <span class="number">2016</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates. All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Oracle is a registered trademark of Oracle Corporation <span class="keyword">and</span>/<span class="keyword">or</span> its</span>
+<span class="line">affiliates. Other names may be trademarks of their respective</span>
+<span class="line">owners.</span>
+<span class="line"></span>
+<span class="line">Type <span class="string">'help;'</span> <span class="keyword">or</span> <span class="string">'\h'</span> <span class="keyword">for</span> help. Type <span class="string">'\c'</span> to clear the current input statement.</span>
+<span class="line"></span>
+<span class="line">mysql&gt; show databases;</span>
+<span class="line">+--------------------+</span>
+<span class="line">| Database           |</span>
+<span class="line">+--------------------+</span>
+<span class="line">| information_schema |</span>
+<span class="line">| mysql              |</span>
+<span class="line">| performance_schema |</span>
+<span class="line">| test               |</span>
+<span class="line">+--------------------+</span>
+<span class="line"><span class="number">4</span> rows in set (<span class="number">0</span>.<span class="number">01</span> sec)</span>
+</pre></td></tr></table></figure>
       
     </div>
     
@@ -400,7 +719,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
 
 
 

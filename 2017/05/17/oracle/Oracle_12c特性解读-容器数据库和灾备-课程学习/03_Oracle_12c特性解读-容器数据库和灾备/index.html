@@ -15,12 +15,22 @@
 
 
 
-<meta name="description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12# 创建参数文件vi spfileorcl1.ora#---------------------------------------------------db_n">
+<meta name="description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件
+orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12
+
+# 创建参数文件
+vi spfileorcl1.ora
+#--------------------------------------------------">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB">
 <meta property="og:url" content="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/index.html">
 <meta property="og:site_name" content="一个DBA的工作学习笔记">
-<meta property="og:description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12# 创建参数文件vi spfileorcl1.ora#---------------------------------------------------db_n">
+<meta property="og:description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件
+orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12
+
+# 创建参数文件
+vi spfileorcl1.ora
+#--------------------------------------------------">
 <meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_01.png">
 <meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_02.png">
 <meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_03.png">
@@ -33,7 +43,12 @@
 <meta property="og:updated_time" content="2017-05-19T09:45:37.592Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB">
-<meta name="twitter:description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12# 创建参数文件vi spfileorcl1.ora#---------------------------------------------------db_n">
+<meta name="twitter:description" content="手工创建cdb数据库(create database语句)创建前的准备工作# 创建密码文件
+orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=y format=12
+
+# 创建参数文件
+vi spfileorcl1.ora
+#--------------------------------------------------">
 <meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_01.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -315,23 +330,648 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="手工创建cdb数据库-create-database语句"><a href="#手工创建cdb数据库-create-database语句" class="headerlink" title="手工创建cdb数据库(create database语句)"></a>手工创建cdb数据库(create database语句)</h2><h3 id="创建前的准备工作"><a href="#创建前的准备工作" class="headerlink" title="创建前的准备工作"></a>创建前的准备工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 创建密码文件</span></div><div class="line">orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></div><div class="line"></div><div class="line"><span class="comment"># 创建参数文件</span></div><div class="line">vi spfileorcl1.ora</div><div class="line"><span class="comment">#---------------------------------------------------</span></div><div class="line">db_name=orcl1</div><div class="line">sga_target=<span class="number">2048</span>M</div><div class="line">db_create_file_dest=<span class="string">'/u01/app/oracle/oradata/orcl1'</span></div><div class="line">enable_pluggable_database=true</div><div class="line"><span class="comment">#---------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 创建所需目录</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl1</div></pre></td></tr></table></figure>
+        <h2 id="手工创建cdb数据库-create-database语句"><a href="#手工创建cdb数据库-create-database语句" class="headerlink" title="手工创建cdb数据库(create database语句)"></a>手工创建cdb数据库(create database语句)</h2><h3 id="创建前的准备工作"><a href="#创建前的准备工作" class="headerlink" title="创建前的准备工作"></a>创建前的准备工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建密码文件</span></span>
+<span class="line">orapwd file=$ORACLE_HOME/dbs/orapworcl1 password=oracle force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建参数文件</span></span>
+<span class="line">vi spfileorcl1.ora</span>
+<span class="line"><span class="comment">#---------------------------------------------------</span></span>
+<span class="line">db_name=orcl1</span>
+<span class="line">sga_target=<span class="number">2048</span>M</span>
+<span class="line">db_create_file_dest=<span class="string">'/u01/app/oracle/oradata/orcl1'</span></span>
+<span class="line">enable_pluggable_database=true</span>
+<span class="line"><span class="comment">#---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建所需目录</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl1</span>
+</pre></td></tr></table></figure>
 <a id="more"></a>
-<h3 id="手工创建数据库"><a href="#手工创建数据库" class="headerlink" title="手工创建数据库"></a>手工创建数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># OMF方式创建数据库</span></div><div class="line">export ORACLE_SID=orcl1</div><div class="line">sqlplus / as sysdba</div><div class="line">startup nomount</div><div class="line">CREATE DATABASE orcl1</div><div class="line">    USER SYS IDENTIFIED BY oracle</div><div class="line">    USER SYSTEM IDENTIFIED BY oracle</div><div class="line">    EXTENT MANAGEMENT LOCAL</div><div class="line">    DEFAULT TABLESPACE users</div><div class="line">    DEFAULT TEMPORARY TABLESPACE temp</div><div class="line">    UNDO TABLESPACE undotbs1</div><div class="line">    ENABLE PLUGGABLE DATABASE</div><div class="line">    SEED</div><div class="line">        SYSTEM DATAFILES SIZE <span class="number">125</span>M AUTOEXTEND ON NEXT <span class="number">10</span>M MAXSIZE UNLIMITED</div><div class="line">        SYSAUX DATAFILES SIZE <span class="number">100</span>M;</div><div class="line"></div><div class="line">show con_name</div><div class="line"></div><div class="line">CON_NAME</div><div class="line">------------------------------</div><div class="line">CDB$ROOT</div><div class="line"></div><div class="line">show pdbs;</div><div class="line"></div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line">---------- ------------------------------ ---------- ----------</div><div class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</div><div class="line"></div><div class="line"><span class="comment"># 非OMF方式创建数据库</span></div><div class="line">CREATE DATABASE newcdb</div><div class="line">  USER SYS IDENTIFIED BY sys_password</div><div class="line">  USER SYSTEM IDENTIFIED BY system_password</div><div class="line">  LOGFILE GROUP <span class="number">1</span> (<span class="string">'/u01/logs/my/redo01a.log'</span>,<span class="string">'/u02/logs/my/redo01b.log'</span>)</div><div class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">          GROUP <span class="number">2</span> (<span class="string">'/u01/logs/my/redo02a.log'</span>,<span class="string">'/u02/logs/my/redo02b.log'</span>)</div><div class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">          GROUP <span class="number">3</span> (<span class="string">'/u01/logs/my/redo03a.log'</span>,<span class="string">'/u02/logs/my/redo03b.log'</span>)</div><div class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span></div><div class="line">  MAXLOGHISTORY <span class="number">1</span></div><div class="line">  MAXLOGFILES <span class="number">16</span></div><div class="line">  MAXLOGMEMBERS <span class="number">3</span></div><div class="line">  MAXDATAFILES <span class="number">1024</span></div><div class="line">  CHARACTER SET AL32UTF8</div><div class="line">  NATIONAL CHARACTER SET AL16UTF16</div><div class="line">  EXTENT MANAGEMENT LOCAL</div><div class="line">  DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/system01.dbf'</span></div><div class="line">    SIZE <span class="number">700</span>M REUSE AUTOEXTEND ON NEXT <span class="number">10240</span>K MAXSIZE UNLIMITED</div><div class="line">  SYSAUX DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/sysaux01.dbf'</span></div><div class="line">    SIZE <span class="number">550</span>M REUSE AUTOEXTEND ON NEXT <span class="number">10240</span>K MAXSIZE UNLIMITED</div><div class="line">  DEFAULT TABLESPACE deftbs</div><div class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/deftbs01.dbf'</span></div><div class="line">    SIZE <span class="number">500</span>M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED</div><div class="line">  DEFAULT TEMPORARY TABLESPACE tempts1</div><div class="line">    TEMPFILE <span class="string">'/u01/app/oracle/oradata/newcdb/temp01.dbf'</span></div><div class="line">    SIZE <span class="number">20</span>M REUSE AUTOEXTEND ON NEXT <span class="number">640</span>K MAXSIZE UNLIMITED</div><div class="line">  UNDO TABLESPACE undotbs1</div><div class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/undotbs01.dbf'</span></div><div class="line">    SIZE <span class="number">200</span>M REUSE AUTOEXTEND ON NEXT <span class="number">5120</span>K MAXSIZE UNLIMITED</div><div class="line">  ENABLE PLUGGABLE DATABASE</div><div class="line">    SEED</div><div class="line">    FILE_NAME_CONVERT = (<span class="string">'/u01/app/oracle/oradata/newcdb/'</span>,</div><div class="line">                         <span class="string">'/u01/app/oracle/oradata/pdbseed/'</span>)</div><div class="line">    SYSTEM DATAFILES SIZE <span class="number">125</span>M AUTOEXTEND ON NEXT <span class="number">10</span>M MAXSIZE UNLIMITED</div><div class="line">    SYSAUX DATAFILES SIZE <span class="number">100</span>M</div><div class="line">  USER_DATA TABLESPACE usertbs</div><div class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/pdbseed/usertbs01.dbf'</span></div><div class="line">    SIZE <span class="number">200</span>M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;</div></pre></td></tr></table></figure>
-<h3 id="创建后的补充工作"><a href="#创建后的补充工作" class="headerlink" title="创建后的补充工作"></a>创建后的补充工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cat $ORACLE_HOME/rdbms/admin/catcdb.sql</div><div class="line">vi /etc/oratab</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">orcl1:<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1:Y</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">export ORACLE_SID=orcl1</div><div class="line">export PERL5LIB=$ORACLE_HOME/rdbms/admin:$PERL5LIB</div><div class="line">export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/perl/bin:$PATH</div><div class="line">cd $ORACLE_HOME/perl/lib/<span class="number">5.22</span>.<span class="number">0</span>/x86_64-linux-thread-multi/Hash</div><div class="line"><span class="comment"># 建软链接，否则会出现找不到文件提示</span></div><div class="line">ln -<span class="keyword">s</span> Util.pm util.pm</div><div class="line">sqlplus / as sysdba</div><div class="line">@?/rdbms/admin/catcdb.sql</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">......</div><div class="line">SQL&gt; host perl -I &amp;&amp;rdbms_admin &amp;&amp;rdbms_admin_catcdb --logDirectory &amp;&amp;<span class="number">1</span> --logFilename &amp;&amp;<span class="number">2</span></div><div class="line">Enter value <span class="keyword">for</span> <span class="number">1</span>: <span class="regexp">/home/oracle</span>           <span class="comment"># 输入日志目录</span></div><div class="line">Enter value <span class="keyword">for</span> <span class="number">2</span>: <span class="regexp">/home/oracle</span><span class="regexp">/a.log     # 输入日志文件名字</span></div><div class="line">Enter new password for SYS: oracle</div><div class="line">Enter new password for SYSTEM: oracle</div><div class="line">Enter temporary tablespace name: temp</div><div class="line">No options to container mapping specified, no options will be installed in any containers</div><div class="line">catcon: ALL catcon-related output will be written to [/home<span class="regexp">/oracle/catalog</span>_catcon_339.lst]</div><div class="line">catcon: See [<span class="regexp">/home/oracle</span><span class="regexp">/catalog*.log] files for output generated by scripts</span></div><div class="line">catcon: See [/home<span class="regexp">/oracle/catalog</span><span class="number">_</span>*.lst] files <span class="keyword">for</span> spool files, <span class="keyword">if</span> any</div><div class="line">...</div><div class="line">catcon: ALL catcon-related output will be written to [<span class="regexp">/home/oracle</span><span class="regexp">/utlrp_catcon_2672.lst]</span></div><div class="line">catcon: See [/home<span class="regexp">/oracle/utlrp</span>*.log] files <span class="keyword">for</span> output generated by scripts</div><div class="line">catcon: See [<span class="regexp">/home/oracle</span><span class="regexp">/utlrp_*.lst] files for spool files, if any</span></div><div class="line">catcon.pl: completed successfully</div><div class="line">#-----------------------------------------------------------------------------------------</div><div class="line"></div><div class="line">create spfile from pfile;</div></pre></td></tr></table></figure>
-<h2 id="DBCA创建CDB"><a href="#DBCA创建CDB" class="headerlink" title="DBCA创建CDB"></a>DBCA创建CDB</h2><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">dbca -silent -createDatabase -templateName $ORACLE_HOME/assistants/dbca/templates/General_Purpose.dbc \</div><div class="line">-gdbname orcl2 -sid orcl2 -characterSet ZHS16GBK -sysPassword oracle -systemPassword oracle \</div><div class="line">-createAsContainerDatabase true</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">[WARNING] [DBT-<span class="number">0620</span>8] The <span class="string">'SYS'</span> password entered does <span class="keyword">not</span> conform to the Oracle recommended standards.</div><div class="line">   CAUSE: </div><div class="line">a. Oracle recommends that the password entered should be at least <span class="number">8</span> characters in <span class="keyword">length</span>, contain at least <span class="number">1</span> uppercase character, <span class="number">1</span> lower case character <span class="keyword">and</span> <span class="number">1</span> digit [<span class="number">0</span>-<span class="number">9</span>].</div><div class="line">b.The password entered is a keyword that Oracle does <span class="keyword">not</span> recommend to be used as password</div><div class="line">   ACTION: Specify a strong password. If required refer Oracle documentation <span class="keyword">for</span> guidelines.</div><div class="line">[WARNING] [DBT-<span class="number">0620</span>8] The <span class="string">'SYSTEM'</span> password entered does <span class="keyword">not</span> conform to the Oracle recommended standards.</div><div class="line">   CAUSE: </div><div class="line">a. Oracle recommends that the password entered should be at least <span class="number">8</span> characters in <span class="keyword">length</span>, contain at least <span class="number">1</span> uppercase character, <span class="number">1</span> lower case character <span class="keyword">and</span> <span class="number">1</span> digit [<span class="number">0</span>-<span class="number">9</span>].</div><div class="line">b.The password entered is a keyword that Oracle does <span class="keyword">not</span> recommend to be used as password</div><div class="line">   ACTION: Specify a strong password. If required refer Oracle documentation <span class="keyword">for</span> guidelines.</div><div class="line">Copying database files</div><div class="line"><span class="number">1</span>% complete</div><div class="line"><span class="number">2</span>% complete</div><div class="line"><span class="number">18</span>% complete</div><div class="line"><span class="number">33</span>% complete</div><div class="line">Creating <span class="keyword">and</span> starting Oracle instance</div><div class="line"><span class="number">35</span>% complete</div><div class="line"><span class="number">40</span>% complete</div><div class="line"><span class="number">41</span>% complete</div><div class="line"><span class="number">42</span>% complete</div><div class="line"><span class="number">46</span>% complete</div><div class="line"><span class="number">51</span>% complete</div><div class="line"><span class="number">52</span>% complete</div><div class="line"><span class="number">53</span>% complete</div><div class="line"><span class="number">55</span>% complete</div><div class="line">Completing Database Creation</div><div class="line"><span class="number">56</span>% complete</div><div class="line"><span class="number">58</span>% complete</div><div class="line"><span class="number">59</span>% complete</div><div class="line"><span class="number">62</span>% complete</div><div class="line"><span class="number">65</span>% complete</div><div class="line"><span class="number">66</span>% complete</div><div class="line">Executing Post Configuration Actions</div><div class="line"><span class="number">100</span>% complete</div><div class="line">Look at the <span class="keyword">log</span> file <span class="string">"/u01/app/oracle/cfgtoollogs/dbca/orcl2/orcl2.log"</span> <span class="keyword">for</span> further details</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h2 id="创建3个PDB，用多种方法实现"><a href="#创建3个PDB，用多种方法实现" class="headerlink" title="创建3个PDB，用多种方法实现"></a>创建3个PDB，用多种方法实现</h2><h3 id="通过种子容器创建pdb"><a href="#通过种子容器创建pdb" class="headerlink" title="通过种子容器创建pdb"></a>通过种子容器创建pdb</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">export ORACLE_SID=orcl2</div><div class="line">sqlplus / as sysdba</div><div class="line"><span class="comment"># 需要指定文件存放位置，可通过如下两种方式</span></div><div class="line">create pluggable database pdb1 admin user pdb1 identified by oracle</div><div class="line"> file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb1'</span>);</div><div class="line"></div><div class="line"><span class="comment"># 或者修改pdb_file_name_convert参数</span></div><div class="line">alter session set pdb_file_name_convert=<span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb2'</span>;</div><div class="line">create pluggable database pdb2 admin user pdb2 identified by oracle;</div></pre></td></tr></table></figure>
-<h3 id="克隆一个本地PDB"><a href="#克隆一个本地PDB" class="headerlink" title="克隆一个本地PDB"></a>克隆一个本地PDB</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">alter pluggable database pdb2 <span class="keyword">open</span>;</div><div class="line">create pluggable database pdb3 from pdb2</div><div class="line"> file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl2/pdb2'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb3'</span>);</div><div class="line"></div><div class="line"><span class="comment">#查看PDB</span></div><div class="line">show pdbs;</div><div class="line"></div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line">---------- ------------------------------ ---------- ----------</div><div class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</div><div class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</div><div class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</div><div class="line">         <span class="number">6</span> PDB3                           MOUNTED</div></pre></td></tr></table></figure>
-<h3 id="使用DBCA图形化方式创建PDB"><a href="#使用DBCA图形化方式创建PDB" class="headerlink" title="使用DBCA图形化方式创建PDB"></a>使用DBCA图形化方式创建PDB</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">dbca</div></pre></td></tr></table></figure>
+<h3 id="手工创建数据库"><a href="#手工创建数据库" class="headerlink" title="手工创建数据库"></a>手工创建数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># OMF方式创建数据库</span></span>
+<span class="line">export ORACLE_SID=orcl1</span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line">startup nomount</span>
+<span class="line">CREATE DATABASE orcl1</span>
+<span class="line">    USER SYS IDENTIFIED BY oracle</span>
+<span class="line">    USER SYSTEM IDENTIFIED BY oracle</span>
+<span class="line">    EXTENT MANAGEMENT LOCAL</span>
+<span class="line">    DEFAULT TABLESPACE users</span>
+<span class="line">    DEFAULT TEMPORARY TABLESPACE temp</span>
+<span class="line">    UNDO TABLESPACE undotbs1</span>
+<span class="line">    ENABLE PLUGGABLE DATABASE</span>
+<span class="line">    SEED</span>
+<span class="line">        SYSTEM DATAFILES SIZE <span class="number">125</span>M AUTOEXTEND ON NEXT <span class="number">10</span>M MAXSIZE UNLIMITED</span>
+<span class="line">        SYSAUX DATAFILES SIZE <span class="number">100</span>M;</span>
+<span class="line"></span>
+<span class="line">show con_name</span>
+<span class="line"></span>
+<span class="line">CON_NAME</span>
+<span class="line">------------------------------</span>
+<span class="line">CDB$ROOT</span>
+<span class="line"></span>
+<span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 非OMF方式创建数据库</span></span>
+<span class="line">CREATE DATABASE newcdb</span>
+<span class="line">  USER SYS IDENTIFIED BY sys_password</span>
+<span class="line">  USER SYSTEM IDENTIFIED BY system_password</span>
+<span class="line">  LOGFILE GROUP <span class="number">1</span> (<span class="string">'/u01/logs/my/redo01a.log'</span>,<span class="string">'/u02/logs/my/redo01b.log'</span>)</span>
+<span class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">          GROUP <span class="number">2</span> (<span class="string">'/u01/logs/my/redo02a.log'</span>,<span class="string">'/u02/logs/my/redo02b.log'</span>)</span>
+<span class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">          GROUP <span class="number">3</span> (<span class="string">'/u01/logs/my/redo03a.log'</span>,<span class="string">'/u02/logs/my/redo03b.log'</span>)</span>
+<span class="line">             SIZE <span class="number">100</span>M BLOCKSIZE <span class="number">512</span></span>
+<span class="line">  MAXLOGHISTORY <span class="number">1</span></span>
+<span class="line">  MAXLOGFILES <span class="number">16</span></span>
+<span class="line">  MAXLOGMEMBERS <span class="number">3</span></span>
+<span class="line">  MAXDATAFILES <span class="number">1024</span></span>
+<span class="line">  CHARACTER SET AL32UTF8</span>
+<span class="line">  NATIONAL CHARACTER SET AL16UTF16</span>
+<span class="line">  EXTENT MANAGEMENT LOCAL</span>
+<span class="line">  DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/system01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">700</span>M REUSE AUTOEXTEND ON NEXT <span class="number">10240</span>K MAXSIZE UNLIMITED</span>
+<span class="line">  SYSAUX DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/sysaux01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">550</span>M REUSE AUTOEXTEND ON NEXT <span class="number">10240</span>K MAXSIZE UNLIMITED</span>
+<span class="line">  DEFAULT TABLESPACE deftbs</span>
+<span class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/deftbs01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">500</span>M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED</span>
+<span class="line">  DEFAULT TEMPORARY TABLESPACE tempts1</span>
+<span class="line">    TEMPFILE <span class="string">'/u01/app/oracle/oradata/newcdb/temp01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">20</span>M REUSE AUTOEXTEND ON NEXT <span class="number">640</span>K MAXSIZE UNLIMITED</span>
+<span class="line">  UNDO TABLESPACE undotbs1</span>
+<span class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/newcdb/undotbs01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">200</span>M REUSE AUTOEXTEND ON NEXT <span class="number">5120</span>K MAXSIZE UNLIMITED</span>
+<span class="line">  ENABLE PLUGGABLE DATABASE</span>
+<span class="line">    SEED</span>
+<span class="line">    FILE_NAME_CONVERT = (<span class="string">'/u01/app/oracle/oradata/newcdb/'</span>,</span>
+<span class="line">                         <span class="string">'/u01/app/oracle/oradata/pdbseed/'</span>)</span>
+<span class="line">    SYSTEM DATAFILES SIZE <span class="number">125</span>M AUTOEXTEND ON NEXT <span class="number">10</span>M MAXSIZE UNLIMITED</span>
+<span class="line">    SYSAUX DATAFILES SIZE <span class="number">100</span>M</span>
+<span class="line">  USER_DATA TABLESPACE usertbs</span>
+<span class="line">    DATAFILE <span class="string">'/u01/app/oracle/oradata/pdbseed/usertbs01.dbf'</span></span>
+<span class="line">    SIZE <span class="number">200</span>M REUSE AUTOEXTEND ON MAXSIZE UNLIMITED;</span>
+</pre></td></tr></table></figure>
+<h3 id="创建后的补充工作"><a href="#创建后的补充工作" class="headerlink" title="创建后的补充工作"></a>创建后的补充工作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat $ORACLE_HOME/rdbms/admin/catcdb.sql</span>
+<span class="line">vi /etc/oratab</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">orcl1:<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1:Y</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">export ORACLE_SID=orcl1</span>
+<span class="line">export PERL5LIB=$ORACLE_HOME/rdbms/admin:$PERL5LIB</span>
+<span class="line">export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/perl/bin:$PATH</span>
+<span class="line">cd $ORACLE_HOME/perl/lib/<span class="number">5.22</span>.<span class="number">0</span>/x86_64-linux-thread-multi/Hash</span>
+<span class="line"><span class="comment"># 建软链接，否则会出现找不到文件提示</span></span>
+<span class="line">ln -<span class="keyword">s</span> Util.pm util.pm</span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line">@?/rdbms/admin/catcdb.sql</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">......</span>
+<span class="line">SQL&gt; host perl -I &amp;&amp;rdbms_admin &amp;&amp;rdbms_admin_catcdb --logDirectory &amp;&amp;<span class="number">1</span> --logFilename &amp;&amp;<span class="number">2</span></span>
+<span class="line">Enter value <span class="keyword">for</span> <span class="number">1</span>: <span class="regexp">/home/oracle</span>           <span class="comment"># 输入日志目录</span></span>
+<span class="line">Enter value <span class="keyword">for</span> <span class="number">2</span>: <span class="regexp">/home/oracle</span><span class="regexp">/a.log     # 输入日志文件名字</span>
+<span class="line">Enter new password for SYS: oracle</span>
+<span class="line">Enter new password for SYSTEM: oracle</span>
+<span class="line">Enter temporary tablespace name: temp</span>
+<span class="line">No options to container mapping specified, no options will be installed in any containers</span>
+<span class="line">catcon: ALL catcon-related output will be written to [/home</span><span class="regexp">/oracle/catalog</span>_catcon_339.lst]</span>
+<span class="line">catcon: See [<span class="regexp">/home/oracle</span><span class="regexp">/catalog*.log] files for output generated by scripts</span>
+<span class="line">catcon: See [/home</span><span class="regexp">/oracle/catalog</span><span class="number">_</span>*.lst] files <span class="keyword">for</span> spool files, <span class="keyword">if</span> any</span>
+<span class="line">...</span>
+<span class="line">catcon: ALL catcon-related output will be written to [<span class="regexp">/home/oracle</span><span class="regexp">/utlrp_catcon_2672.lst]</span>
+<span class="line">catcon: See [/home</span><span class="regexp">/oracle/utlrp</span>*.log] files <span class="keyword">for</span> output generated by scripts</span>
+<span class="line">catcon: See [<span class="regexp">/home/oracle</span><span class="regexp">/utlrp_*.lst] files for spool files, if any</span>
+<span class="line">catcon.pl: completed successfully</span>
+<span class="line">#-----------------------------------------------------------------------------------------</span>
+<span class="line"></span>
+<span class="line">create spfile from pfile;</span></span>
+</pre></td></tr></table></figure>
+<h2 id="DBCA创建CDB"><a href="#DBCA创建CDB" class="headerlink" title="DBCA创建CDB"></a>DBCA创建CDB</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">dbca -silent -createDatabase -templateName $ORACLE_HOME/assistants/dbca/templates/General_Purpose.dbc \</span>
+<span class="line">-gdbname orcl2 -sid orcl2 -characterSet ZHS16GBK -sysPassword oracle -systemPassword oracle \</span>
+<span class="line">-createAsContainerDatabase true</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">[WARNING] [DBT-<span class="number">0620</span>8] The <span class="string">'SYS'</span> password entered does <span class="keyword">not</span> conform to the Oracle recommended standards.</span>
+<span class="line">   CAUSE: </span>
+<span class="line">a. Oracle recommends that the password entered should be at least <span class="number">8</span> characters in <span class="keyword">length</span>, contain at least <span class="number">1</span> uppercase character, <span class="number">1</span> lower case character <span class="keyword">and</span> <span class="number">1</span> digit [<span class="number">0</span>-<span class="number">9</span>].</span>
+<span class="line">b.The password entered is a keyword that Oracle does <span class="keyword">not</span> recommend to be used as password</span>
+<span class="line">   ACTION: Specify a strong password. If required refer Oracle documentation <span class="keyword">for</span> guidelines.</span>
+<span class="line">[WARNING] [DBT-<span class="number">0620</span>8] The <span class="string">'SYSTEM'</span> password entered does <span class="keyword">not</span> conform to the Oracle recommended standards.</span>
+<span class="line">   CAUSE: </span>
+<span class="line">a. Oracle recommends that the password entered should be at least <span class="number">8</span> characters in <span class="keyword">length</span>, contain at least <span class="number">1</span> uppercase character, <span class="number">1</span> lower case character <span class="keyword">and</span> <span class="number">1</span> digit [<span class="number">0</span>-<span class="number">9</span>].</span>
+<span class="line">b.The password entered is a keyword that Oracle does <span class="keyword">not</span> recommend to be used as password</span>
+<span class="line">   ACTION: Specify a strong password. If required refer Oracle documentation <span class="keyword">for</span> guidelines.</span>
+<span class="line">Copying database files</span>
+<span class="line"><span class="number">1</span>% complete</span>
+<span class="line"><span class="number">2</span>% complete</span>
+<span class="line"><span class="number">18</span>% complete</span>
+<span class="line"><span class="number">33</span>% complete</span>
+<span class="line">Creating <span class="keyword">and</span> starting Oracle instance</span>
+<span class="line"><span class="number">35</span>% complete</span>
+<span class="line"><span class="number">40</span>% complete</span>
+<span class="line"><span class="number">41</span>% complete</span>
+<span class="line"><span class="number">42</span>% complete</span>
+<span class="line"><span class="number">46</span>% complete</span>
+<span class="line"><span class="number">51</span>% complete</span>
+<span class="line"><span class="number">52</span>% complete</span>
+<span class="line"><span class="number">53</span>% complete</span>
+<span class="line"><span class="number">55</span>% complete</span>
+<span class="line">Completing Database Creation</span>
+<span class="line"><span class="number">56</span>% complete</span>
+<span class="line"><span class="number">58</span>% complete</span>
+<span class="line"><span class="number">59</span>% complete</span>
+<span class="line"><span class="number">62</span>% complete</span>
+<span class="line"><span class="number">65</span>% complete</span>
+<span class="line"><span class="number">66</span>% complete</span>
+<span class="line">Executing Post Configuration Actions</span>
+<span class="line"><span class="number">100</span>% complete</span>
+<span class="line">Look at the <span class="keyword">log</span> file <span class="string">"/u01/app/oracle/cfgtoollogs/dbca/orcl2/orcl2.log"</span> <span class="keyword">for</span> further details</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h2 id="创建3个PDB，用多种方法实现"><a href="#创建3个PDB，用多种方法实现" class="headerlink" title="创建3个PDB，用多种方法实现"></a>创建3个PDB，用多种方法实现</h2><h3 id="通过种子容器创建pdb"><a href="#通过种子容器创建pdb" class="headerlink" title="通过种子容器创建pdb"></a>通过种子容器创建pdb</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">export ORACLE_SID=orcl2</span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line"><span class="comment"># 需要指定文件存放位置，可通过如下两种方式</span></span>
+<span class="line">create pluggable database pdb1 admin user pdb1 identified by oracle</span>
+<span class="line"> file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb1'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 或者修改pdb_file_name_convert参数</span></span>
+<span class="line">alter session set pdb_file_name_convert=<span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb2'</span>;</span>
+<span class="line">create pluggable database pdb2 admin user pdb2 identified by oracle;</span>
+</pre></td></tr></table></figure>
+<h3 id="克隆一个本地PDB"><a href="#克隆一个本地PDB" class="headerlink" title="克隆一个本地PDB"></a>克隆一个本地PDB</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter pluggable database pdb2 <span class="keyword">open</span>;</span>
+<span class="line">create pluggable database pdb3 from pdb2</span>
+<span class="line"> file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl2/pdb2'</span>,<span class="string">'/u01/app/oracle/oradata/orcl2/pdb3'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment">#查看PDB</span></span>
+<span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</span>
+<span class="line">         <span class="number">6</span> PDB3                           MOUNTED</span>
+</pre></td></tr></table></figure>
+<h3 id="使用DBCA图形化方式创建PDB"><a href="#使用DBCA图形化方式创建PDB" class="headerlink" title="使用DBCA图形化方式创建PDB"></a>使用DBCA图形化方式创建PDB</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">dbca</span>
+</pre></td></tr></table></figure>
 <p><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_01.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_04.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_05.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0519_oracle12c_createpdb_09.png" alt=""></p>
-<h2 id="熟练掌握PDB的基本管理"><a href="#熟练掌握PDB的基本管理" class="headerlink" title="熟练掌握PDB的基本管理"></a>熟练掌握PDB的基本管理</h2><h3 id="容器查看和切换"><a href="#容器查看和切换" class="headerlink" title="容器查看和切换"></a>容器查看和切换</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">select</span> name, decode(cdb, <span class="string">'YES'</span>, <span class="string">'Multitenant Option enabled'</span>, <span class="string">'Regular 12c Database: '</span>) <span class="string">"Multitenant Option"</span>, </div><div class="line"> open_mode, con_id from v$database;</div><div class="line"></div><div class="line">NAME      Multitenant Option         OPEN_MODE                CON_ID</div><div class="line">--------- -------------------------- -------------------- ----------</div><div class="line">ORCL2     Multitenant Option enabled READ WRITE                    <span class="number">0</span></div><div class="line"></div><div class="line">show pdbs;</div><div class="line"></div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line">---------- ------------------------------ ---------- ----------</div><div class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</div><div class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</div><div class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</div><div class="line">         <span class="number">5</span> PDB4                           READ WRITE NO</div><div class="line">         <span class="number">6</span> PDB3                           READ WRITE NO</div><div class="line"></div><div class="line">alter session set container=pdb1;</div></pre></td></tr></table></figure>
-<h3 id="启停PDB数据库"><a href="#启停PDB数据库" class="headerlink" title="启停PDB数据库"></a>启停PDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 以下以PDB3为例</span></div><div class="line">alter pluggable database pdb3 <span class="keyword">open</span>;</div><div class="line">alter pluggable database pdb3 <span class="keyword">close</span>;</div><div class="line"></div><div class="line"><span class="comment"># 或切换到pdb3内执行</span></div><div class="line">alter session set container=pdb3;</div><div class="line">show pdbs</div><div class="line"></div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line">---------- ------------------------------ ---------- ----------</div><div class="line">         <span class="number">6</span> PDB3                           MOUNTED</div><div class="line"></div><div class="line">alter database <span class="keyword">open</span>;</div><div class="line"><span class="keyword">shutdown</span> immediate</div></pre></td></tr></table></figure>
-<h3 id="删除PDB数据库"><a href="#删除PDB数据库" class="headerlink" title="删除PDB数据库"></a>删除PDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">conn / as sysdba</div><div class="line">alter pluggable database pdb4 <span class="keyword">close</span>;</div><div class="line">drop pluggable database pdb4 including datafiles;</div></pre></td></tr></table></figure>
-<h2 id="完成CDB-PDB的网络监听配置"><a href="#完成CDB-PDB的网络监听配置" class="headerlink" title="完成CDB,PDB的网络监听配置"></a>完成CDB,PDB的网络监听配置</h2><h3 id="配置LISTENER"><a href="#配置LISTENER" class="headerlink" title="配置LISTENER"></a>配置LISTENER</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cd $ORACLE_HOME/network/admin</div><div class="line">vi listener.ora</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">LISTENER =</div><div class="line">  (DESCRIPTION_LIST =</div><div class="line">    (DESCRIPTION =</div><div class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = orcl12)(PORT = <span class="number">1521</span>))</div><div class="line">      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))</div><div class="line">    )</div><div class="line">  )</div><div class="line"></div><div class="line">SID_LIST_LISTENER =</div><div class="line">  (SID_LIST =</div><div class="line">    (SID_DESC =</div><div class="line">      (GLOBAL_DBNAME = pdb1)</div><div class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</div><div class="line">      (SID_NAME = orcl2)</div><div class="line">    )</div><div class="line">    (SID_DESC =</div><div class="line">      (GLOBAL_DBNAME = pdb2)</div><div class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</div><div class="line">      (SID_NAME = orcl2)</div><div class="line">    )</div><div class="line">    (SID_DESC =</div><div class="line">      (GLOBAL_DBNAME = pdb3)</div><div class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</div><div class="line">      (SID_NAME = orcl2)</div><div class="line">    )</div><div class="line">)</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h3 id="配置tnsnames"><a href="#配置tnsnames" class="headerlink" title="配置tnsnames"></a>配置tnsnames</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cat /etc/hosts</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"><span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>   localhost localhost.localdomain localhost4 localhost4.localdomain4</div><div class="line">::<span class="number">1</span>         localhost localhost.localdomain localhost6 localhost6.localdomain6</div><div class="line"><span class="number">10.245</span>.<span class="number">231.205</span> orcl12</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line">vi tnsnames.ora</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">ORCL2 =</div><div class="line">  (DESCRIPTION =</div><div class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</div><div class="line">    (CONNECT_DATA =</div><div class="line">      (SERVER = DEDICATED)</div><div class="line">      (SERVICE_NAME = orcl2)</div><div class="line">    )</div><div class="line">  )</div><div class="line"></div><div class="line">PDB1 =</div><div class="line">  (DESCRIPTION =</div><div class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</div><div class="line">    (CONNECT_DATA =</div><div class="line">      (SERVER = DEDICATED)</div><div class="line">      (SERVICE_NAME = pdb1)</div><div class="line">    )</div><div class="line">  )</div><div class="line"></div><div class="line">PDB2 =</div><div class="line">  (DESCRIPTION =</div><div class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</div><div class="line">    (CONNECT_DATA =</div><div class="line">      (SERVER = DEDICATED)</div><div class="line">      (SERVICE_NAME = pdb2)</div><div class="line">    )</div><div class="line">  )</div><div class="line"></div><div class="line">PDB3 =</div><div class="line">  (DESCRIPTION =</div><div class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</div><div class="line">    (CONNECT_DATA =</div><div class="line">      (SERVER = DEDICATED)</div><div class="line">      (SERVICE_NAME = pdb3)</div><div class="line">    )</div><div class="line">  )</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 验证配置</span></div><div class="line">tnsping pdb1</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">19</span>-MAY-<span class="number">2017</span> <span class="number">16</span>:<span class="number">41</span>:<span class="number">53</span></div><div class="line"></div><div class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</div><div class="line"></div><div class="line">Used parameter files:</div><div class="line"></div><div class="line"></div><div class="line">Used TNSNAMES adapter to resolve the alias</div><div class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = pdb1)))</div><div class="line">OK (<span class="number">0</span> msec)</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line">sqlplus pdb1/oracle@pdb1</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">SQL*Plus: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> Production on Fri May <span class="number">19</span> <span class="number">16</span>:<span class="number">42</span>:08 <span class="number">2017</span></div><div class="line"></div><div class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</div><div class="line"></div><div class="line">Last Successful login <span class="keyword">time</span>: Fri May <span class="number">19</span> <span class="number">2017</span> <span class="number">16</span>:<span class="number">40</span>:<span class="number">02</span> +08:<span class="number">00</span></div><div class="line"></div><div class="line">Connected to:</div><div class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</div><div class="line"></div><div class="line">SQL&gt; show con_name</div><div class="line"></div><div class="line">CON_NAME</div><div class="line">------------------------------</div><div class="line">PDB1</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h2 id="杂记"><a href="#杂记" class="headerlink" title="杂记"></a>杂记</h2><h3 id="手工模拟DBCA创建CDB数据库"><a href="#手工模拟DBCA创建CDB数据库" class="headerlink" title="手工模拟DBCA创建CDB数据库"></a>手工模拟DBCA创建CDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 只生成建库脚本</span></div><div class="line">dbca -silent -templateName $ORACLE_HOME/assistants/dbca/templates/General_Purpose.dbc -gdbname orcl2 -sid orcl2 \</div><div class="line">-characterSet ZHS16GBK -sysPassword oracle -systemPassword oracle -createAsContainerDatabase true -generateScripts</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">Database creation script generation</div><div class="line"><span class="number">1</span>% complete</div><div class="line"><span class="number">2</span>% complete</div><div class="line"><span class="number">18</span>% complete</div><div class="line"><span class="number">33</span>% complete</div><div class="line"><span class="number">35</span>% complete</div><div class="line"><span class="number">40</span>% complete</div><div class="line"><span class="number">41</span>% complete</div><div class="line"><span class="number">42</span>% complete</div><div class="line"><span class="number">46</span>% complete</div><div class="line"><span class="number">51</span>% complete</div><div class="line"><span class="number">52</span>% complete</div><div class="line"><span class="number">55</span>% complete</div><div class="line"><span class="number">56</span>% complete</div><div class="line"><span class="number">60</span>% complete</div><div class="line"><span class="number">63</span>% complete</div><div class="line"><span class="number">66</span>% complete</div><div class="line"><span class="number">100</span>% complete</div><div class="line">Look at the <span class="keyword">log</span> file <span class="string">"/u01/app/oracle/admin/orcl2/scripts/orcl2.log"</span> <span class="keyword">for</span> further details.</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line"><span class="comment"># 查看分析建库脚本</span></div><div class="line">cd /u01/app/oracle/admin/orcl2/scripts</div><div class="line">ll</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">total <span class="number">18348</span></div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">1891</span> May <span class="number">19</span> 08:<span class="number">59</span> cloneDBCreation.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">833</span> May <span class="number">19</span> 08:<span class="number">59</span> CloneRmanRestore.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2227</span> May <span class="number">19</span> 08:<span class="number">59</span> init.ora</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2238</span> May <span class="number">19</span> 08:<span class="number">59</span> initorcl2TempOMF.ora</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2343</span> May <span class="number">19</span> 08:<span class="number">59</span> initorcl2Temp.ora</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">548</span> May <span class="number">19</span> 08:<span class="number">59</span> lockAccount.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">521</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.log</div><div class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">785</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.sh</div><div class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">612</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">3635</span> May <span class="number">19</span> 08:<span class="number">59</span> plug_PDBSeed.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">810</span> May <span class="number">19</span> 08:<span class="number">59</span> postDBCreation.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">1852</span> May <span class="number">19</span> 08:<span class="number">59</span> postScripts.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">101</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanPDBCleanUpDatafiles.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">377</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanPDBRestoreDatafiles.sql</div><div class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">560</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanRestoreDatafiles.sql</div><div class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">18726912</span> May <span class="number">19</span> 08:<span class="number">59</span> tempControl.ctl</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line">cat orcl2.sh</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"><span class="comment">#!/bin/sh</span></div><div class="line"></div><div class="line">OLD_UMASK=<span class="string">`umask`</span></div><div class="line"><span class="keyword">umask</span> <span class="number">0027</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/adump</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/dpdump</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/pfile</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/audit</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/cfgtoollogs/dbca/orcl2</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl2</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl2/pdbseed</div><div class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs</div><div class="line"><span class="keyword">umask</span> $&#123;OLD_UMASK&#125;</div><div class="line">PERL5LIB=$ORACLE_HOME/rdbms/admin:$PERL5LIB; export PERL5LIB</div><div class="line">ORACLE_SID=orcl2; export ORACLE_SID</div><div class="line">PATH=$ORACLE_HOME/bin:$ORACLE_HOME/perl/bin:$PATH; export PATH</div><div class="line">echo You should Add this entry in the /etc/oratab: orcl2:<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1:Y</div><div class="line">/u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/bin/sqlplus /nolog @/u01/app/oracle/admin/orcl2/scripts/orcl2.sql</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line"></div><div class="line">cat orcl2.sql</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">set verify off</div><div class="line">ACCEPT sysPassword CHAR PROMPT <span class="string">'Enter new password for SYS: '</span> HIDE</div><div class="line">ACCEPT systemPassword CHAR PROMPT <span class="string">'Enter new password for SYSTEM: '</span> HIDE</div><div class="line">host /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/bin/orapwd file=<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/dbs/orapworcl2 force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/CloneRmanRestore.sql</div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/cloneDBCreation.sql</div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/plug_PDBSeed.sql</div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/postScripts.sql</div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/lockAccount.sql</div><div class="line">@/u01/app/oracle/admin/orcl2/scripts/postDBCreation.sql</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
-<h3 id="通过控制文件查看cdb的结构"><a href="#通过控制文件查看cdb的结构" class="headerlink" title="通过控制文件查看cdb的结构"></a>通过控制文件查看cdb的结构</h3><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">alter</span> <span class="keyword">database</span> <span class="keyword">backup</span> <span class="keyword">controlfile</span> <span class="keyword">to</span> <span class="keyword">trace</span>;</div><div class="line">col VALUE for a80</div><div class="line"><span class="keyword">select</span> INST_ID,<span class="keyword">VALUE</span> <span class="keyword">from</span> v$diag_info <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'Default Trace File'</span>;</div><div class="line"></div><div class="line">   INST_ID VALUE</div><div class="line"><span class="comment">---------- --------------------------------------------------------------------------------</span></div><div class="line">         1 /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</div></pre></td></tr></table></figure>
-<p>查看生成的Trace File<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cat /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div><div class="line">Trace file /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</div><div class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</div><div class="line">Build label:    RDBMS_12.<span class="number">2.0</span>.<span class="number">1.0_</span>LINUX.X64_170125</div><div class="line">ORACLE_HOME:    <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1</div><div class="line">System name:    Linux</div><div class="line">Node name:      orcl12</div><div class="line">Release:        <span class="number">4.1</span>.<span class="number">12</span>-<span class="number">61.1</span>.<span class="number">18</span>.el7uek.x86_64</div><div class="line">Version:        <span class="comment">#2 SMP Fri Nov 4 15:48:30 PDT 2016</span></div><div class="line">Machine:        x86_64</div><div class="line">Instance name: orcl2</div><div class="line">Redo thread mounted by this instance: <span class="number">1</span></div><div class="line">Oracle process number: <span class="number">27</span></div><div class="line">Unix process pid: <span class="number">16951</span>, image: oracle@orcl12 (TNS V1-V3)</div><div class="line"></div><div class="line"></div><div class="line">*** <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267587</span>+08:<span class="number">00</span> (PDB4(<span class="number">5</span>))</div><div class="line">*** SESSION ID:(<span class="number">397.57468</span>) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267655</span>+08:<span class="number">00</span></div><div class="line">*** CLIENT ID:() <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267666</span>+08:<span class="number">00</span></div><div class="line">*** SERVICE NAME:(SYS$USERS) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267675</span>+08:<span class="number">00</span></div><div class="line">*** MODULE NAME:(sqlplus@orcl12 (TNS V1-V3)) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267685</span>+08:<span class="number">00</span></div><div class="line">*** ACTION NAME:() <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267694</span>+08:<span class="number">00</span></div><div class="line">*** CLIENT DRIVER:(SQL*PLUS) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267703</span>+08:<span class="number">00</span></div><div class="line">*** CONTAINER ID:(<span class="number">5</span>) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267712</span>+08:<span class="number">00</span></div><div class="line"> </div><div class="line">JIT: pid <span class="number">16951</span> requesting stop</div><div class="line"></div><div class="line">*** <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">21</span>:<span class="number">04</span>.<span class="number">923126</span>+08:<span class="number">00</span> (CDB$ROOT(<span class="number">1</span>))</div><div class="line">-- The following are current System-scope REDO Log Archival related</div><div class="line">-- parameters <span class="keyword">and</span> can be included in the database initialization file.</div><div class="line">--</div><div class="line">-- LOG_ARCHIVE_DEST=<span class="string">''</span></div><div class="line">-- LOG_ARCHIVE_DUPLEX_DEST=<span class="string">''</span></div><div class="line">--</div><div class="line">-- LOG_ARCHIVE_FORMAT=%t_%s_%r.dbf</div><div class="line">--</div><div class="line">-- DB_UNIQUE_NAME=<span class="string">"orcl2"</span></div><div class="line">--</div><div class="line">-- LOG_ARCHIVE_CONFIG=<span class="string">'SEND, RECEIVE, NODG_CONFIG'</span></div><div class="line">-- LOG_ARCHIVE_MAX_PROCESSES=<span class="number">4</span></div><div class="line">-- STANDBY_FILE_MANAGEMENT=MANUAL</div><div class="line">-- STANDBY_ARCHIVE_DEST=?<span class="comment">#/dbs/arch</span></div><div class="line">-- FAL_CLIENT=<span class="string">''</span></div><div class="line">-- FAL_SERVER=<span class="string">''</span></div><div class="line">--</div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'LOCATION=/u01/app/oracle/product/12.2.0/db_1/dbs/arch'</span></div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'MANDATORY NOREOPEN NODELAY'</span></div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'ARCH NOAFFIRM NOVERIFY SYNC'</span></div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'NOREGISTER NOALTERNATE NODEPENDENCY'</span></div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'NOMAX_FAILURE NOQUOTA_SIZE NOQUOTA_USED NODB_UNIQUE_NAME'</span></div><div class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'VALID_FOR=(PRIMARY_ROLE,ONLINE_LOGFILES)'</span></div><div class="line">-- LOG_ARCHIVE_DEST_STATE_1=ENABLE</div><div class="line">--</div><div class="line">-- Below are two sets of SQL statements, <span class="keyword">each</span> of which creates a new</div><div class="line">-- control file <span class="keyword">and</span> uses it to <span class="keyword">open</span> the database. The first set opens</div><div class="line">-- the database with the NORESETLOGS option <span class="keyword">and</span> should be used only <span class="keyword">if</span></div><div class="line">-- the current versions of all online logs are available. The second</div><div class="line">-- set opens the database with the RESETLOGS option <span class="keyword">and</span> should be used</div><div class="line">-- <span class="keyword">if</span> online logs are unavailable.</div><div class="line">-- The appropriate set of statements can be copied from the trace into</div><div class="line">-- a script file, edited as necessary, <span class="keyword">and</span> executed <span class="keyword">when</span> there is a</div><div class="line">-- need to re-create the control file.</div><div class="line">--</div><div class="line">--     Set <span class="comment">#1. NORESETLOGS case</span></div><div class="line">--</div><div class="line">-- The following commands will create a new control file <span class="keyword">and</span> <span class="keyword">use</span> it</div><div class="line">-- to <span class="keyword">open</span> the database.</div><div class="line">-- Data used by Recovery Manager will be lost.</div><div class="line">-- Additional logs may be required <span class="keyword">for</span> media recovery of offline</div><div class="line">-- Use this only <span class="keyword">if</span> the current versions of all online logs are</div><div class="line">-- available.</div><div class="line">-- After mounting the created controlfile, the following SQL</div><div class="line">-- statement will place the database in the appropriate</div><div class="line">-- protection mode:</div><div class="line">--  ALTER DATABASE SET STANDBY DATABASE TO MAXIMIZE PERFORMANCE</div><div class="line">STARTUP NOMOUNT</div><div class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL2"</span> NORESETLOGS  NOARCHIVELOG</div><div class="line">    MAXLOGFILES <span class="number">16</span></div><div class="line">    MAXLOGMEMBERS <span class="number">3</span></div><div class="line">    MAXDATAFILES <span class="number">1024</span></div><div class="line">    MAXINSTANCES <span class="number">8</span></div><div class="line">    MAXLOGHISTORY <span class="number">292</span></div><div class="line">LOGFILE</div><div class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo01.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo02.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo03.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span></div><div class="line">-- STANDBY LOGFILE</div><div class="line">DATAFILE</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/users01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/undotbs01.dbf'</span></div><div class="line">CHARACTER SET ZHS16GBK</div><div class="line">;</div><div class="line">-- Commands to re-create incarnation table</div><div class="line">-- Below <span class="keyword">log</span> names MUST be changed to existing filenames on</div><div class="line">-- disk. Any one <span class="keyword">log</span> file from <span class="keyword">each</span> branch can be used to</div><div class="line">-- re-create incarnation records.</div><div class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_934293149.dbf'</span>;</div><div class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_944407156.dbf'</span>;</div><div class="line">-- Recovery is required <span class="keyword">if</span> any of the datafiles are restored backups,</div><div class="line">-- <span class="keyword">or</span> <span class="keyword">if</span> the <span class="keyword">last</span> <span class="keyword">shutdown</span> was <span class="keyword">not</span> normal <span class="keyword">or</span> immediate.</div><div class="line">RECOVER DATABASE</div><div class="line">-- Database can now be opened normally.</div><div class="line">ALTER DATABASE OPEN;</div><div class="line">-- Open all the PDBs.</div><div class="line">ALTER PLUGGABLE DATABASE ALL OPEN;</div><div class="line">-- Commands to add tempfiles to temporary tablespaces.</div><div class="line">-- Online tempfiles have complete space information.</div><div class="line">-- Other tempfiles may <span class="keyword">require</span> adjustment.</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/temp01.dbf'</span></div><div class="line">     SIZE <span class="number">34603008</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB$SEED;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB1;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB2;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/temp012017-05-19_15-19-57-248-PM.dbf'</span> REUSE;</div><div class="line">ALTER SESSION SET CONTAINER = PDB3;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = CDB$ROOT;</div><div class="line">-- End of tempfile additions.</div><div class="line">--</div><div class="line">--     Set <span class="comment">#2. RESETLOGS case</span></div><div class="line">--</div><div class="line">-- The following commands will create a new control file <span class="keyword">and</span> <span class="keyword">use</span> it</div><div class="line">-- to <span class="keyword">open</span> the database.</div><div class="line">-- Data used by Recovery Manager will be lost.</div><div class="line">-- The contents of online logs will be lost <span class="keyword">and</span> all backups will</div><div class="line">-- be invalidated. Use this only <span class="keyword">if</span> online logs are damaged.</div><div class="line">-- After mounting the created controlfile, the following SQL</div><div class="line">-- statement will place the database in the appropriate</div><div class="line">-- protection mode:</div><div class="line">--  ALTER DATABASE SET STANDBY DATABASE TO MAXIMIZE PERFORMANCE</div><div class="line">STARTUP NOMOUNT</div><div class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL2"</span> RESETLOGS  NOARCHIVELOG</div><div class="line">    MAXLOGFILES <span class="number">16</span></div><div class="line">    MAXLOGMEMBERS <span class="number">3</span></div><div class="line">    MAXDATAFILES <span class="number">1024</span></div><div class="line">    MAXINSTANCES <span class="number">8</span></div><div class="line">    MAXLOGHISTORY <span class="number">292</span></div><div class="line">LOGFILE</div><div class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo01.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo02.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</div><div class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo03.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span></div><div class="line">-- STANDBY LOGFILE</div><div class="line">DATAFILE</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/users01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/system01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/sysaux01.dbf'</span>,</div><div class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/undotbs01.dbf'</span></div><div class="line">CHARACTER SET ZHS16GBK</div><div class="line">;</div><div class="line">-- Commands to re-create incarnation table</div><div class="line">-- Below <span class="keyword">log</span> names MUST be changed to existing filenames on</div><div class="line">-- disk. Any one <span class="keyword">log</span> file from <span class="keyword">each</span> branch can be used to</div><div class="line">-- re-create incarnation records.</div><div class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_934293149.dbf'</span>;</div><div class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_944407156.dbf'</span>;</div><div class="line">-- Recovery is required <span class="keyword">if</span> any of the datafiles are restored backups,</div><div class="line">-- <span class="keyword">or</span> <span class="keyword">if</span> the <span class="keyword">last</span> <span class="keyword">shutdown</span> was <span class="keyword">not</span> normal <span class="keyword">or</span> immediate.</div><div class="line">RECOVER DATABASE USING BACKUP CONTROLFILE</div><div class="line">-- Database can now be opened zeroing the online logs.</div><div class="line">ALTER DATABASE OPEN RESETLOGS;</div><div class="line">-- Open all the PDBs.</div><div class="line">ALTER PLUGGABLE DATABASE ALL OPEN;</div><div class="line">-- Commands to add tempfiles to temporary tablespaces.</div><div class="line">-- Online tempfiles have complete space information.</div><div class="line">-- Other tempfiles may <span class="keyword">require</span> adjustment.</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/temp01.dbf'</span></div><div class="line">     SIZE <span class="number">34603008</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB$SEED;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB1;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = PDB2;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/temp012017-05-19_15-19-57-248-PM.dbf'</span> REUSE;</div><div class="line">ALTER SESSION SET CONTAINER = PDB3;</div><div class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/temp012017-05-19_15-19-57-248-PM.dbf'</span></div><div class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</div><div class="line">ALTER SESSION SET CONTAINER = CDB$ROOT;</div><div class="line">-- End of tempfile additions.</div><div class="line">--</div><div class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure></p>
+<h2 id="熟练掌握PDB的基本管理"><a href="#熟练掌握PDB的基本管理" class="headerlink" title="熟练掌握PDB的基本管理"></a>熟练掌握PDB的基本管理</h2><h3 id="容器查看和切换"><a href="#容器查看和切换" class="headerlink" title="容器查看和切换"></a>容器查看和切换</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> name, decode(cdb, <span class="string">'YES'</span>, <span class="string">'Multitenant Option enabled'</span>, <span class="string">'Regular 12c Database: '</span>) <span class="string">"Multitenant Option"</span>, </span>
+<span class="line"> open_mode, con_id from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      Multitenant Option         OPEN_MODE                CON_ID</span>
+<span class="line">--------- -------------------------- -------------------- ----------</span>
+<span class="line">ORCL2     Multitenant Option enabled READ WRITE                    <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</span>
+<span class="line">         <span class="number">5</span> PDB4                           READ WRITE NO</span>
+<span class="line">         <span class="number">6</span> PDB3                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">alter session set container=pdb1;</span>
+</pre></td></tr></table></figure>
+<h3 id="启停PDB数据库"><a href="#启停PDB数据库" class="headerlink" title="启停PDB数据库"></a>启停PDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下以PDB3为例</span></span>
+<span class="line">alter pluggable database pdb3 <span class="keyword">open</span>;</span>
+<span class="line">alter pluggable database pdb3 <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 或切换到pdb3内执行</span></span>
+<span class="line">alter session set container=pdb3;</span>
+<span class="line">show pdbs</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">6</span> PDB3                           MOUNTED</span>
+<span class="line"></span>
+<span class="line">alter database <span class="keyword">open</span>;</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+</pre></td></tr></table></figure>
+<h3 id="删除PDB数据库"><a href="#删除PDB数据库" class="headerlink" title="删除PDB数据库"></a>删除PDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line">alter pluggable database pdb4 <span class="keyword">close</span>;</span>
+<span class="line">drop pluggable database pdb4 including datafiles;</span>
+</pre></td></tr></table></figure>
+<h2 id="完成CDB-PDB的网络监听配置"><a href="#完成CDB-PDB的网络监听配置" class="headerlink" title="完成CDB,PDB的网络监听配置"></a>完成CDB,PDB的网络监听配置</h2><h3 id="配置LISTENER"><a href="#配置LISTENER" class="headerlink" title="配置LISTENER"></a>配置LISTENER</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd $ORACLE_HOME/network/admin</span>
+<span class="line">vi listener.ora</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">LISTENER =</span>
+<span class="line">  (DESCRIPTION_LIST =</span>
+<span class="line">    (DESCRIPTION =</span>
+<span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = orcl12)(PORT = <span class="number">1521</span>))</span>
+<span class="line">      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">SID_LIST_LISTENER =</span>
+<span class="line">  (SID_LIST =</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = pdb1)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = orcl2)</span>
+<span class="line">    )</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = pdb2)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = orcl2)</span>
+<span class="line">    )</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = pdb3)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = orcl2)</span>
+<span class="line">    )</span>
+<span class="line">)</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="配置tnsnames"><a href="#配置tnsnames" class="headerlink" title="配置tnsnames"></a>配置tnsnames</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/hosts</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"><span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>   localhost localhost.localdomain localhost4 localhost4.localdomain4</span>
+<span class="line">::<span class="number">1</span>         localhost localhost.localdomain localhost6 localhost6.localdomain6</span>
+<span class="line"><span class="number">10.245</span>.<span class="number">231.205</span> orcl12</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi tnsnames.ora</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">ORCL2 =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = orcl2)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">PDB1 =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = pdb1)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">PDB2 =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = pdb2)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">PDB3 =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = pdb3)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 验证配置</span></span>
+<span class="line">tnsping pdb1</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">19</span>-MAY-<span class="number">2017</span> <span class="number">16</span>:<span class="number">41</span>:<span class="number">53</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Used parameter files:</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Used TNSNAMES adapter to resolve the alias</span>
+<span class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.245</span>.<span class="number">231.205</span>)(PORT = <span class="number">1521</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = pdb1)))</span>
+<span class="line">OK (<span class="number">0</span> msec)</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">sqlplus pdb1/oracle@pdb1</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL*Plus: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> Production on Fri May <span class="number">19</span> <span class="number">16</span>:<span class="number">42</span>:08 <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Last Successful login <span class="keyword">time</span>: Fri May <span class="number">19</span> <span class="number">2017</span> <span class="number">16</span>:<span class="number">40</span>:<span class="number">02</span> +08:<span class="number">00</span></span>
+<span class="line"></span>
+<span class="line">Connected to:</span>
+<span class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</span>
+<span class="line"></span>
+<span class="line">SQL&gt; show con_name</span>
+<span class="line"></span>
+<span class="line">CON_NAME</span>
+<span class="line">------------------------------</span>
+<span class="line">PDB1</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h2 id="杂记"><a href="#杂记" class="headerlink" title="杂记"></a>杂记</h2><h3 id="手工模拟DBCA创建CDB数据库"><a href="#手工模拟DBCA创建CDB数据库" class="headerlink" title="手工模拟DBCA创建CDB数据库"></a>手工模拟DBCA创建CDB数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只生成建库脚本</span></span>
+<span class="line">dbca -silent -templateName $ORACLE_HOME/assistants/dbca/templates/General_Purpose.dbc -gdbname orcl2 -sid orcl2 \</span>
+<span class="line">-characterSet ZHS16GBK -sysPassword oracle -systemPassword oracle -createAsContainerDatabase true -generateScripts</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">Database creation script generation</span>
+<span class="line"><span class="number">1</span>% complete</span>
+<span class="line"><span class="number">2</span>% complete</span>
+<span class="line"><span class="number">18</span>% complete</span>
+<span class="line"><span class="number">33</span>% complete</span>
+<span class="line"><span class="number">35</span>% complete</span>
+<span class="line"><span class="number">40</span>% complete</span>
+<span class="line"><span class="number">41</span>% complete</span>
+<span class="line"><span class="number">42</span>% complete</span>
+<span class="line"><span class="number">46</span>% complete</span>
+<span class="line"><span class="number">51</span>% complete</span>
+<span class="line"><span class="number">52</span>% complete</span>
+<span class="line"><span class="number">55</span>% complete</span>
+<span class="line"><span class="number">56</span>% complete</span>
+<span class="line"><span class="number">60</span>% complete</span>
+<span class="line"><span class="number">63</span>% complete</span>
+<span class="line"><span class="number">66</span>% complete</span>
+<span class="line"><span class="number">100</span>% complete</span>
+<span class="line">Look at the <span class="keyword">log</span> file <span class="string">"/u01/app/oracle/admin/orcl2/scripts/orcl2.log"</span> <span class="keyword">for</span> further details.</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看分析建库脚本</span></span>
+<span class="line">cd /u01/app/oracle/admin/orcl2/scripts</span>
+<span class="line">ll</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">total <span class="number">18348</span></span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">1891</span> May <span class="number">19</span> 08:<span class="number">59</span> cloneDBCreation.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">833</span> May <span class="number">19</span> 08:<span class="number">59</span> CloneRmanRestore.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2227</span> May <span class="number">19</span> 08:<span class="number">59</span> init.ora</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2238</span> May <span class="number">19</span> 08:<span class="number">59</span> initorcl2TempOMF.ora</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">2343</span> May <span class="number">19</span> 08:<span class="number">59</span> initorcl2Temp.ora</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">548</span> May <span class="number">19</span> 08:<span class="number">59</span> lockAccount.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">521</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.log</span>
+<span class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">785</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.sh</span>
+<span class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">612</span> May <span class="number">19</span> 08:<span class="number">59</span> orcl2.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">3635</span> May <span class="number">19</span> 08:<span class="number">59</span> plug_PDBSeed.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">810</span> May <span class="number">19</span> 08:<span class="number">59</span> postDBCreation.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall     <span class="number">1852</span> May <span class="number">19</span> 08:<span class="number">59</span> postScripts.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">101</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanPDBCleanUpDatafiles.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall      <span class="number">377</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanPDBRestoreDatafiles.sql</span>
+<span class="line">-rwxr-xr-<span class="keyword">x</span> <span class="number">1</span> oracle oinstall      <span class="number">560</span> May <span class="number">19</span> 08:<span class="number">59</span> rmanRestoreDatafiles.sql</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">18726912</span> May <span class="number">19</span> 08:<span class="number">59</span> tempControl.ctl</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">cat orcl2.sh</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/bin/sh</span></span>
+<span class="line"></span>
+<span class="line">OLD_UMASK=<span class="string">`umask`</span></span>
+<span class="line"><span class="keyword">umask</span> <span class="number">0027</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/adump</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/dpdump</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/orcl2/pfile</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/audit</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/cfgtoollogs/dbca/orcl2</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl2</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/orcl2/pdbseed</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs</span>
+<span class="line"><span class="keyword">umask</span> $&#123;OLD_UMASK&#125;</span>
+<span class="line">PERL5LIB=$ORACLE_HOME/rdbms/admin:$PERL5LIB; export PERL5LIB</span>
+<span class="line">ORACLE_SID=orcl2; export ORACLE_SID</span>
+<span class="line">PATH=$ORACLE_HOME/bin:$ORACLE_HOME/perl/bin:$PATH; export PATH</span>
+<span class="line">echo You should Add this entry in the /etc/oratab: orcl2:<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1:Y</span>
+<span class="line">/u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/bin/sqlplus /nolog @/u01/app/oracle/admin/orcl2/scripts/orcl2.sql</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">cat orcl2.sql</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">set verify off</span>
+<span class="line">ACCEPT sysPassword CHAR PROMPT <span class="string">'Enter new password for SYS: '</span> HIDE</span>
+<span class="line">ACCEPT systemPassword CHAR PROMPT <span class="string">'Enter new password for SYSTEM: '</span> HIDE</span>
+<span class="line">host /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/bin/orapwd file=<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/dbs/orapworcl2 force=<span class="keyword">y</span> <span class="keyword">format</span>=<span class="number">12</span></span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/CloneRmanRestore.sql</span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/cloneDBCreation.sql</span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/plug_PDBSeed.sql</span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/postScripts.sql</span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/lockAccount.sql</span>
+<span class="line">@/u01/app/oracle/admin/orcl2/scripts/postDBCreation.sql</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="通过控制文件查看cdb的结构"><a href="#通过控制文件查看cdb的结构" class="headerlink" title="通过控制文件查看cdb的结构"></a>通过控制文件查看cdb的结构</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">database</span> <span class="keyword">backup</span> <span class="keyword">controlfile</span> <span class="keyword">to</span> <span class="keyword">trace</span>;</span>
+<span class="line">col VALUE for a80</span>
+<span class="line"><span class="keyword">select</span> INST_ID,<span class="keyword">VALUE</span> <span class="keyword">from</span> v$diag_info <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">   INST_ID VALUE</span>
+<span class="line"><span class="comment">---------- --------------------------------------------------------------------------------</span></span>
+<span class="line">         1 /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</span>
+</pre></td></tr></table></figure>
+<p>查看生成的Trace File<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+<span class="line">Trace file /u01/app/oracle/diag/rdbms/orcl2/orcl2/trace/orcl2_ora_16951.trc</span>
+<span class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</span>
+<span class="line">Build label:    RDBMS_12.<span class="number">2.0</span>.<span class="number">1.0_</span>LINUX.X64_170125</span>
+<span class="line">ORACLE_HOME:    <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1</span>
+<span class="line">System name:    Linux</span>
+<span class="line">Node name:      orcl12</span>
+<span class="line">Release:        <span class="number">4.1</span>.<span class="number">12</span>-<span class="number">61.1</span>.<span class="number">18</span>.el7uek.x86_64</span>
+<span class="line">Version:        <span class="comment">#2 SMP Fri Nov 4 15:48:30 PDT 2016</span></span>
+<span class="line">Machine:        x86_64</span>
+<span class="line">Instance name: orcl2</span>
+<span class="line">Redo thread mounted by this instance: <span class="number">1</span></span>
+<span class="line">Oracle process number: <span class="number">27</span></span>
+<span class="line">Unix process pid: <span class="number">16951</span>, image: oracle@orcl12 (TNS V1-V3)</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">*** <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267587</span>+08:<span class="number">00</span> (PDB4(<span class="number">5</span>))</span>
+<span class="line">*** SESSION ID:(<span class="number">397.57468</span>) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267655</span>+08:<span class="number">00</span></span>
+<span class="line">*** CLIENT ID:() <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267666</span>+08:<span class="number">00</span></span>
+<span class="line">*** SERVICE NAME:(SYS$USERS) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267675</span>+08:<span class="number">00</span></span>
+<span class="line">*** MODULE NAME:(sqlplus@orcl12 (TNS V1-V3)) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267685</span>+08:<span class="number">00</span></span>
+<span class="line">*** ACTION NAME:() <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267694</span>+08:<span class="number">00</span></span>
+<span class="line">*** CLIENT DRIVER:(SQL*PLUS) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267703</span>+08:<span class="number">00</span></span>
+<span class="line">*** CONTAINER ID:(<span class="number">5</span>) <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">19</span>:<span class="number">27.267712</span>+08:<span class="number">00</span></span>
+<span class="line"> </span>
+<span class="line">JIT: pid <span class="number">16951</span> requesting stop</span>
+<span class="line"></span>
+<span class="line">*** <span class="number">2017</span>-<span class="number">05</span>-<span class="number">19</span>T16:<span class="number">21</span>:<span class="number">04</span>.<span class="number">923126</span>+08:<span class="number">00</span> (CDB$ROOT(<span class="number">1</span>))</span>
+<span class="line">-- The following are current System-scope REDO Log Archival related</span>
+<span class="line">-- parameters <span class="keyword">and</span> can be included in the database initialization file.</span>
+<span class="line">--</span>
+<span class="line">-- LOG_ARCHIVE_DEST=<span class="string">''</span></span>
+<span class="line">-- LOG_ARCHIVE_DUPLEX_DEST=<span class="string">''</span></span>
+<span class="line">--</span>
+<span class="line">-- LOG_ARCHIVE_FORMAT=%t_%s_%r.dbf</span>
+<span class="line">--</span>
+<span class="line">-- DB_UNIQUE_NAME=<span class="string">"orcl2"</span></span>
+<span class="line">--</span>
+<span class="line">-- LOG_ARCHIVE_CONFIG=<span class="string">'SEND, RECEIVE, NODG_CONFIG'</span></span>
+<span class="line">-- LOG_ARCHIVE_MAX_PROCESSES=<span class="number">4</span></span>
+<span class="line">-- STANDBY_FILE_MANAGEMENT=MANUAL</span>
+<span class="line">-- STANDBY_ARCHIVE_DEST=?<span class="comment">#/dbs/arch</span></span>
+<span class="line">-- FAL_CLIENT=<span class="string">''</span></span>
+<span class="line">-- FAL_SERVER=<span class="string">''</span></span>
+<span class="line">--</span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'LOCATION=/u01/app/oracle/product/12.2.0/db_1/dbs/arch'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'MANDATORY NOREOPEN NODELAY'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'ARCH NOAFFIRM NOVERIFY SYNC'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'NOREGISTER NOALTERNATE NODEPENDENCY'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'NOMAX_FAILURE NOQUOTA_SIZE NOQUOTA_USED NODB_UNIQUE_NAME'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_1=<span class="string">'VALID_FOR=(PRIMARY_ROLE,ONLINE_LOGFILES)'</span></span>
+<span class="line">-- LOG_ARCHIVE_DEST_STATE_1=ENABLE</span>
+<span class="line">--</span>
+<span class="line">-- Below are two sets of SQL statements, <span class="keyword">each</span> of which creates a new</span>
+<span class="line">-- control file <span class="keyword">and</span> uses it to <span class="keyword">open</span> the database. The first set opens</span>
+<span class="line">-- the database with the NORESETLOGS option <span class="keyword">and</span> should be used only <span class="keyword">if</span></span>
+<span class="line">-- the current versions of all online logs are available. The second</span>
+<span class="line">-- set opens the database with the RESETLOGS option <span class="keyword">and</span> should be used</span>
+<span class="line">-- <span class="keyword">if</span> online logs are unavailable.</span>
+<span class="line">-- The appropriate set of statements can be copied from the trace into</span>
+<span class="line">-- a script file, edited as necessary, <span class="keyword">and</span> executed <span class="keyword">when</span> there is a</span>
+<span class="line">-- need to re-create the control file.</span>
+<span class="line">--</span>
+<span class="line">--     Set <span class="comment">#1. NORESETLOGS case</span></span>
+<span class="line">--</span>
+<span class="line">-- The following commands will create a new control file <span class="keyword">and</span> <span class="keyword">use</span> it</span>
+<span class="line">-- to <span class="keyword">open</span> the database.</span>
+<span class="line">-- Data used by Recovery Manager will be lost.</span>
+<span class="line">-- Additional logs may be required <span class="keyword">for</span> media recovery of offline</span>
+<span class="line">-- Use this only <span class="keyword">if</span> the current versions of all online logs are</span>
+<span class="line">-- available.</span>
+<span class="line">-- After mounting the created controlfile, the following SQL</span>
+<span class="line">-- statement will place the database in the appropriate</span>
+<span class="line">-- protection mode:</span>
+<span class="line">--  ALTER DATABASE SET STANDBY DATABASE TO MAXIMIZE PERFORMANCE</span>
+<span class="line">STARTUP NOMOUNT</span>
+<span class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL2"</span> NORESETLOGS  NOARCHIVELOG</span>
+<span class="line">    MAXLOGFILES <span class="number">16</span></span>
+<span class="line">    MAXLOGMEMBERS <span class="number">3</span></span>
+<span class="line">    MAXDATAFILES <span class="number">1024</span></span>
+<span class="line">    MAXINSTANCES <span class="number">8</span></span>
+<span class="line">    MAXLOGHISTORY <span class="number">292</span></span>
+<span class="line">LOGFILE</span>
+<span class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo01.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo02.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo03.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span></span>
+<span class="line">-- STANDBY LOGFILE</span>
+<span class="line">DATAFILE</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/users01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/undotbs01.dbf'</span></span>
+<span class="line">CHARACTER SET ZHS16GBK</span>
+<span class="line">;</span>
+<span class="line">-- Commands to re-create incarnation table</span>
+<span class="line">-- Below <span class="keyword">log</span> names MUST be changed to existing filenames on</span>
+<span class="line">-- disk. Any one <span class="keyword">log</span> file from <span class="keyword">each</span> branch can be used to</span>
+<span class="line">-- re-create incarnation records.</span>
+<span class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_934293149.dbf'</span>;</span>
+<span class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_944407156.dbf'</span>;</span>
+<span class="line">-- Recovery is required <span class="keyword">if</span> any of the datafiles are restored backups,</span>
+<span class="line">-- <span class="keyword">or</span> <span class="keyword">if</span> the <span class="keyword">last</span> <span class="keyword">shutdown</span> was <span class="keyword">not</span> normal <span class="keyword">or</span> immediate.</span>
+<span class="line">RECOVER DATABASE</span>
+<span class="line">-- Database can now be opened normally.</span>
+<span class="line">ALTER DATABASE OPEN;</span>
+<span class="line">-- Open all the PDBs.</span>
+<span class="line">ALTER PLUGGABLE DATABASE ALL OPEN;</span>
+<span class="line">-- Commands to add tempfiles to temporary tablespaces.</span>
+<span class="line">-- Online tempfiles have complete space information.</span>
+<span class="line">-- Other tempfiles may <span class="keyword">require</span> adjustment.</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/temp01.dbf'</span></span>
+<span class="line">     SIZE <span class="number">34603008</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB$SEED;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB1;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB2;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/temp012017-05-19_15-19-57-248-PM.dbf'</span> REUSE;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB3;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = CDB$ROOT;</span>
+<span class="line">-- End of tempfile additions.</span>
+<span class="line">--</span>
+<span class="line">--     Set <span class="comment">#2. RESETLOGS case</span></span>
+<span class="line">--</span>
+<span class="line">-- The following commands will create a new control file <span class="keyword">and</span> <span class="keyword">use</span> it</span>
+<span class="line">-- to <span class="keyword">open</span> the database.</span>
+<span class="line">-- Data used by Recovery Manager will be lost.</span>
+<span class="line">-- The contents of online logs will be lost <span class="keyword">and</span> all backups will</span>
+<span class="line">-- be invalidated. Use this only <span class="keyword">if</span> online logs are damaged.</span>
+<span class="line">-- After mounting the created controlfile, the following SQL</span>
+<span class="line">-- statement will place the database in the appropriate</span>
+<span class="line">-- protection mode:</span>
+<span class="line">--  ALTER DATABASE SET STANDBY DATABASE TO MAXIMIZE PERFORMANCE</span>
+<span class="line">STARTUP NOMOUNT</span>
+<span class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL2"</span> RESETLOGS  NOARCHIVELOG</span>
+<span class="line">    MAXLOGFILES <span class="number">16</span></span>
+<span class="line">    MAXLOGMEMBERS <span class="number">3</span></span>
+<span class="line">    MAXDATAFILES <span class="number">1024</span></span>
+<span class="line">    MAXINSTANCES <span class="number">8</span></span>
+<span class="line">    MAXLOGHISTORY <span class="number">292</span></span>
+<span class="line">LOGFILE</span>
+<span class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo01.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo02.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl2/redo03.log'</span>  SIZE <span class="number">200</span>M BLOCKSIZE <span class="number">512</span></span>
+<span class="line">-- STANDBY LOGFILE</span>
+<span class="line">DATAFILE</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/users01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/undotbs01.dbf'</span></span>
+<span class="line">CHARACTER SET ZHS16GBK</span>
+<span class="line">;</span>
+<span class="line">-- Commands to re-create incarnation table</span>
+<span class="line">-- Below <span class="keyword">log</span> names MUST be changed to existing filenames on</span>
+<span class="line">-- disk. Any one <span class="keyword">log</span> file from <span class="keyword">each</span> branch can be used to</span>
+<span class="line">-- re-create incarnation records.</span>
+<span class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_934293149.dbf'</span>;</span>
+<span class="line">-- ALTER DATABASE REGISTER LOGFILE <span class="string">'/u01/app/oracle/product/12.2.0/db_1/dbs/arch1_1_944407156.dbf'</span>;</span>
+<span class="line">-- Recovery is required <span class="keyword">if</span> any of the datafiles are restored backups,</span>
+<span class="line">-- <span class="keyword">or</span> <span class="keyword">if</span> the <span class="keyword">last</span> <span class="keyword">shutdown</span> was <span class="keyword">not</span> normal <span class="keyword">or</span> immediate.</span>
+<span class="line">RECOVER DATABASE USING BACKUP CONTROLFILE</span>
+<span class="line">-- Database can now be opened zeroing the online logs.</span>
+<span class="line">ALTER DATABASE OPEN RESETLOGS;</span>
+<span class="line">-- Open all the PDBs.</span>
+<span class="line">ALTER PLUGGABLE DATABASE ALL OPEN;</span>
+<span class="line">-- Commands to add tempfiles to temporary tablespaces.</span>
+<span class="line">-- Online tempfiles have complete space information.</span>
+<span class="line">-- Other tempfiles may <span class="keyword">require</span> adjustment.</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/temp01.dbf'</span></span>
+<span class="line">     SIZE <span class="number">34603008</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB$SEED;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdbseed/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB1;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB2;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/temp012017-05-19_15-19-57-248-PM.dbf'</span> REUSE;</span>
+<span class="line">ALTER SESSION SET CONTAINER = PDB3;</span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl2/pdb3/temp012017-05-19_15-19-57-248-PM.dbf'</span></span>
+<span class="line">     SIZE <span class="number">67108864</span>  REUSE AUTOEXTEND ON NEXT <span class="number">655360</span>  MAXSIZE <span class="number">32767</span>M;</span>
+<span class="line">ALTER SESSION SET CONTAINER = CDB$ROOT;</span>
+<span class="line">-- End of tempfile additions.</span>
+<span class="line">--</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
 
       
     </div>
@@ -351,8 +991,8 @@
         
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">
-                    Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化
+                <a href="/2017/05/08/oracle/hugepage计算脚本/">
+                    Hugepage计算脚本
                 </a>
             </div>
         
@@ -403,13 +1043,13 @@
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化">
+            <a href="/2017/05/08/oracle/hugepage计算脚本/" title="下一篇: Hugepage计算脚本">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
 
 
 

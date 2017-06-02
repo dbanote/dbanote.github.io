@@ -15,16 +15,25 @@
 
 
 
-<meta name="description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;    CON_ID CON_NAME                       OPEN MODE  RESTRICTED---------- ------------------------------ ---------- ----------         2 PDB$SEED">
+<meta name="description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB">
 <meta property="og:url" content="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/index.html">
 <meta property="og:site_name" content="一个DBA的工作学习笔记">
-<meta property="og:description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;    CON_ID CON_NAME                       OPEN MODE  RESTRICTED---------- ------------------------------ ---------- ----------         2 PDB$SEED">
+<meta property="og:description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED">
 <meta property="og:updated_time" content="2017-05-28T08:23:54.113Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB">
-<meta name="twitter:description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;    CON_ID CON_NAME                       OPEN MODE  RESTRICTED---------- ------------------------------ ---------- ----------         2 PDB$SEED">
+<meta name="twitter:description" content="在多PDB环境中，创建common user，并赋予权限查看状态show pdbs;
+    CON_ID CON_NAME                       OPEN MODE  RESTRICTED
+---------- ------------------------------ ---------- ----------
+         2 PDB$SEED">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -305,13 +314,187 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="keyword">show</span> pdbs;</div><div class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</div><div class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></div><div class="line">         2 PDB$SEED                       READ ONLY  NO</div><div class="line">         3 PDB1                           READ WRITE NO</div><div class="line">         4 PDB2                           READ WRITE NO</div><div class="line"></div><div class="line"><span class="keyword">show</span> con_name</div><div class="line">CON_NAME</div><div class="line"><span class="comment">------------------------------</span></div><div class="line">CDB$ROOT</div></pre></td></tr></table></figure></p>
+        <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></span>
+<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         3 PDB1                           READ WRITE NO</span>
+<span class="line">         4 PDB2                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">show</span> con_name</span>
+<span class="line">CON_NAME</span>
+<span class="line"><span class="comment">------------------------------</span></span>
+<span class="line">CDB$ROOT</span>
+</pre></td></tr></table></figure></p>
 <a id="more"></a>
-<p>创建common user<br><figure class="highlight sql"><table><tr><td class="code"><pre><div class="line"><span class="comment">-- 创建时报错</span></div><div class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp;</div><div class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp</div><div class="line">*</div><div class="line"><span class="keyword">ERROR</span> <span class="keyword">at</span> line <span class="number">1</span>:</div><div class="line">ORA<span class="number">-65048</span>: <span class="keyword">error</span> encountered <span class="keyword">when</span> processing the <span class="keyword">current</span> <span class="keyword">DDL</span> <span class="keyword">statement</span> <span class="keyword">in</span> <span class="keyword">pluggable</span> <span class="keyword">database</span> PDB1</div><div class="line">ORA<span class="number">-00959</span>: <span class="keyword">tablespace</span> <span class="string">'USERS'</span> does <span class="keyword">not</span> exist</div><div class="line"></div><div class="line"><span class="comment">-- 上面报错的原因是指定了CDB用户默认的表空间时，要求所有的PDB用户存在该表空间</span></div><div class="line"><span class="comment">-- 给pdb1和pdb2添加users表空间</span></div><div class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> <span class="keyword">container</span>=pdb1;</div><div class="line"></div><div class="line">col FILE_NAME for a50</div><div class="line"><span class="keyword">select</span> file_name <span class="keyword">from</span> dba_data_files;</div><div class="line">FILE_NAME</div><div class="line"><span class="comment">--------------------------------------------------</span></div><div class="line">/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf</div><div class="line">/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf</div><div class="line">/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf</div><div class="line"></div><div class="line"><span class="keyword">create</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">datafile</span> <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/users01.dbf'</span> <span class="keyword">size</span> <span class="number">1</span>G;</div><div class="line"></div><div class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> <span class="keyword">container</span>=pdb2;</div><div class="line"><span class="keyword">select</span> file_name <span class="keyword">from</span> dba_data_files;</div><div class="line">FILE_NAME</div><div class="line"><span class="comment">--------------------------------------------------</span></div><div class="line">/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf</div><div class="line">/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf</div><div class="line">/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf</div><div class="line"></div><div class="line"><span class="keyword">create</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">datafile</span> <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/users01.dbf'</span> <span class="keyword">size</span> <span class="number">1</span>G;</div><div class="line"></div><div class="line"><span class="comment">--重新执行创建成功</span></div><div class="line">conn / as sysdba</div><div class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp;</div><div class="line"></div><div class="line"><span class="comment">-- 授权</span></div><div class="line"><span class="keyword">grant</span> <span class="keyword">connect</span>,<span class="keyword">resource</span> <span class="keyword">to</span> c##cdbadmin;</div><div class="line"><span class="keyword">grant</span> <span class="keyword">connect</span>,<span class="keyword">resource</span> <span class="keyword">to</span> c##cdbadmin <span class="keyword">container</span>=all;</div></pre></td></tr></table></figure></p>
-<p>用新创建的common user测试登陆<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 登陆CDB</span></div><div class="line">sqlplus c<span class="comment">##cdbadmin/oracle@orcl2</span></div><div class="line"></div><div class="line"><span class="comment"># 登陆PDB</span></div><div class="line">sqlplus c<span class="comment">##cdbadmin/oracle@pdb1</span></div></pre></td></tr></table></figure></p>
-<h2 id="模拟测试12-2中的move-tablespace-online，简单总结"><a href="#模拟测试12-2中的move-tablespace-online，简单总结" class="headerlink" title="模拟测试12.2中的move tablespace online，简单总结"></a>模拟测试12.2中的move tablespace online，简单总结</h2><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 连接到PDB1中，创建测试数据</span></div><div class="line">conn lyj/lyj@pdb1</div><div class="line">create table test_mv tablespace users as <span class="keyword">select</span> * from all_objects;</div><div class="line">insert into test_mv <span class="keyword">select</span> * from test_mv;  <span class="comment">#多执行几次</span></div><div class="line">commit;</div><div class="line">set timing on</div><div class="line"><span class="keyword">select</span> count(*) from test_mv;</div><div class="line"></div><div class="line">  COUNT(*)</div><div class="line">----------</div><div class="line">   <span class="number">2180000</span></div><div class="line"></div><div class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">16</span></div><div class="line"></div><div class="line">create <span class="keyword">index</span> ind_test_mv_objid on test_mv(object_id) tablespace users;</div><div class="line"></div><div class="line"><span class="comment"># 查看segment所占空间</span></div><div class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</div><div class="line"></div><div class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</div><div class="line">------------------------------ ------------------------------ ----------</div><div class="line">IND_TEST_MV_OBJID              USERS                                  <span class="number">39</span></div><div class="line">TEST_MV                        USERS                                 <span class="number">336</span></div><div class="line"></div><div class="line"><span class="keyword">select</span> OBJECT_NAME,STATUS from user_objects;</div><div class="line"></div><div class="line">OBJECT_NAME                                        STATUS</div><div class="line">-------------------------------------------------- -------</div><div class="line">IND_TEST_MV_OBJID                                  VALID</div><div class="line">TEST_MV                                            VALID</div><div class="line"></div><div class="line"><span class="comment"># 删除数据后查看segment所占空间，没有任何变动，查询的时间也没有变短</span></div><div class="line"><span class="keyword">delete</span> from test_mv where object_id&lt;&gt;<span class="number">2</span>;</div><div class="line"><span class="number">2179968</span> rows deleted</div><div class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">37.29</span></div><div class="line"></div><div class="line">commit;</div><div class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</div><div class="line"></div><div class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</div><div class="line">------------------------------ ------------------------------ ----------</div><div class="line">IND_TEST_MV_OBJID              USERS                                  <span class="number">39</span></div><div class="line">TEST_MV                        USERS                                 <span class="number">336</span></div><div class="line"></div><div class="line"><span class="keyword">select</span> count(*) from test_mv;</div><div class="line"></div><div class="line">  COUNT(*)</div><div class="line">----------</div><div class="line">        <span class="number">32</span></div><div class="line"></div><div class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">26</span></div><div class="line"></div><div class="line"><span class="comment"># 执行move table online后，segment所占空间空小，表查询速度变快</span></div><div class="line">alter table test_mv move tablespace users online;</div><div class="line"><span class="comment"># 或</span></div><div class="line">alter table test_mv move online;</div><div class="line"></div><div class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</div><div class="line"></div><div class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</div><div class="line">------------------------------ ------------------------------ ----------</div><div class="line">IND_TEST_MV_OBJID              USERS                               .<span class="number">0625</span></div><div class="line">TEST_MV                        USERS                               .<span class="number">0625</span></div><div class="line"></div><div class="line"><span class="keyword">select</span> count(*) from test_mv;</div><div class="line"></div><div class="line">  COUNT(*)</div><div class="line">----------</div><div class="line">        <span class="number">32</span></div><div class="line"></div><div class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">00</span></div></pre></td></tr></table></figure>
+<p>创建common user<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建时报错</span></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp;</span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp</span>
+<span class="line">*</span>
+<span class="line"><span class="keyword">ERROR</span> <span class="keyword">at</span> line <span class="number">1</span>:</span>
+<span class="line">ORA<span class="number">-65048</span>: <span class="keyword">error</span> encountered <span class="keyword">when</span> processing the <span class="keyword">current</span> <span class="keyword">DDL</span> <span class="keyword">statement</span> <span class="keyword">in</span> <span class="keyword">pluggable</span> <span class="keyword">database</span> PDB1</span>
+<span class="line">ORA<span class="number">-00959</span>: <span class="keyword">tablespace</span> <span class="string">'USERS'</span> does <span class="keyword">not</span> exist</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 上面报错的原因是指定了CDB用户默认的表空间时，要求所有的PDB用户存在该表空间</span></span>
+<span class="line"><span class="comment">-- 给pdb1和pdb2添加users表空间</span></span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> <span class="keyword">container</span>=pdb1;</span>
+<span class="line"></span>
+<span class="line">col FILE_NAME for a50</span>
+<span class="line"><span class="keyword">select</span> file_name <span class="keyword">from</span> dba_data_files;</span>
+<span class="line">FILE_NAME</span>
+<span class="line"><span class="comment">--------------------------------------------------</span></span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb1/system01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb1/sysaux01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb1/undotbs01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">datafile</span> <span class="string">'/u01/app/oracle/oradata/orcl2/pdb1/users01.dbf'</span> <span class="keyword">size</span> <span class="number">1</span>G;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">session</span> <span class="keyword">set</span> <span class="keyword">container</span>=pdb2;</span>
+<span class="line"><span class="keyword">select</span> file_name <span class="keyword">from</span> dba_data_files;</span>
+<span class="line">FILE_NAME</span>
+<span class="line"><span class="comment">--------------------------------------------------</span></span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb2/system01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb2/sysaux01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl2/pdb2/undotbs01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">datafile</span> <span class="string">'/u01/app/oracle/oradata/orcl2/pdb2/users01.dbf'</span> <span class="keyword">size</span> <span class="number">1</span>G;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--重新执行创建成功</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">user</span> c##cdbadmin <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">oracle</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span> <span class="keyword">temporary</span> <span class="keyword">tablespace</span> temp;</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 授权</span></span>
+<span class="line"><span class="keyword">grant</span> <span class="keyword">connect</span>,<span class="keyword">resource</span> <span class="keyword">to</span> c##cdbadmin;</span>
+<span class="line"><span class="keyword">grant</span> <span class="keyword">connect</span>,<span class="keyword">resource</span> <span class="keyword">to</span> c##cdbadmin <span class="keyword">container</span>=all;</span>
+</pre></td></tr></table></figure></p>
+<p>用新创建的common user测试登陆<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 登陆CDB</span></span>
+<span class="line">sqlplus c<span class="comment">##cdbadmin/oracle@orcl2</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 登陆PDB</span></span>
+<span class="line">sqlplus c<span class="comment">##cdbadmin/oracle@pdb1</span></span>
+</pre></td></tr></table></figure></p>
+<h2 id="模拟测试12-2中的move-tablespace-online，简单总结"><a href="#模拟测试12-2中的move-tablespace-online，简单总结" class="headerlink" title="模拟测试12.2中的move tablespace online，简单总结"></a>模拟测试12.2中的move tablespace online，简单总结</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 连接到PDB1中，创建测试数据</span></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line">create table test_mv tablespace users as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line">insert into test_mv <span class="keyword">select</span> * from test_mv;  <span class="comment">#多执行几次</span></span>
+<span class="line">commit;</span>
+<span class="line">set timing on</span>
+<span class="line"><span class="keyword">select</span> count(*) from test_mv;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">   <span class="number">2180000</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">16</span></span>
+<span class="line"></span>
+<span class="line">create <span class="keyword">index</span> ind_test_mv_objid on test_mv(object_id) tablespace users;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看segment所占空间</span></span>
+<span class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</span>
+<span class="line"></span>
+<span class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</span>
+<span class="line">------------------------------ ------------------------------ ----------</span>
+<span class="line">IND_TEST_MV_OBJID              USERS                                  <span class="number">39</span></span>
+<span class="line">TEST_MV                        USERS                                 <span class="number">336</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> OBJECT_NAME,STATUS from user_objects;</span>
+<span class="line"></span>
+<span class="line">OBJECT_NAME                                        STATUS</span>
+<span class="line">-------------------------------------------------- -------</span>
+<span class="line">IND_TEST_MV_OBJID                                  VALID</span>
+<span class="line">TEST_MV                                            VALID</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除数据后查看segment所占空间，没有任何变动，查询的时间也没有变短</span></span>
+<span class="line"><span class="keyword">delete</span> from test_mv where object_id&lt;&gt;<span class="number">2</span>;</span>
+<span class="line"><span class="number">2179968</span> rows deleted</span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">37.29</span></span>
+<span class="line"></span>
+<span class="line">commit;</span>
+<span class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</span>
+<span class="line"></span>
+<span class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</span>
+<span class="line">------------------------------ ------------------------------ ----------</span>
+<span class="line">IND_TEST_MV_OBJID              USERS                                  <span class="number">39</span></span>
+<span class="line">TEST_MV                        USERS                                 <span class="number">336</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> count(*) from test_mv;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">        <span class="number">32</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">26</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 执行move table online后，segment所占空间空小，表查询速度变快</span></span>
+<span class="line">alter table test_mv move tablespace users online;</span>
+<span class="line"><span class="comment"># 或</span></span>
+<span class="line">alter table test_mv move online;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> SIZE_M from user_segments;</span>
+<span class="line"></span>
+<span class="line">SEGMENT_NAME                   TABLESPACE_NAME                    SIZE_M</span>
+<span class="line">------------------------------ ------------------------------ ----------</span>
+<span class="line">IND_TEST_MV_OBJID              USERS                               .<span class="number">0625</span></span>
+<span class="line">TEST_MV                        USERS                               .<span class="number">0625</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> count(*) from test_mv;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">        <span class="number">32</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">00</span></span>
+</pre></td></tr></table></figure>
 <p>总结：12.2执行在线表移动后，不用像在11g时还需要rebuild index</p>
-<h2 id="创建一个序列test-seq-把它的nextval值修改为2017"><a href="#创建一个序列test-seq-把它的nextval值修改为2017" class="headerlink" title="创建一个序列test_seq,把它的nextval值修改为2017"></a>创建一个序列test_seq,把它的nextval值修改为2017</h2><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 创建序列 起始编号是1，增量为1，最大值10000000</span></div><div class="line">create sequence test_seq start with <span class="number">1</span> increment by <span class="number">1</span> maxvalue <span class="number">10000000</span>;</div><div class="line"><span class="keyword">select</span> test_seq.nextval from dual;</div><div class="line"></div><div class="line">   NEXTVAL</div><div class="line">----------</div><div class="line">         <span class="number">1</span></div><div class="line"></div><div class="line"><span class="keyword">select</span> <span class="number">2017</span> - test_seq.nextval - <span class="number">1</span> seq_id from dual;</div><div class="line">    SEQ_ID</div><div class="line">----------</div><div class="line">      <span class="number">2014</span></div><div class="line"></div><div class="line">alter sequence test_seq increment by <span class="number">2014</span>;</div><div class="line"></div><div class="line">SELECT test_seq.nextval FROM dual;</div><div class="line"></div><div class="line">   NEXTVAL</div><div class="line">----------</div><div class="line">      <span class="number">2016</span></div><div class="line"></div><div class="line">SELECT test_seq.currval FROM dual;</div><div class="line"></div><div class="line">   CURRVAL</div><div class="line">----------</div><div class="line">      <span class="number">2016</span></div><div class="line"></div><div class="line"><span class="comment"># 以下SQL脚本可以实现自动重置序列</span></div><div class="line">vi reset_sequence.sql</div><div class="line"><span class="comment">#--------------------------------------------------------------------------------</span></div><div class="line">UNDEFINE seq_name</div><div class="line">UNDEFINE reset_to</div><div class="line">PROMPT <span class="string">"sequence name"</span> ACCEPT <span class="string">'&amp;&amp;seq_name'</span></div><div class="line">PROMPT <span class="string">"reset to value"</span> ACCEPT &amp;&amp;reset_to</div><div class="line">COL seq_id NEW_VALUE hold_seq_id</div><div class="line">COL min_id NEW_VALUE hold_min_id</div><div class="line">--</div><div class="line">SELECT &amp;&amp;reset_to - &amp;&amp;seq_name..nextval - <span class="number">1</span> seq_id</div><div class="line">FROM dual;</div><div class="line">--</div><div class="line">SELECT &amp;&amp;hold_seq_id - <span class="number">1</span> min_id FROM dual;</div><div class="line">--</div><div class="line">ALTER SEQUENCE &amp;&amp;seq_name INCREMENT BY &amp;hold_seq_id MINVALUE &amp;hold_min_id;</div><div class="line">--</div><div class="line">SELECT &amp;&amp;seq_name..nextval FROM dual;</div><div class="line">--</div><div class="line">ALTER SEQUENCE &amp;&amp;seq_name INCREMENT BY <span class="number">1</span>;</div><div class="line"><span class="comment">#--------------------------------------------------------------------------------</span></div></pre></td></tr></table></figure>
+<h2 id="创建一个序列test-seq-把它的nextval值修改为2017"><a href="#创建一个序列test-seq-把它的nextval值修改为2017" class="headerlink" title="创建一个序列test_seq,把它的nextval值修改为2017"></a>创建一个序列test_seq,把它的nextval值修改为2017</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建序列 起始编号是1，增量为1，最大值10000000</span></span>
+<span class="line">create sequence test_seq start with <span class="number">1</span> increment by <span class="number">1</span> maxvalue <span class="number">10000000</span>;</span>
+<span class="line"><span class="keyword">select</span> test_seq.nextval from dual;</span>
+<span class="line"></span>
+<span class="line">   NEXTVAL</span>
+<span class="line">----------</span>
+<span class="line">         <span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> <span class="number">2017</span> - test_seq.nextval - <span class="number">1</span> seq_id from dual;</span>
+<span class="line">    SEQ_ID</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">2014</span></span>
+<span class="line"></span>
+<span class="line">alter sequence test_seq increment by <span class="number">2014</span>;</span>
+<span class="line"></span>
+<span class="line">SELECT test_seq.nextval FROM dual;</span>
+<span class="line"></span>
+<span class="line">   NEXTVAL</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">2016</span></span>
+<span class="line"></span>
+<span class="line">SELECT test_seq.currval FROM dual;</span>
+<span class="line"></span>
+<span class="line">   CURRVAL</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">2016</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 以下SQL脚本可以实现自动重置序列</span></span>
+<span class="line">vi reset_sequence.sql</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line">UNDEFINE seq_name</span>
+<span class="line">UNDEFINE reset_to</span>
+<span class="line">PROMPT <span class="string">"sequence name"</span> ACCEPT <span class="string">'&amp;&amp;seq_name'</span></span>
+<span class="line">PROMPT <span class="string">"reset to value"</span> ACCEPT &amp;&amp;reset_to</span>
+<span class="line">COL seq_id NEW_VALUE hold_seq_id</span>
+<span class="line">COL min_id NEW_VALUE hold_min_id</span>
+<span class="line">--</span>
+<span class="line">SELECT &amp;&amp;reset_to - &amp;&amp;seq_name..nextval - <span class="number">1</span> seq_id</span>
+<span class="line">FROM dual;</span>
+<span class="line">--</span>
+<span class="line">SELECT &amp;&amp;hold_seq_id - <span class="number">1</span> min_id FROM dual;</span>
+<span class="line">--</span>
+<span class="line">ALTER SEQUENCE &amp;&amp;seq_name INCREMENT BY &amp;hold_seq_id MINVALUE &amp;hold_min_id;</span>
+<span class="line">--</span>
+<span class="line">SELECT &amp;&amp;seq_name..nextval FROM dual;</span>
+<span class="line">--</span>
+<span class="line">ALTER SEQUENCE &amp;&amp;seq_name INCREMENT BY <span class="number">1</span>;</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
 <h2 id="新知识总结"><a href="#新知识总结" class="headerlink" title="新知识总结"></a>新知识总结</h2><h3 id="数据字典"><a href="#数据字典" class="headerlink" title="数据字典"></a>数据字典</h3><ul>
 <li>CDB_   All of the objects in the CDB across all PDBs</li>
 <li>DBA_   All of the objects in a container or PDB</li>
@@ -334,10 +517,16 @@
 
     <nav id="article-nav">
         
-        
-            <div id="article-nav-older" class="article-nav-title">
+            <div id="article-nav-newer" class="article-nav-title">
                 <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">
                     在DELL R730物理机上安装配置Oracle Linux 7.3图解
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">
+                    使用Dell iDRAC服务器远程控制安装操作系统简要图解
                 </a>
             </div>
         
@@ -380,19 +569,21 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" title="上一篇: 在DELL R730物理机上安装配置Oracle Linux 7.3图解">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" title="下一篇: 在DELL R730物理机上安装配置Oracle Linux 7.3图解">
+            <a href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/" title="下一篇: 使用Dell iDRAC服务器远程控制安装操作系统简要图解">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
 
 
 

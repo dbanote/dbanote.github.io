@@ -361,8 +361,11 @@
       
           
               <p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/"><code>http://hexo.io/plugins</code></a></p>
-<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">cnpm install --save hexo-pdf</div></pre></td></tr></table></figure>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</div><div class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</div></pre></td></tr></table></figure>
+<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
+</pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
+<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -433,16 +436,22 @@
 <li><p>主题说明文档：<a href="http://moxfive.coding.me/yelee"><code>http://moxfive.coding.me/yelee/</code></a></p>
 </li>
 <li><p>在博客根目录下执行以下命令</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></div><div class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/MOxFIVE/hexo-theme-yelee.git themes/yelee</div></pre></td></tr></table></figure>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></span>
+<span class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/MOxFIVE/hexo-theme-yelee.git themes/yelee</span>
+</pre></td></tr></table></figure>
 </li>
 <li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># theme: landscape</span></div><div class="line">theme: yelee</div></pre></td></tr></table></figure>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># theme: landscape</span></span>
+<span class="line">theme: yelee</span>
+</pre></td></tr></table></figure>
 </li>
 <li><p>更换主题后需要清理并重新生成静态页</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</span>
+</pre></td></tr></table></figure>
 </li>
 <li><p>安装搜索插件</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">cnpm install hexo-generator-search --save</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-generator-search --save</span>
+</pre></td></tr></table></figure>
 </li>
 <li><p>参照文档修改<code>themes\yelee</code>目录下的<code>_config.yml</code>文件</p>
 </li>
@@ -510,8 +519,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="基本信息设置与查看"><a href="#基本信息设置与查看" class="headerlink" title="基本信息设置与查看"></a>基本信息设置与查看</h2><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">git config --global user.name &apos;dbanote&apos;</div><div class="line">git config --global user.email &apos;15004618839@139.com&apos;</div><div class="line"></div><div class="line">git config --list</div></pre></td></tr></table></figure>
-<h2 id="初始化git仓库"><a href="#初始化git仓库" class="headerlink" title="初始化git仓库"></a>初始化git仓库</h2><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">git init</div></pre></td></tr></table></figure>
+              <h2 id="基本信息设置与查看"><a href="#基本信息设置与查看" class="headerlink" title="基本信息设置与查看"></a>基本信息设置与查看</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git config --global user.name &apos;dbanote&apos;</span>
+<span class="line">git config --global user.email &apos;15004618839@139.com&apos;</span>
+<span class="line"></span>
+<span class="line">git config --list</span>
+</pre></td></tr></table></figure>
+<h2 id="初始化git仓库"><a href="#初始化git仓库" class="headerlink" title="初始化git仓库"></a>初始化git仓库</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git init</span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -706,7 +720,11 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="通用"><a href="#通用" class="headerlink" title="通用"></a>通用</h2><figure class="highlight plain"><table><tr><td class="code"><pre><div class="line">↑ ↓ ← →             上下左右移动光标</div><div class="line">Alt                 调出菜单</div><div class="line">Ctrl + Shift + P    调出命令板（Command Palette）</div><div class="line">Ctrl + `            调出控制台</div></pre></td></tr></table></figure>
+              <h2 id="通用"><a href="#通用" class="headerlink" title="通用"></a>通用</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">↑ ↓ ← →             上下左右移动光标</span>
+<span class="line">Alt                 调出菜单</span>
+<span class="line">Ctrl + Shift + P    调出命令板（Command Palette）</span>
+<span class="line">Ctrl + `            调出控制台</span>
+</pre></td></tr></table></figure>
           
       
     </div>

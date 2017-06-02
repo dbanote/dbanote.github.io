@@ -622,7 +622,11 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="MySQL参数autocommit生产环境设1还是0？为什么？"><a href="#MySQL参数autocommit生产环境设1还是0？为什么？" class="headerlink" title="MySQL参数autocommit生产环境设1还是0？为什么？"></a>MySQL参数autocommit生产环境设1还是0？为什么？</h2><p>MySQL参数autocommit生产环境设成0，即不自动提交。 设置成不自动提交，事务能做rollback，以满足事务的原子性Atomicity的要求，设置方法：<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">set autocommit=<span class="number">0</span>;</div><div class="line"></div><div class="line"><span class="comment"># 也可以修改my.cnf配置文件</span></div><div class="line">autocommit=<span class="number">0</span></div></pre></td></tr></table></figure></p>
+              <h2 id="MySQL参数autocommit生产环境设1还是0？为什么？"><a href="#MySQL参数autocommit生产环境设1还是0？为什么？" class="headerlink" title="MySQL参数autocommit生产环境设1还是0？为什么？"></a>MySQL参数autocommit生产环境设1还是0？为什么？</h2><p>MySQL参数autocommit生产环境设成0，即不自动提交。 设置成不自动提交，事务能做rollback，以满足事务的原子性Atomicity的要求，设置方法：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set autocommit=<span class="number">0</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 也可以修改my.cnf配置文件</span></span>
+<span class="line">autocommit=<span class="number">0</span></span>
+</pre></td></tr></table></figure></p>
 <h2 id="MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？"><a href="#MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？" class="headerlink" title="MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？"></a>MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？</h2><p>MySQL参数<code>tx_isolation</code>生产环境上大多数是设成<code>READ-COMMITED</code>。事务的隔离级别设置为<code>READ-COMMITED</code>时不会发生脏读现象，虽会出现不可重复读和幻读问题，但不会对业务应用造成影响。而设置成以下隔离级别会出现的问题如下：</p>
 <ul>
 <li>Read Uncommitted：会产生脏读、不可重复读、幻读现象，而脏读这在生产环境中是不被允许的</li>
@@ -759,8 +763,21 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="修改hexo源码"><a href="#修改hexo源码" class="headerlink" title="修改hexo源码"></a>修改hexo源码</h2><p>将<code>node_modules\hexo-util\lib\highlight.js</code>文件中第<code>35</code>行<br><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="comment"># 原</span></div><div class="line">    numbers += <span class="string">'&lt;div class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/div&gt;\n'</span>;</div><div class="line">    content += <span class="string">'&lt;div class="line'</span>;</div><div class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</div><div class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/div&gt;\n'</span>;</div><div class="line"></div><div class="line"><span class="comment"># 改后</span></div><div class="line">    numbers += <span class="string">'&lt;span class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/span&gt;\n'</span>;</div><div class="line">    content += <span class="string">'&lt;span class="line'</span>;</div><div class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</div><div class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/span&gt;\n'</span>;</div></pre></td></tr></table></figure></p>
-<h2 id="清理临时数据库并重启本地服务"><a href="#清理临时数据库并重启本地服务" class="headerlink" title="清理临时数据库并重启本地服务"></a>清理临时数据库并重启本地服务</h2><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line">hexo clean</div><div class="line">hexo <span class="keyword">s</span> -g</div></pre></td></tr></table></figure>
+              <h2 id="修改hexo源码"><a href="#修改hexo源码" class="headerlink" title="修改hexo源码"></a>修改hexo源码</h2><p>将<code>node_modules\hexo-util\lib\highlight.js</code>文件中第<code>35</code>行<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 原</span></span>
+<span class="line">    numbers += <span class="string">'&lt;div class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/div&gt;\n'</span>;</span>
+<span class="line">    content += <span class="string">'&lt;div class="line'</span>;</span>
+<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
+<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/div&gt;\n'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 改后</span></span>
+<span class="line">    numbers += <span class="string">'&lt;span class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/span&gt;\n'</span>;</span>
+<span class="line">    content += <span class="string">'&lt;span class="line'</span>;</span>
+<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
+<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/span&gt;\n'</span>;</span>
+</pre></td></tr></table></figure></p>
+<h2 id="清理临时数据库并重启本地服务"><a href="#清理临时数据库并重启本地服务" class="headerlink" title="清理临时数据库并重启本地服务"></a>清理临时数据库并重启本地服务</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">hexo clean</span>
+<span class="line">hexo <span class="keyword">s</span> -g</span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -824,7 +841,22 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><a href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。" class="headerlink" title="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。"></a>使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</h2><h3 id="规划多实例目录"><a href="#规划多实例目录" class="headerlink" title="规划多实例目录"></a>规划多实例目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><div class="line"><span class="keyword">mkdir</span> -p /u01/mysql             <span class="comment"># 程序目录</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/conf              <span class="comment"># 配置文件</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3306</span>         </div><div class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3307</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/iblog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/binlog</div><div class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3306</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3307</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3306</span></div><div class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3307</span></div><div class="line"></div><div class="line"><span class="keyword">chown</span> -R mysql:mysql /u01</div><div class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01</div></pre></td></tr></table></figure>
+              <h2 id="使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><a href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。" class="headerlink" title="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。"></a>使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</h2><h3 id="规划多实例目录"><a href="#规划多实例目录" class="headerlink" title="规划多实例目录"></a>规划多实例目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p /u01/mysql             <span class="comment"># 程序目录</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/conf              <span class="comment"># 配置文件</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3306</span>         </span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3307</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/iblog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/binlog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3306</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3307</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3306</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3307</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">chown</span> -R mysql:mysql /u01</span>
+<span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01</span>
+</pre></td></tr></table></figure>
           
       
     </div>
