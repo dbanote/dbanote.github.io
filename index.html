@@ -266,11 +266,11 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+      <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-01T16:00:00.000Z" itemprop="datePublished">2017-06-02</time>
 </a>
 
 
@@ -285,7 +285,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a>
+      <a class="article-title" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 创建与管理CDB和PDB</a>
     </h1>
   
 
@@ -295,18 +295,29 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
-<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
-<span class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></span>
-<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
-<span class="line">         3 PDB1                           READ WRITE NO</span>
-<span class="line">         4 PDB2                           READ WRITE NO</span>
+              <h2 id="本地克隆创建PDB"><a href="#本地克隆创建PDB" class="headerlink" title="本地克隆创建PDB"></a>本地克隆创建PDB</h2><h3 id="创建一个新的PDB-from-SEED"><a href="#创建一个新的PDB-from-SEED" class="headerlink" title="创建一个新的PDB from SEED"></a>创建一个新的PDB from SEED</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter session set container=PDB$SEED;</span>
+<span class="line"><span class="keyword">select</span> file_name from dba_data_files;</span>
 <span class="line"></span>
-<span class="line"><span class="keyword">show</span> con_name</span>
-<span class="line">CON_NAME</span>
-<span class="line"><span class="comment">------------------------------</span></span>
-<span class="line">CDB$ROOT</span>
-</pre></td></tr></table></figure></p>
+<span class="line">FILE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl1/pdbseed</span><span class="regexp">/system01.dbf</span>
+<span class="line">/u</span>01/app/oracle/oradata/orcl1/pdbseed/sysaux01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdbseed/undotbs01.dbf</span>
+<span class="line"></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">create pluggable database pdb2</span>
+<span class="line">  admin user pdb_mgr identified by oracle</span>
+<span class="line">  file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl1/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl1/pdb2'</span>);</span>
+<span class="line"></span>
+<span class="line">alter pluggable database pdb2 <span class="keyword">open</span>;</span>
+<span class="line">show pdbs</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</span>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -322,7 +333,7 @@
 
       
         <p class="article-more-link">
-          <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+          <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -387,6 +398,81 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 创建与管理CDB和PDB</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></span>
+<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         3 PDB1                           READ WRITE NO</span>
+<span class="line">         4 PDB2                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">show</span> con_name</span>
+<span class="line">CON_NAME</span>
+<span class="line"><span class="comment">------------------------------</span></span>
+<span class="line">CDB$ROOT</span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -547,75 +633,6 @@
 
 
   
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
-<span class="line">cat /etc/redhat-release</span>
-<span class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</span>
-<span class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</span>
-<span class="line">df -hT</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-oracle/hugepage计算脚本" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -667,6 +684,75 @@
       
         <p class="article-more-link">
           <a href="/2017/05/08/oracle/hugepage计算脚本/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
+<span class="line">cat /etc/redhat-release</span>
+<span class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</span>
+<span class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</span>
+<span class="line">df -hT</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -902,85 +988,6 @@
       
         <p class="article-more-link">
           <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-04-20T16:00:00.000Z" itemprop="datePublished">2017-04-21</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="用oak对表sbtest1做添加字段和增加索引的Online-DDL"><a href="#用oak对表sbtest1做添加字段和增加索引的Online-DDL" class="headerlink" title="用oak对表sbtest1做添加字段和增加索引的Online DDL"></a>用oak对表sbtest1做添加字段和增加索引的Online DDL</h2><h3 id="用sysbench工具准备测试环境"><a href="#用sysbench工具准备测试环境" class="headerlink" title="用sysbench工具准备测试环境"></a>用sysbench工具准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据库</span></span>
-<span class="line">mysql&gt; create database lyj;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 用sysbench工具准备测试环境</span></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
-<span class="line"></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
