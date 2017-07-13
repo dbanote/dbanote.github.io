@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="搭建12c的Data Guard环境主备库环境配置# 主库已安数据，备库只安装了数据库软件，环境配置如下
+cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建">
+<meta property="og:url" content="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="搭建12c的Data Guard环境主备库环境配置# 主库已安数据，备库只安装了数据库软件，环境配置如下
+cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost">
+<meta property="og:updated_time" content="2017-06-30T09:25:29.773Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建">
+<meta name="twitter:description" content="搭建12c的Data Guard环境主备库环境配置# 主库已安数据，备库只安装了数据库软件，环境配置如下
+cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-22T16:00:00.000Z" itemprop="datePublished">2017-06-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="搭建12c的Data-Guard环境"><a href="#搭建12c的Data-Guard环境" class="headerlink" title="搭建12c的Data Guard环境"></a>搭建12c的Data Guard环境</h2><h3 id="主备库环境配置"><a href="#主备库环境配置" class="headerlink" title="主备库环境配置"></a>主备库环境配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库已安数据，备库只安装了数据库软件，环境配置如下</span></span>
+<span class="line">cat /etc/hosts</span>
+<span class="line"><span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>   localhost localhost.localdomain localhost4 localhost4.localdomain4</span>
+<span class="line">::<span class="number">1</span>         localhost localhost.localdomain localhost6 localhost6.localdomain6</span>
+<span class="line"><span class="number">10.240</span>.<span class="number">4.174</span>  dgtp12  dgtp12.ydgwng.cn</span>
+<span class="line"><span class="number">10.240</span>.<span class="number">4.175</span>  dgts12  dgts12.ydgwng.cn</span>
+<span class="line"></span>
+<span class="line">echo <span class="string">"export ORACLE_SID=dgt"</span> &gt;&gt; <span class="regexp">/home/oracle</span><span class="regexp">/.bash_profile</span>
+<span class="line">echo "export ORACLE_BASE=/u</span>01/app/oracle<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export ORACLE_HOME=\$ORACLE_BASE/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export LD_LIBRARY_PATH=\$ORACLE_HOME/lib<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export PATH=\$PATH:\$HOME/bin:\$ORACLE_HOME/bin:\$ORACLE_HOME/OPatch<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export NLS_LANG=AMERICAN_AMERICA.ZHS16GBK<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export NLS_DATE_FORMAT=<span class="string">'yyyy-mm-dd hh24:mi:ss'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias sqlplus=<span class="string">'rlwrap sqlplus'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias asmcmd=<span class="string">'rlwrap asmcmd'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias rman=<span class="string">'rlwrap rman'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias dgmgrl=<span class="string">'rlwrap dgmgrl'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span></span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="查看-修改主库配置"><a href="#查看-修改主库配置" class="headerlink" title="查看/修改主库配置"></a>查看/修改主库配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">--------- ------------------------------ -------------------- ----------------</span>
+<span class="line">DGT       dgt                            READ WRITE           PRIMARY</span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> set db_unique_name=<span class="string">"dgtp"</span> scope=spfile; </span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> LOG_MODE,FORCE_LOGGING from v$database;</span>
+<span class="line"></span>
+<span class="line">LOG_MODE     FORCE_LOGGING</span>
+<span class="line">------------ ---------------------------------------</span>
+<span class="line">NOARCHIVELOG NO</span>
+<span class="line"></span>
+<span class="line">alter database force logging;</span>
+<span class="line">sthutdown immediate</span>
+<span class="line">startup mount</span>
+<span class="line">alter database archivelog;</span>
+<span class="line">alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> NAME,DB_UNIQUE_NAME,LOG_MODE,FORCE_LOGGING from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME                 LOG_MODE     FORCE_LOGGING</span>
+<span class="line">--------- ------------------------------ ------------ ---------------------------------------</span>
+<span class="line">DGT       DGTP                           ARCHIVELOG   YES</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> MEMBERS,BYTES/<span class="number">1024</span>/<span class="number">1024</span> from v$log;</span>
+<span class="line"></span>
+<span class="line">   MEMBERS BYTES/<span class="number">1024</span>/<span class="number">1024</span></span>
+<span class="line">---------- ---------------</span>
+<span class="line">         <span class="number">1</span>             <span class="number">200</span></span>
+<span class="line">         <span class="number">1</span>             <span class="number">200</span></span>
+<span class="line">         <span class="number">1</span>             <span class="number">200</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> MEMBER from v$logfile;</span>
+<span class="line"></span>
+<span class="line">MEMBER</span>
+<span class="line">--------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/dgt/redo</span>03.log</span>
+<span class="line">/u01/app/oracle/oradata/dgt/redo02.log</span>
+<span class="line">/u01/app/oracle/oradata/dgt/redo01.log        </span>
+<span class="line"></span>
+<span class="line">alter database add standby logfile group <span class="number">4</span> <span class="string">'/u01/app/oracle/oradata/dgt/redo04.log'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add standby logfile group <span class="number">5</span> <span class="string">'/u01/app/oracle/oradata/dgt/redo05.log'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add standby logfile group <span class="number">6</span> <span class="string">'/u01/app/oracle/oradata/dgt/redo06.log'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add standby logfile group <span class="number">7</span> <span class="string">'/u01/app/oracle/oradata/dgt/redo07.log'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> TYPE,MEMBER from v$logfile;</span>
+<span class="line"></span>
+<span class="line">TYPE    MEMBER</span>
+<span class="line">------- --------------------------------------------------</span>
+<span class="line">ONLINE  /u01/app/oracle/oradata/dgt/redo03.log</span>
+<span class="line">ONLINE  /u01/app/oracle/oradata/dgt/redo02.log</span>
+<span class="line">ONLINE  /u01/app/oracle/oradata/dgt/redo01.log</span>
+<span class="line">STANDBY /u01/app/oracle/oradata/dgt/redo04.log</span>
+<span class="line">STANDBY /u01/app/oracle/oradata/dgt/redo05.log</span>
+<span class="line">STANDBY /u01/app/oracle/oradata/dgt/redo06.log</span>
+<span class="line">STANDBY /u01/app/oracle/oradata/dgt/redo07.log</span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> set standby_file_management=auto;</span>
+</pre></td></tr></table></figure>
+<h3 id="配置备库pfile和orapwd"><a href="#配置备库pfile和orapwd" class="headerlink" title="配置备库pfile和orapwd"></a>配置备库pfile和orapwd</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在主库上</span></span>
+<span class="line">create pfile from spfile;</span>
+<span class="line"></span>
+<span class="line">cd $ORACLE_HOME/dbs</span>
+<span class="line">scp initdgt.ora <span class="number">10.240</span>.<span class="number">4.175</span>:$ORACLE_HOME/dbs/</span>
+<span class="line">scp orapwdgt <span class="number">10.240</span>.<span class="number">4.175</span>:$ORACLE_HOME/dbs/</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库上</span></span>
+<span class="line">vi $ORACLE_HOME/dbs/initdgt.ora</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"><span class="comment"># 修改</span></span>
+<span class="line">*.db_unique_name=<span class="string">'dgts'</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建所需目录</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/admin/dgt/adump</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/app/oracle/oradata/dgt</span>
+</pre></td></tr></table></figure>
+<h3 id="配置主备库LISTENER和tnsname"><a href="#配置主备库LISTENER和tnsname" class="headerlink" title="配置主备库LISTENER和tnsname"></a>配置主备库LISTENER和tnsname</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd $ORACLE_HOME/network/admin</span>
+<span class="line">vi listener.ora</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#添加</span></span>
+<span class="line">SID_LIST_LISTENER =</span>
+<span class="line">  (SID_LIST =</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = dgtp)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = dgt)</span>
+<span class="line">    )</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = dgtp_DGB)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = dgt)</span>
+<span class="line">    )</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = DGTP_DGMGRL)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = dgt)</span>
+<span class="line">    )</span>
+<span class="line">    (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = pdb1)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = dgt)</span>
+<span class="line">    )</span>
+<span class="line">)</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">lsnrctl reload</span>
+<span class="line"></span>
+<span class="line">vi tnsnames.ora </span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"><span class="comment"># 变为</span></span>
+<span class="line">DGTP =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgtp)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">DGTS =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.175</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgts)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">PDB1 = </span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">  (ADDRESS_LIST =</span>
+<span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.175</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">  )</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = pdb1)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">scp tnsnames.ora <span class="number">10.240</span>.<span class="number">4.175</span>:$ORACLE_HOME/network/admin/</span>
+<span class="line">scp listener.ora <span class="number">10.240</span>.<span class="number">4.175</span>:$ORACLE_HOME/network/admin/</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 备库listener.ora中将dgtp改成dgts，然后重启监听</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 验证配置</span></span>
+<span class="line">tnsping dgtp</span>
+<span class="line">tnsping dgts</span>
+<span class="line"></span>
+<span class="line">sqlplus sys/Center08@dgtp as sysdba</span>
+<span class="line">sqlplus sys/Center08@dgts as sysdba</span>
+</pre></td></tr></table></figure>
+<h3 id="在主库的PDB1下面创建测试数据"><a href="#在主库的PDB1下面创建测试数据" class="headerlink" title="在主库的PDB1下面创建测试数据"></a>在主库的PDB1下面创建测试数据</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         3 PDB1    </span>
+<span class="line">alter pluggable database pdb1 open;</span>
+<span class="line">alter pluggable database pdb1 save state;</span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line">create user lyj identified by lyj default tablespace users;</span>
+<span class="line">grant connect,resource to lyj;</span>
+<span class="line">alter user lyj quota unlimited on users;</span>
+<span class="line"></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line">create table test as select * from all_objects;</span>
+</pre></td></tr></table></figure>
+<h3 id="创建备库"><a href="#创建备库" class="headerlink" title="创建备库"></a>创建备库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备库上，根据pfile创建spfile</span></span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line">create spfile from pfile;</span>
+<span class="line">startup nomount</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库上执行</span></span>
+<span class="line">rman target sys/Center08@dgtp auxiliary sys/Center08@dgts nocatalog</span>
+<span class="line"></span>
+<span class="line">Recovery Manager: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Fri Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">05</span>:<span class="number">14</span> <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">connected to target database: DGT (DBID=<span class="number">1555489009</span>)</span>
+<span class="line">using target database control file instead of recovery catalog</span>
+<span class="line">connected to auxiliary database: DGT (<span class="keyword">not</span> mounted)</span>
+<span class="line"></span>
+<span class="line">duplicate target database <span class="keyword">for</span> standby from active database nofilenamecheck;</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">1</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo01.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">2</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo02.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">3</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo03.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">4</span> thread <span class="number">0</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo04.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">0</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo05.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">6</span> thread <span class="number">0</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo06.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">ORACLE error from auxiliary database: ORA-<span class="number">19527</span>: physical standby <span class="keyword">redo</span> <span class="keyword">log</span> must be renamed</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">7</span> thread <span class="number">0</span>: <span class="string">'/u01/app/oracle/oradata/dgt/redo07.log'</span></span>
+<span class="line"></span>
+<span class="line">RMAN-<span class="number">05535</span>: warning: All <span class="keyword">redo</span> <span class="keyword">log</span> files were <span class="keyword">not</span> <span class="keyword">defined</span> properly.</span>
+<span class="line">Finished Duplicate Db at <span class="number">2017</span>-<span class="number">06</span>-<span class="number">23</span> <span class="number">18</span>:<span class="number">06</span>:<span class="number">15</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 解决办法</span></span>
+<span class="line">vi $ORACLE_HOME/dbs/initdgt.ora</span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line">添加</span>
+<span class="line">*.log_file_name_convert=<span class="string">'/u01/app/oracle/oradata/dgt'</span>,<span class="string">'/u01/app/oracle/oradata/dgt'</span> </span>
+<span class="line">*.db_file_name_convert=<span class="string">'/u01/app/oracle/oradata/dgt'</span>,<span class="string">'/u01/app/oracle/oradata/dgt'</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除相关文件后再次重新执行成功</span></span>
+<span class="line">cd /u01/app/oracle/oradata/dgt/</span>
+<span class="line">rm -rf *</span>
+<span class="line"></span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line">create spfile from pfile;</span>
+<span class="line">startup nomount</span>
+<span class="line"></span>
+<span class="line">rman target sys/Center08@dgtp auxiliary sys/Center08@dgts nocatalog</span>
+<span class="line">duplicate target database <span class="keyword">for</span> standby from active database nofilenamecheck;</span>
+<span class="line"></span>
+<span class="line">pwd</span>
+<span class="line">/u01/app/oracle/oradata/dgt</span>
+<span class="line">[oracle@dgts12 dgt]$ ll</span>
+<span class="line">total <span class="number">2842396</span></span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall  <span class="number">18726912</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">26</span> control01.ctl</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall  <span class="number">18726912</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">26</span> control02.ctl</span>
+<span class="line">drwxr-<span class="keyword">x</span>---. <span class="number">2</span> oracle oinstall        <span class="number">82</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> pdb1</span>
+<span class="line">drwxr-<span class="keyword">x</span>---. <span class="number">2</span> oracle oinstall        <span class="number">64</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> pdbseed</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo01.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo02.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo03.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo04.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo05.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo06.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">209715712</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> redo07.log</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">492838912</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> sysaux01.dbf</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">838868992</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> system01.dbf</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall  <span class="number">68165632</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> undotbs01.dbf</span>
+<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall   <span class="number">5251072</span> Jun <span class="number">23</span> <span class="number">18</span>:<span class="number">20</span> users01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># root用户下</span></span>
+<span class="line">vi /etc/oratab </span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------</span></span>
+<span class="line">dgt:<span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1:N</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line">[oracle@dgts12 dgt]$ </span>
+<span class="line"></span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> name,db_unique_name,open_mode,database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">--------- ------------------------------ -------------------- ----------------</span>
+<span class="line">DGT       DGTS                           MOUNTED              PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line">alter database <span class="keyword">open</span>;</span>
+</pre></td></tr></table></figure>
+<h3 id="配置dg-broker"><a href="#配置dg-broker" class="headerlink" title="配置dg_broker"></a>配置dg_broker</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在主备库上同时设置</span></span>
+<span class="line">alter <span class="keyword">system</span> set dg_broker_start=true;</span>
+<span class="line"></span>
+<span class="line">dgmgrl /</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line">ORA-<span class="number">16532</span>: Oracle Data Guard broker configuration does <span class="keyword">not</span> exist</span>
+<span class="line"></span>
+<span class="line">Configuration details cannot be determined by DGMGRL</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; help create</span>
+<span class="line"></span>
+<span class="line">Creates a broker configuration</span>
+<span class="line"></span>
+<span class="line">Syntax:</span>
+<span class="line"></span>
+<span class="line">  CREATE CONFIGURATION &lt;configuration name&gt; [AS] </span>
+<span class="line">    PRIMARY DATABASE IS &lt;database name&gt;</span>
+<span class="line">    CONNECT IDENTIFIER IS &lt;<span class="keyword">connect</span> identifier&gt;;</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; help add</span>
+<span class="line"></span>
+<span class="line">Adds a member to the broker configuration</span>
+<span class="line"></span>
+<span class="line">Syntax:</span>
+<span class="line"></span>
+<span class="line">  ADD &#123; RECOVERY_APPLIANCE | DATABASE | FAR_SYNC &#125; &lt;object name&gt;</span>
+<span class="line">    [AS CONNECT IDENTIFIER IS &lt;<span class="keyword">connect</span> identifier&gt;];</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建配置文件</span></span>
+<span class="line">DGMGRL&gt; create CONFIGURATION dgt_dg as PRIMARY DATABASE IS dgtp CONNECT IDENTIFIER IS dgtp;</span>
+<span class="line">Configuration <span class="string">"dgt_dg"</span> created with primary database <span class="string">"dgtp"</span></span>
+<span class="line">DGMGRL&gt; add DATABASE dgts AS CONNECT IDENTIFIER IS dgts maintained as physical;</span>
+<span class="line">Database <span class="string">"dgts"</span> added</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">DISABLED</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; enable configuration;</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">0</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> name,db_unique_name,open_mode,database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">--------- ------------------------------ -------------------- ----------------</span>
+<span class="line">DGT       dgts                           READ ONLY WITH APPLY PHYSICAL STANDBY</span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">
+                    SQL优化--dbms_sqltune应用实例
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建12c的Data-Guard环境"><span class="toc-number">1.</span> <span class="toc-text">搭建12c的Data Guard环境</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主备库环境配置"><span class="toc-number">1.1.</span> <span class="toc-text">主备库环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看-修改主库配置"><span class="toc-number">1.2.</span> <span class="toc-text">查看/修改主库配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置备库pfile和orapwd"><span class="toc-number">1.3.</span> <span class="toc-text">配置备库pfile和orapwd</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置主备库LISTENER和tnsname"><span class="toc-number">1.4.</span> <span class="toc-text">配置主备库LISTENER和tnsname</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在主库的PDB1下面创建测试数据"><span class="toc-number">1.5.</span> <span class="toc-text">在主库的PDB1下面创建测试数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建备库"><span class="toc-number">1.6.</span> <span class="toc-text">创建备库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置dg-broker"><span class="toc-number">1.7.</span> <span class="toc-text">配置dg_broker</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/" title="上一篇: SQL优化--dbms_sqltune应用实例">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

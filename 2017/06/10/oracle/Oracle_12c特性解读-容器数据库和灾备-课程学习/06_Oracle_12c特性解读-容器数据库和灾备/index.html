@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="模拟4种完全恢复场景数据库open状态，普通表空间损坏# 备份整个数据库
+rman target /
+RMAN&amp;gt; backup database 
+format &apos;/u01/app/rmanbackup/bak_%d_%T_%s_%U&apos;;
+
+SQL&amp;gt; show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RES">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复">
+<meta property="og:url" content="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="模拟4种完全恢复场景数据库open状态，普通表空间损坏# 备份整个数据库
+rman target /
+RMAN&amp;gt; backup database 
+format &apos;/u01/app/rmanbackup/bak_%d_%T_%s_%U&apos;;
+
+SQL&amp;gt; show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RES">
+<meta property="og:updated_time" content="2017-06-14T06:28:41.469Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复">
+<meta name="twitter:description" content="模拟4种完全恢复场景数据库open状态，普通表空间损坏# 备份整个数据库
+rman target /
+RMAN&amp;gt; backup database 
+format &apos;/u01/app/rmanbackup/bak_%d_%T_%s_%U&apos;;
+
+SQL&amp;gt; show pdbs;
+
+    CON_ID CON_NAME                       OPEN MODE  RES">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-09T16:00:00.000Z" itemprop="datePublished">2017-06-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="模拟4种完全恢复场景"><a href="#模拟4种完全恢复场景" class="headerlink" title="模拟4种完全恢复场景"></a>模拟4种完全恢复场景</h2><h3 id="数据库open状态，普通表空间损坏"><a href="#数据库open状态，普通表空间损坏" class="headerlink" title="数据库open状态，普通表空间损坏"></a>数据库open状态，普通表空间损坏</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备份整个数据库</span></span>
+<span class="line">rman target /</span>
+<span class="line">RMAN&gt; backup database </span>
+<span class="line"><span class="keyword">format</span> <span class="string">'/u01/app/rmanbackup/bak_%d_%T_%s_%U'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">SQL&gt; conn lyj/lyj@pdb1</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">    <span class="number">272404</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> FILE_NAME,TABLESPACE_NAME from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">FILE_NAME                                          TABLESPACE_NAME</span>
+<span class="line">-------------------------------------------------- ------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl1/pdb</span>1/system01.dbf    SYSTEM</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/sysaux01.dbf    SYSAUX</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/undotbs01.dbf   UNDOTBS1</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf     USERS</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 模拟普通表空间损坏</span></span>
+<span class="line">SQL&gt; !rm /u01/app/oracle/oradata/orcl1/pdb1/users01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 可以创建表并插入数据都可以正常完成</span></span>
+<span class="line">create table test1 (id <span class="keyword">int</span>, name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'aaaa'</span>);</span>
+<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">2</span>,<span class="string">'bbbb'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; col SEGMENT_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME from user_segments;</span>
+<span class="line"></span>
+<span class="line">SEGMENT_NAME                                       TABLESPACE_NAME</span>
+<span class="line">-------------------------------------------------- ------------------------------</span>
+<span class="line">TEST                                               USERS</span>
+<span class="line">TEST1                                              USERS</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 再创建一个大表时报错</span></span>
+<span class="line">SQL&gt; create table test2 as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line">create table test2 as <span class="keyword">select</span> * from all_objects</span>
+<span class="line">                                    *</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line">ORA-<span class="number">01116</span>: error in opening database file <span class="number">30</span></span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line">ORA-<span class="number">27041</span>: unable to <span class="keyword">open</span> file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 打开另一个session窗口</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">SQL&gt; show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时直接打开肯定也会报错</span></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">30</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用RMAN恢复PDB</span></span>
+<span class="line">rman target /</span>
+<span class="line">restore pluggable database pdb1;</span>
+<span class="line">recover pluggable database pdb1;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时pdb1就可以OPEN了</span></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除表空间文件后，创建的表也恢复成功</span></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line"><span class="keyword">select</span> count(*) from test1;</span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">         <span class="number">2</span></span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="数据库关闭状态，系统表空间损坏"><a href="#数据库关闭状态，系统表空间损坏" class="headerlink" title="数据库关闭状态，系统表空间损坏"></a>数据库关闭状态，系统表空间损坏</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line"><span class="comment"># 模拟系统表空间损坏</span></span>
+<span class="line">!rm /u01/app/oracle/oradata/orcl1/pdb1/system01.dbf</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">27</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">27</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/system01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用RMAN恢复系统表空间</span></span>
+<span class="line">rman target /</span>
+<span class="line">restore tablespace pdb1:<span class="keyword">system</span>;</span>
+<span class="line">recover tablespace pdb1:<span class="keyword">system</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 恢复后，PDB数据库正常OPEN</span></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库关闭状态，普通表空间损坏"><a href="#数据库关闭状态，普通表空间损坏" class="headerlink" title="数据库关闭状态，普通表空间损坏"></a>数据库关闭状态，普通表空间损坏</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line">!rm /u01/app/oracle/oradata/orcl1/pdb1/users01.dbf</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">30</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用RMAN恢复普通用户表空间</span></span>
+<span class="line">rman target /</span>
+<span class="line">restore tablespace pdb1:users;</span>
+<span class="line">recover tablespace pdb1:users;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 恢复后，PDB数据库正常OPEN</span></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Pluggable database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; conn lyj/lyj@pdb1</span>
+<span class="line">Connected.</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test1;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">        <span class="number">10</span></span>
+</pre></td></tr></table></figure>
+<h3 id="数据库open状态，未备份的数据文件恢复"><a href="#数据库open状态，未备份的数据文件恢复" class="headerlink" title="数据库open状态，未备份的数据文件恢复"></a>数据库open状态，未备份的数据文件恢复</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line">create tablespace bi datafile <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/bi01.dbf'</span> size <span class="number">100</span><span class="keyword">m</span>;</span>
+<span class="line">create user bi identified by bi default tablespace bi;</span>
+<span class="line">grant dba to bi;</span>
+<span class="line">conn bi/bi@pdb1</span>
+<span class="line">create table test as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line"></span>
+<span class="line">!rm /u01/app/oracle/oradata/orcl1/pdb1/bi01.dbf</span>
+<span class="line"></span>
+<span class="line">SQL&gt; create table test1 as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line">create table test1 as <span class="keyword">select</span> * from all_objects</span>
+<span class="line">                                    *</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01116</span>: error in opening database file <span class="number">31</span></span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">31</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/bi01.dbf'</span></span>
+<span class="line">ORA-<span class="number">27041</span>: unable to <span class="keyword">open</span> file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用RMAN恢复PDB数据库</span></span>
+<span class="line">rman target /</span>
+<span class="line">restore pluggable database pdb1;</span>
+<span class="line">recover pluggable database pdb1;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 恢复成功后打开PDB数据库，并验证数据</span></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Pluggable database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; conn bi/bi@pdb1</span>
+<span class="line">Connected.</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">68103</span></span>
+</pre></td></tr></table></figure>
+<h2 id="模拟不完全恢复场景（drop-user）"><a href="#模拟不完全恢复场景（drop-user）" class="headerlink" title="模拟不完全恢复场景（drop user）"></a>模拟不完全恢复场景（drop user）</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> systimestamp from dual;</span>
+<span class="line"></span>
+<span class="line">SYSTIMESTAMP</span>
+<span class="line">---------------------------------------------------------------------------</span>
+<span class="line"><span class="number">12</span>-JUN-<span class="number">17</span> <span class="number">04</span>.09.<span class="number">11.763875</span> PM +08:<span class="number">00</span></span>
+<span class="line"></span>
+<span class="line">drop user bi cascade;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; conn bi/bi@pdb1</span>
+<span class="line">ERROR:</span>
+<span class="line">ORA-<span class="number">01017</span>: invalid username/password; logon denied</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Warning: You are <span class="keyword">no</span> longer connected to ORACLE.</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用rman进行不完全恢复</span></span>
+<span class="line">rman target /</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 不加AUXILIARY DESTINATION '/tmp'报错</span></span>
+<span class="line">run </span>
+<span class="line">&#123; </span>
+<span class="line">  set <span class="keyword">until</span> <span class="keyword">time</span> <span class="string">"to_date('2017-06-12 16:09:11','YYYY-MM-DD HH24:MI:SS')"</span>; </span>
+<span class="line">  restore pluggable database pdb1; </span>
+<span class="line">  recover pluggable database pdb1 AUXILIARY DESTINATION <span class="string">'/tmp'</span>;</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span> resetlogs;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 用户恢复成功</span></span>
+<span class="line">SQL&gt; conn bi/bi@pdb1</span>
+<span class="line">Connected.</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">68103</span></span>
+</pre></td></tr></table></figure>
+<h2 id="RMAN配置总结"><a href="#RMAN配置总结" class="headerlink" title="RMAN配置总结"></a>RMAN配置总结</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># RMAN常用配置命令</span></span>
+<span class="line">SHOW ALL;</span>
+<span class="line">CONFIGURE RETENTION POLICY TO REDUNDANCY <span class="number">1</span>;</span>
+<span class="line">CONFIGURE RETENTION POLICY TO recovery window of <span class="number">3</span> days</span>
+<span class="line">CONFIGURE DEFAULT DEVICE TYPE TO DISK;</span>
+<span class="line">CONFIGURE CONTROLFILE AUTOBACKUP OFF|ON;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 备份分片</span></span>
+<span class="line">CONFIGURE CHANNEL DEVICE TYPE DISK MAXPIECESIZE <span class="number">50</span> M;</span>
+<span class="line">CONFIGURE CHANNEL <span class="number">1</span> DEVICE TYPE DISK maxpiecesize <span class="number">100</span>M <span class="keyword">format</span> <span class="string">'/u02/ora11g/flash_recovery_area/TEST/full_bak_%U'</span>;</span>
+<span class="line">backup filesperset = <span class="number">5</span> as compressed backupset database <span class="keyword">format</span> <span class="string">'/tmp/full_db_%U'</span>;</span>
+<span class="line">backup filesperset = <span class="number">5</span> as compressed backupset pluggable database FF <span class="keyword">format</span> <span class="string">'/tmp/ff_db_%U'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 1个channel和多个channel</span></span>
+<span class="line">CONFIGURE CHANNEL <span class="number">1</span> DEVICE TYPE DISK MAXPIECESIZE <span class="number">50</span> M FORMAT <span class="string">'/u02/ora11g/flash_recovery_area/TEST/full_bak_%U'</span>;</span>
+<span class="line">CONFIGURE CHANNEL <span class="number">2</span> DEVICE TYPE DISK MAXPIECESIZE <span class="number">50</span> M FORMAT <span class="string">'/u02/ora11g/flash_recovery_area/TEST/full_bak_%U'</span>;</span>
+<span class="line">configure channel <span class="number">2</span> device type disk clear;</span>
+<span class="line">show device type;</span>
+<span class="line">show default device type;</span>
+<span class="line">configure channel <span class="number">1</span> device type disk <span class="keyword">format</span> <span class="string">'/home/oracle/%U'</span>;</span>
+<span class="line">configure channel <span class="number">1</span> device type disk clear;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 显示和报告</span></span>
+<span class="line">list backup;</span>
+<span class="line">list expired backup;</span>
+<span class="line">list backupset summary;</span>
+<span class="line">list backup of spfile;</span>
+<span class="line">list backup of controlfile</span>
+<span class="line">report schema;</span>
+<span class="line">report need backup days <span class="number">3</span>;</span>
+<span class="line">report need backup;</span>
+<span class="line">report obsolete;</span>
+<span class="line"></span>
+<span class="line">list backup of pluggable database tcymob1_new12c;</span>
+<span class="line">list backup of tablespace data;</span>
+<span class="line">list backup of tablespace tcymob1_new12c:<span class="keyword">system</span></span>
+<span class="line">list backup of datafile <span class="number">1</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 检测失效及删除</span></span>
+<span class="line">crosscheck copy;</span>
+<span class="line">crosscheck backup;</span>
+<span class="line">crosscheck archivelog all;</span>
+<span class="line"><span class="keyword">delete</span> noprompt expired copy;</span>
+<span class="line"><span class="keyword">delete</span> noprompt expired backup;</span>
+<span class="line"><span class="keyword">delete</span> noprompt expired archivelog all;</span>
+<span class="line"><span class="keyword">delete</span> noprompt obsolete;</span>
+<span class="line">backup database plus archivelog skip inaccessible <span class="keyword">delete</span> input;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 手工注册归档日志</span></span>
+<span class="line">catalog start with <span class="string">'/u01/app/oracle/archive'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Block change track</span></span>
+<span class="line">alter database enable block change tracking using file <span class="string">'/u01/app/oracle/change_tracking'</span>;</span>
+<span class="line">alter database disable block change tracking;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 增量备份</span></span>
+<span class="line">backup incremental level=<span class="number">0</span> database;</span>
+<span class="line">backup incremental level=<span class="number">1</span> database;</span>
+<span class="line">backup incremental level=<span class="number">2</span> database;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 其他</span></span>
+<span class="line">backup as compressed backupset database <span class="keyword">format</span> <span class="string">'/oradata/rmanbakcup/bak_%d_%T_%s_%U'</span>;</span>
+<span class="line">CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO <span class="string">'/oradata/rmanbakcup/ctl_%F'</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="杂记"><a href="#杂记" class="headerlink" title="杂记"></a>杂记</h2><h3 id="数据恢复的原理"><a href="#数据恢复的原理" class="headerlink" title="数据恢复的原理"></a>数据恢复的原理</h3><ul>
+<li>SCN 数据库对自身变化的一个标记</li>
+<li>系统级（checkpoint_change# v$database）</li>
+<li>数据文件级 (file#,checkpoint_change# v$datafile)</li>
+<li>结束SCN(file#,last_change# v$datafile）</li>
+<li>数据文件头部 (name,checkpoint_change# v$datafile_header)</li>
+<li>12c中 v$database con_id=0</li>
+</ul>
+<h3 id="RMAN的核心"><a href="#RMAN的核心" class="headerlink" title="RMAN的核心"></a>RMAN的核心</h3><ul>
+<li>recover.bsq</li>
+<li>Dbms_rcvman</li>
+<li>Dbms_backup_restore</li>
+</ul>
+<h3 id="12c-RMAN过期的命令"><a href="#12c-RMAN过期的命令" class="headerlink" title="12c RMAN过期的命令"></a>12c RMAN过期的命令</h3><p><a href="http://docs.oracle.com/database/122/RCMRF/deprecated-rman-syntax.htm#RCMRF910" target="_blank" rel="external">http://docs.oracle.com/database/122/RCMRF/deprecated-rman-syntax.htm#RCMRF910 </a></p>
+<h3 id="RMAN还原恢复数据库"><a href="#RMAN还原恢复数据库" class="headerlink" title="RMAN还原恢复数据库"></a>RMAN还原恢复数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># CDB级别的数据还原恢复</span></span>
+<span class="line">startup nomount</span>
+<span class="line">restore controlfile from ‘xxxx’;</span>
+<span class="line">alter database mount;</span>
+<span class="line">catalog start with ‘xxxxx’;</span>
+<span class="line">restore database;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># PDB级别的数据备份</span></span>
+<span class="line">backup pluggable database tcymob<span class="number">0</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># PDB级别的数据还原恢复</span></span>
+<span class="line">catalog start with ‘xxxxx’;</span>
+<span class="line">restore pluggable database xx;</span>
+<span class="line">recover tablespace pdb1:<span class="keyword">system</span>;</span>
+</pre></td></tr></table></figure>
+<h3 id="rman连接方式"><a href="#rman连接方式" class="headerlink" title="rman连接方式"></a>rman连接方式</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">rman target /</span>
+<span class="line">rman target sys/oracle</span>
+<span class="line">rman target sys/oracle@orcl catalog rman/rman@emrep</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">connect</span> target sys/oracle</span>
+<span class="line"><span class="keyword">connect</span> target pdb_mgr/oracle@pdb</span>
+</pre></td></tr></table></figure>
+<h3 id="删除了所有的数据文件，日志文件，控制文件的恢复"><a href="#删除了所有的数据文件，日志文件，控制文件的恢复" class="headerlink" title="删除了所有的数据文件，日志文件，控制文件的恢复"></a>删除了所有的数据文件，日志文件，控制文件的恢复</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">restore controlfile from autobackup;</span>
+<span class="line">restore controlfile from <span class="string">'/u02/oracle/flash_recovery_area/TEST10G/ctl_c-1135735312-20150802-0b'</span>;</span>
+<span class="line">run&#123;</span>
+<span class="line">  restore database; </span>
+<span class="line">  recover database; </span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">run&#123; </span>
+<span class="line">  set <span class="keyword">until</span> sequence <span class="number">1</span>; </span>
+<span class="line">  recover database; </span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+</pre></td></tr></table></figure>
+<h3 id="恢复相关的修改隐含参数"><a href="#恢复相关的修改隐含参数" class="headerlink" title="恢复相关的修改隐含参数"></a>恢复相关的修改隐含参数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">_allow_resetlogs_corruption=true</span>
+<span class="line">_corrupted_rollback_segments=true</span>
+<span class="line">_offline_rollback_segments=true</span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#模拟4种完全恢复场景"><span class="toc-number">1.</span> <span class="toc-text">模拟4种完全恢复场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库open状态，普通表空间损坏"><span class="toc-number">1.1.</span> <span class="toc-text">数据库open状态，普通表空间损坏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库关闭状态，系统表空间损坏"><span class="toc-number">1.2.</span> <span class="toc-text">数据库关闭状态，系统表空间损坏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库关闭状态，普通表空间损坏"><span class="toc-number">1.3.</span> <span class="toc-text">数据库关闭状态，普通表空间损坏</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库open状态，未备份的数据文件恢复"><span class="toc-number">1.4.</span> <span class="toc-text">数据库open状态，未备份的数据文件恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模拟不完全恢复场景（drop-user）"><span class="toc-number">2.</span> <span class="toc-text">模拟不完全恢复场景（drop user）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RMAN配置总结"><span class="toc-number">3.</span> <span class="toc-text">RMAN配置总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#杂记"><span class="toc-number">4.</span> <span class="toc-text">杂记</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据恢复的原理"><span class="toc-number">4.1.</span> <span class="toc-text">数据恢复的原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RMAN的核心"><span class="toc-number">4.2.</span> <span class="toc-text">RMAN的核心</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12c-RMAN过期的命令"><span class="toc-number">4.3.</span> <span class="toc-text">12c RMAN过期的命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RMAN还原恢复数据库"><span class="toc-number">4.4.</span> <span class="toc-text">RMAN还原恢复数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rman连接方式"><span class="toc-number">4.5.</span> <span class="toc-text">rman连接方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除了所有的数据文件，日志文件，控制文件的恢复"><span class="toc-number">4.6.</span> <span class="toc-text">删除了所有的数据文件，日志文件，控制文件的恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#恢复相关的修改隐含参数"><span class="toc-number">4.7.</span> <span class="toc-text">恢复相关的修改隐含参数</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/" title="上一篇: Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

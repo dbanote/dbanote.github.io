@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="练习DG Broker switchover和failover的过程练习switchover# switchover可以在主或备库上运行
+# 使用TNS的方式登陆DG Broker
+$ dgmgrl sys/Center08@dgtp
+DGMGRL for Linux: Release 12.2.0.1.0 - Production on Tue Jul 4 15:01:13 2017
+
+Copy">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结">
+<meta property="og:url" content="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="练习DG Broker switchover和failover的过程练习switchover# switchover可以在主或备库上运行
+# 使用TNS的方式登陆DG Broker
+$ dgmgrl sys/Center08@dgtp
+DGMGRL for Linux: Release 12.2.0.1.0 - Production on Tue Jul 4 15:01:13 2017
+
+Copy">
+<meta property="og:updated_time" content="2017-07-04T09:39:26.894Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结">
+<meta name="twitter:description" content="练习DG Broker switchover和failover的过程练习switchover# switchover可以在主或备库上运行
+# 使用TNS的方式登陆DG Broker
+$ dgmgrl sys/Center08@dgtp
+DGMGRL for Linux: Release 12.2.0.1.0 - Production on Tue Jul 4 15:01:13 2017
+
+Copy">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-07-03T16:00:00.000Z" itemprop="datePublished">2017-07-04</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="练习DG-Broker-switchover和failover的过程"><a href="#练习DG-Broker-switchover和failover的过程" class="headerlink" title="练习DG Broker switchover和failover的过程"></a>练习DG Broker switchover和failover的过程</h2><h3 id="练习switchover"><a href="#练习switchover" class="headerlink" title="练习switchover"></a>练习switchover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># switchover可以在主或备库上运行</span></span>
+<span class="line"><span class="comment"># 使用TNS的方式登陆DG Broker</span></span>
+<span class="line">$ dgmgrl sys/Center08@dgtp</span>
+<span class="line">DGMGRL <span class="keyword">for</span> Linux: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Tue Jul <span class="number">4</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">13</span> <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Welcome to DGMGRL, type <span class="string">"help"</span> <span class="keyword">for</span> information.</span>
+<span class="line">Connected to <span class="string">"DGTP"</span></span>
+<span class="line">Connected as SYSDBA.</span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">13</span> seconds ago)</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<p>switchover测试<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># switchover到备库dgts</span></span>
+<span class="line">DGMGRL&gt; switchover to dgts;</span>
+<span class="line">Performing switchover NOW, please wait...</span>
+<span class="line">Operation requires a connection to database <span class="string">"dgts"</span></span>
+<span class="line">Connecting ...</span>
+<span class="line">Connected to <span class="string">"DGTS"</span></span>
+<span class="line">Connected as SYSDBA.</span>
+<span class="line">New primary database <span class="string">"dgts"</span> is opening...</span>
+<span class="line">Operation requires start up of instance <span class="string">"dgt"</span> on database <span class="string">"dgtp"</span></span>
+<span class="line">Starting instance <span class="string">"dgt"</span>...</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line">Database mounted.</span>
+<span class="line">Database opened.</span>
+<span class="line">Connected to <span class="string">"DGTP"</span></span>
+<span class="line">Switchover succeeded, new primary is <span class="string">"dgts"</span></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgts - Primary database</span>
+<span class="line">    dgtp - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">71</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># switchover到原主库dgtp</span></span>
+<span class="line">DGMGRL&gt; switchover to dgtp;</span>
+<span class="line">Performing switchover NOW, please wait...</span>
+<span class="line">Operation requires a connection to database <span class="string">"dgtp"</span></span>
+<span class="line">Connecting ...</span>
+<span class="line">Connected to <span class="string">"DGTP"</span></span>
+<span class="line">Connected as SYSDBA.</span>
+<span class="line">New primary database <span class="string">"dgtp"</span> is opening...</span>
+<span class="line">Operation requires start up of instance <span class="string">"dgt"</span> on database <span class="string">"dgts"</span></span>
+<span class="line">Starting instance <span class="string">"dgt"</span>...</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line">Database mounted.</span>
+<span class="line">Database opened.</span>
+<span class="line">Connected to <span class="string">"DGTS"</span></span>
+<span class="line">Switchover succeeded, new primary is <span class="string">"dgtp"</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="练习failover"><a href="#练习failover" class="headerlink" title="练习failover"></a>练习failover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 模拟主库宕机</span></span>
+<span class="line">sqlplus sys/Center08@dgtp as sysdba</span>
+<span class="line"><span class="keyword">shutdown</span> abort</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库上执行failover，failover只能在备库上运行</span></span>
+<span class="line">dgmgrl sys/Center08@dgts</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    Error: ORA-<span class="number">1034</span>: ORACLE <span class="keyword">not</span> available</span>
+<span class="line"></span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">ERROR   (status updated <span class="number">0</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 成功执行failover</span></span>
+<span class="line">DGMGRL&gt; failover to dgts;</span>
+<span class="line">Performing failover NOW, please wait...</span>
+<span class="line">Failover succeeded, new primary is <span class="string">"dgts"</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 提示要原主库需要执行reinstated操作，才能变更为物理备库</span></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgts - Primary database</span>
+<span class="line">    dgtp - Physical standby database (disabled)</span>
+<span class="line">      ORA-<span class="number">16661</span>: the standby database needs to be reinstated</span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">16</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主库恢复后是无法直接打开</span></span>
+<span class="line">SQL&gt; startup</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">3992977408</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">8800136</span> bytes</span>
+<span class="line">Variable Size            <span class="number">1056966776</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">2919235584</span> bytes</span>
+<span class="line">Redo Buffers                <span class="number">7974912</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">ORA-<span class="number">16649</span>: possible failover to another database prevents this database from</span>
+<span class="line">being opened</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">MOUNTED</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库执行reinstate database，将原主库变为备库</span></span>
+<span class="line">DGMGRL&gt; reinstate database dgtp;</span>
+<span class="line">Reinstating database <span class="string">"dgtp"</span>, please wait...</span>
+<span class="line">Reinstatement of database <span class="string">"dgtp"</span> succeeded</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgts - Primary database</span>
+<span class="line">    dgtp - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">44</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看原主库状态</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode,database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ ONLY WITH APPLY PHYSICAL STANDBY</span>
+</pre></td></tr></table></figure>
+<h2 id="练习自动化切换-Fast-Start-Failover"><a href="#练习自动化切换-Fast-Start-Failover" class="headerlink" title="练习自动化切换 Fast-Start Failover"></a>练习自动化切换 Fast-Start Failover</h2><h3 id="配置开启Fast-Start-Failover"><a href="#配置开启Fast-Start-Failover" class="headerlink" title="配置开启Fast-Start Failover"></a>配置开启Fast-Start Failover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED   <span class="comment">#  初始自动化切换是DISABLED</span></span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">18</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 1. 查看主/备库是否开启闪回数据库</span></span>
+<span class="line"><span class="comment">## 备库开启闪回数据库用以下命令</span></span>
+<span class="line">recover managed standby database cancel;</span>
+<span class="line">alter database flashback on;</span>
+<span class="line">recover managed standby database disconnect from session;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 2. LISTENER中要配置GLOBAL_DBNAME=db_unique_name_DGMGRL，如</span></span>
+<span class="line">   (SID_DESC =</span>
+<span class="line">      (GLOBAL_DBNAME = DGTP_DGMGRL)</span>
+<span class="line">      (ORACLE_HOME = <span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1)</span>
+<span class="line">      (SID_NAME = dgt)</span>
+<span class="line">    )</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 3. 在DG BROKER中设置主备库的FastStartFailoverTarget</span></span>
+<span class="line">DGMGRL&gt; edit database dgtp set property FastStartFailoverTarget=<span class="string">'dgts'</span>;</span>
+<span class="line">Property <span class="string">"faststartfailovertarget"</span> updated</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; edit database dgts set property FastStartFailoverTarget=<span class="string">'dgtp'</span>;</span>
+<span class="line">Property <span class="string">"faststartfailovertarget"</span> updated</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show database verbose dgtp;</span>
+<span class="line">.....</span>
+<span class="line">LogXptMode                      = <span class="string">'ASYNC'</span>   <span class="comment"># Protection Mode: MaxPerformance</span></span>
+<span class="line">.....</span>
+<span class="line">FastStartFailoverTarget         = <span class="string">'dgts'</span></span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 4. 如果主备的设置为最大高可用保护模式，则需要设置LogXptMode为sync，最大性能保护模式，则需要设置LogXptMode为async</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 满足以上4个条件后，使用以下命令启用Fast-Start Failover</span></span>
+<span class="line">DGMGRL&gt; enable fast_start failover;</span>
+<span class="line">Enabled.</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; start observer;</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">04</span>.<span class="number">06</span>] FSFO target standby is dgts</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Observer trace level is set to USER</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Try to <span class="keyword">connect</span> to the primary dgtp.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">23</span>] The standby dgts is ready to be a FSFO target</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:08.<span class="number">23</span>] Connection to the primary restored!</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:09.<span class="number">23</span>] Disconnecting from database dgtp.</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 不要关闭上面的窗口，重新打开一个</span></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - (*) Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: ENABLED    <span class="comment"># 状态已经是ENABLED了</span></span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">10</span> seconds ago)</span>
+</pre></td></tr></table></figure>
+<h3 id="模拟Fast-Start-Failover"><a href="#模拟Fast-Start-Failover" class="headerlink" title="模拟Fast-Start Failover"></a>模拟Fast-Start Failover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库shutdown abort</span></span>
+<span class="line"><span class="keyword">shutdown</span> abort</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># observer上</span></span>
+<span class="line">DGMGRL&gt; start observer;</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">04</span>.<span class="number">06</span>] FSFO target standby is dgts</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Observer trace level is set to USER</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">22</span>] Try to <span class="keyword">connect</span> to the primary dgtp.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">06</span>.<span class="number">23</span>] The standby dgts is ready to be a FSFO target</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:08.<span class="number">23</span>] Connection to the primary restored!</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:09.<span class="number">23</span>] Disconnecting from database dgtp.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">36.48</span>] Primary database cannot be reached.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">36.48</span>] Fast-Start Failover threshold has <span class="keyword">not</span> exceeded. Retry <span class="keyword">for</span> the <span class="keyword">next</span> <span class="number">30</span> seconds</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">37.48</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">39.56</span>] Primary database cannot be reached.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">16</span>:<span class="number">40.56</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">04</span>.<span class="number">15</span>] Primary database cannot be reached.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">04</span>.<span class="number">15</span>] Fast-Start Failover threshold has <span class="keyword">not</span> exceeded. Retry <span class="keyword">for</span> the <span class="keyword">next</span> <span class="number">2</span> seconds</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">05</span>.<span class="number">15</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Primary database cannot be reached.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Fast-Start Failover threshold has expired.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Try to <span class="keyword">connect</span> to the standby.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Making a <span class="keyword">last</span> connection attempt to primary database before proceeding with Fast-Start Failover.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Check <span class="keyword">if</span> the standby is ready <span class="keyword">for</span> failover.</span>
+<span class="line">[S002 <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Fast-Start Failover started...</span>
+<span class="line"></span>
+<span class="line"><span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>  Tuesday, July <span class="number">04</span>, <span class="number">2017</span></span>
+<span class="line">Initiating Fast-Start Failover to database <span class="string">"dgts"</span>...</span>
+<span class="line">[S002 <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">07</span>.<span class="number">23</span>] Initiating Fast-start Failover.</span>
+<span class="line">Performing failover NOW, please wait...</span>
+<span class="line">Failover succeeded, new primary is <span class="string">"dgts"</span></span>
+<span class="line"><span class="number">16</span>:<span class="number">17</span>:<span class="number">18.42</span>  Tuesday, July <span class="number">04</span>, <span class="number">2017</span></span>
+<span class="line">[S002 <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.42</span>] Fast-Start Failover finished...</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.42</span>] Failover succeeded. Restart pinging.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.43</span>] Primary database has changed to dgts.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.49</span>] Try to <span class="keyword">connect</span> to the primary.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">18.49</span>] Try to <span class="keyword">connect</span> to the primary dgts.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">19.59</span>] Connection to the primary restored!</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">19.60</span>] The standby dgtp needs to be reinstated</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">19.60</span>] Try to <span class="keyword">connect</span> to the new standby dgtp.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">20.60</span>] Disconnecting from database dgts.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">22.60</span>] Connection to the new standby restored!</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">17</span>:<span class="number">22.61</span>] Failed to ping the new standby.</span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主库恢复后，自动Reinstate</span></span>
+<span class="line">SQL&gt; startup</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">3992977408</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">8800136</span> bytes</span>
+<span class="line">Variable Size            <span class="number">1056966776</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">2919235584</span> bytes</span>
+<span class="line">Redo Buffers                <span class="number">7974912</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">ORA-<span class="number">16649</span>: possible failover to another database prevents this database from</span>
+<span class="line">being opened</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line">ORA-<span class="number">16795</span>: the standby database needs to be re-created</span>
+<span class="line"></span>
+<span class="line">Configuration details cannot be determined by DGMGRL</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># observer上</span></span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">30.30</span>] Try to <span class="keyword">connect</span> to the primary dgts.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">32.31</span>] Connection to the primary restored!</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">33.31</span>] Wait <span class="keyword">for</span> new primary to be ready to reinstate.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">34.31</span>] New primary is now ready to reinstate.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">34.31</span>] Issuing REINSTATE command.      <span class="comment"># 提示开始自动做REINSTATE</span></span>
+<span class="line"></span>
+<span class="line"><span class="number">17</span>:<span class="number">10</span>:<span class="number">34.31</span>  Tuesday, July <span class="number">04</span>, <span class="number">2017</span></span>
+<span class="line">Initiating reinstatement <span class="keyword">for</span> database <span class="string">"dgtp"</span>...</span>
+<span class="line">Reinstating database <span class="string">"dgtp"</span>, please wait...</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">46.45</span>] The standby dgtp is ready to be a FSFO target</span>
+<span class="line">Reinstatement of database <span class="string">"dgtp"</span> succeeded</span>
+<span class="line"><span class="number">17</span>:<span class="number">10</span>:<span class="number">56.69</span>  Tuesday, July <span class="number">04</span>, <span class="number">2017</span></span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">57.46</span>] Successfully reinstated database dgtp.</span>
+<span class="line">[W00<span class="number">0</span> <span class="number">07</span>/<span class="number">04</span> <span class="number">17</span>:<span class="number">10</span>:<span class="number">58.46</span>] The reinstatement of standby dgtp was just done</span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line">[oracle@dgtp12 ~]$ sqlplus sys/Center08@dgtp as sysdba</span>
+<span class="line"></span>
+<span class="line">SQL*Plus: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> Production on Tue Jul <span class="number">4</span> <span class="number">17</span>:<span class="number">14</span>:<span class="number">27</span> <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Connected to:</span>
+<span class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode,database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ ONLY WITH APPLY PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">[oracle@dgtp12 ~]$ dgmgrl sys/Center08@dgtp</span>
+<span class="line">DGMGRL <span class="keyword">for</span> Linux: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Tue Jul <span class="number">4</span> <span class="number">17</span>:<span class="number">15</span>:<span class="number">33</span> <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Welcome to DGMGRL, type <span class="string">"help"</span> <span class="keyword">for</span> information.</span>
+<span class="line">Connected to <span class="string">"DGTP"</span></span>
+<span class="line">Connected as SYSDBA.</span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgts - Primary database</span>
+<span class="line">    dgtp - (*) Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: ENABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">42</span> seconds ago)</span>
+</pre></td></tr></table></figure>
+<h2 id="练习Active-Data-Guard连接会话保留的特性"><a href="#练习Active-Data-Guard连接会话保留的特性" class="headerlink" title="练习Active Data Guard连接会话保留的特性"></a>练习Active Data Guard连接会话保留的特性</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; show parameter standby</span>
+<span class="line"></span>
+<span class="line">NAME                                 TYPE        VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">enabled_PDBs_on_standby              string      *</span>
+<span class="line">standby_archive_dest                 string      ?<span class="comment">#/dbs/arch</span></span>
+<span class="line">standby_db_preserve_states           string      NONE</span>
+<span class="line">standby_file_management              string      AUTO</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主备库都执行</span></span>
+<span class="line">alter <span class="keyword">system</span> set standby_db_preserve_states=all scope=spfile;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库上</span></span>
+<span class="line">$ sqlplus <span class="keyword">system</span>/Center08@dgts</span>
+<span class="line"></span>
+<span class="line">SQL*Plus: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> Production on Tue Jul <span class="number">4</span> <span class="number">17</span>:<span class="number">36</span>:<span class="number">03</span> <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Connected to:</span>
+<span class="line">Oracle Database <span class="number">12</span>c Enterprise Edition Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - <span class="number">64</span>bit Production</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from cat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">153</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; set timing on</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from cat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">153</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">03</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 另开一个窗口做switchover</span></span>
+<span class="line">$ dgmgrl sys/Center08@dgts</span>
+<span class="line">DGMGRL <span class="keyword">for</span> Linux: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Tue Jul <span class="number">4</span> <span class="number">17</span>:<span class="number">35</span>:08 <span class="number">2017</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Welcome to DGMGRL, type <span class="string">"help"</span> <span class="keyword">for</span> information.</span>
+<span class="line">Connected to <span class="string">"DGTS"</span></span>
+<span class="line">Connected as SYSDBA.</span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - (*) Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: ENABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">27</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 回到上面的会话，在会话中执行查询</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from cat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">153</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">02</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from cat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">153</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">02</span>.<span class="number">80</span>    <span class="comment"># 有2秒延迟，但会话不中断</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from cat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">153</span></span>
+<span class="line"></span>
+<span class="line">Elapsed: <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>.<span class="number">07</span></span>
+</pre></td></tr></table></figure>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="DG-BROKER中新增的validate命令"><a href="#DG-BROKER中新增的validate命令" class="headerlink" title="DG BROKER中新增的validate命令"></a>DG BROKER中新增的validate命令</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">DGMGRL&gt; validate database verbose dgtp;</span>
+<span class="line"></span>
+<span class="line">  Database Role:    Primary database</span>
+<span class="line"></span>
+<span class="line">  Ready <span class="keyword">for</span> Switchover:  Yes</span>
+<span class="line"></span>
+<span class="line">  Flashback Database Status:</span>
+<span class="line">    dgtp:  On</span>
+<span class="line"></span>
+<span class="line">  Capacity Information:</span>
+<span class="line">    Database  Instances        Threads        </span>
+<span class="line">    dgtp      <span class="number">1</span>                <span class="number">1</span>              </span>
+<span class="line"></span>
+<span class="line">  Managed by Clusterware:</span>
+<span class="line">    dgtp:  NO             </span>
+<span class="line">    Warning: Ensure primary database <span class="keyword">s</span> StaticConnectIdentifier property</span>
+<span class="line">    is configured properly so that the primary database can be restarted</span>
+<span class="line">    by DGMGRL after switchover</span>
+<span class="line"></span>
+<span class="line">  Temporary Tablespace File Information:</span>
+<span class="line">    dgtp TEMP Files:  <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line">  Data file Online Move in Progress:</span>
+<span class="line">    dgtp:  No</span>
+<span class="line"></span>
+<span class="line">  Transport-Related Information:</span>
+<span class="line">    Transport On:  Yes</span>
+<span class="line"></span>
+<span class="line">  Log Files Cleared:</span>
+<span class="line">    dgtp Standby Redo Log Files:  Cleared</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; validate database verbose dgts;</span>
+<span class="line"></span>
+<span class="line">  Database Role:     Physical standby database</span>
+<span class="line">  Primary Database:  dgtp</span>
+<span class="line"></span>
+<span class="line">  Ready <span class="keyword">for</span> Switchover:  Yes</span>
+<span class="line">  Ready <span class="keyword">for</span> Failover:    Yes (Primary Running)</span>
+<span class="line"></span>
+<span class="line">  Flashback Database Status:</span>
+<span class="line">    dgtp:  On</span>
+<span class="line">    dgts:  Off</span>
+<span class="line"></span>
+<span class="line">  Capacity Information:</span>
+<span class="line">    Database  Instances        Threads        </span>
+<span class="line">    dgtp      <span class="number">1</span>                <span class="number">1</span>              </span>
+<span class="line">    dgts      <span class="number">1</span>                <span class="number">1</span>              </span>
+<span class="line"></span>
+<span class="line">  Managed by Clusterware:</span>
+<span class="line">    dgtp:  NO             </span>
+<span class="line">    dgts:  NO             </span>
+<span class="line">    Warning: Ensure primary database <span class="keyword">s</span> StaticConnectIdentifier property</span>
+<span class="line">    is configured properly so that the primary database can be restarted</span>
+<span class="line">    by DGMGRL after switchover</span>
+<span class="line"></span>
+<span class="line">  Temporary Tablespace File Information:</span>
+<span class="line">    dgtp TEMP Files:  <span class="number">3</span></span>
+<span class="line">    dgts TEMP Files:  <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line">  Data file Online Move in Progress:</span>
+<span class="line">    dgtp:  No</span>
+<span class="line">    dgts:  No</span>
+<span class="line"></span>
+<span class="line">  Standby Apply-Related Information:</span>
+<span class="line">    Apply State:      Running</span>
+<span class="line">    Apply Lag:        <span class="number">0</span> seconds (computed <span class="number">1</span> second ago)</span>
+<span class="line">    Apply Delay:      <span class="number">0</span> minutes</span>
+<span class="line"></span>
+<span class="line">  Transport-Related Information:</span>
+<span class="line">    Transport On:      Yes</span>
+<span class="line">    Gap Status:        No Gap</span>
+<span class="line">    Transport Lag:     <span class="number">0</span> seconds (computed <span class="number">1</span> second ago)</span>
+<span class="line">    Transport Status:  Success</span>
+<span class="line"></span>
+<span class="line">  Log Files Cleared:</span>
+<span class="line">    dgtp Standby Redo Log Files:  Cleared</span>
+<span class="line">    dgts Online Redo Log Files:   Cleared</span>
+<span class="line">    dgts Standby Redo Log Files:  Available</span>
+<span class="line"></span>
+<span class="line">  Current Log File Groups Configuration:</span>
+<span class="line">    Thread <span class="comment">#  Online Redo Log Groups  Standby Redo Log Groups Status       </span></span>
+<span class="line">              (dgtp)                  (dgts)                               </span>
+<span class="line">    <span class="number">1</span>         <span class="number">3</span>                       <span class="number">2</span>                       Insufficient SRLs</span>
+<span class="line"></span>
+<span class="line">  Future Log File Groups Configuration:</span>
+<span class="line">    Thread <span class="comment">#  Online Redo Log Groups  Standby Redo Log Groups Status       </span></span>
+<span class="line">              (dgts)                  (dgtp)                               </span>
+<span class="line">    <span class="number">1</span>         <span class="number">3</span>                       <span class="number">2</span>                       Insufficient SRLs</span>
+<span class="line"></span>
+<span class="line">  Current Configuration Log File Sizes:</span>
+<span class="line">    Thread <span class="comment">#   Smallest Online Redo      Smallest Standby Redo    </span></span>
+<span class="line">               Log File Size             Log File Size            </span>
+<span class="line">               (dgtp)                    (dgts)                   </span>
+<span class="line">    <span class="number">1</span>          <span class="number">200</span> MBytes                <span class="number">200</span> MBytes               </span>
+<span class="line"></span>
+<span class="line">  Future Configuration Log File Sizes:</span>
+<span class="line">    Thread <span class="comment">#   Smallest Online Redo      Smallest Standby Redo    </span></span>
+<span class="line">               Log File Size             Log File Size            </span>
+<span class="line">               (dgts)                    (dgtp)                   </span>
+<span class="line">    <span class="number">1</span>          <span class="number">200</span> MBytes                <span class="number">200</span> MBytes               </span>
+<span class="line"></span>
+<span class="line">  Apply-Related Property Settings:</span>
+<span class="line">    Property                        dgtp Value               dgts Value</span>
+<span class="line">    DelayMins                       <span class="number">0</span>                        <span class="number">0</span></span>
+<span class="line">    ApplyParallel                   AUTO                     AUTO</span>
+<span class="line">    ApplyInstances                  <span class="number">0</span>                        <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">  Transport-Related Property Settings:</span>
+<span class="line">    Property                        dgtp Value               dgts Value</span>
+<span class="line">    LogXptMode                      ASYNC                    ASYNC</span>
+<span class="line">    Dependency                      &lt;empty&gt;                  &lt;empty&gt;</span>
+<span class="line">    DelayMins                       <span class="number">0</span>                        <span class="number">0</span></span>
+<span class="line">    Binding                         optional                 optional</span>
+<span class="line">    MaxFailure                      <span class="number">0</span>                        <span class="number">0</span></span>
+<span class="line">    MaxConnections                  <span class="number">1</span>                        <span class="number">1</span></span>
+<span class="line">    ReopenSecs                      <span class="number">300</span>                      <span class="number">300</span></span>
+<span class="line">    NetTimeout                      <span class="number">30</span>                       <span class="number">30</span></span>
+<span class="line">    RedoCompression                 DISABLE                  DISABLE</span>
+<span class="line">    LogShipping                     ON                       ON</span>
+</pre></td></tr></table></figure>
+<h3 id="开启备库的闪回数据库"><a href="#开启备库的闪回数据库" class="headerlink" title="开启备库的闪回数据库"></a>开启备库的闪回数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> db_unique_name,open_mode,database_role,flashback_on from v$database;</span>
+<span class="line"></span>
+<span class="line">DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON</span>
+<span class="line">------------------------------ -------------------- ---------------- ------------------</span>
+<span class="line">DGTS                           READ ONLY WITH APPLY PHYSICAL STANDBY NO</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database flashback on;</span>
+<span class="line">alter database flashback on</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01153</span>: an incompatible media recovery is active</span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover managed standby database cancel;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database flashback on;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover managed standby database disconnect from session;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON</span>
+<span class="line">------------------------------ -------------------- ---------------- ------------------</span>
+<span class="line">DGTS                           READ ONLY WITH APPLY PHYSICAL STANDBY YES</span>
+</pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#练习DG-Broker-switchover和failover的过程"><span class="toc-number">1.</span> <span class="toc-text">练习DG Broker switchover和failover的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#练习switchover"><span class="toc-number">1.1.</span> <span class="toc-text">练习switchover</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#练习failover"><span class="toc-number">1.2.</span> <span class="toc-text">练习failover</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习自动化切换-Fast-Start-Failover"><span class="toc-number">2.</span> <span class="toc-text">练习自动化切换 Fast-Start Failover</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置开启Fast-Start-Failover"><span class="toc-number">2.1.</span> <span class="toc-text">配置开启Fast-Start Failover</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模拟Fast-Start-Failover"><span class="toc-number">2.2.</span> <span class="toc-text">模拟Fast-Start Failover</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#练习Active-Data-Guard连接会话保留的特性"><span class="toc-number">3.</span> <span class="toc-text">练习Active Data Guard连接会话保留的特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">4.</span> <span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DG-BROKER中新增的validate命令"><span class="toc-number">4.1.</span> <span class="toc-text">DG BROKER中新增的validate命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开启备库的闪回数据库"><span class="toc-number">4.2.</span> <span class="toc-text">开启备库的闪回数据库</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

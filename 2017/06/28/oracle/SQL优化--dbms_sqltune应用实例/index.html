@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="需要优化的SQLSELECT a.sjhm
+FROM    bfcrm8.hyk_hyxx  b,
+        bfcrm8.hyk_grxx  a,
+        bfcrm8.hyxfjl    c,
+        bfcrm8.hyxfjl_sp d
+WHERE   a.hyid         =b.hyid
+        AND a.hyid     =c.hyid">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL优化--dbms_sqltune应用实例">
+<meta property="og:url" content="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="需要优化的SQLSELECT a.sjhm
+FROM    bfcrm8.hyk_hyxx  b,
+        bfcrm8.hyk_grxx  a,
+        bfcrm8.hyxfjl    c,
+        bfcrm8.hyxfjl_sp d
+WHERE   a.hyid         =b.hyid
+        AND a.hyid     =c.hyid">
+<meta property="og:updated_time" content="2017-06-28T09:33:18.817Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SQL优化--dbms_sqltune应用实例">
+<meta name="twitter:description" content="需要优化的SQLSELECT a.sjhm
+FROM    bfcrm8.hyk_hyxx  b,
+        bfcrm8.hyk_grxx  a,
+        bfcrm8.hyxfjl    c,
+        bfcrm8.hyxfjl_sp d
+WHERE   a.hyid         =b.hyid
+        AND a.hyid     =c.hyid">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>SQL优化--dbms_sqltune应用实例 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/SQL优化--dbms_sqltune应用实例" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/" class="article-date">
+      <time datetime="2017-06-27T16:00:00.000Z" itemprop="datePublished">2017-06-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SQL优化--dbms_sqltune应用实例
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="需要优化的SQL"><a href="#需要优化的SQL" class="headerlink" title="需要优化的SQL"></a>需要优化的SQL</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SELECT a.sjhm</span>
+<span class="line">FROM    bfcrm8.hyk_hyxx  b,</span>
+<span class="line">        bfcrm8.hyk_grxx  a,</span>
+<span class="line">        bfcrm8.hyxfjl    c,</span>
+<span class="line">        bfcrm8.hyxfjl_sp d</span>
+<span class="line">WHERE   a.hyid         =b.hyid</span>
+<span class="line">        AND a.hyid     =c.hyid</span>
+<span class="line">        AND c.xfjlid   =d.xfjlid</span>
+<span class="line">        AND b.hyktype IN (<span class="string">'101'</span>)</span>
+<span class="line">        AND b.status  &gt;=<span class="number">0</span></span>
+<span class="line">        AND a.sex      =<span class="string">'1'</span></span>
+<span class="line">        AND d.bmdm LIKE <span class="string">'010104%'</span></span>
+<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>)&gt;=<span class="string">'20'</span></span>
+<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>) &lt;<span class="string">'41'</span></span>
+<span class="line">GROUP BY a.sjhm</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="重新收集相关表的统计信息"><a href="#重新收集相关表的统计信息" class="headerlink" title="重新收集相关表的统计信息"></a>重新收集相关表的统计信息</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">col OBJECT_NAME <span class="keyword">for</span> a3<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> OBJECT_NAME,OBJECT_TYPE from dba_objects where OBJECT_NAME in (<span class="string">'HYK_HYXX'</span>,<span class="string">'HYK_GRXX'</span>,<span class="string">'HYXFJL'</span>,<span class="string">'HYXFJL_SP'</span>) <span class="keyword">and</span> OWNER=<span class="string">'BFCRM8'</span>;</span>
+<span class="line"></span>
+<span class="line">OBJECT_NAME                    OBJECT_TYPE</span>
+<span class="line">------------------------------ -------------------</span>
+<span class="line">HYK_GRXX                       VIEW    <span class="comment"># 需要找到对应的表</span></span>
+<span class="line">HYK_HYXX                       TABLE</span>
+<span class="line">HYXFJL                         TABLE</span>
+<span class="line">HYXFJL_SP                      TABLE</span>
+<span class="line"></span>
+<span class="line">desc dbms_metadata</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------</span></span>
+<span class="line">......</span>
+<span class="line">FUNCTION GET_DDL RETURNS CLOB</span>
+<span class="line"> Argument Name                  Type                    In/Out Default?</span>
+<span class="line"> ------------------------------ ----------------------- ------ --------</span>
+<span class="line"> OBJECT_TYPE                    VARCHAR2                IN</span>
+<span class="line"> NAME                           VARCHAR2                IN</span>
+<span class="line"> SCHEMA                         VARCHAR2                IN     DEFAULT</span>
+<span class="line"> VERSION                        VARCHAR2                IN     DEFAULT</span>
+<span class="line"> MODEL                          VARCHAR2                IN     DEFAULT</span>
+<span class="line"> TRANSFORM                      VARCHAR2                IN     DEFAULT</span>
+<span class="line">......</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> dbms_metadata.get_ddl(<span class="string">'VIEW'</span>,<span class="string">'HYK_GRXX'</span>,<span class="string">'BFCRM8'</span>) from dual;</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------</span></span>
+<span class="line">......</span>
+<span class="line">from BFCRM8.HYK_HYXX X,BFCRM8.HYK_GKDA A</span>
+<span class="line">  where X.GKID=A.GKID</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 需要重新收集以下4张表</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">'BFCRM8'</span>,<span class="string">'HYK_HYXX'</span>,<span class="string">cascade=&gt;</span>true,<span class="string">method_opt=&gt;</span><span class="string">'for all columns size 1'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">'BFCRM8'</span>,<span class="string">'HYK_GKDA'</span>,<span class="string">cascade=&gt;</span>true,<span class="string">method_opt=&gt;</span><span class="string">'for all columns size 1'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">'BFCRM8'</span>,<span class="string">'HYXFJL'</span>,<span class="string">cascade=&gt;</span>true,<span class="string">method_opt=&gt;</span><span class="string">'for all columns size 1'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">'BFCRM8'</span>,<span class="string">'HYXFJL_SP'</span>,<span class="string">cascade=&gt;</span>true,<span class="string">method_opt=&gt;</span><span class="string">'for all columns size 1'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> TABLE_NAME,NUM_ROWS from dba_tables </span>
+<span class="line">where OWNER=<span class="string">'BFCRM8'</span> <span class="keyword">and</span> TABLE_NAME in (<span class="string">'HYK_HYXX'</span>,<span class="string">'HYK_GKDA'</span>,<span class="string">'HYXFJL'</span>,<span class="string">'HYXFJL_SP'</span>);</span>
+<span class="line">TABLE_NAME                       NUM_ROWS</span>
+<span class="line">------------------------------ ----------</span>
+<span class="line">HYXFJL_SP                        <span class="number">86697233</span></span>
+<span class="line">HYXFJL                           <span class="number">27315713</span></span>
+<span class="line">HYK_HYXX                          <span class="number">5962417</span></span>
+<span class="line">HYK_GKDA                           <span class="number">587940</span></span>
+</pre></td></tr></table></figure>
+<h2 id="查找对应的SQL-ID"><a href="#查找对应的SQL-ID" class="headerlink" title="查找对应的SQL_ID"></a>查找对应的SQL_ID</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> sql_id from v$sql where sql_text like <span class="string">'SELECT a.sjhm%'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL_ID</span>
+<span class="line">-------------</span>
+<span class="line">bgfs0u4xch7wu</span>
+</pre></td></tr></table></figure>
+<h2 id="根据SQL-ID进行优化"><a href="#根据SQL-ID进行优化" class="headerlink" title="根据SQL_ID进行优化"></a>根据SQL_ID进行优化</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set serveroutput on</span>
+<span class="line">declare</span>
+<span class="line">l_tuning_task varchar2(<span class="number">30</span>);</span>
+<span class="line">begin</span>
+<span class="line"> l_tuning_task := dbms_sqltune.create_tuning_task(<span class="string">sql_id =&gt;</span> <span class="string">'&amp;SQL_ID'</span>);</span>
+<span class="line"> dbms_sqltune.execute_tuning_task(l_tuning_task);</span>
+<span class="line"> dbms_output.put_line(l_tuning_task);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">Enter value for sql_id: bgfs0u4xch7wu</span>
+<span class="line">old   4:  l_tuning_task := dbms_sqltune.create_tuning_task(sql_id =&gt; '&amp;SQL_ID');</span>
+<span class="line">new   4:  l_tuning_task := dbms_sqltune.create_tuning_task(sql_id =&gt; 'bgfs0u4xch7wu');</span>
+<span class="line">TASK_40161</span>
+<span class="line"></span>
+<span class="line">PL/</span>SQL procedure successfully completed.</span>
+</pre></td></tr></table></figure>
+<h2 id="查看优化建议报告"><a href="#查看优化建议报告" class="headerlink" title="查看优化建议报告"></a>查看优化建议报告</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 内容比较多，建议使用客端工具查看，格式化显示也比较好</span></span>
+<span class="line">set long <span class="number">10000</span></span>
+<span class="line"><span class="keyword">select</span> dbms_sqltune.report_tuning_task(<span class="string">'&amp;TASK_ID'</span>) as re from dual;</span>
+<span class="line"></span>
+<span class="line">GENERAL INFORMATION SECTION</span>
+<span class="line">-------------------------------------------------------------------------------</span>
+<span class="line">Tuning Task Name   : TASK_40161</span>
+<span class="line">Tuning Task Owner  : SYS</span>
+<span class="line">Workload Type      : Single SQL Statement</span>
+<span class="line">Scope              : COMPREHENSIVE</span>
+<span class="line">Time Limit(seconds): <span class="number">1800</span></span>
+<span class="line">Completion Status  : COMPLETED</span>
+<span class="line">Started at         : <span class="number">06</span>/<span class="number">28</span>/<span class="number">2017</span> <span class="number">16</span>:<span class="number">03</span>:<span class="number">21</span></span>
+<span class="line">Completed at       : <span class="number">06</span>/<span class="number">28</span>/<span class="number">2017</span> <span class="number">16</span>:<span class="number">03</span>:<span class="number">56</span></span>
+<span class="line"></span>
+<span class="line">-------------------------------------------------------------------------------</span>
+<span class="line">Schema Name: SYS</span>
+<span class="line">SQL ID     : bgfs0u4xch7wu</span>
+<span class="line">SQL Text   : SELECT a.sjhm</span>
+<span class="line">             FROM    bfcrm8.hyk_hyxx  b,</span>
+<span class="line">                     bfcrm8.hyk_grxx  a,</span>
+<span class="line">                     bfcrm8.hyxfjl    c,</span>
+<span class="line">                     bfcrm8.hyxfjl_sp d</span>
+<span class="line">             WHERE   a.hyid         =b.hyid</span>
+<span class="line">                     AND a.hyid     =c.hyid</span>
+<span class="line">                     AND c.xfjlid   =d.xfjlid</span>
+<span class="line">                     AND b.hyktype IN (<span class="string">'101'</span>)</span>
+<span class="line">                     AND b.status  &gt;=<span class="number">0</span></span>
+<span class="line">                     AND a.sex      =<span class="string">'1'</span></span>
+<span class="line">                     AND d.bmdm LIKE <span class="string">'010104%'</span></span>
+<span class="line">                     AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) -</span>
+<span class="line">             TO_CHAR(a.csrq,<span class="string">'YYYY'</span>)&gt;=<span class="string">'20'</span></span>
+<span class="line">                     AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>)</span>
+<span class="line">             &lt;<span class="string">'41'</span></span>
+<span class="line">             GROUP BY a.sjhm</span>
+<span class="line"></span>
+<span class="line">-------------------------------------------------------------------------------</span>
+<span class="line">FINDINGS SECTION (<span class="number">2</span> findings)</span>
+<span class="line">-------------------------------------------------------------------------------</span>
+<span class="line"></span>
+<span class="line"><span class="number">1</span>- SQL Profile Finding (see explain plans section below)</span>
+<span class="line">--------------------------------------------------------</span>
+<span class="line">  为此语句找到了性能更好的执行计划 <span class="number">2</span>。选择以下 SQL 概要文件之一进行实施。</span>
+<span class="line"></span>
+<span class="line">  Recommendation (estimated benefit: <span class="number">90.68</span>%)</span>
+<span class="line">  ------------------------------------------</span>
+<span class="line">  - 考虑接受推荐的 SQL 概要文件。</span>
+<span class="line">    execute dbms_sqltune.accept_sql_profile(<span class="string">task_name =&gt;</span> <span class="string">'TASK_40161'</span>,</span>
+<span class="line">            <span class="string">task_owner =&gt;</span> <span class="string">'SYS'</span>, <span class="string">replace =&gt;</span> TRUE);</span>
+<span class="line"></span>
+<span class="line">  Recommendation (estimated benefit: <span class="number">99.83</span>%)</span>
+<span class="line">  ------------------------------------------</span>
+<span class="line">  - 考虑接受建议的 SQL 概要文件, 以便对此语句使用并行执行。</span>
+<span class="line">    execute dbms_sqltune.accept_sql_profile(<span class="string">task_name =&gt;</span> <span class="string">'TASK_40161'</span>,</span>
+<span class="line">            <span class="string">task_owner =&gt;</span> <span class="string">'SYS'</span>, <span class="string">replace =&gt;</span> TRUE, <span class="string">profile_type =&gt;</span></span>
+<span class="line">            DBMS_SQLTUNE.PX_PROFILE);</span>
+<span class="line"></span>
+<span class="line">  与 DOP <span class="number">64</span> 并行执行此查询会使 SQL 概要文件计划上的响应时间缩短 <span class="number">98.26</span>%。但是, 启用并行执行时要付出一些代价。它将增加语句的资源消耗</span>
+<span class="line">  (预计为 <span class="number">11.07</span>%), 这会导致系统吞吐量降低。此外, 由于在非常短的持续时间内消耗了这些资源, 因此如果没有足够可用的硬件容量,</span>
+<span class="line">  并发语句的响应时间将受到负面影响。</span>
+<span class="line"></span>
+<span class="line">  The following data shows some sampled statistics <span class="keyword">for</span> this SQL from the past</span>
+<span class="line">  week <span class="keyword">and</span> projected weekly <span class="keyword">values</span> <span class="keyword">when</span> parallel execution is enabled.</span>
+<span class="line"></span>
+<span class="line">                                 Past week sampled statistics <span class="keyword">for</span> this SQL</span>
+<span class="line">                                 -----------------------------------------</span>
+<span class="line">  Number of executions                                                   <span class="number">0</span> </span>
+<span class="line">  Percent of total activity                                              <span class="number">0</span> </span>
+<span class="line">  Percent of samples with <span class="comment">#Active Sessions &gt; 2*CPU                       0 </span></span>
+<span class="line">  Weekly DB <span class="keyword">time</span> (in sec)                                                <span class="number">0</span> </span>
+<span class="line"></span>
+<span class="line">                              Projected statistics with Parallel Execution</span>
+<span class="line">                              --------------------------------------------</span>
+<span class="line">  Weekly DB <span class="keyword">time</span> (in sec)                                                <span class="number">0</span> </span>
+<span class="line"></span>
+<span class="line"><span class="number">2</span>- Index Finding (see explain plans section below)</span>
+<span class="line">--------------------------------------------------</span>
+<span class="line">  通过创建一个或多个索引可以改进此语句的执行计划。</span>
+<span class="line"></span>
+<span class="line">  Recommendation (estimated benefit: <span class="number">99.33</span>%)</span>
+<span class="line">  ------------------------------------------</span>
+<span class="line">  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。</span>
+<span class="line">    create <span class="keyword">index</span> BFCRM8.IDX$$_9CE10001 on BFCRM8.HYXFJL_SP(<span class="string">"BMDM"</span>,<span class="string">"XFJLID"</span>);</span>
+<span class="line"></span>
+<span class="line">  Rationale</span>
+<span class="line">  ---------</span>
+<span class="line">    创建推荐的索引可以显著地改进此语句的执行计划。但是, 使用典型的 SQL 工作量运行 <span class="string">"访问指导"</span></span>
+<span class="line">    可能比单个语句更可取。通过这种方法可以获得全面的索引建议案, 包括计算索引维护的开销和附加的空间消耗。</span>
+<span class="line">.....</span>
+</pre></td></tr></table></figure>
+<h2 id="结合优化建议报告手动执行优化"><a href="#结合优化建议报告手动执行优化" class="headerlink" title="结合优化建议报告手动执行优化"></a>结合优化建议报告手动执行优化</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 从报告文件可以看出，自动调优优化器生成了更优的执行计划，主要方案有以下两种（生产环境中不建议开并行）</span></span>
+<span class="line"><span class="comment">## SQL Profile</span></span>
+<span class="line">execute dbms_sqltune.accept_sql_profile(<span class="string">task_name =&gt;</span> <span class="string">'TASK_40161'</span>,<span class="string">task_owner =&gt;</span> user, <span class="string">replace =&gt;</span> TRUE, <span class="string">force_match =&gt;</span> true);</span>
+<span class="line"></span>
+<span class="line"><span class="comment">## Index</span></span>
+<span class="line">create <span class="keyword">index</span> BFCRM8.IDX$$_9CE10001 on BFCRM8.HYXFJL_SP(<span class="string">"BMDM"</span>,<span class="string">"XFJLID"</span>) tablespace crm2_index;</span>
+</pre></td></tr></table></figure>
+<h2 id="使用OEM的SQL优化指导"><a href="#使用OEM的SQL优化指导" class="headerlink" title="使用OEM的SQL优化指导"></a>使用OEM的SQL优化指导</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SQL优化指导 -&gt; 选择优化方案 -&gt; 实施 —&gt; 显示SQL</span></span>
+<span class="line">declare</span>
+<span class="line">cmd varchar2(<span class="number">400</span>);</span>
+<span class="line">sname varchar2(<span class="number">400</span>);</span>
+<span class="line">begin</span>
+<span class="line">cmd := <span class="string">'create  index BFCRM8.IDX$$_9CE10001 on BFCRM8.HYXFJL_SP("BMDM","XFJLID") TABLESPACE "CRM2_INDEX"'</span>;</span>
+<span class="line">EXECUTE IMMEDIATE cmd;</span>
+<span class="line">sname := dbms_sqltune.accept_sql_profile(<span class="string">task_name =&gt;</span> <span class="string">'TASK_40161'</span>, <span class="string">object_id =&gt;</span> <span class="number">1</span>);</span>
+<span class="line">END;</span>
+<span class="line"><span class="regexp">/</span></span>
+</pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://www.2cto.com/database/201503/385677.html" target="_blank" rel="external">sql_tuneadvisor的使用</a></li>
+<li><a href="http://www.2cto.com/database/201401/270997.html" target="_blank" rel="external">ORACLE概要文件–sqlprofile</a></li>
+<li><a href="http://blog.sina.com.cn/s/blog_61cd89f60102edi3.html" target="_blank" rel="external">SQL优化—-dbms_sqltune详解</a></li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需要优化的SQL"><span class="toc-number">1.</span> <span class="toc-text">需要优化的SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#重新收集相关表的统计信息"><span class="toc-number">2.</span> <span class="toc-text">重新收集相关表的统计信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查找对应的SQL-ID"><span class="toc-number">3.</span> <span class="toc-text">查找对应的SQL_ID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#根据SQL-ID进行优化"><span class="toc-number">4.</span> <span class="toc-text">根据SQL_ID进行优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看优化建议报告"><span class="toc-number">5.</span> <span class="toc-text">查看优化建议报告</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结合优化建议报告手动执行优化"><span class="toc-number">6.</span> <span class="toc-text">结合优化建议报告手动执行优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用OEM的SQL优化指导"><span class="toc-number">7.</span> <span class="toc-text">使用OEM的SQL优化指导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">8.</span> <span class="toc-text">参考</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/" title="上一篇: Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
