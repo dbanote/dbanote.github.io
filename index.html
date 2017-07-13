@@ -382,7 +382,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="Snapshot-Standby"><a href="#Snapshot-Standby" class="headerlink" title="Snapshot Standby"></a>Snapshot Standby</h2><h3 id="查看数据库状态"><a href="#查看数据库状态" class="headerlink" title="查看数据库状态"></a>查看数据库状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库状态</span></span>
+              <h2 id="Snapshot-Standby"><a href="#Snapshot-Standby" class="headerlink" title="Snapshot Standby"></a>Snapshot Standby</h2><h3 id="查看数据库状态"><a href="#查看数据库状态" class="headerlink" title="查看数据库状态"></a>查看数据库状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库状态</span></span>
 <span class="line">set line <span class="number">150</span></span>
 <span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
 <span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
@@ -402,312 +402,7 @@
 <span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
 <span class="line">DGT       DGTS            READ ONLY WITH APPLY PHYSICAL STANDBY YES                YES             ARCHIVELOG</span>
 </pre></td></tr></table></figure>
-<h3 id="切换到Snapshot-Standby"><a href="#切换到Snapshot-Standby" class="headerlink" title="切换到Snapshot Standby"></a>切换到Snapshot Standby</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在主库上执行</span></span>
-<span class="line">dgmgrl sys/Center08@dgtp</span>
-<span class="line">DGMGRL <span class="keyword">for</span> Linux: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Fri Jun <span class="number">30</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">13</span> <span class="number">2017</span></span>
-<span class="line"></span>
-<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
-<span class="line"></span>
-<span class="line">Welcome to DGMGRL, type <span class="string">"help"</span> <span class="keyword">for</span> information.</span>
-<span class="line">Connected to <span class="string">"dgts"</span></span>
-<span class="line">Connected as SYSDG.</span>
-<span class="line">DGMGRL&gt; show configuration;</span>
-<span class="line"></span>
-<span class="line">Configuration - dgt_dg</span>
-<span class="line"></span>
-<span class="line">  Protection Mode: MaxPerformance</span>
-<span class="line">  Members:</span>
-<span class="line">  dgtp - Primary database</span>
-<span class="line">    dgts - Physical standby database </span>
-<span class="line"></span>
-<span class="line">Fast-Start Failover: DISABLED</span>
-<span class="line"></span>
-<span class="line">Configuration Status:</span>
-<span class="line">SUCCESS   (status updated <span class="number">49</span> seconds ago)</span>
-<span class="line"></span>
-<span class="line">DGMGRL&gt; help convert</span>
-<span class="line"></span>
-<span class="line">Converts a database from one type to another</span>
-<span class="line"></span>
-<span class="line">Syntax:</span>
-<span class="line"></span>
-<span class="line">  CONVERT DATABASE &lt;database name&gt; TO</span>
-<span class="line">     &#123; SNAPSHOT STANDBY | PHYSICAL STANDBY &#125;;</span>
-<span class="line"></span>
-<span class="line">DGMGRL&gt; convert database dgts to snapshot standby;</span>
-<span class="line">Converting database <span class="string">"dgts"</span> to a Snapshot Standby database, please wait...</span>
-<span class="line">Database <span class="string">"dgts"</span> converted successfully</span>
-<span class="line"></span>
-<span class="line">DGMGRL&gt; show configuration;</span>
-<span class="line"></span>
-<span class="line">Configuration - dgt_dg</span>
-<span class="line"></span>
-<span class="line">  Protection Mode: MaxPerformance</span>
-<span class="line">  Members:</span>
-<span class="line">  dgtp - Primary database</span>
-<span class="line">    dgts - Snapshot standby database </span>
-<span class="line"></span>
-<span class="line">Fast-Start Failover: DISABLED</span>
-<span class="line"></span>
-<span class="line">Configuration Status:</span>
-<span class="line">SUCCESS   (status updated <span class="number">33</span> seconds ago)</span>
-</pre></td></tr></table></figure>
-<h3 id="在SNAPSHOT-STANDBY上增加测试数据"><a href="#在SNAPSHOT-STANDBY上增加测试数据" class="headerlink" title="在SNAPSHOT STANDBY上增加测试数据"></a>在SNAPSHOT STANDBY上增加测试数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库PDB1下表</span></span>
-<span class="line">conn lyj/lyj@pdb1</span>
-<span class="line"><span class="keyword">select</span> * from cat;</span>
-<span class="line"></span>
-<span class="line">TABLE_NAME                                         TABLE_TYPE</span>
-<span class="line">-------------------------------------------------- -----------</span>
-<span class="line">TEST                                               TABLE</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 备库tnsnames中添加pdb1备库地址</span></span>
-<span class="line">SPDB1 =</span>
-<span class="line">  (DESCRIPTION =</span>
-<span class="line">  (ADDRESS_LIST =</span>
-<span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.175</span>)(PORT = <span class="number">1521</span>))</span>
-<span class="line">  )</span>
-<span class="line">    (CONNECT_DATA =</span>
-<span class="line">      (SERVER = DEDICATED)</span>
-<span class="line">      (SERVICE_NAME = pdb1)</span>
-<span class="line">    )</span>
-<span class="line">  )</span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看备库状态</span></span>
-<span class="line">conn / as sysdba</span>
-<span class="line">set line <span class="number">150</span></span>
-<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
-<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
-<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
-<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
-<span class="line">DGT       DGTS            READ WRITE           SNAPSHOT STANDBY YES                YES             ARCHIVELOG</span>
-<span class="line"></span>
-<span class="line">show pdbs</span>
-<span class="line"></span>
-<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
-<span class="line">---------- ------------------------------ ---------- ----------</span>
-<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
-<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
-<span class="line"></span>
-<span class="line">conn lyj/lyj@spdb1</span>
-<span class="line"></span>
-<span class="line">create table test1 as <span class="keyword">select</span> * from all_objects;</span>
-<span class="line"><span class="keyword">select</span> count(*) from test1;</span>
-<span class="line"></span>
-<span class="line">  COUNT(*)</span>
-<span class="line">----------</span>
-<span class="line">     <span class="number">56326</span></span>
-<span class="line"></span>
-<span class="line">drop table test purge;</span>
-<span class="line">Table dropped.</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">select</span> * from cat;</span>
-<span class="line"></span>
-<span class="line">TABLE_NAME                                         TABLE_TYPE</span>
-<span class="line">-------------------------------------------------- -----------</span>
-<span class="line">TEST1                                              TABLE</span>
-</pre></td></tr></table></figure>
-<h3 id="备库切换回PHYSICAL-STANDBY"><a href="#备库切换回PHYSICAL-STANDBY" class="headerlink" title="备库切换回PHYSICAL STANDBY"></a>备库切换回PHYSICAL STANDBY</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在主库上执行</span></span>
-<span class="line">dgmgrl sys/Center08@dgtp</span>
-<span class="line"></span>
-<span class="line">DGMGRL&gt; convert database dgts to physical standby;</span>
-<span class="line">Converting database <span class="string">"dgts"</span> to a Physical Standby database, please wait...</span>
-<span class="line">Operation requires shut down of instance <span class="string">"dgt"</span> on database <span class="string">"dgts"</span></span>
-<span class="line">Shutting down instance <span class="string">"dgt"</span>...</span>
-<span class="line">Connected to <span class="string">"DGTS"</span></span>
-<span class="line">Database closed.</span>
-<span class="line">Database dismounted.</span>
-<span class="line">ORACLE instance shut down.</span>
-<span class="line">Operation requires start up of instance <span class="string">"dgt"</span> on database <span class="string">"dgts"</span></span>
-<span class="line">Starting instance <span class="string">"dgt"</span>...</span>
-<span class="line">ORACLE instance started.</span>
-<span class="line">Database mounted.</span>
-<span class="line">Connected to <span class="string">"DGTS"</span></span>
-<span class="line">Continuing to convert database <span class="string">"dgts"</span> ...</span>
-<span class="line">Database <span class="string">"dgts"</span> converted successfully</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看备库状态</span></span>
-<span class="line">set line <span class="number">150</span></span>
-<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
-<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
-<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
-<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
-<span class="line">DGT       DGTS            READ ONLY WITH APPLY PHYSICAL STANDBY YES                YES             ARCHIVELOG</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看刚才创建和删除的表都没有了，数据和主库保持一致</span></span>
-<span class="line">conn lyj/lyj@spdb1</span>
-<span class="line"></span>
-<span class="line">TABLE_NAME                                         TABLE_TYPE</span>
-<span class="line">-------------------------------------------------- -----------</span>
-<span class="line">TEST                                               TABLE</span>
-</pre></td></tr></table></figure>
-<h2 id="跳归档恢复"><a href="#跳归档恢复" class="headerlink" title="跳归档恢复"></a>跳归档恢复</h2><h3 id="查看主库redo和归档状态"><a href="#查看主库redo和归档状态" class="headerlink" title="查看主库redo和归档状态"></a>查看主库redo和归档状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> GROUP<span class="comment">#,STATUS from v$log;</span></span>
-<span class="line"></span>
-<span class="line">    GROUP<span class="comment"># STATUS</span></span>
-<span class="line">---------- ----------------</span>
-<span class="line">         <span class="number">1</span> ACTIVE</span>
-<span class="line">         <span class="number">2</span> CURRENT</span>
-<span class="line">         <span class="number">3</span> INACTIVE</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 最后一个归档编号40</span></span>
-<span class="line">RMAN&gt; crosscheck archivelog all;</span>
-<span class="line">......</span>
-<span class="line">archived <span class="keyword">log</span> file name=<span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/dgt/DGTP/archivelog/<span class="number">2017_07_02</span>/o1_mf_1_40_dokd56wz<span class="number">_</span>.arc RECID=<span class="number">71</span> STAMP=<span class="number">948299815</span></span>
-<span class="line">Crosschecked <span class="number">39</span> objects</span>
-</pre></td></tr></table></figure>
-<h3 id="停止备库模拟主库归档丢失"><a href="#停止备库模拟主库归档丢失" class="headerlink" title="停止备库模拟主库归档丢失"></a>停止备库模拟主库归档丢失</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">shutdown</span> immediate</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 在主库创建测试数据</span></span>
-<span class="line">conn lyj/lyj@pdb1</span>
-<span class="line">create table test2 as <span class="keyword">select</span> * from test;</span>
-<span class="line">conn / as sysdba</span>
-<span class="line">alter <span class="keyword">system</span> switch logfile;</span>
-<span class="line">SQL&gt; <span class="keyword">select</span> GROUP<span class="comment">#,STATUS from v$log;</span></span>
-<span class="line"></span>
-<span class="line">    GROUP<span class="comment"># STATUS</span></span>
-<span class="line">---------- ----------------</span>
-<span class="line">         <span class="number">1</span> INACTIVE</span>
-<span class="line">         <span class="number">2</span> ACTIVE</span>
-<span class="line">         <span class="number">3</span> CURRENT</span>
-<span class="line">alter <span class="keyword">system</span> switch logfile;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 模拟归档丢失</span></span>
-<span class="line">cd /u01/app/oracle/fast_recovery_area/dgt/DGTP/archivelog/<span class="number">2017_07_02</span></span>
-<span class="line">ll</span>
-<span class="line">total <span class="number">634884</span></span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">177589760</span> Jul  <span class="number">2</span> <span class="number">02</span>:<span class="number">33</span> o1_mf_1_37_dohtqjkb<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">174428672</span> Jul  <span class="number">2</span> 08:<span class="number">13</span> o1_mf_1_38_dojgp4kz<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">174482432</span> Jul  <span class="number">2</span> <span class="number">14</span>:<span class="number">00</span> o1_mf_1_39_dok2znlx<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">109455360</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">36</span> o1_mf_1_40_dokd56wz<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall  <span class="number">14153728</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">48</span> o1_mf_1_41_dokdvmw8<span class="number">_</span>.arc  <span class="comment"># 模拟丢失这个归档</span></span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall    <span class="number">198656</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">52</span> o1_mf_1_42_dokf32hs<span class="number">_</span>.arc</span>
-<span class="line"></span>
-<span class="line">mv o1_mf_1_41_dokdvmw8<span class="number">_</span>.arc o1_mf_1_41_dokdvmw8<span class="number">_</span>.arc.bak</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 备库打开mount状态</span></span>
-<span class="line">startup mount</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看备库归档目录，发现41号归档没有传输到备库</span></span>
-<span class="line">ll</span>
-<span class="line">total <span class="number">625064</span></span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">177589760</span> Jul  <span class="number">2</span> <span class="number">02</span>:<span class="number">33</span> o1_mf_1_37_dohtqjnk<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">174428672</span> Jul  <span class="number">2</span> 08:<span class="number">13</span> o1_mf_1_38_dojgp4o6<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">174482432</span> Jul  <span class="number">2</span> <span class="number">14</span>:<span class="number">00</span> o1_mf_1_39_dok2znov<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall <span class="number">109455360</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">36</span> o1_mf_1_40_dokd570y<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall    <span class="number">198656</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">55</span> o1_mf_1_42_dokf85kk<span class="number">_</span>.arc</span>
-<span class="line">-rw-r-----. <span class="number">1</span> oracle oinstall   <span class="number">3896832</span> Jul  <span class="number">2</span> <span class="number">16</span>:<span class="number">55</span> o1_mf_1_43_dokf85jr<span class="number">_</span>.arc</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看DG BROKER状态，有GAP Error</span></span>
-<span class="line">DGMGRL&gt; show configuration;</span>
-<span class="line"></span>
-<span class="line">Configuration - dgt_dg</span>
-<span class="line"></span>
-<span class="line">  Protection Mode: MaxPerformance</span>
-<span class="line">  Members:</span>
-<span class="line">  dgtp - Primary database</span>
-<span class="line">    Error: ORA-<span class="number">16810</span>: multiple errors <span class="keyword">or</span> warnings detected <span class="keyword">for</span> the member</span>
-<span class="line"></span>
-<span class="line">    dgts - Physical standby database </span>
-<span class="line">      Warning: ORA-<span class="number">16809</span>: multiple warnings detected <span class="keyword">for</span> the member</span>
-<span class="line"></span>
-<span class="line">Fast-Start Failover: DISABLED</span>
-<span class="line"></span>
-<span class="line">Configuration Status:</span>
-<span class="line">ERROR   (status updated <span class="number">39</span> seconds ago)</span>
-<span class="line"></span>
-<span class="line">DGMGRL&gt; show database verbose dgtp;</span>
-<span class="line"></span>
-<span class="line">Database - dgtp</span>
-<span class="line"></span>
-<span class="line">  Role:               PRIMARY</span>
-<span class="line">  Intended State:     TRANSPORT-ON</span>
-<span class="line">  Instance(<span class="keyword">s</span>):</span>
-<span class="line">    dgt</span>
-<span class="line">      Error: ORA-<span class="number">16737</span>: the <span class="keyword">redo</span> transport service <span class="keyword">for</span> member <span class="string">"dgts"</span> has an error</span>
-<span class="line"></span>
-<span class="line">  Database Error(<span class="keyword">s</span>):</span>
-<span class="line">    ORA-<span class="number">16783</span>: cannot resolve gap <span class="keyword">for</span> member dgts</span>
-<span class="line">......</span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看备库当前SCN号</span></span>
-<span class="line">SQL&gt; <span class="keyword">select</span> current_scn from v$database;</span>
-<span class="line"></span>
-<span class="line">CURRENT_SCN</span>
-<span class="line">-----------</span>
-<span class="line">    <span class="number">2606427</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看主库当前SCN号</span></span>
-<span class="line">SQL&gt; <span class="keyword">select</span> current_scn from v$database;</span>
-<span class="line"></span>
-<span class="line">CURRENT_SCN</span>
-<span class="line">-----------</span>
-<span class="line">    <span class="number">2615063</span></span>
-</pre></td></tr></table></figure>
-<h3 id="跟归档恢复"><a href="#跟归档恢复" class="headerlink" title="跟归档恢复"></a>跟归档恢复</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># SCN增量备份，同时创建备库控制文件</span></span>
-<span class="line">rman target /</span>
-<span class="line">backup incremental from scn <span class="number">2606427</span> database <span class="keyword">format</span> <span class="string">'/tmp/incre_%U'</span> tag <span class="string">'for_standby'</span>;</span>
-<span class="line">alter database create standby controlfile as <span class="string">'/tmp/std_con.ctl'</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 将备份集和备库控制文件拷贝到备份</span></span>
-<span class="line">cd /tmp</span>
-<span class="line">scp incre* dgts12:<span class="regexp">/tmp/incre</span>_backup  <span class="comment"># 没有这个目录的话可以先创建</span></span>
-<span class="line">scp std_con.ctl dgts12:<span class="regexp">/tmp</span>
-<span class="line"></span>
-<span class="line"># 启动备库到nomount</span>
-<span class="line">shutdown immediate</span>
-<span class="line">startup nomount</span>
-<span class="line"></span>
-<span class="line"># 恢复控制文件</span>
-<span class="line">RMAN&gt; restore controlfile from '/tmp</span><span class="regexp">/std_con.ctl';</span>
-<span class="line"></span>
-<span class="line">Starting restore at 2017-07-02 17:26:37</span>
-<span class="line">using target database control file instead of recovery catalog</span>
-<span class="line">allocated channel: ORA_DISK_1</span>
-<span class="line">channel ORA_DISK_1: SID=743 device type=DISK</span>
-<span class="line"></span>
-<span class="line">channel ORA_DISK_1: copied control file copy</span>
-<span class="line">output file name=/u</span>01/app/oracle/oradata/dgt/control01.ctl</span>
-<span class="line">output file name=<span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/dgt/control02.ctl</span>
-<span class="line">Finished restore at <span class="number">2017</span>-<span class="number">07</span>-<span class="number">02</span> <span class="number">17</span>:<span class="number">26</span>:<span class="number">39</span></span>
-<span class="line"></span>
-<span class="line">RMAN&gt; alter database mount;</span>
-<span class="line"></span>
-<span class="line">Statement processed</span>
-<span class="line">released channel: ORA_DISK_1</span>
-<span class="line"></span>
-<span class="line">RMAN&gt; catalog start with <span class="string">'/tmp/incre_backup'</span>;</span>
-<span class="line">......</span>
-<span class="line">File Name: <span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/dgt/DGTS/autobackup/<span class="number">2017_06_30</span>/o1_mf_s_948045937_dod8mk3g<span class="number">_</span>.bkp</span>
-<span class="line"></span>
-<span class="line">searching <span class="keyword">for</span> all files that match the pattern /tmp/incre_backup</span>
-<span class="line"></span>
-<span class="line">List of Files Unknown to the Database</span>
-<span class="line"></span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3gs8bs72_1_1</span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3hs8bs79_1_1</span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3js8bs7c_1_1</span>
-<span class="line"></span>
-<span class="line">Do you really want to catalog the above files (enter YES <span class="keyword">or</span> NO)? yes</span>
-<span class="line">cataloging files...</span>
-<span class="line">cataloging done</span>
-<span class="line"></span>
-<span class="line">List of Cataloged Files</span>
-<span class="line"></span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3gs8bs72_1_1</span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3hs8bs79_1_1</span>
-<span class="line">File Name: <span class="regexp">/tmp/incre</span>_backup/incre_3js8bs7c_1_1</span>
-<span class="line"></span>
-<span class="line">RMAN&gt; recover database noredo;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 开启恢复模式</span></span>
-<span class="line">recover managed standby database disconnect from session;</span>
-</pre></td></tr></table></figure>
-
+          
       
     </div>
     
@@ -720,6 +415,10 @@
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
     </div>
 
+      
+        <p class="article-more-link">
+          <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -1235,6 +934,70 @@
 
 
   
+    <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" class="article-date">
+      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1292,70 +1055,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" class="article-date">
-      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
