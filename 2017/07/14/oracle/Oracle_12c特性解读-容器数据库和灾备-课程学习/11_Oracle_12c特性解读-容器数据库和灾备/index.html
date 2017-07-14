@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="不影响主库，模拟备库Failover，恢复主备数据同步的过程删除备库dg broker配置$ tnsping dgtp
+
+TNS Ping Utility for Linux: Version 12.2.0.1.0 - Production on 13-JUL-2017 18:31:27
+
+Copyright (c) 1997, 2016, Oracle.  All rights reserved">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结">
+<meta property="og:url" content="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="不影响主库，模拟备库Failover，恢复主备数据同步的过程删除备库dg broker配置$ tnsping dgtp
+
+TNS Ping Utility for Linux: Version 12.2.0.1.0 - Production on 13-JUL-2017 18:31:27
+
+Copyright (c) 1997, 2016, Oracle.  All rights reserved">
+<meta property="og:updated_time" content="2017-07-14T06:42:32.848Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结">
+<meta name="twitter:description" content="不影响主库，模拟备库Failover，恢复主备数据同步的过程删除备库dg broker配置$ tnsping dgtp
+
+TNS Ping Utility for Linux: Version 12.2.0.1.0 - Production on 13-JUL-2017 18:31:27
+
+Copyright (c) 1997, 2016, Oracle.  All rights reserved">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-07-13T16:00:00.000Z" itemprop="datePublished">2017-07-14</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="不影响主库，模拟备库Failover，恢复主备数据同步的过程"><a href="#不影响主库，模拟备库Failover，恢复主备数据同步的过程" class="headerlink" title="不影响主库，模拟备库Failover，恢复主备数据同步的过程"></a>不影响主库，模拟备库Failover，恢复主备数据同步的过程</h2><h3 id="删除备库dg-broker配置"><a href="#删除备库dg-broker配置" class="headerlink" title="删除备库dg broker配置"></a>删除备库dg broker配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$ tnsping dgtp</span>
+<span class="line"></span>
+<span class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">13</span>-JUL-<span class="number">2017</span> <span class="number">18</span>:<span class="number">31</span>:<span class="number">27</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Used parameter files:</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/network/admin/sqlnet.ora</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Used TNSNAMES adapter to resolve the alias</span>
+<span class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = dgtp)))</span>
+<span class="line">OK (<span class="number">0</span> msec)</span>
+<span class="line"></span>
+<span class="line">$ vi $ORACLE_HOME/network/admin/tnsnames.ora</span>
+<span class="line"><span class="comment"># 修改端口号为任意没开通的</span></span>
+<span class="line">DGTP =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">15211</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgtp)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">$ tnsping dgtp</span>
+<span class="line"></span>
+<span class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">13</span>-JUL-<span class="number">2017</span> <span class="number">18</span>:<span class="number">34</span>:<span class="number">37</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Used parameter files:</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/network/admin/sqlnet.ora</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Used TNSNAMES adapter to resolve the alias</span>
+<span class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">15211</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = dgtp)))</span>
+<span class="line">TNS-<span class="number">12541</span>: TNS:<span class="keyword">no</span> listener</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 关闭dg broker</span></span>
+<span class="line">SQL&gt; show parameter dg</span>
+<span class="line"></span>
+<span class="line">NAME                                 TYPE        VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">cell_offloadgroup_name               string</span>
+<span class="line">dg_broker_config_file1               string      /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span></span>
+<span class="line">                                                 /db_1/dbs/dr1DGTS.dat</span>
+<span class="line">dg_broker_config_file2               string      /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span></span>
+<span class="line">                                                 /db_1/dbs/dr2DGTS.dat</span>
+<span class="line">dg_broker_start                      boolean     TRUE</span>
+<span class="line">inmemory_adg_enabled                 boolean     TRUE</span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> set dg_broker_start=false;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除DG broker配置文件</span></span>
+<span class="line">! rm /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs/dr1DGTS.dat</span>
+<span class="line">! rm /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs/dr2DGTS.dat</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="手工failover"><a href="#手工failover" class="headerlink" title="手工failover"></a>手工failover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在备库上记录current_scn</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> current_scn from v$database;</span>
+<span class="line"></span>
+<span class="line">CURRENT_SCN</span>
+<span class="line">-----------</span>
+<span class="line">    <span class="number">5651932</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">READ ONLY WITH APPLY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 手工failover</span></span>
+<span class="line">SQL&gt; recover managed standby database finish force;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">MOUNTED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database commit to switchover to primary;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ WRITE           PRIMARY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时备库就可以做读写操作了</span></span>
+<span class="line">SQL&gt; create table test as <span class="keyword">select</span> * from all_objects;</span>
+</pre></td></tr></table></figure>
+<h3 id="恢复主备数据同步"><a href="#恢复主备数据同步" class="headerlink" title="恢复主备数据同步"></a>恢复主备数据同步</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; alter database <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">MOUNTED              PRIMARY</span>
+<span class="line"></span>
+<span class="line">SQL&gt; flashback database to scn <span class="number">5651932</span>;</span>
+<span class="line"></span>
+<span class="line">Flashback complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database convert to physical standby;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">MOUNTED              PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover managed standby database disconnect from session;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> set dg_broker_start=true;</span>
+<span class="line"></span>
+<span class="line">$ vi $ORACLE_HOME/network/admin/tnsnames.ora</span>
+<span class="line"><span class="comment"># 修改端口号修改成原先的1521</span></span>
+<span class="line">DGTP =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgtp)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ ONLY WITH APPLY PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看ADG配置已自已应用成功</span></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">58</span> seconds ago)</span>
+</pre></td></tr></table></figure>
+<h2 id="12cR2-SQL-PLUS里新增命令HISTORY"><a href="#12cR2-SQL-PLUS里新增命令HISTORY" class="headerlink" title="12cR2 SQL/PLUS里新增命令HISTORY"></a>12cR2 SQL/PLUS里新增命令HISTORY</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">show hist</span>
+<span class="line">set hist off</span>
+<span class="line">set hist on</span>
+<span class="line">set hist <span class="number">500</span></span>
+<span class="line">hist</span>
+<span class="line">hist <span class="number">3</span> del</span>
+<span class="line">hist <span class="number">1</span> run</span>
+<span class="line">hist <span class="number">1</span> edit</span>
+<span class="line">hist clear</span>
+</pre></td></tr></table></figure>
+<h2 id="主库闪回数据库后备库恢复同步"><a href="#主库闪回数据库后备库恢复同步" class="headerlink" title="主库闪回数据库后备库恢复同步"></a>主库闪回数据库后备库恢复同步</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库上执行</span></span>
+<span class="line">create restore point fb_recover_trunc guarantee flashback database;</span>
+<span class="line"></span>
+<span class="line">col NAME <span class="keyword">for</span> a2<span class="number">0</span></span>
+<span class="line">col TIME <span class="keyword">for</span> a35</span>
+<span class="line">set lines <span class="number">200</span></span>
+<span class="line">col STORAGE_SIZE <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SELECT NAME, SCN, TIME, DATABASE_INCARNATION<span class="comment"># DI,GUARANTEE_FLASHBACK_DATABASE, STORAGE_SIZE/1024/1024/1024 </span></span>
+<span class="line">  FROM V$RESTORE_POINT WHERE GUARANTEE_FLASHBACK_DATABASE=<span class="string">'YES'</span>;</span>
+<span class="line"></span>
+<span class="line">NAME                        SCN TIME                                        DI GUA STORAGE_SIZE/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span></span>
+<span class="line">-------------------- ---------- ----------------------------------- ---------- --- ---------------------------</span>
+<span class="line">FB_RECOVER_TRUNC        <span class="number">5633353</span> <span class="number">13</span>-JUL-<span class="number">17</span> <span class="number">04</span>.<span class="number">45.02</span>.<span class="number">000000000</span> PM              <span class="number">5</span> YES                    .<span class="number">1953125</span></span>
+<span class="line"></span>
+<span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line"><span class="keyword">select</span> * from cat;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME           TABLE_TYPE</span>
+<span class="line">-------------------- -----------</span>
+<span class="line">TEST                 TABLE</span>
+<span class="line">TEST2                TABLE</span>
+<span class="line"></span>
+<span class="line">create table test_trunc as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line"><span class="keyword">select</span> count(*) from test_trunc;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">56327</span></span>
+<span class="line"></span>
+<span class="line">drop table TEST purge;</span>
+<span class="line">drop table TEST2 purge;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from cat;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME           TABLE_TYPE</span>
+<span class="line">-------------------- -----------</span>
+<span class="line">TEST_TRUNC           TABLE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主库做闪回数据库操作</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup mount</span>
+<span class="line">flashback database to restore point fb_recover_trunc;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line"></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line"><span class="keyword">select</span> TABLE_NAME from all_tables where OWNER=<span class="string">'LYJ'</span>;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line">TEST</span>
+<span class="line">TEST2</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 备库状态</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY READ ONL      <span class="comment"># ADG状态已停止</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主备库数据不同步</span></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line"><span class="keyword">select</span> TABLE_NAME from all_tables where OWNER=<span class="string">'LYJ'</span>;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line">TEST_TRUNC</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库执行闪回数据库（用闪回点的SCN号5633353）</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup mount</span>
+<span class="line">recover managed standby database cancel;  <span class="comment"># 视情况可不执行</span></span>
+<span class="line">flashback database to scn <span class="number">5633353</span>;</span>
+<span class="line"></span>
+<span class="line">dgmgrl sys/Center08@dgtp</span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line">      Error: ORA-<span class="number">16810</span>: multiple errors <span class="keyword">or</span> warnings detected <span class="keyword">for</span> the member</span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">ERROR   (status updated <span class="number">13</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; enable configuration;</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">1</span> second ago)</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY MOUNTED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY READ ONLY WITH APPLY</span>
+</pre></td></tr></table></figure>
+<h2 id="闪回数据库是无法闪回到datafile收缩前的状态"><a href="#闪回数据库是无法闪回到datafile收缩前的状态" class="headerlink" title="闪回数据库是无法闪回到datafile收缩前的状态"></a>闪回数据库是无法闪回到datafile收缩前的状态</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将已有的数据文件收缩到190M</span></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line">col TABLESPACE_NAME <span class="keyword">for</span> a1<span class="number">0</span></span>
+<span class="line">col FILE_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> TABLESPACE_NAME,FILE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> size_m from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE FILE_NAME                                              SIZE_M</span>
+<span class="line">---------- -------------------------------------------------- ----------</span>
+<span class="line">SYSTEM     /u01/app/oracle/oradata/dgt/pdb1/system01.dbf             <span class="number">260</span></span>
+<span class="line">SYSAUX     /u01/app/oracle/oradata/dgt/pdb1/sysaux01.dbf             <span class="number">420</span></span>
+<span class="line">UNDOTBS1   /u01/app/oracle/oradata/dgt/pdb1/undotbs01.dbf            <span class="number">100</span></span>
+<span class="line">USERS      /u01/app/oracle/oradata/dgt/pdb1/users01.dbf             <span class="number">22.5</span></span>
+<span class="line"></span>
+<span class="line">alter tablespace USERS add datafile <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sysdate from dual;</span>
+<span class="line"></span>
+<span class="line">SYSDATE</span>
+<span class="line">-------------------</span>
+<span class="line"><span class="number">2017</span>-<span class="number">07</span>-<span class="number">14</span> <span class="number">13</span>:<span class="number">35</span>:<span class="number">18</span></span>
+<span class="line"></span>
+<span class="line">alter database datafile <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span> resize <span class="number">190</span>M;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sysdate from dual;</span>
+<span class="line"></span>
+<span class="line">SYSDATE</span>
+<span class="line">-------------------</span>
+<span class="line"><span class="number">2017</span>-<span class="number">07</span>-<span class="number">14</span> <span class="number">13</span>:<span class="number">38</span>:<span class="number">07</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 按以下步骤是无法闪回数据库的</span></span>
+<span class="line">recover managed standby database cancel;</span>
+<span class="line">alter database <span class="keyword">close</span>;</span>
+<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-07-14 13:35:18'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>);</span>
+<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-07-14 13:35:18'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>)</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">38766</span>: cannot flashback data file <span class="number">13</span>; file resized smaller</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">13</span>: <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span></span>
+</pre></td></tr></table></figure>
+<h2 id="开启12c-Data-Guard压缩归档"><a href="#开启12c-Data-Guard压缩归档" class="headerlink" title="开启12c Data Guard压缩归档"></a>开启12c Data Guard压缩归档</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">edit database dgtp set property RedoCompression = <span class="string">'ENABLE'</span>;</span>
+<span class="line"><span class="comment"># 关闭压缩归档</span></span>
+<span class="line">edit database dgtp set property RedoCompression = <span class="string">'DISABLE'</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sqlplus -<span class="keyword">s</span> / as sysdba &lt;&lt;EOF</span>
+<span class="line"><span class="keyword">select</span> name, decode(cdb, <span class="string">'YES'</span>, <span class="string">'Multitenant Option enabled'</span>, <span class="string">'Regular 12c Database: '</span>) <span class="string">"Multitenant Option"</span> , open_mode, con_id from v\$database;</span>
+<span class="line">show pdbs;</span>
+<span class="line">set linesize <span class="number">200</span></span>
+<span class="line">col name <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">col open_time <span class="keyword">format</span> a35</span>
+<span class="line"><span class="keyword">select</span> con_id,dbid,con_uid,name,open_mode,open_time,trunc(total_size/<span class="number">1024</span>/<span class="number">1024</span>) size_MB from v\$pdbs;</span>
+<span class="line">EOF</span>
+<span class="line"></span>
+<span class="line">sqlplus -<span class="keyword">s</span> / as sysdba &lt;&lt;EOF</span>
+<span class="line"><span class="keyword">select</span> sess.con_id,pdbs.name,count(*)from v\$session sess,v\$pdbs pdbs where pdbs.con_id=sess.con_id group by sess.con_id,pdbs.name;</span>
+<span class="line">EOF</span>
+</pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">
+                    Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#不影响主库，模拟备库Failover，恢复主备数据同步的过程"><span class="toc-number">1.</span> <span class="toc-text">不影响主库，模拟备库Failover，恢复主备数据同步的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#删除备库dg-broker配置"><span class="toc-number">1.1.</span> <span class="toc-text">删除备库dg broker配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#手工failover"><span class="toc-number">1.2.</span> <span class="toc-text">手工failover</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#恢复主备数据同步"><span class="toc-number">1.3.</span> <span class="toc-text">恢复主备数据同步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12cR2-SQL-PLUS里新增命令HISTORY"><span class="toc-number">2.</span> <span class="toc-text">12cR2 SQL/PLUS里新增命令HISTORY</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主库闪回数据库后备库恢复同步"><span class="toc-number">3.</span> <span class="toc-text">主库闪回数据库后备库恢复同步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#闪回数据库是无法闪回到datafile收缩前的状态"><span class="toc-number">4.</span> <span class="toc-text">闪回数据库是无法闪回到datafile收缩前的状态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开启12c-Data-Guard压缩归档"><span class="toc-number">5.</span> <span class="toc-text">开启12c Data Guard压缩归档</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#脚本"><span class="toc-number">6.</span> <span class="toc-text">脚本</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/" title="下一篇: Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

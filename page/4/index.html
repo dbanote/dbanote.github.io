@@ -266,6 +266,72 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-03-19T16:00:00.000Z" itemprop="datePublished">2017-03-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="部署zabbix监控"><a href="#部署zabbix监控" class="headerlink" title="部署zabbix监控"></a>部署zabbix监控</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>zabbix（音同 zbix）是一个基于WEB界面的提供分布式系统监视以及网络监视功能的企业级的开源解决方案。<br>zabbix能监视各种网络参数，保证服务器系统的安全运营；并提供灵活的通知机制以让系统管理员快速定位/解决存在的各种问题。<br>zabbix由2部分构成，zabbix server与可选组件zabbix agent。zabbix server可以通过SNMP，zabbix agent，ping，端口监视等方法提供对远程服务器/网络状态的监视，数据收集等功能，它可以运行在Linux，Solaris，HP-UX，AIX，Free BSD，Open BSD，OS X等平台上。</p>
+<p>为了使用最新3.2版本的Zabbix，本次部署选用的Linux OS是最新的CentOS7.3（php版本为5.4）。<br>CentOS6.X和CentOS7.X的安装和使用均有较大变化，为便于今后的学习和工作，下面将CentOS7.3的安装和基本配置也记录到本文中。</p>
+<h3 id="安装CentOS7-3"><a href="#安装CentOS7-3" class="headerlink" title="安装CentOS7.3"></a>安装CentOS7.3</h3><p>详见：<a href="https://dbanote.github.io/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a><br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-linux/20170318_CentOS7.3安装图解" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -893,75 +959,6 @@
       
         <p class="article-more-link">
           <a href="/2017/02/10/tools/hexo更换主题并个性化定制/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-tools/hexo博客添加常用插件" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/10/tools/hexo博客添加常用插件/" class="article-date">
-      <time datetime="2017-02-10T06:39:26.667Z" itemprop="datePublished">2017-02-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/"><code>http://hexo.io/plugins</code></a></p>
-<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
-</pre></td></tr></table></figure>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
-<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/10/tools/hexo博客添加常用插件/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

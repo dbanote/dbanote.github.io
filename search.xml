@@ -4,6 +4,379 @@
   
     
     <entry>
+      <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结]]></title>
+      <url>/2017/07/14/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/11_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
+      <content type="html"><![CDATA[<h2 id="不影响主库，模拟备库Failover，恢复主备数据同步的过程"><a href="#不影响主库，模拟备库Failover，恢复主备数据同步的过程" class="headerlink" title="不影响主库，模拟备库Failover，恢复主备数据同步的过程"></a>不影响主库，模拟备库Failover，恢复主备数据同步的过程</h2><h3 id="删除备库dg-broker配置"><a href="#删除备库dg-broker配置" class="headerlink" title="删除备库dg broker配置"></a>删除备库dg broker配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$ tnsping dgtp</span>
+<span class="line"></span>
+<span class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">13</span>-JUL-<span class="number">2017</span> <span class="number">18</span>:<span class="number">31</span>:<span class="number">27</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Used parameter files:</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/network/admin/sqlnet.ora</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Used TNSNAMES adapter to resolve the alias</span>
+<span class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = dgtp)))</span>
+<span class="line">OK (<span class="number">0</span> msec)</span>
+<span class="line"></span>
+<span class="line">$ vi $ORACLE_HOME/network/admin/tnsnames.ora</span>
+<span class="line"><span class="comment"># 修改端口号为任意没开通的</span></span>
+<span class="line">DGTP =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">15211</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgtp)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">$ tnsping dgtp</span>
+<span class="line"></span>
+<span class="line">TNS Ping Utility <span class="keyword">for</span> Linux: Version <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on <span class="number">13</span>-JUL-<span class="number">2017</span> <span class="number">18</span>:<span class="number">34</span>:<span class="number">37</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1997</span>, <span class="number">2016</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Used parameter files:</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/product</span><span class="regexp">/12.2.0/db</span>_1/network/admin/sqlnet.ora</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Used TNSNAMES adapter to resolve the alias</span>
+<span class="line">Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">15211</span>)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = dgtp)))</span>
+<span class="line">TNS-<span class="number">12541</span>: TNS:<span class="keyword">no</span> listener</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 关闭dg broker</span></span>
+<span class="line">SQL&gt; show parameter dg</span>
+<span class="line"></span>
+<span class="line">NAME                                 TYPE        VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">cell_offloadgroup_name               string</span>
+<span class="line">dg_broker_config_file1               string      /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span></span>
+<span class="line">                                                 /db_1/dbs/dr1DGTS.dat</span>
+<span class="line">dg_broker_config_file2               string      /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span></span>
+<span class="line">                                                 /db_1/dbs/dr2DGTS.dat</span>
+<span class="line">dg_broker_start                      boolean     TRUE</span>
+<span class="line">inmemory_adg_enabled                 boolean     TRUE</span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> set dg_broker_start=false;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除DG broker配置文件</span></span>
+<span class="line">! rm /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs/dr1DGTS.dat</span>
+<span class="line">! rm /u01/app/oracle/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1/dbs/dr2DGTS.dat</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="手工failover"><a href="#手工failover" class="headerlink" title="手工failover"></a>手工failover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在备库上记录current_scn</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> current_scn from v$database;</span>
+<span class="line"></span>
+<span class="line">CURRENT_SCN</span>
+<span class="line">-----------</span>
+<span class="line">    <span class="number">5651932</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">READ ONLY WITH APPLY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 手工failover</span></span>
+<span class="line">SQL&gt; recover managed standby database finish force;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">MOUNTED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database commit to switchover to primary;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ WRITE           PRIMARY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时备库就可以做读写操作了</span></span>
+<span class="line">SQL&gt; create table test as <span class="keyword">select</span> * from all_objects;</span>
+</pre></td></tr></table></figure>
+<h3 id="恢复主备数据同步"><a href="#恢复主备数据同步" class="headerlink" title="恢复主备数据同步"></a>恢复主备数据同步</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; alter database <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">MOUNTED              PRIMARY</span>
+<span class="line"></span>
+<span class="line">SQL&gt; flashback database to scn <span class="number">5651932</span>;</span>
+<span class="line"></span>
+<span class="line">Flashback complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database convert to physical standby;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">MOUNTED              PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover managed standby database disconnect from session;</span>
+<span class="line">Media recovery complete.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> set dg_broker_start=true;</span>
+<span class="line"></span>
+<span class="line">$ vi $ORACLE_HOME/network/admin/tnsnames.ora</span>
+<span class="line"><span class="comment"># 修改端口号修改成原先的1521</span></span>
+<span class="line">DGTP =</span>
+<span class="line">  (DESCRIPTION =</span>
+<span class="line">    (ADDRESS = (PROTOCOL = TCP)(HOST = <span class="number">10.240</span>.<span class="number">4.174</span>)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    (CONNECT_DATA =</span>
+<span class="line">      (SERVER = DEDICATED)</span>
+<span class="line">      (SERVICE_NAME = dgtp)</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode, database_role from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE            DATABASE_ROLE</span>
+<span class="line">-------------------- ----------------</span>
+<span class="line">READ ONLY WITH APPLY PHYSICAL STANDBY</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看ADG配置已自已应用成功</span></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">58</span> seconds ago)</span>
+</pre></td></tr></table></figure>
+<h2 id="12cR2-SQL-PLUS里新增命令HISTORY"><a href="#12cR2-SQL-PLUS里新增命令HISTORY" class="headerlink" title="12cR2 SQL/PLUS里新增命令HISTORY"></a>12cR2 SQL/PLUS里新增命令HISTORY</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">show hist</span>
+<span class="line">set hist off</span>
+<span class="line">set hist on</span>
+<span class="line">set hist <span class="number">500</span></span>
+<span class="line">hist</span>
+<span class="line">hist <span class="number">3</span> del</span>
+<span class="line">hist <span class="number">1</span> run</span>
+<span class="line">hist <span class="number">1</span> edit</span>
+<span class="line">hist clear</span>
+</pre></td></tr></table></figure>
+<h2 id="主库闪回数据库后备库恢复同步"><a href="#主库闪回数据库后备库恢复同步" class="headerlink" title="主库闪回数据库后备库恢复同步"></a>主库闪回数据库后备库恢复同步</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库上执行</span></span>
+<span class="line">create restore point fb_recover_trunc guarantee flashback database;</span>
+<span class="line"></span>
+<span class="line">col NAME <span class="keyword">for</span> a2<span class="number">0</span></span>
+<span class="line">col TIME <span class="keyword">for</span> a35</span>
+<span class="line">set lines <span class="number">200</span></span>
+<span class="line">col STORAGE_SIZE <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SELECT NAME, SCN, TIME, DATABASE_INCARNATION<span class="comment"># DI,GUARANTEE_FLASHBACK_DATABASE, STORAGE_SIZE/1024/1024/1024 </span></span>
+<span class="line">  FROM V$RESTORE_POINT WHERE GUARANTEE_FLASHBACK_DATABASE=<span class="string">'YES'</span>;</span>
+<span class="line"></span>
+<span class="line">NAME                        SCN TIME                                        DI GUA STORAGE_SIZE/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span></span>
+<span class="line">-------------------- ---------- ----------------------------------- ---------- --- ---------------------------</span>
+<span class="line">FB_RECOVER_TRUNC        <span class="number">5633353</span> <span class="number">13</span>-JUL-<span class="number">17</span> <span class="number">04</span>.<span class="number">45.02</span>.<span class="number">000000000</span> PM              <span class="number">5</span> YES                    .<span class="number">1953125</span></span>
+<span class="line"></span>
+<span class="line">show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line"><span class="keyword">select</span> * from cat;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME           TABLE_TYPE</span>
+<span class="line">-------------------- -----------</span>
+<span class="line">TEST                 TABLE</span>
+<span class="line">TEST2                TABLE</span>
+<span class="line"></span>
+<span class="line">create table test_trunc as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line"><span class="keyword">select</span> count(*) from test_trunc;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">56327</span></span>
+<span class="line"></span>
+<span class="line">drop table TEST purge;</span>
+<span class="line">drop table TEST2 purge;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from cat;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME           TABLE_TYPE</span>
+<span class="line">-------------------- -----------</span>
+<span class="line">TEST_TRUNC           TABLE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主库做闪回数据库操作</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup mount</span>
+<span class="line">flashback database to restore point fb_recover_trunc;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line"></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line"><span class="keyword">select</span> TABLE_NAME from all_tables where OWNER=<span class="string">'LYJ'</span>;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line">TEST</span>
+<span class="line">TEST2</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 备库状态</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY READ ONL      <span class="comment"># ADG状态已停止</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 主备库数据不同步</span></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line"><span class="keyword">select</span> TABLE_NAME from all_tables where OWNER=<span class="string">'LYJ'</span>;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line">TEST_TRUNC</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在备库执行闪回数据库（用闪回点的SCN号5633353）</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup mount</span>
+<span class="line">recover managed standby database cancel;  <span class="comment"># 视情况可不执行</span></span>
+<span class="line">flashback database to scn <span class="number">5633353</span>;</span>
+<span class="line"></span>
+<span class="line">dgmgrl sys/Center08@dgtp</span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line">      Error: ORA-<span class="number">16810</span>: multiple errors <span class="keyword">or</span> warnings detected <span class="keyword">for</span> the member</span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">ERROR   (status updated <span class="number">13</span> seconds ago)</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; enable configuration;</span>
+<span class="line"></span>
+<span class="line">DGMGRL&gt; show configuration;</span>
+<span class="line"></span>
+<span class="line">Configuration - dgt_dg</span>
+<span class="line"></span>
+<span class="line">  Protection Mode: MaxPerformance</span>
+<span class="line">  Members:</span>
+<span class="line">  dgtp - Primary database</span>
+<span class="line">    dgts - Physical standby database </span>
+<span class="line"></span>
+<span class="line">Fast-Start Failover: DISABLED</span>
+<span class="line"></span>
+<span class="line">Configuration Status:</span>
+<span class="line">SUCCESS   (status updated <span class="number">1</span> second ago)</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY MOUNTED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> database_role,open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">DATABASE_ROLE    OPEN_MODE</span>
+<span class="line">---------------- --------------------</span>
+<span class="line">PHYSICAL STANDBY READ ONLY WITH APPLY</span>
+</pre></td></tr></table></figure>
+<h2 id="闪回数据库是无法闪回到datafile收缩前的状态"><a href="#闪回数据库是无法闪回到datafile收缩前的状态" class="headerlink" title="闪回数据库是无法闪回到datafile收缩前的状态"></a>闪回数据库是无法闪回到datafile收缩前的状态</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将已有的数据文件收缩到190M</span></span>
+<span class="line">alter session set container=pdb1;</span>
+<span class="line">col TABLESPACE_NAME <span class="keyword">for</span> a1<span class="number">0</span></span>
+<span class="line">col FILE_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> TABLESPACE_NAME,FILE_NAME,BYTES/<span class="number">1024</span>/<span class="number">1024</span> size_m from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE FILE_NAME                                              SIZE_M</span>
+<span class="line">---------- -------------------------------------------------- ----------</span>
+<span class="line">SYSTEM     /u01/app/oracle/oradata/dgt/pdb1/system01.dbf             <span class="number">260</span></span>
+<span class="line">SYSAUX     /u01/app/oracle/oradata/dgt/pdb1/sysaux01.dbf             <span class="number">420</span></span>
+<span class="line">UNDOTBS1   /u01/app/oracle/oradata/dgt/pdb1/undotbs01.dbf            <span class="number">100</span></span>
+<span class="line">USERS      /u01/app/oracle/oradata/dgt/pdb1/users01.dbf             <span class="number">22.5</span></span>
+<span class="line"></span>
+<span class="line">alter tablespace USERS add datafile <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span> size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sysdate from dual;</span>
+<span class="line"></span>
+<span class="line">SYSDATE</span>
+<span class="line">-------------------</span>
+<span class="line"><span class="number">2017</span>-<span class="number">07</span>-<span class="number">14</span> <span class="number">13</span>:<span class="number">35</span>:<span class="number">18</span></span>
+<span class="line"></span>
+<span class="line">alter database datafile <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span> resize <span class="number">190</span>M;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sysdate from dual;</span>
+<span class="line"></span>
+<span class="line">SYSDATE</span>
+<span class="line">-------------------</span>
+<span class="line"><span class="number">2017</span>-<span class="number">07</span>-<span class="number">14</span> <span class="number">13</span>:<span class="number">38</span>:<span class="number">07</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 按以下步骤是无法闪回数据库的</span></span>
+<span class="line">recover managed standby database cancel;</span>
+<span class="line">alter database <span class="keyword">close</span>;</span>
+<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-07-14 13:35:18'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>);</span>
+<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-07-14 13:35:18'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>)</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">38766</span>: cannot flashback data file <span class="number">13</span>; file resized smaller</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">13</span>: <span class="string">'/u01/app/oracle/oradata/dgt/pdb1/users02.dbf'</span></span>
+</pre></td></tr></table></figure>
+<h2 id="开启12c-Data-Guard压缩归档"><a href="#开启12c-Data-Guard压缩归档" class="headerlink" title="开启12c Data Guard压缩归档"></a>开启12c Data Guard压缩归档</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">edit database dgtp set property RedoCompression = <span class="string">'ENABLE'</span>;</span>
+<span class="line"><span class="comment"># 关闭压缩归档</span></span>
+<span class="line">edit database dgtp set property RedoCompression = <span class="string">'DISABLE'</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sqlplus -<span class="keyword">s</span> / as sysdba &lt;&lt;EOF</span>
+<span class="line"><span class="keyword">select</span> name, decode(cdb, <span class="string">'YES'</span>, <span class="string">'Multitenant Option enabled'</span>, <span class="string">'Regular 12c Database: '</span>) <span class="string">"Multitenant Option"</span> , open_mode, con_id from v\$database;</span>
+<span class="line">show pdbs;</span>
+<span class="line">set linesize <span class="number">200</span></span>
+<span class="line">col name <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">col open_time <span class="keyword">format</span> a35</span>
+<span class="line"><span class="keyword">select</span> con_id,dbid,con_uid,name,open_mode,open_time,trunc(total_size/<span class="number">1024</span>/<span class="number">1024</span>) size_MB from v\$pdbs;</span>
+<span class="line">EOF</span>
+<span class="line"></span>
+<span class="line">sqlplus -<span class="keyword">s</span> / as sysdba &lt;&lt;EOF</span>
+<span class="line"><span class="keyword">select</span> sess.con_id,pdbs.name,count(*)from v\$session sess,v\$pdbs pdbs where pdbs.con_id=sess.con_id group by sess.con_id,pdbs.name;</span>
+<span class="line">EOF</span>
+</pre></td></tr></table></figure>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> 12c </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结]]></title>
       <url>/2017/07/04/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/10_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="练习DG-Broker-switchover和failover的过程"><a href="#练习DG-Broker-switchover和failover的过程" class="headerlink" title="练习DG Broker switchover和failover的过程"></a>练习DG Broker switchover和failover的过程</h2><h3 id="练习switchover"><a href="#练习switchover" class="headerlink" title="练习switchover"></a>练习switchover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># switchover可以在主或备库上运行</span></span>
@@ -4671,40 +5044,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
-      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
-      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
-<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
-<span class="line">......</span>
-<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
-<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
-<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
-<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
-<span class="line">Additional information: <span class="number">10</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
-<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
-<span class="line"></span>
-<span class="line">vi /etc</span><span class="regexp">/fstab</span>
-<span class="line">#------------------------------------------------------------------------</span>
-<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
-<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> ORA- </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划]]></title>
       <url>/2017/04/13/mysql/MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/12-MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98/</url>
       <content type="html"><![CDATA[<h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
@@ -4906,6 +5245,40 @@
             <tag> mysql </tag>
             
             <tag> sysbench </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
+      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
+      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
+<span class="line"></span>
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> ORA- </tag>
             
         </tags>
         
@@ -5846,6 +6219,40 @@
     </entry>
     
     <entry>
+      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
+      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
+      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
+<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
+<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
+<span class="line">...</span>
+<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
+<span class="line"></span>
+<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
+</pre></td></tr></table></figure></p>
+<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
+<span class="line">...</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
+<span class="line">COMMIT;</span>
+<span class="line"></span>
+<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
+<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
+</pre></td></tr></table></figure></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> expdp </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle Database 11g工作中常用的命令和脚本整理]]></title>
       <url>/2017/03/31/oracle/Oracle%2011g%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E5%91%BD%E4%BB%A4%E5%92%8C%E8%84%9A%E6%9C%AC%E6%95%B4%E7%90%86/</url>
       <content type="html"><![CDATA[<h2 id="设置Oracle用户密码永不过期"><a href="#设置Oracle用户密码永不过期" class="headerlink" title="设置Oracle用户密码永不过期"></a>设置Oracle用户密码永不过期</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter profile default limit PASSWORD_LIFE_TIME unlimited;</span>
@@ -5988,40 +6395,6 @@
         <tags>
             
             <tag> oracle </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
-      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
-      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> expdp </tag>
             
         </tags>
         
@@ -8665,9 +9038,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -10010,9 +10383,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -10084,9 +10457,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -10337,9 +10710,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
