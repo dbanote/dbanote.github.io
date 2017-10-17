@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="1. 为什么创建一个InnoDB表只分配了96K而不是1M？Mysql中extent(区)中是64个连续的page(页)，是分配空间的最小单位，标准大小是1M。 但在用户启用了参数innodb_file_per_table=on后，创建一个Innodb表时，初始分配的大小却是为96K。这是因为在每个段开始时，先用32个页大小的碎片页(fragment page)来存放数据，在使用完这些页之后才是6">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式">
+<meta property="og:url" content="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="1. 为什么创建一个InnoDB表只分配了96K而不是1M？Mysql中extent(区)中是64个连续的page(页)，是分配空间的最小单位，标准大小是1M。 但在用户启用了参数innodb_file_per_table=on后，创建一个Innodb表时，初始分配的大小却是为96K。这是因为在每个段开始时，先用32个页大小的碎片页(fragment page)来存放数据，在使用完这些页之后才是6">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/securecrt_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_block_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_block_02.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_block_03.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_block_04.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/compact.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0217_binlog_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0216_file_format.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_file_s.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/innodb_page_s.png">
+<meta property="og:updated_time" content="2017-10-13T12:31:28.475Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式">
+<meta name="twitter:description" content="1. 为什么创建一个InnoDB表只分配了96K而不是1M？Mysql中extent(区)中是64个连续的page(页)，是分配空间的最小单位，标准大小是1M。 但在用户启用了参数innodb_file_per_table=on后，创建一个Innodb表时，初始分配的大小却是为96K。这是因为在每个段开始时，先用32个页大小的碎片页(fragment page)来存放数据，在使用完这些页之后才是6">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/securecrt_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-02-16T16:00:00.000Z" itemprop="datePublished">2017-02-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="1-为什么创建一个InnoDB表只分配了96K而不是1M？"><a href="#1-为什么创建一个InnoDB表只分配了96K而不是1M？" class="headerlink" title="1. 为什么创建一个InnoDB表只分配了96K而不是1M？"></a>1. 为什么创建一个InnoDB表只分配了96K而不是1M？</h2><p>Mysql中<code>extent</code>(区)中是64个连续的<code>page</code>(页)，是分配空间的最小单位，标准大小是1M。 但在用户启用了参数<code>innodb_file_per_table=on</code>后，创建一个Innodb表时，初始分配的大小却是为96K。这是因为在每个段开始时，先用32个页大小的碎片页(fragment page)来存放数据，在使用完这些页之后才是64个连续页的申请。这样做的目的是，对于一些小表，或者是undo这类的段，可以在开始时申请较少的空间，节省磁盘容量的开销。 下面通过示例来显示InnoDB存储引擎对于区的申请方式。</p>
+<a id="more"></a>
+<h3 id="创建一个测试用的InnoDB表"><a href="#创建一个测试用的InnoDB表" class="headerlink" title="创建一个测试用的InnoDB表"></a>创建一个测试用的InnoDB表</h3><p>创建数据库<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; create database lyj;</span>
+</pre></td></tr></table></figure></p>
+<p>查看数据库创建信息，并切换到lyj数据库<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show create database lyj;</span>
+<span class="line">+----------+--------------------------------------------------------------+</span>
+<span class="line">| Database | Create Database                                              |</span>
+<span class="line">+----------+--------------------------------------------------------------+</span>
+<span class="line">| lyj      | CREATE DATABASE <span class="string">`lyj`</span> /*!<span class="number">40100</span> DEFAULT CHARACTER SET utf8 *<span class="regexp">/ |</span>
+<span class="line">+----------+--------------------------------------------------------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; use lyj;</span>
+<span class="line"></span>
+<span class="line">mysql&gt; select database();</span>
+<span class="line">+------------+</span>
+<span class="line">| database() |</span>
+<span class="line">+------------+</span>
+<span class="line">| lyj        |</span>
+<span class="line">+------------+</span></span>
+</pre></td></tr></table></figure></p>
+<p>查看是否启用独享表空间存储方式（innodb_file_per_table=ON），启用后每一个表会单独的生成一个<code>table_name.ibd</code>的文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="string">'%per_table%'</span>;</span>
+<span class="line">+-----------------------+-------+</span>
+<span class="line">| Variable_name         | Value |</span>
+<span class="line">+-----------------------+-------+</span>
+<span class="line">| innodb_file_per_table | ON    |</span>
+<span class="line">+-----------------------+-------+</span>
+</pre></td></tr></table></figure></p>
+<p>在lyj数据库中创建一张表<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create table lyj_t1 </span>
+<span class="line">  (col1 <span class="keyword">int</span> <span class="keyword">not</span> null auto_increment, </span>
+<span class="line">   col2 varchar(<span class="number">7000</span>),</span>
+<span class="line">   primary key (col1)</span>
+<span class="line">  ) engine=innodb;</span>
+<span class="line"><span class="comment"># 将col2字段设置为varchar(7000)，这样能保证一个页最多可以存放2条记录</span></span>
+</pre></td></tr></table></figure></p>
+<p>可通过以下命令查看表的创建信息<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show create table lyj_t1\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">       Table: lyj_t1</span>
+<span class="line">Create Table: CREATE TABLE <span class="string">`lyj_t1`</span> (</span>
+<span class="line">  <span class="string">`col1`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL AUTO_INCREMENT,</span>
+<span class="line">  <span class="string">`col2`</span> varchar(<span class="number">7000</span>) DEFAULT NULL,</span>
+<span class="line">  PRIMARY KEY (<span class="string">`col1`</span>)</span>
+<span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8</span>
+</pre></td></tr></table></figure></p>
+<h3 id="查验创建表时分配的初始大小为96K"><a href="#查验创建表时分配的初始大小为96K" class="headerlink" title="查验创建表时分配的初始大小为96K"></a>查验创建表时分配的初始大小为96K</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[mysql@mysql lyj]$ pwd</span>
+<span class="line">/u01/my3306/data/lyj</span>
+<span class="line">[mysql@mysql lyj]$ ll</span>
+<span class="line">total <span class="number">112</span></span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql    <span class="number">61</span> Feb <span class="number">15</span> <span class="number">14</span>:<span class="number">20</span> db.opt</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">29070</span> Feb <span class="number">15</span> <span class="number">17</span>:<span class="number">07</span> lyj_t1.frm   <span class="comment"># frm 表定义</span></span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">98304</span> Feb <span class="number">15</span> <span class="number">17</span>:<span class="number">07</span> lyj_t1.ibd   <span class="comment"># idb 数据和索引 创建初始分配大小是 98304/1024=96K</span></span>
+</pre></td></tr></table></figure>
+<h3 id="插入数据观察表空间大小变化"><a href="#插入数据观察表空间大小变化" class="headerlink" title="插入数据观察表空间大小变化"></a>插入数据观察表空间大小变化</h3><p>插入2条记录<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">insert into lyj_t1 <span class="keyword">select</span> null, repeat(<span class="string">'a'</span>,<span class="number">7000</span>);</span>
+<span class="line">insert into lyj_t1 <span class="keyword">select</span> null, repeat(<span class="string">'a'</span>,<span class="number">7000</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">system</span> ls -lh /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">96</span>K Feb <span class="number">15</span> <span class="number">17</span>:<span class="number">16</span> /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时可以通过py_innodb_page_info工具来查看表空间</span></span>
+<span class="line"><span class="comment"># 根据之前对表的定义，插入的这两条记录应该位于同一个页中</span></span>
+<span class="line"><span class="comment"># 所有记录都在一个页中，因此这时还没有非叶节点</span></span>
+<span class="line">$ python py_innodb_page_info.py -v /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line">page offset <span class="number">00000000</span>, page type &lt;File Space Header&gt;</span>
+<span class="line">page offset <span class="number">00000001</span>, page type &lt;Insert Buffer Bitmap&gt;</span>
+<span class="line">page offset <span class="number">00000002</span>, page type &lt;File Segment inode&gt;</span>
+<span class="line">page offset <span class="number">00000003</span>, page type &lt;B-tree Node&gt;, page level &lt;<span class="number">0000</span>&gt;  <span class="comment"># 这个就是数据页，page level表示所在层，0表示页子节点</span></span>
+<span class="line">page offset <span class="number">00000000</span>, page type &lt;Freshly Allocated Page&gt;</span>
+<span class="line">page offset <span class="number">00000000</span>, page type &lt;Freshly Allocated Page&gt;</span>
+<span class="line">Total number of page: <span class="number">6</span>:</span>
+<span class="line">Freshly Allocated Page: <span class="number">2</span></span>
+<span class="line">Insert Buffer Bitmap: <span class="number">1</span></span>
+<span class="line">File Space Header: <span class="number">1</span></span>
+<span class="line">B-tree Node: <span class="number">1</span></span>
+<span class="line">File Segment inode: <span class="number">1</span></span>
+</pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>py_innodb_page_info</code>工具下载地址：<a href="http://olg2mr2vf.bkt.clouddn.com/py_innodb_page_type.zip" target="_blank" rel="external">py_innodb_page_type.zip</a></p>
+</blockquote>
+<p>再插入1条记录<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">insert into lyj_t1 <span class="keyword">select</span> null, repeat(<span class="string">'a'</span>,<span class="number">7000</span>);</span>
+<span class="line"></span>
+<span class="line">$ python py_innodb_page_info.py -v /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line">page offset <span class="number">00000000</span>, page type &lt;File Space Header&gt;</span>
+<span class="line">page offset <span class="number">00000001</span>, page type &lt;Insert Buffer Bitmap&gt;</span>
+<span class="line">page offset <span class="number">00000002</span>, page type &lt;File Segment inode&gt;</span>
+<span class="line">page offset <span class="number">00000003</span>, page type &lt;B-tree Node&gt;, page level &lt;<span class="number">0001</span>&gt;</span>
+<span class="line">page offset <span class="number">00000004</span>, page type &lt;B-tree Node&gt;, page level &lt;<span class="number">0000</span>&gt;</span>
+<span class="line">page offset <span class="number">00000005</span>, page type &lt;B-tree Node&gt;, page level &lt;<span class="number">0000</span>&gt;</span>
+<span class="line">Total number of page: <span class="number">6</span>:</span>
+<span class="line">Insert Buffer Bitmap: <span class="number">1</span></span>
+<span class="line">File Space Header: <span class="number">1</span></span>
+<span class="line">B-tree Node: <span class="number">3</span></span>
+<span class="line">File Segment inode: <span class="number">1</span></span>
+</pre></td></tr></table></figure></p>
+<p>创建批量插入数据的存储过程<br><figure class="highlight"><table><tr><td class="code"><pre><span class="line">drop procedure if exists load_t1;</span>
+<span class="line">delimiter //</span>
+<span class="line">create procedure load_t1(count int unsigned)</span>
+<span class="line">begin</span>
+<span class="line">  declare s int unsigned default 1;</span>
+<span class="line">  declare c varchar(7000) default repeat('a', 7000);</span>
+<span class="line">    while s&lt;= count do</span>
+<span class="line">    insert into lyj_t1 select null,c;</span>
+<span class="line">    set s=s+1;</span>
+<span class="line">  end while;</span>
+<span class="line">end;</span>
+<span class="line">//</span>
+<span class="line">delimiter;</span>
+</pre></td></tr></table></figure></p>
+<p>调用存储过程，插入60条记录后观察表空间大小<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; call load_t1(<span class="number">60</span>);</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> count(*) from lyj_t1;</span>
+<span class="line">+----------+</span>
+<span class="line">| count(*) |</span>
+<span class="line">+----------+</span>
+<span class="line">|       <span class="number">63</span> |</span>
+<span class="line">+----------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">system</span> ls -lh /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">576</span>K Feb <span class="number">15</span> <span class="number">18</span>:<span class="number">10</span> /u01/my3306/data/lyj/lyj_t1.ibd</span>
+</pre></td></tr></table></figure></p>
+<p>再插入1条记录后观察表空间大小<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; call load_t1(<span class="number">1</span>);</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> count(*) from lyj_t1;</span>
+<span class="line">+----------+</span>
+<span class="line">| count(*) |</span>
+<span class="line">+----------+</span>
+<span class="line">|       <span class="number">64</span> |</span>
+<span class="line">+----------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">system</span> ls -lh /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">2.0</span>M Feb <span class="number">15</span> <span class="number">18</span>:<span class="number">15</span> /u01/my3306/data/lyj/lyj_t1.ibd</span>
+<span class="line"><span class="comment"># 因为已经用完了32个碎片页，新的页就会采用区的方式进行空间的申请</span></span>
+</pre></td></tr></table></figure></p>
+<h2 id="2-Innodb数据块解析，解析第2行记录格式"><a href="#2-Innodb数据块解析，解析第2行记录格式" class="headerlink" title="2. Innodb数据块解析，解析第2行记录格式"></a>2. Innodb数据块解析，解析第2行记录格式</h2><h3 id="创建测试表并插入数据"><a href="#创建测试表并插入数据" class="headerlink" title="创建测试表并插入数据"></a>创建测试表并插入数据</h3><p>创建测试用数据库<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">drop database lyj;</span>
+<span class="line">create database lyj DEFAULT CHARACTER SET gbk COLLATE gbk_chinese_ci;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看当前数据库中存在那些数据库，以及数据库创建信息</span></span>
+<span class="line">show databases;</span>
+<span class="line">+--------------------+</span>
+<span class="line">| Database           |</span>
+<span class="line">+--------------------+</span>
+<span class="line">| information_schema |</span>
+<span class="line">| lyj                |</span>
+<span class="line">| mysql              |</span>
+<span class="line">| performance_schema |</span>
+<span class="line">| test               |</span>
+<span class="line">+--------------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 显示数据库创建信息，若加\G参数是格式化输出信息</span></span>
+<span class="line">show create database lyj;</span>
+<span class="line">+----------+-------------------------------------------------------------+</span>
+<span class="line">| Database | Create Database                                             |</span>
+<span class="line">+----------+-------------------------------------------------------------+</span>
+<span class="line">| lyj      | CREATE DATABASE <span class="string">`lyj`</span> /*!<span class="number">40100</span> DEFAULT CHARACTER SET gbk *<span class="regexp">/ |</span>
+<span class="line">+----------+-------------------------------------------------------------+</span>
+<span class="line"></span>
+<span class="line">show create database lyj\G</span>
+<span class="line">*************************** 1. row ***************************</span>
+<span class="line">       Database: lyj</span>
+<span class="line">Create Database: CREATE DATABASE `lyj` /</span>*!<span class="number">40100</span> DEFAULT CHARACTER SET gbk *<span class="regexp">/</span></span>
+</pre></td></tr></table></figure></p>
+<p>使用lyj数据库<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> lyj</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看当前选择的数据库</span></span>
+<span class="line"><span class="keyword">select</span> database();</span>
+<span class="line">+------------+</span>
+<span class="line">| database() |</span>
+<span class="line">+------------+</span>
+<span class="line">| lyj        |</span>
+<span class="line">+------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 若要删除数据库可使用以下命令</span></span>
+<span class="line">drop database lyj;</span>
+</pre></td></tr></table></figure></p>
+<p>关闭自动提交<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">show variables like <span class="string">'%autocommit%'</span>;</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| Variable_name | Value |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| autocommit    | ON    |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line"></span>
+<span class="line">set autocommit = <span class="number">0</span>;</span>
+<span class="line"></span>
+<span class="line">show variables like <span class="string">'%autocommit%'</span>;</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| Variable_name | Value |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| autocommit    | OFF   |</span>
+<span class="line">+---------------+-------+</span>
+</pre></td></tr></table></figure></p>
+<p>在lyj数据库中创建表并插入测试数据<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create table lyj_t1 </span>
+<span class="line">  (id <span class="keyword">int</span>,name1 varchar(<span class="number">10</span>),name2 varchar(<span class="number">10</span>),name3 varchar(<span class="number">10</span>),name4 varchar(<span class="number">10</span>),name5 varchar(<span class="number">10</span>));</span>
+<span class="line"></span>
+<span class="line">show tables;</span>
+<span class="line">+---------------+</span>
+<span class="line">| Tables_in_lyj |</span>
+<span class="line">+---------------+</span>
+<span class="line">| lyj_t1        |</span>
+<span class="line">+---------------+</span>
+<span class="line"></span>
+<span class="line">insert into lyj_t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'A'</span>,<span class="string">'BB'</span>,<span class="string">'CCC'</span>,<span class="string">'DDDD'</span>,null);</span>
+<span class="line">insert into lyj_t1 <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'aaaaaaaaaa'</span>,<span class="string">'bbbbbbbbbb'</span>,<span class="string">'ccccc'</span>,<span class="string">''</span>,null);</span>
+<span class="line">insert into lyj_t1 <span class="keyword">values</span>(<span class="number">3</span>,<span class="string">'aaaaaaaaaa'</span>,<span class="string">'bbbbbbbbbb'</span>,<span class="string">'ccccc'</span>,<span class="string">'dddddd'</span>,<span class="string">'e'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">insert into lyj_t1 <span class="keyword">values</span>(<span class="number">4</span>,<span class="string">'aaaaaaaaaa'</span>,<span class="string">'bbbbbbbbbb'</span>,null,<span class="string">'dddddd'</span>,<span class="string">'e'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from lyj_t1;</span>
+<span class="line">+------+------------+------------+-------+--------+-------+</span>
+<span class="line">| id   | name1      | name2      | name3 | name4  | name5 |</span>
+<span class="line">+------+------------+------------+-------+--------+-------+</span>
+<span class="line">|    <span class="number">1</span> | A          | BB         | CCC   | DDDD   | NULL  |</span>
+<span class="line">|    <span class="number">2</span> | aaaaaaaaaa | bbbbbbbbbb | ccccc |        | NULL  |</span>
+<span class="line">|    <span class="number">3</span> | aaaaaaaaaa | bbbbbbbbbb | ccccc | dddddd | e     |</span>
+<span class="line">|    <span class="number">4</span> | aaaaaaaaaa | bbbbbbbbbb | NULL  | dddddd | e     |</span>
+<span class="line">+------+------------+------------+-------+--------+-------+</span>
+</pre></td></tr></table></figure></p>
+<h3 id="解析数据块"><a href="#解析数据块" class="headerlink" title="解析数据块"></a>解析数据块</h3><h4 id="使用hexdump工具导出表空间文件前4个块"><a href="#使用hexdump工具导出表空间文件前4个块" class="headerlink" title="使用hexdump工具导出表空间文件前4个块"></a>使用hexdump工具导出表空间文件前4个块</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 一个page 16k, 导出的16进制文件一行是16byte ==&gt; 1个page在16制文件中有1024 row，即一个块是1024行</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出第1个块 File Space Header</span></span>
+<span class="line">hexdump -C -v /u01/my3306/data/lyj/lyj_t1.ibd | head -n <span class="number">1024</span> &gt; <span class="regexp">/tmp/</span><span class="number">1</span>.txt</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出第2个块 Insert Buffer Bitmap</span></span>
+<span class="line">hexdump -C -v /u01/my3306/data/lyj/lyj_t1.ibd | head -n <span class="number">2048</span> | tail -n <span class="number">1024</span> &gt; <span class="regexp">/tmp/</span><span class="number">2</span>.txt</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出第3个块 File Segment inode</span></span>
+<span class="line">hexdump -C -v /u01/my3306/data/lyj/lyj_t1.ibd | head -n <span class="number">3072</span> | tail -n <span class="number">1024</span> &gt; <span class="regexp">/tmp/</span><span class="number">3</span>.txt</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出第4个块 Used Page，也就是行记录开始处</span></span>
+<span class="line">hexdump -C -v /u01/my3306/data/lyj/lyj_t1.ibd | head -n <span class="number">4096</span> | tail -n <span class="number">1024</span> &gt; <span class="regexp">/tmp/</span><span class="number">4</span>.txt</span>
+</pre></td></tr></table></figure>
+<p>使用sz工具下载到windows本地查看，需要先secureCRT会话设置里先设置本地下载路径<br><img src="http://oligvdnzp.bkt.clouddn.com/securecrt_01.png" alt="secureCRT中本地地址路径设置"></p>
+<p>下载命令<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sz /tmp/<span class="number">1</span>.txt</span>
+<span class="line">sz /tmp/<span class="number">2</span>.txt</span>
+<span class="line">sz /tmp/<span class="number">3</span>.txt</span>
+<span class="line">sz /tmp/<span class="number">4</span>.txt</span>
+</pre></td></tr></table></figure></p>
+<h4 id="查看导出块类型标识"><a href="#查看导出块类型标识" class="headerlink" title="查看导出块类型标识"></a>查看导出块类型标识</h4><p><img src="http://oligvdnzp.bkt.clouddn.com/innodb_block_01.png" alt="第1个块 File Space Header    标识(偏移量19开始)：0x0008"> 第1个块类型标识：0x0008<br><img src="http://oligvdnzp.bkt.clouddn.com/innodb_block_02.png" alt="第2个块 Insert Buffer Bitmap 标识(偏移量19开始)：0x0005"> 第2个块类型标识：0x0005<br><img src="http://oligvdnzp.bkt.clouddn.com/innodb_block_03.png" alt="第3个块 File Segment inode   标识(偏移量19开始)：0x0003"> 第3个块类型标识：0x0003<br><img src="http://oligvdnzp.bkt.clouddn.com/innodb_block_04.png" alt="第4个块 Used Page            标识(偏移量19开始)：0x45BF"> 第4个块类型标识：0x45BF</p>
+<h4 id="查看行记录格式"><a href="#查看行记录格式" class="headerlink" title="查看行记录格式"></a>查看行记录格式</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show table status like <span class="string">'%lyj_t1%'</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           Name: lyj_t1</span>
+<span class="line">         Engine: InnoDB</span>
+<span class="line">        Version: <span class="number">10</span></span>
+<span class="line">     Row_format: Compact       <span class="comment"># 行的格式是Compact（简洁的）</span></span>
+<span class="line">           Rows: <span class="number">4</span></span>
+<span class="line"> Avg_row_length: <span class="number">4096</span></span>
+<span class="line">    Data_length: <span class="number">16384</span></span>
+<span class="line">Max_data_length: <span class="number">0</span></span>
+<span class="line">   Index_length: <span class="number">0</span></span>
+<span class="line">      Data_free: <span class="number">0</span></span>
+<span class="line"> Auto_increment: NULL</span>
+<span class="line">    Create_time: <span class="number">2017</span>-<span class="number">02</span>-<span class="number">16</span> <span class="number">10</span>:<span class="number">20</span>:<span class="number">15</span></span>
+<span class="line">    Update_time: NULL</span>
+<span class="line">     Check_time: NULL</span>
+<span class="line">      Collation: gbk_chinese_ci</span>
+<span class="line">       Checksum: NULL</span>
+<span class="line"> Create_options: </span>
+<span class="line">        Comment:</span>
+</pre></td></tr></table></figure>
+<h4 id="Compact行记录结构"><a href="#Compact行记录结构" class="headerlink" title="Compact行记录结构"></a>Compact行记录结构</h4><p><img src="http://oligvdnzp.bkt.clouddn.com/compact.png" alt="Compact行记录结构"></p>
+<h4 id="解析块头"><a href="#解析块头" class="headerlink" title="解析块头"></a>解析块头</h4><p>记录是放在第4个块中，下面详细解析<code>/tmp/4.txt</code>文件<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1    0000c000  51 07 91 31 00 00 00 03  ff ff ff ff ff ff ff ff  |Q..1............|</span>
+<span class="line">2    0000c010  00 00 00 00 00 2b d4 0d  45 bf 00 00 00 00 00 00  |.....+..E.......|</span>
+<span class="line">3    0000c020  00 00 00 00 00 13 00 02  01 5b 80 06 00 00 00 00  |.........[......|</span>
+<span class="line">4    0000c030  01 29 00 02 00 03 00 04  00 00 00 00 00 00 00 00  |.)..............|</span>
+<span class="line">5    0000c040  00 00 00 00 00 00 00 00  00 24 00 00 00 13 00 00  |.........$......|</span>
+<span class="line">6    0000c050  00 02 00 f2 00 00 00 13  00 00 00 02 00 32 01 00  |.............2..|</span>
+<span class="line">7    0000c060  02 00 1f 69 6e 66 69 6d  75 6d 00 05 00 0b 00 00  |...infimum......|</span>
+<span class="line">8    0000c070  73 75 70 72 65 6d 75 6d  04 03 02 01 20 00 00 10  |supremum.... ...|</span>
+<span class="line">9    0000c080  00 2b 00 00 00 00 02 0a  00 00 00 00 0e 56 95 00  |.+...........V..|</span>
+<span class="line">10   0000c090  00 01 42 01 10 80 00 00  01 41 42 42 43 43 43 44  |..B......ABBCCCD|</span>
+<span class="line">11   0000c0a0  44 44 44 00 05 0a 0a 20  00 00 18 00 3b 00 00 00  |DDD.... ....;...|</span>
+<span class="line">12   0000c0b0  00 02 0b 00 00 00 00 0e  56 95 00 00 01 42 01 1e  |........V....B..|</span>
+<span class="line">13   0000c0c0  80 00 00 02 61 61 61 61  61 61 61 61 61 61 62 62  |....aaaaaaaaaabb|</span>
+<span class="line">14   0000c0d0  62 62 62 62 62 62 62 62  63 63 63 63 63 01 06 05  |bbbbbbbbccccc...|</span>
+<span class="line">15   0000c0e0  0a 0a 00 00 00 20 00 41  00 00 00 00 02 0c 00 00  |..... .A........|</span>
+<span class="line">16   0000c0f0  00 00 0e 56 95 00 00 01  42 01 2c 80 00 00 03 61  |...V....B.,....a|</span>
+<span class="line">17   0000c100  61 61 61 61 61 61 61 61  61 62 62 62 62 62 62 62  |aaaaaaaaabbbbbbb|</span>
+<span class="line">18   0000c110  62 62 62 63 63 63 63 63  64 64 64 64 64 64 65 01  |bbbcccccdddddde.|</span>
+<span class="line">19   0000c120  06 0a 0a 08 00 00 28 ff  47 00 00 00 00 02 0d 00  |......(.G.......|</span>
+<span class="line">20   0000c130  00 00 00 0e 5e 98 00 00  01 45 01 10 80 00 00 04  |....^....E......|</span>
+<span class="line">21   0000c140  61 61 61 61 61 61 61 61  61 61 62 62 62 62 62 62  |aaaaaaaaaabbbbbb|</span>
+<span class="line">22   0000c150  62 62 62 62 64 64 64 64  64 64 65 00 00 00 00 00  |bbbbdddddde.....|</span>
+<span class="line">     ......</span>
+<span class="line">1024 0000fff0  00 00 00 00 00 70 00 63  f2 c3 5d 27 00 2b d4 0d  |.....p.c..]&apos;.+..|</span>
+</pre></td></tr></table></figure></p>
+<ul>
+<li>第1行中的<code>51 07 91 31</code>和最后一行的<code>f2 c3 5d 27</code>是checksum，调用mysql中的一个校验函数，若检验不一致判断该块有问题</li>
+<li>第1行中的<code>00 00 00 03</code>，代表这是第几个page(0开始)，这里代表是第4个page</li>
+<li>第1行中的<code>ff ff ff ff ff ff ff ff</code>中前4个字节代表记录上一页指针地址，后4个字节代表记录下一页指针地址，全是<code>f</code>代表上一页和下一页无记录</li>
+<li>第2行中的<code>00 00 00 00 00 2b d4 0d</code>是日志地址，LSN(Log Segment Number)，其中后4个字节和块最后一行后4个字节<code>00 2b d4 0d</code>是一致的</li>
+<li>第2行中的<code>45 bf</code>代表页（块）的类型</li>
+<li>第3行中的<code>00 00 00 13</code>代表tablespace的编号</li>
+<li>第3行中的<code>00 02</code>代表有两个slot，对应块最后一行尾部的<code>00 70 00 63</code>，每2个字节代表一个slot</li>
+<li>第3行中的<code>01 5b</code>代表该页下一行的空闲开始位置，也就是<code>0000c15b</code></li>
+<li>第3行中的<code>80 06</code>能算出块中有几行记录，compact中该值初始是8002，8006-8002=4，代表该页有4行记录</li>
+<li>第3行中的<code>00 00 00 00</code>代表可重用字节，这里没有删除过记录，值都是0</li>
+<li>第4行中的<code>01 29</code>代表最后一行记录的开始位置，也就是该块中第4行记录的开始位置</li>
+<li>第4行中的<code>00 02 00 03</code>其中<code>00 02</code>为往右插，<code>00 03</code>为连续插入3次</li>
+<li>第4行中的<code>00 04</code>代表有4行记录</li>
+<li>第4行中的<code>00 00 00 00 00 00 00 00</code>代表页上最大事务数</li>
+<li>第5行中的<code>00 00</code>代表page level <0000>，也就是叶子节点</0000></li>
+<li>第5行中的<code>00 00 00 00 00 00 00 24</code>代表索引的ID</li>
+<li>第5-6行中的<code>00 00 00 13 00 00 00 02 00 f2</code> 代表段头管理非叶节点的</li>
+<li>第6行中的<code>00 00 00 13  00 00 00 02 00 32</code> 代表段头管理叶节点的</li>
+<li>第6-7行中的<code>01 00 02 00 1f</code>代表最小虚拟值的行头，固定的5个节点</li>
+<li>第7行中的<code>69 6e 66 69 6d 75 6d 00</code>代表的就是infimum，8个字节，后面的<code>00</code>占位</li>
+<li>第7行中的<code>05 00 0b 00 00</code>代表最大虚拟值的行头，固定的5个节点</li>
+<li>第8行中的<code>73 75 70 72 65 6d 75 6d</code>代表的就是supremum，8个字节</li>
+</ul>
+<h4 id="解析第1行记录"><a href="#解析第1行记录" class="headerlink" title="解析第1行记录"></a>解析第1行记录</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">8    0000c070  73 75 70 72 65 6d 75 6d  04 03 02 01 20 00 00 10  |supremum.... ...|</span>
+<span class="line">9    0000c080  00 2b 00 00 00 00 02 0a  00 00 00 00 0e 56 95 00  |.+...........V..|</span>
+<span class="line">10   0000c090  00 01 42 01 10 80 00 00  01 41 42 42 43 43 43 44  |..B......ABBCCCD|</span>
+<span class="line">11   0000c0a0  44 44 44 00 05 0a 0a 20  00 00 18 00 3b 00 00 00  |DDD.... ....;...|</span>
+</pre></td></tr></table></figure>
+<ul>
+<li>第8行中的<code>04 03 02 01</code>代表变长字段长度列表，逆序，表中5个字段类型为varchar，有NULL数据</li>
+<li>第8行中的<code>20</code>代表null标志位，第1行记录有null值，十六进制<code>20</code>转成二进制是100000，逆序，表中一共6列，1表示第6列为null，0表示其他列有值</li>
+<li>第8-9行中的<code>00 00 10 00 2b</code> 是记录头信息，固定5个字节  c078(本行记录开位置)+2b(偏移量)=c0a3(下一行记录开始位置)</li>
+<li>第9行中的<code>00 00 00 00 02 0a</code> 是RowID，固定6个字节，表没有主键</li>
+<li>第9行中的<code>00 00 00 00 0e 56</code> 是事务ID，固定6个字节</li>
+<li>第9-10行中的<code>95 00 00 01 42 01 10</code> 回滚指针Roll Pointer，固定7个字节</li>
+<li>第10行中的<code>80 00 00 01</code> 是ID列int 占4字节 值是1</li>
+<li>第10-11行的<code>41 42 42 43 43 43 44 44 44 44</code>是列的数据，结合变长字段长度列表，可以算出varchar每列的值<ul>
+<li>第2列 41</li>
+<li>第3列 42 42 </li>
+<li>第4列 43 43 43 </li>
+<li>第5列 44 44 44 44</li>
+<li>第6列 null</li>
+</ul>
+</li>
+</ul>
+<h4 id="解析第2行记录"><a href="#解析第2行记录" class="headerlink" title="解析第2行记录"></a>解析第2行记录</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">11   0000c0a0  44 44 44 00 05 0a 0a 20  00 00 18 00 3b 00 00 00  |DDD.... ....;...|</span>
+<span class="line">12   0000c0b0  00 02 0b 00 00 00 00 0e  56 95 00 00 01 42 01 1e  |........V....B..|</span>
+<span class="line">13   0000c0c0  80 00 00 02 61 61 61 61  61 61 61 61 61 61 62 62  |....aaaaaaaaaabb|</span>
+<span class="line">14   0000c0d0  62 62 62 62 62 62 62 62  63 63 63 63 63 01 06 05  |bbbbbbbbccccc...|</span>
+</pre></td></tr></table></figure>
+<p>从第1行记录解析中，已可算出，第二行开始位置为c0a3</p>
+<ul>
+<li>第11行中的<code>00 05 0a 0a</code>代表变长字段长度列表，逆序，表中5个字段类型为varchar，有NULL数据</li>
+<li>第11行中的<code>20</code>代表null标志位，第2行记录有null值，十六进制<code>20</code>转成二进制是100000，逆序，表中一共6列，1表示第6列为null，0表示其他列有值</li>
+<li>第11行中的<code>00 00 18 00 3b</code> 是记录头信息，固定5个字节   c0a3(本行记录开位置)+3b(偏移量)=c0de(下一行记录开始位置)</li>
+<li>第11-12行中的<code>00 00 00 00 02 0b</code> 是RowID，固定6个字节，表没有主键</li>
+<li>第12行中的<code>00 00 00 00 0e 56</code> 是事务ID，固定6个字节</li>
+<li>第12中的<code>95 00 00 01 42 01 1e</code> 回滚指针Roll Pointer，固定7个字节</li>
+<li>第13行中的<code>80 00 00 02</code> 是ID列int 占4字节 值是2</li>
+<li>第13-14行的<code>61 61 61 61 61 61 61 61 61 61 62 62 62 62 62 62 62 62 62 62 63 63 63 63 63</code>是列的数据，结合变长字段长度列表，可以算出varchar每列的值<ul>
+<li>第2列 61 61 61 61 61 61 61 61 61 61</li>
+<li>第3列 62 62 62 62 62 62 62 62 62 62 </li>
+<li>第4列 63 63 63 63 63</li>
+<li>第5列 空值</li>
+<li>第6列 null</li>
+</ul>
+</li>
+</ul>
+<h4 id="解析第3行记录"><a href="#解析第3行记录" class="headerlink" title="解析第3行记录"></a>解析第3行记录</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">14   0000c0d0  62 62 62 62 62 62 62 62  63 63 63 63 63 01 06 05  |bbbbbbbbccccc...|</span>
+<span class="line">15   0000c0e0  0a 0a 00 00 00 20 00 41  00 00 00 00 02 0c 00 00  |..... .A........|</span>
+<span class="line">16   0000c0f0  00 00 0e 56 95 00 00 01  42 01 2c 80 00 00 03 61  |...V....B.,....a|</span>
+<span class="line">17   0000c100  61 61 61 61 61 61 61 61  61 62 62 62 62 62 62 62  |aaaaaaaaabbbbbbb|</span>
+<span class="line">18   0000c110  62 62 62 63 63 63 63 63  64 64 64 64 64 64 65 01  |bbbcccccdddddde.|</span>
+</pre></td></tr></table></figure>
+<ul>
+<li>第14-15行中的<code>01 06 05 0a 0a</code>代表变长字段长度列表，逆序，表中5个字段类型为varchar，没有NULL数据</li>
+<li>第15行中的<code>00</code>代表null标志位，00表示没有null值</li>
+<li>第15行中的<code>00 00 20 00 41</code> 是记录头信息，固定5个字节</li>
+<li>第15行中的<code>00 00 00 00 02 0c</code> 是RowID，固定6个字节，表没有主键</li>
+<li>第15-16行中的<code>00 00 00 00 0e 56</code> 是事务ID，固定6个字节</li>
+<li>第16中的<code>95 00 00 01 42 01 2c</code> 回滚指针Roll Pointer，固定7个字节</li>
+<li>第16行中的<code>80 00 00 03</code> 是ID列int 占4字节 值是3</li>
+<li>第16-18行的<code>61 61 61 61 61 61 61 61 61 61 62 62 62 62 62 62 62 62 62 62 63 63 63 63 63 64 64 64 64 64 64 65</code>是列的数据，结合变长字段长度列表，可以算出varchar每列的值<ul>
+<li>第2列 61 61 61 61 61 61 61 61 61 61</li>
+<li>第3列 62 62 62 62 62 62 62 62 62 62 </li>
+<li>第4列 63 63 63 63 63</li>
+<li>第5列 64 64 64 64 64 64</li>
+<li>第6列 65</li>
+</ul>
+</li>
+</ul>
+<h4 id="解析第4行记录"><a href="#解析第4行记录" class="headerlink" title="解析第4行记录"></a>解析第4行记录</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">18   0000c110  62 62 62 63 63 63 63 63  64 64 64 64 64 64 65 01  |bbbcccccdddddde.|</span>
+<span class="line">19   0000c120  06 0a 0a 08 00 00 28 ff  47 00 00 00 00 02 0d 00  |......(.G.......|</span>
+<span class="line">20   0000c130  00 00 00 0e 5e 98 00 00  01 45 01 10 80 00 00 04  |....^....E......|</span>
+<span class="line">21   0000c140  61 61 61 61 61 61 61 61  61 61 62 62 62 62 62 62  |aaaaaaaaaabbbbbb|</span>
+<span class="line">22   0000c150  62 62 62 62 64 64 64 64  64 64 65 00 00 00 00 00  |bbbbdddddde.....|</span>
+</pre></td></tr></table></figure>
+<ul>
+<li>第18-19行中的<code>01 06 0a 0a</code>代表变长字段长度列表，逆序，表中5个字段类型为varchar，有NULL数据</li>
+<li>第19行中的<code>08</code>代表null标志位，十六进制<code>08</code>转成二进制是001000，逆序，表中一共6列，1表示第4列为null，0表示其他列有值</li>
+<li>第19行中的<code>00 00 28 ff 47</code> 是记录头信息，固定5个字节</li>
+<li>第19行中的<code>00 00 00 00 02 0d</code> 是RowID，固定6个字节，表没有主键</li>
+<li>第19-20行中的<code>00 00 00 00 0e 5e</code> 是事务ID，固定6个字节，这里事务ID已经变化</li>
+<li>第20中的<code>98 00 00  01 45 01 10</code> 回滚指针Roll Pointer，固定7个字节</li>
+<li>第20行中的<code>80 00 00 04</code> 是ID列int 占4字节 值是4</li>
+<li>第16-18行的<code>61 61 61 61 61 61 61 61  61 61 62 62 62 62 62 62 62 62 62 62 64 64 64 64  64 64 65</code>是列的数据，结合变长字段长度列表，可以算出varchar每列的值<ul>
+<li>第2列 61 61 61 61 61 61 61 61 61 61</li>
+<li>第3列 62 62 62 62 62 62 62 62 62 62 </li>
+<li>第4列 NULL</li>
+<li>第5列 64 64 64 64 64 64</li>
+<li>第5列 65</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？"><a href="#3-详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？" class="headerlink" title="3.详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？"></a>3.详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？</h2><h3 id="重启数据库"><a href="#重启数据库" class="headerlink" title="重启数据库"></a>重启数据库</h3><p>重启数据库生成新的binlog，便于观察测试<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysqladmin <span class="keyword">shutdown</span></span>
+<span class="line">mysqld_safe --defaults-file=<span class="regexp">/u01/my</span>3306/my.cnf &amp;</span>
+<span class="line"></span>
+<span class="line">[mysql@mysql binlog]$ pwd</span>
+<span class="line">/u01/my3306/<span class="keyword">log</span>/binlog</span>
+<span class="line">[mysql@mysql binlog]$ ll</span>
+<span class="line">total <span class="number">928</span></span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql <span class="number">933537</span> Feb <span class="number">17</span> <span class="number">16</span>:<span class="number">38</span> binlog.<span class="number">000007</span></span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql    <span class="number">391</span> Feb <span class="number">17</span> <span class="number">16</span>:<span class="number">54</span> binlog.<span class="number">00000</span>8</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql    <span class="number">120</span> Feb <span class="number">17</span> <span class="number">16</span>:<span class="number">54</span> binlog.<span class="number">00000</span>9</span>
+<span class="line">-rw-rw----. <span class="number">1</span> mysql mysql    <span class="number">111</span> Feb <span class="number">17</span> <span class="number">16</span>:<span class="number">54</span> binlog.index</span>
+</pre></td></tr></table></figure></p>
+<h3 id="用一个update事务做测试"><a href="#用一个update事务做测试" class="headerlink" title="用一个update事务做测试"></a>用一个update事务做测试</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> lyj;</span>
+<span class="line">begin;</span>
+<span class="line">update lyj_t1 set name1=<span class="string">'aaaaaaa'</span> where id=<span class="number">1</span>;</span>
+</pre></td></tr></table></figure>
+<h3 id="查看binlog"><a href="#查看binlog" class="headerlink" title="查看binlog"></a>查看binlog</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 未commit前</span></span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line">| Log_name      | Pos | Event_type  | Server_id | End_log_pos | Info                                  |</span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line">| binlog.<span class="number">00000</span>9 |   <span class="number">4</span> | Format_desc |       <span class="number">101</span> |         <span class="number">120</span> | Server ver: <span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span>, Binlog ver: <span class="number">4</span> |</span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># commit后</span></span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">show binlog events in <span class="string">'binlog.000009'</span>;</span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line">| Log_name      | Pos | Event_type  | Server_id | End_log_pos | Info                                  |</span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line">| binlog.<span class="number">00000</span>9 |   <span class="number">4</span> | Format_desc |       <span class="number">101</span> |         <span class="number">120</span> | Server ver: <span class="number">5.6</span>.<span class="number">35</span>-<span class="keyword">log</span>, Binlog ver: <span class="number">4</span> |</span>
+<span class="line">| binlog.<span class="number">00000</span>9 | <span class="number">120</span> | Query       |       <span class="number">101</span> |         <span class="number">191</span> | BEGIN                                 |</span>
+<span class="line">| binlog.<span class="number">00000</span>9 | <span class="number">191</span> | Table_map   |       <span class="number">101</span> |         <span class="number">254</span> | table_id: <span class="number">70</span> (lyj.lyj_t1)             |</span>
+<span class="line">| binlog.<span class="number">00000</span>9 | <span class="number">254</span> | Update_rows |       <span class="number">101</span> |         <span class="number">339</span> | table_id: <span class="number">70</span> flags: STMT_END_F        |</span>
+<span class="line">| binlog.<span class="number">00000</span>9 | <span class="number">339</span> | Xid         |       <span class="number">101</span> |         <span class="number">370</span> | COMMIT /* xid=<span class="number">9</span> *<span class="regexp">/                    |</span>
+<span class="line">+---------------+-----+-------------+-----------+-------------+---------------------------------------+</span>
+<span class="line"></span>
+<span class="line"># 也可用以下命令查看</span>
+<span class="line">mysqlbinlog -v -v binlog.000009</span></span>
+</pre></td></tr></table></figure>
+<h3 id="Binlog日志生成的流程"><a href="#Binlog日志生成的流程" class="headerlink" title="Binlog日志生成的流程"></a>Binlog日志生成的流程</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/0217_binlog_01.png" alt="Binlog日志生成的流程"></p>
+<ol>
+<li>事务commit后，日志会被write到标准I/O cache里面，每个线程是单独缓存的，线程间的日志彼此独立，不能看到不同线程的日志，这时若发生crash，日志会丢失</li>
+<li>write后，每个线程的日志会flush到OS file cache里，这时日志是全局可见的，每个线程都能看到这个日志，若此时crash，日志也会丢失</li>
+<li>sync操作会从日志内存里把日志写到disk中，达到持久化。</li>
+</ol>
+<h3 id="相关的参数"><a href="#相关的参数" class="headerlink" title="相关的参数"></a>相关的参数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="string">'sync_binlog'</span>;</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| Variable_name | Value |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| sync_binlog   | <span class="number">100</span>   |    <span class="comment"># 代表做100次commit再写binlog，一般设置成1，保证数据的一致性</span></span>
+<span class="line">+---------------+-------+</span>
+<span class="line"><span class="number">1</span> row in set (<span class="number">0</span>.<span class="number">00</span> sec)</span>
+<span class="line"></span>
+<span class="line">mysql&gt; show variables like <span class="string">'innodb_flush_log_at_trx_commit'</span>;</span>
+<span class="line">+--------------------------------+-------+</span>
+<span class="line">| Variable_name                  | Value |</span>
+<span class="line">+--------------------------------+-------+</span>
+<span class="line">| innodb_flush_log_at_trx_commit | <span class="number">1</span>     |   <span class="comment"># 一般设置成1，保证数据的一致性</span></span>
+<span class="line">+--------------------------------+-------+</span>
+<span class="line"><span class="number">1</span> row in set (<span class="number">0</span>.<span class="number">01</span> sec)</span>
+</pre></td></tr></table></figure>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="查看innodb默认块的大小"><a href="#查看innodb默认块的大小" class="headerlink" title="查看innodb默认块的大小"></a>查看innodb默认块的大小</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="string">'%innodb_page_size%'</span>;</span>
+<span class="line">+------------------+-------+</span>
+<span class="line">| Variable_name    | Value |</span>
+<span class="line">+------------------+-------+</span>
+<span class="line">| innodb_page_size | <span class="number">16384</span> |</span>
+<span class="line">+------------------+-------+</span>
+</pre></td></tr></table></figure>
+<h3 id="查看文件格式"><a href="#查看文件格式" class="headerlink" title="查看文件格式"></a>查看文件格式</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show variables like <span class="string">'%file_format%'</span>;</span>
+<span class="line">+--------------------------+-----------+</span>
+<span class="line">| Variable_name            | Value     |</span>
+<span class="line">+--------------------------+-----------+</span>
+<span class="line">| innodb_file_format       | Barracuda |    <span class="comment"># Barracuda[,bærə''kudə] 梭鱼类</span></span>
+<span class="line">| innodb_file_format_check | ON        |</span>
+<span class="line">| innodb_file_format_max   | Antelope  |    <span class="comment"># Antelope['æntɪlop] 羚羊 </span></span>
+<span class="line">+--------------------------+-----------+</span>
+</pre></td></tr></table></figure>
+<p>从下图可以看出<code>Antelope</code>只包括<code>Redundant</code>（已废弃）和<code>Compact</code>，故建议将<code>innodb_file_format_max</code>也设置为<code>Barracuda</code><br><img src="http://oligvdnzp.bkt.clouddn.com/0216_file_format.png" alt="innodb文件格式"></p>
+<h3 id="查看tablespace编号"><a href="#查看tablespace编号" class="headerlink" title="查看tablespace编号"></a>查看tablespace编号</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.innodb_sys_tables where name like <span class="string">'%lyj_t1%'</span>;</span>
+<span class="line">+----------+----------------------------+------+--------+-------+-------------+------------+---------------+</span>
+<span class="line">| TABLE_ID | NAME                       | FLAG | N_COLS | SPACE | FILE_FORMAT | ROW_FORMAT | ZIP_PAGE_SIZE |</span>
+<span class="line">+----------+----------------------------+------+--------+-------+-------------+------------+---------------+</span>
+<span class="line">|       <span class="number">14</span> | SYS_DATAFILES              |    <span class="number">0</span> |      <span class="number">5</span> |     <span class="number">0</span> | Antelope    | Redundant  |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">11</span> | SYS_FOREIGN                |    <span class="number">0</span> |      <span class="number">7</span> |     <span class="number">0</span> | Antelope    | Redundant  |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">12</span> | SYS_FOREIGN_COLS           |    <span class="number">0</span> |      <span class="number">7</span> |     <span class="number">0</span> | Antelope    | Redundant  |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">13</span> | SYS_TABLESPACES            |    <span class="number">0</span> |      <span class="number">6</span> |     <span class="number">0</span> | Antelope    | Redundant  |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">27</span> | lyj/lyj_t1                 |    <span class="number">1</span> |      <span class="number">5</span> |    <span class="number">13</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">16</span> | mysql/innodb_index_stats   |    <span class="number">1</span> |     <span class="number">11</span> |     <span class="number">2</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">15</span> | mysql/innodb_table_stats   |    <span class="number">1</span> |      <span class="number">9</span> |     <span class="number">1</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">18</span> | mysql/slave_master_info    |    <span class="number">1</span> |     <span class="number">26</span> |     <span class="number">4</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">17</span> | mysql/slave_relay_log_info |    <span class="number">1</span> |     <span class="number">11</span> |     <span class="number">3</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">|       <span class="number">19</span> | mysql/slave_worker_info    |    <span class="number">1</span> |     <span class="number">15</span> |     <span class="number">5</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">+----------+----------------------------+------+--------+-------+-------------+------------+---------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.innodb_sys_tables where name like <span class="string">'%lyj_t1%'</span>;</span>
+<span class="line">+----------+------------+------+--------+-------+-------------+------------+---------------+</span>
+<span class="line">| TABLE_ID | NAME       | FLAG | N_COLS | SPACE | FILE_FORMAT | ROW_FORMAT | ZIP_PAGE_SIZE |</span>
+<span class="line">+----------+------------+------+--------+-------+-------------+------------+---------------+</span>
+<span class="line">|       <span class="number">30</span> | lyj/lyj_t1 |    <span class="number">1</span> |      <span class="number">5</span> |    <span class="number">16</span> | Antelope    | Compact    |             <span class="number">0</span> |</span>
+<span class="line">+----------+------------+------+--------+-------+-------------+------------+---------------+</span>
+</pre></td></tr></table></figure>
+<h3 id="查看未提交事务ID"><a href="#查看未提交事务ID" class="headerlink" title="查看未提交事务ID"></a>查看未提交事务ID</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set autocommit = <span class="number">0</span>;</span>
+<span class="line"></span>
+<span class="line">insert into lyj_t1 <span class="keyword">values</span>(<span class="number">5</span>,<span class="string">'aaaaaaaaaa'</span>,<span class="string">'bbbbbbbbbb'</span>,<span class="string">'ccccc'</span>,<span class="string">'dddddd'</span>,<span class="string">'e'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from information_schema.innodb_sys_idx\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                    trx_id: <span class="number">3694</span></span>
+<span class="line">                 trx_state: RUNNING</span>
+<span class="line">               trx_started: <span class="number">2017</span>-<span class="number">02</span>-<span class="number">17</span> <span class="number">15</span>:<span class="number">42</span>:<span class="number">41</span></span>
+<span class="line">     trx_requested_lock_id: NULL</span>
+<span class="line">          trx_wait_started: NULL</span>
+<span class="line">                trx_weight: <span class="number">2</span></span>
+<span class="line">       trx_mysql_thread_id: <span class="number">23</span></span>
+<span class="line">                 trx_query: <span class="keyword">select</span> * from information_schema.innodb_trx</span>
+<span class="line">       trx_operation_state: NULL</span>
+<span class="line">         trx_tables_in_use: <span class="number">0</span></span>
+<span class="line">         trx_tables_locked: <span class="number">0</span></span>
+<span class="line">          trx_lock_structs: <span class="number">1</span></span>
+<span class="line">     trx_lock_memory_bytes: <span class="number">360</span></span>
+<span class="line">           trx_rows_locked: <span class="number">0</span></span>
+<span class="line">         trx_rows_modified: <span class="number">1</span></span>
+<span class="line">   trx_concurrency_tickets: <span class="number">0</span></span>
+<span class="line">       trx_isolation_level: REPEATABLE READ</span>
+<span class="line">         trx_unique_checks: <span class="number">1</span></span>
+<span class="line">    trx_foreign_key_checks: <span class="number">1</span></span>
+<span class="line">trx_last_foreign_key_error: NULL</span>
+<span class="line"> trx_adaptive_hash_latched: <span class="number">0</span></span>
+<span class="line"> trx_adaptive_hash_timeout: <span class="number">10000</span></span>
+<span class="line">          trx_is_read_only: <span class="number">0</span></span>
+<span class="line">trx_autocommit_non_locking: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">rollback;</span>
+</pre></td></tr></table></figure>
+<h3 id="转换成16进制函数"><a href="#转换成16进制函数" class="headerlink" title="转换成16进制函数"></a>转换成16进制函数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">hex</span>(<span class="string">'infimum'</span>);</span>
+<span class="line">+----------------+</span>
+<span class="line">| <span class="keyword">hex</span>(<span class="string">'infimum'</span>) |</span>
+<span class="line">+----------------+</span>
+<span class="line">| <span class="number">696</span>E66696D756D |</span>
+<span class="line">+----------------+</span>
+</pre></td></tr></table></figure>
+<h3 id="文件结构图"><a href="#文件结构图" class="headerlink" title="文件结构图"></a>文件结构图</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/innodb_file_s.png" alt="文件结构"></p>
+<h3 id="Page结构图"><a href="#Page结构图" class="headerlink" title="Page结构图"></a>Page结构图</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/innodb_page_s.png" alt="Page结构"></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">
+                    MySQL DBA从小白到大神实战-05 MySQL DBA日常操作
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">
+                    那些在11gR2中可能惹祸的新特性
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-为什么创建一个InnoDB表只分配了96K而不是1M？"><span class="toc-text">1. 为什么创建一个InnoDB表只分配了96K而不是1M？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建一个测试用的InnoDB表"><span class="toc-text">创建一个测试用的InnoDB表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查验创建表时分配的初始大小为96K"><span class="toc-text">查验创建表时分配的初始大小为96K</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#插入数据观察表空间大小变化"><span class="toc-text">插入数据观察表空间大小变化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Innodb数据块解析，解析第2行记录格式"><span class="toc-text">2. Innodb数据块解析，解析第2行记录格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建测试表并插入数据"><span class="toc-text">创建测试表并插入数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解析数据块"><span class="toc-text">解析数据块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#使用hexdump工具导出表空间文件前4个块"><span class="toc-text">使用hexdump工具导出表空间文件前4个块</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查看导出块类型标识"><span class="toc-text">查看导出块类型标识</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#查看行记录格式"><span class="toc-text">查看行记录格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Compact行记录结构"><span class="toc-text">Compact行记录结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解析块头"><span class="toc-text">解析块头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解析第1行记录"><span class="toc-text">解析第1行记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解析第2行记录"><span class="toc-text">解析第2行记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解析第3行记录"><span class="toc-text">解析第3行记录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解析第4行记录"><span class="toc-text">解析第4行记录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？"><span class="toc-text">3.详细描述commit命令发出后，binlog日志从内存写到磁盘的过程？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#重启数据库"><span class="toc-text">重启数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用一个update事务做测试"><span class="toc-text">用一个update事务做测试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看binlog"><span class="toc-text">查看binlog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binlog日志生成的流程"><span class="toc-text">Binlog日志生成的流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#相关的参数"><span class="toc-text">相关的参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#补充"><span class="toc-text">补充</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看innodb默认块的大小"><span class="toc-text">查看innodb默认块的大小</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看文件格式"><span class="toc-text">查看文件格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看tablespace编号"><span class="toc-text">查看tablespace编号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看未提交事务ID"><span class="toc-text">查看未提交事务ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#转换成16进制函数"><span class="toc-text">转换成16进制函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件结构图"><span class="toc-text">文件结构图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Page结构图"><span class="toc-text">Page结构图</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/" title="上一篇: MySQL DBA从小白到大神实战-05 MySQL DBA日常操作">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/" title="下一篇: 那些在11gR2中可能惹祸的新特性">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

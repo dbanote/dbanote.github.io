@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="写一个子查询的SQL语句。select b.dname,a.ename
+from
+  (select deptno,ename from emp) a,
+  (select deptno,dname from dept) b
+where a.deptno=b.deptno order by 1,2;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle职业直通车-04 复杂一点的SQL/PLSQL">
+<meta property="og:url" content="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="写一个子查询的SQL语句。select b.dname,a.ename
+from
+  (select deptno,ename from emp) a,
+  (select deptno,dname from dept) b
+where a.deptno=b.deptno order by 1,2;">
+<meta property="og:updated_time" content="2017-10-14T07:42:34.932Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle职业直通车-04 复杂一点的SQL/PLSQL">
+<meta name="twitter:description" content="写一个子查询的SQL语句。select b.dname,a.ename
+from
+  (select deptno,ename from emp) a,
+  (select deptno,dname from dept) b
+where a.deptno=b.deptno order by 1,2;">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle职业直通车-04 复杂一点的SQL/PLSQL | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/" class="article-date">
+      <time datetime="2016-05-06T16:00:00.000Z" itemprop="datePublished">2016-05-07</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle职业直通车-04 复杂一点的SQL/PLSQL
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="写一个子查询的SQL语句。"><a href="#写一个子查询的SQL语句。" class="headerlink" title="写一个子查询的SQL语句。"></a>写一个子查询的SQL语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> b.dname,a.ename</span>
+<span class="line">from</span>
+<span class="line">  (<span class="keyword">select</span> deptno,ename from emp) a,</span>
+<span class="line">  (<span class="keyword">select</span> deptno,dname from dept) b</span>
+<span class="line">where a.deptno=b.deptno order by <span class="number">1</span>,<span class="number">2</span>;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="分别写一个内连接，左连接，右连接的SQL语句。"><a href="#分别写一个内连接，左连接，右连接的SQL语句。" class="headerlink" title="分别写一个内连接，左连接，右连接的SQL语句。"></a>分别写一个内连接，左连接，右连接的SQL语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 内连接 inner join</span></span>
+<span class="line"><span class="keyword">select</span> a.dname,b.ename,b.mgr</span>
+<span class="line">from dept a, emp b</span>
+<span class="line">where a.deptno=b.deptno;</span>
+<span class="line"></span>
+<span class="line">DNAME          ENAME             MGR</span>
+<span class="line">-------------- ---------- ----------</span>
+<span class="line">ACCOUNTING     CLARK            <span class="number">7839</span></span>
+<span class="line">ACCOUNTING     KING</span>
+<span class="line">ACCOUNTING     MILLER           <span class="number">7782</span></span>
+<span class="line">RESEARCH       JONES            <span class="number">7839</span></span>
+<span class="line">RESEARCH       FORD             <span class="number">7566</span></span>
+<span class="line">RESEARCH       ADAMS            <span class="number">7788</span></span>
+<span class="line">RESEARCH       SMITH            <span class="number">7902</span></span>
+<span class="line">RESEARCH       SCOTT            <span class="number">7566</span></span>
+<span class="line">SALES          WARD             <span class="number">7698</span></span>
+<span class="line">SALES          TURNER           <span class="number">7698</span></span>
+<span class="line">SALES          ALLEN            <span class="number">7698</span></span>
+<span class="line">SALES          JAMES            <span class="number">7698</span></span>
+<span class="line">SALES          BLAKE            <span class="number">7839</span></span>
+<span class="line">SALES          MARTIN           <span class="number">7698</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 外连接 outer join - 左连接 左边集合的全集</span></span>
+<span class="line"><span class="keyword">select</span> a.dname,b.ename,b.mgr</span>
+<span class="line">from dept a, emp b</span>
+<span class="line">where a.deptno=b.deptno(+);</span>
+<span class="line">DNAME          ENAME             MGR</span>
+<span class="line">-------------- ---------- ----------</span>
+<span class="line">ACCOUNTING     CLARK            <span class="number">7839</span></span>
+<span class="line">ACCOUNTING     KING</span>
+<span class="line">ACCOUNTING     MILLER           <span class="number">7782</span></span>
+<span class="line">RESEARCH       JONES            <span class="number">7839</span></span>
+<span class="line">RESEARCH       FORD             <span class="number">7566</span></span>
+<span class="line">RESEARCH       ADAMS            <span class="number">7788</span></span>
+<span class="line">RESEARCH       SMITH            <span class="number">7902</span></span>
+<span class="line">RESEARCH       SCOTT            <span class="number">7566</span></span>
+<span class="line">SALES          WARD             <span class="number">7698</span></span>
+<span class="line">SALES          TURNER           <span class="number">7698</span></span>
+<span class="line">SALES          ALLEN            <span class="number">7698</span></span>
+<span class="line">SALES          JAMES            <span class="number">7698</span></span>
+<span class="line">SALES          BLAKE            <span class="number">7839</span></span>
+<span class="line">SALES          MARTIN           <span class="number">7698</span></span>
+<span class="line">OPERATIONS</span>
+<span class="line">IT</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 外连接 outer join - 右连接 右边集合的全集</span></span>
+<span class="line"><span class="keyword">select</span> a.dname,b.ename,b.mgr</span>
+<span class="line">from dept a, emp b</span>
+<span class="line">where a.deptno(+)=b.deptno;</span>
+</pre></td></tr></table></figure>
+<h2 id="写一个标量子查询的SQL。"><a href="#写一个标量子查询的SQL。" class="headerlink" title="写一个标量子查询的SQL。"></a>写一个标量子查询的SQL。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span>
+<span class="line">  (<span class="keyword">select</span> dname from dept b where b.deptno=a.deptno),ename</span>
+<span class="line">from emp a</span>
+<span class="line">order by <span class="number">1</span>,<span class="number">2</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="写一个with语法的SQL语句。"><a href="#写一个with语法的SQL语句。" class="headerlink" title="写一个with语法的SQL语句。"></a>写一个with语法的SQL语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找出工资大于平均工资的员工</span></span>
+<span class="line"><span class="keyword">select</span> ename, sum(sal) from emp group by ename having sum(sal)&gt;=(<span class="keyword">select</span> sum(sal)/<span class="number">14</span> from emp);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用WITH</span></span>
+<span class="line">with t as (<span class="keyword">select</span> ename, sal from emp)</span>
+<span class="line"><span class="keyword">select</span> ename,sal from t where sal&gt;=(<span class="keyword">select</span> sum(sal)/<span class="number">14</span> from emp);</span>
+<span class="line"></span>
+<span class="line">with t as (<span class="keyword">select</span> ename,sum(sal) sal from emp group by ename)</span>
+<span class="line"><span class="keyword">select</span> ename,sal from t where sal&gt;=(<span class="keyword">select</span> sum(sal)/<span class="number">14</span> from emp);</span>
+</pre></td></tr></table></figure>
+<h2 id="用case或者decode语法做一个行列转换的列子，给出SQL语句。"><a href="#用case或者decode语法做一个行列转换的列子，给出SQL语句。" class="headerlink" title="用case或者decode语法做一个行列转换的列子，给出SQL语句。"></a>用case或者decode语法做一个行列转换的列子，给出SQL语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># case</span></span>
+<span class="line"><span class="keyword">select</span> </span>
+<span class="line">  case</span>
+<span class="line">    <span class="keyword">when</span> deptno=<span class="number">10</span> then <span class="string">'ACCOUNTING'</span></span>
+<span class="line">    <span class="keyword">when</span> deptno=<span class="number">20</span> then <span class="string">'RESERCH'</span></span>
+<span class="line">    <span class="keyword">when</span> deptno=<span class="number">30</span> then <span class="string">'SALES'</span></span>
+<span class="line">  end,</span>
+<span class="line">  sum(sal) from emp</span>
+<span class="line">  group by deptno;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># decode</span></span>
+<span class="line"><span class="keyword">select</span> </span>
+<span class="line">  decode(deptno,</span>
+<span class="line">         <span class="number">10</span>,<span class="string">'ACCOUNTING'</span>,</span>
+<span class="line">         <span class="number">20</span>,<span class="string">'RESERCH'</span>,</span>
+<span class="line">         <span class="number">30</span>,<span class="string">'SALES'</span>),</span>
+<span class="line">  sum(sal) from emp</span>
+<span class="line">  group by deptno;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 行转列</span></span>
+<span class="line"><span class="keyword">select</span> job,ename,sal from emp where job=<span class="string">'MANAGER'</span>;</span>
+<span class="line"></span>
+<span class="line">JOB       ENAME             SAL</span>
+<span class="line">--------- ---------- ----------</span>
+<span class="line">MANAGER   JONES            <span class="number">2975</span></span>
+<span class="line">MANAGER   BLAKE            <span class="number">2850</span></span>
+<span class="line">MANAGER   CLARK            <span class="number">2450</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> job,</span>
+<span class="line">       sum(decode(ename,<span class="string">'JONES'</span>,SAL)) JONES,</span>
+<span class="line">       sum(decode(ename,<span class="string">'BLAKE'</span>,SAL)) BLAKE,</span>
+<span class="line">       sum(decode(ename,<span class="string">'CLARK'</span>,SAL)) CLARK</span>
+<span class="line">from emp</span>
+<span class="line">where job=<span class="string">'MANAGER'</span> group by job;</span>
+<span class="line"></span>
+<span class="line">JOB            JONES      BLAKE      CLARK</span>
+<span class="line">--------- ---------- ---------- ----------</span>
+<span class="line">MANAGER         <span class="number">2975</span>       <span class="number">2850</span>       <span class="number">2450</span></span>
+</pre></td></tr></table></figure>
+<h2 id="写个存储过程，在在屏幕中打印出scott-dept表的内容。"><a href="#写个存储过程，在在屏幕中打印出scott-dept表的内容。" class="headerlink" title="写个存储过程，在在屏幕中打印出scott.dept表的内容。"></a>写个存储过程，在在屏幕中打印出scott.dept表的内容。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create <span class="keyword">or</span> replace procedure print_dept is</span>
+<span class="line">begin</span>
+<span class="line"><span class="keyword">for</span> i in (<span class="keyword">select</span> * from scott.dept)</span>
+<span class="line">loop</span>
+<span class="line">  dbms_output.put_line(i.deptno||<span class="string">','</span>||i.dname||<span class="string">','</span>||i.loc);</span>
+<span class="line">end loop;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">set serverout on</span>
+<span class="line">exec print_dept</span></span>
+</pre></td></tr></table></figure>
+<h2 id="写个存储过程，通过使用传入的表名作为参数-删除这张表。"><a href="#写个存储过程，通过使用传入的表名作为参数-删除这张表。" class="headerlink" title="写个存储过程，通过使用传入的表名作为参数,删除这张表。"></a>写个存储过程，通过使用传入的表名作为参数,删除这张表。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create table emp1 as <span class="keyword">select</span> * from emp;</span>
+<span class="line"></span>
+<span class="line">create <span class="keyword">or</span> replace procedure droptable (v_tablename varchar2) is</span>
+<span class="line">begin</span>
+<span class="line">  execute immediate <span class="string">'drop table '</span> || v_tablename ||<span class="string">' purge'</span>;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">exec droptable('emp1');</span></span>
+</pre></td></tr></table></figure>
+<h2 id="写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。"><a href="#写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。" class="headerlink" title="写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。"></a>写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 函数</span></span>
+<span class="line">create <span class="keyword">or</span> replace function f_tablespace_size(v_tablesapce varchar2)  </span>
+<span class="line"><span class="keyword">return</span> varchar2 is</span>
+<span class="line">v_size varchar2(<span class="number">10</span>);</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">select</span> sum(bytes/<span class="number">1024</span>/<span class="number">1024</span>)||<span class="string">'M'</span> into v_size from dba_data_files where TABLESPACE_NAME=v_tablesapce;</span>
+<span class="line">  <span class="keyword">return</span> v_size;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">select f_tablespace_size('USERS') from dual;</span>
+<span class="line"></span>
+<span class="line"># 存储过程</span>
+<span class="line">create or replace procedure tablespace_size(v_tablespace varchar2) is</span>
+<span class="line">v_size varchar2(10);</span>
+<span class="line">begin</span>
+<span class="line">  select sum(bytes/</span><span class="number">1024</span>/<span class="number">1024</span>)||<span class="string">'M'</span> into v_size from dba_data_files where TABLESPACE_NAME=v_tablespace;</span>
+<span class="line">  dbms_output.put_line(v_tablespace||<span class="string">'表空间的大小为'</span>||v_size);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">exec tablespace_size('USERS')</span></span>
+</pre></td></tr></table></figure>
+<h2 id="写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。"><a href="#写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。" class="headerlink" title="写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。"></a>写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn scott/scott</span>
+<span class="line">create table t1 (id <span class="keyword">int</span>);</span>
+<span class="line">create table t2 (id <span class="keyword">int</span>);</span>
+<span class="line"></span>
+<span class="line">create <span class="keyword">or</span> replace trigger ins_talbe</span>
+<span class="line">after insert on t1</span>
+<span class="line"><span class="keyword">for</span> <span class="keyword">each</span> row</span>
+<span class="line">begin</span>
+<span class="line">  insert into t2(id) <span class="keyword">values</span>(:new.id);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span></span>
+</pre></td></tr></table></figure>
+<h2 id="课堂练习"><a href="#课堂练习" class="headerlink" title="课堂练习"></a>课堂练习</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">10</span> loop</span>
+<span class="line">    null;</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">set serveroutput on;</span>
+<span class="line">begin</span>
+<span class="line">  for i in 1 .. 10 loop</span>
+<span class="line">    dbms_output.put_line('hello,world!');</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line">/</span></span>
+<span class="line"></span>
+<span class="line">conn scott/scott</span>
+<span class="line">drop table t purge;</span>
+<span class="line">create table t (id <span class="keyword">int</span>);</span>
+<span class="line"></span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">100</span> loop</span>
+<span class="line">    insert into t <span class="keyword">values</span>(i);</span>
+<span class="line">  end loop;</span>
+<span class="line">  commit;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line"># 定义变量的匿名PL/</span>SQL块</span>
+<span class="line">set serveroutput on</span>
+<span class="line">declare</span>
+<span class="line"><span class="keyword">x</span> varchar2(<span class="number">40</span>):=<span class="string">'my first PL/SQL block'</span>;</span>
+<span class="line">begin</span>
+<span class="line">  dbms_output.put_line(<span class="keyword">x</span>);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line"># 游标cursor</span>
+<span class="line">declare</span>
+<span class="line">x t.id%type;</span>
+<span class="line">cursor c is select * from t;</span>
+<span class="line">begin</span>
+<span class="line">  open c;</span>
+<span class="line">  loop</span>
+<span class="line">    fetch c into x;</span>
+<span class="line">    exit when c%notfound;</span>
+<span class="line">    dbms_output.put_line('id is '|| x);</span>
+<span class="line">  end loop;</span>
+<span class="line">  close c;</span>
+<span class="line">end;</span>
+<span class="line">/</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除指定员工记录</span></span>
+<span class="line">create <span class="keyword">or</span> replace procedure delemp(v_empno IN emp.empno%TYPE) as</span>
+<span class="line">  no_result exception;</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">delete</span> from emp where empno=v_empno;</span>
+<span class="line"></span>
+<span class="line">  <span class="keyword">if</span> sql%notfound then</span>
+<span class="line">    raise no_result;</span>
+<span class="line">  end <span class="keyword">if</span>;</span>
+<span class="line">  commit;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'编码为'</span>||v_empno||<span class="string">'的员工已被删除！'</span>);</span>
+<span class="line">exception</span>
+<span class="line">  <span class="keyword">when</span> no_result then</span>
+<span class="line">    dbms_output.put_line(<span class="string">'您需要的数据不存在！'</span>);</span>
+<span class="line">  <span class="keyword">when</span> others then</span>
+<span class="line">    dbms_output.put_line(<span class="string">'其他错误！'</span>);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">exec delemp(100)</span>
+<span class="line"></span>
+<span class="line"># 存储过程的参数 --IN,OUT,IN OUT</span>
+<span class="line">CREATE OR REPLACE PROCEDURE ModeTest (</span>
+<span class="line">p_InParameter IN NUMBER,</span>
+<span class="line">p_OutParameter OUT NUMBER,</span>
+<span class="line">p_InOutParameter IN OUT NUMBER) IS</span>
+<span class="line">v_LocalVariable NUMBER;</span>
+<span class="line">BEGIN</span>
+<span class="line">v_LocalVariable := p_InParameter; -- Legal</span>
+<span class="line">--p_InParameter := 7; -- Illegal</span>
+<span class="line">p_OutParameter := 7; -- Legal</span>
+<span class="line">--v_LocalVariable := p_outParameter; -- Illegal</span>
+<span class="line">v_LocalVariable := p_InOutParameter; -- Legal</span>
+<span class="line">p_InOutParameter := 7; -- Legal</span>
+<span class="line">END ModeTest;</span>
+<span class="line">/</span></span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">
+                    Oracle职业直通车-05 数据字典&amp;数据库的备份和恢复
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">
+                    Oracle职业直通车-03 Oracle数据库的安装和配置
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#写一个子查询的SQL语句。"><span class="toc-number">1.</span> <span class="toc-text">写一个子查询的SQL语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分别写一个内连接，左连接，右连接的SQL语句。"><span class="toc-number">2.</span> <span class="toc-text">分别写一个内连接，左连接，右连接的SQL语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写一个标量子查询的SQL。"><span class="toc-number">3.</span> <span class="toc-text">写一个标量子查询的SQL。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写一个with语法的SQL语句。"><span class="toc-number">4.</span> <span class="toc-text">写一个with语法的SQL语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用case或者decode语法做一个行列转换的列子，给出SQL语句。"><span class="toc-number">5.</span> <span class="toc-text">用case或者decode语法做一个行列转换的列子，给出SQL语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写个存储过程，在在屏幕中打印出scott-dept表的内容。"><span class="toc-number">6.</span> <span class="toc-text">写个存储过程，在在屏幕中打印出scott.dept表的内容。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写个存储过程，通过使用传入的表名作为参数-删除这张表。"><span class="toc-number">7.</span> <span class="toc-text">写个存储过程，通过使用传入的表名作为参数,删除这张表。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。"><span class="toc-number">8.</span> <span class="toc-text">写个函数，通过“表空间名称”作为传入参数，打印出表空间的大小。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。"><span class="toc-number">9.</span> <span class="toc-text">写个触发器，当向一张表中插入数据时，同时向另一张表中插入数据。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#课堂练习"><span class="toc-number">10.</span> <span class="toc-text">课堂练习</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/" title="上一篇: Oracle职业直通车-05 数据字典&amp;数据库的备份和恢复">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/" title="下一篇: Oracle职业直通车-03 Oracle数据库的安装和配置">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

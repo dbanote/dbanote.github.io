@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="MySQL中出现存SWAP,主要会是哪些原因？
+没设置内核参数sysctl.conf中的vm.swappiness=0
+# 在CentOS 6.4及更新版本的内核中设置vm.swappiness=0，有可能会导致MySQL数据库所在的系统出现内存溢出(OOM)，
+# 可将vm.swappiness设置成1
+vm.swappiness = 1
+
+# CentOS 7.x中
+## 查找到存在vm.sw">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优">
+<meta property="og:url" content="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="MySQL中出现存SWAP,主要会是哪些原因？
+没设置内核参数sysctl.conf中的vm.swappiness=0
+# 在CentOS 6.4及更新版本的内核中设置vm.swappiness=0，有可能会导致MySQL数据库所在的系统出现内存溢出(OOM)，
+# 可将vm.swappiness设置成1
+vm.swappiness = 1
+
+# CentOS 7.x中
+## 查找到存在vm.sw">
+<meta property="og:updated_time" content="2017-10-13T12:39:02.466Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优">
+<meta name="twitter:description" content="MySQL中出现存SWAP,主要会是哪些原因？
+没设置内核参数sysctl.conf中的vm.swappiness=0
+# 在CentOS 6.4及更新版本的内核中设置vm.swappiness=0，有可能会导致MySQL数据库所在的系统出现内存溢出(OOM)，
+# 可将vm.swappiness设置成1
+vm.swappiness = 1
+
+# CentOS 7.x中
+## 查找到存在vm.sw">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-08-27T16:00:00.000Z" itemprop="datePublished">2017-08-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="MySQL中出现存SWAP-主要会是哪些原因？"><a href="#MySQL中出现存SWAP-主要会是哪些原因？" class="headerlink" title="MySQL中出现存SWAP,主要会是哪些原因？"></a>MySQL中出现存SWAP,主要会是哪些原因？</h2><ol>
+<li><p>没设置内核参数<code>sysctl.conf</code>中的<code>vm.swappiness=0</code></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在CentOS 6.4及更新版本的内核中设置vm.swappiness=0，有可能会导致MySQL数据库所在的系统出现内存溢出(OOM)，</span></span>
+<span class="line"><span class="comment"># 可将vm.swappiness设置成1</span></span>
+<span class="line">vm.swappiness = <span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># CentOS 7.x中</span></span>
+<span class="line"><span class="comment">## 查找到存在vm.swappiness参数的配置文件</span></span>
+<span class="line">find /usr/lib/tuned -name <span class="string">'*.conf'</span> -type f -<span class="keyword">exec</span> <span class="keyword">grep</span> <span class="string">"vm.swappiness"</span> &#123;&#125; \+</span>
+<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
+<span class="line">/usr/lib/tuned/latency-performance/tuned.conf:vm.swappiness=<span class="number">10</span></span>
+<span class="line">/usr/lib/tuned/throughput-performance/tuned.conf:vm.swappiness=<span class="number">10</span></span>
+<span class="line">/usr/lib/tuned/virtual-guest/tuned.conf:vm.swappiness = <span class="number">30</span></span>
+<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
+<span class="line"><span class="comment"># 把以上3个文件中的vm.swappiness的值都修改为0或1</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>没配置MySQL的配置参数memlock<br>这个参数会强迫mysqld进程的地址空间一直被锁定在物理内存上，对于os来说是非常霸道的一个要求。要用root帐号来启动MySQL才能生效。</p>
+</li>
+<li>没关闭NUMA<a id="more"></a>
+</li>
+</ol>
+<h2 id="MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？"><a href="#MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？" class="headerlink" title="MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？"></a>MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？</h2><p>一般来说MySQL占用CPU高，多半是数据库有变态SQL、大表无索引，或有大量的并发任务导致。</p>
+<h3 id="问题排查思路"><a href="#问题排查思路" class="headerlink" title="问题排查思路"></a>问题排查思路</h3><ol>
+<li>确定高负载的类型，top命令看负载高是CPU还是IO。 </li>
+<li>MySQL下执行查看当前的连接数与执行的sql语句。 </li>
+<li>检查慢查询日志，可能是慢查询引起负载高。 </li>
+<li>检查硬件问题，是否磁盘故障问题造成的。 </li>
+<li>检查监控平台，对比此机器不同时间的负载。 </li>
+</ol>
+<h3 id="确定负载类型-top"><a href="#确定负载类型-top" class="headerlink" title="确定负载类型(top)"></a>确定负载类型(top)</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">top</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------</span></span>
+<span class="line">top - <span class="number">11</span>:<span class="number">33</span>:<span class="number">17</span> up <span class="number">142</span> days, <span class="number">20</span>:<span class="number">57</span>,  <span class="number">2</span> users,  load average: <span class="number">1.85</span>, <span class="number">0</span>.<span class="number">80</span>, <span class="number">0</span>.<span class="number">62</span></span>
+<span class="line">Tasks: <span class="number">174</span> total,   <span class="number">1</span> running, <span class="number">173</span> sleeping,   <span class="number">0</span> stopped,   <span class="number">0</span> zombie</span>
+<span class="line">Cpu(<span class="keyword">s</span>): <span class="number">33.8</span>%us,  <span class="number">8.3</span>%sy,  <span class="number">0</span>.<span class="number">0</span>%ni, <span class="number">52.1</span>%id,  <span class="number">3.0</span>%wa,  <span class="number">0</span>.<span class="number">0</span>%hi,  <span class="number">2.8</span>%si,  <span class="number">0</span>.<span class="number">0</span>%st</span>
+<span class="line">Mem:   <span class="number">8174352</span>k total,  <span class="number">3291308</span>k used,  <span class="number">4883044</span>k free,   <span class="number">151272</span>k buffers</span>
+<span class="line">Swap: <span class="number">16531452</span>k total,    <span class="number">19584</span>k used, <span class="number">16511868</span>k free,  <span class="number">2034864</span>k cached</span>
+<span class="line"></span>
+<span class="line">  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND                                                      </span>
+<span class="line"><span class="number">11420</span> mysql     <span class="number">20</span>   <span class="number">0</span> <span class="number">5786</span><span class="keyword">m</span> <span class="number">819</span><span class="keyword">m</span>  <span class="number">13</span><span class="keyword">m</span> S <span class="number">372.1</span> <span class="number">10.3</span>   <span class="number">0</span>:<span class="number">57.47</span> mysqld </span>
+<span class="line">.....</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="查看当前的连接数与执行的sql语句"><a href="#查看当前的连接数与执行的sql语句" class="headerlink" title="查看当前的连接数与执行的sql语句"></a>查看当前的连接数与执行的sql语句</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show processlist;</span>
+<span class="line">show processlist;</span>
+<span class="line">+----+------+----------------------+------+-------------+------+-----------------------------------------------------------------------+------------------------------------------+</span>
+<span class="line">| Id | User | Host                 | db   | Command     | Time | State                                                                 | Info                                     |</span>
+<span class="line">+----+------+----------------------+------+-------------+------+-----------------------------------------------------------------------+------------------------------------------+</span>
+<span class="line">|  <span class="number">1</span> | root | localhost            | NULL | Query       |    <span class="number">0</span> | init                                                                  | show processlist                         |</span>
+<span class="line">| <span class="number">12</span> | rep  | <span class="number">10.245</span>.<span class="number">231.203</span>:<span class="number">41161</span> | NULL | Binlog Dump |  <span class="number">120</span> | Master has sent all binlog to slave; waiting <span class="keyword">for</span> binlog to be updated | NULL                                     |</span>
+<span class="line">| <span class="number">26</span> | root | <span class="number">10.245</span>.<span class="number">231.201</span>:<span class="number">46306</span> | test | Query       |    <span class="number">0</span> | Writing to net                                                        | SELECT pad FROM sbtest11 WHERE id=<span class="number">100233</span> |</span>
+<span class="line">| <span class="number">27</span> | root | <span class="number">10.245</span>.<span class="number">231.201</span>:<span class="number">46308</span> | test | Sleep       |    <span class="number">0</span> | NULL                                                                  | NULL                                     |</span>
+<span class="line">| <span class="number">28</span> | root | <span class="number">10.245</span>.<span class="number">231.201</span>:<span class="number">46309</span> | test | Query       |    <span class="number">0</span> | statistics                                                            | SELECT pad FROM sbtest3 WHERE id=<span class="number">100176</span>  |</span>
+<span class="line">| <span class="number">29</span> | root | <span class="number">10.245</span>.<span class="number">231.201</span>:<span class="number">46307</span> | test | Query       |    <span class="number">0</span> | Sending data                                                          | SELECT pad FROM sbtest15 WHERE id=<span class="number">63746</span>  |</span>
+<span class="line">+----+------+----------------------+------+-------------+------+-----------------------------------------------------------------------+------------------------------------------+</span>
+</pre></td></tr></table></figure>
+<h3 id="记录慢查询"><a href="#记录慢查询" class="headerlink" title="记录慢查询"></a>记录慢查询</h3><p>编辑Mysql 配置文件(my.cnf),在[mysqld]字段添加以下几行<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">log_slow_queries = <span class="regexp">/usr/local</span><span class="regexp">/mysql/var</span><span class="regexp">/slow_queries.log   # 慢查询日志路径</span>
+<span class="line">long_query_time = 10                                       # 记录SQL查询超过10s的语句</span>
+<span class="line">log-queries-not-using-indexes = 1                          # 记录没有使用索引的sql</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="查看慢查询日志"><a href="#查看慢查询日志" class="headerlink" title="查看慢查询日志"></a>查看慢查询日志</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">tail /usr/<span class="keyword">local</span>/mysql/var/slow_queries.log </span>
+<span class="line"><span class="comment"># Time: 130305  9:48:13</span></span>
+<span class="line"><span class="comment"># User@Host: biotherm[biotherm] @  [8.8.8.45]</span></span>
+<span class="line"><span class="comment"># Query_time: 1294.881407  Lock_time: 0.000179 Rows_sent: 4  Rows_examined: 1318033</span></span>
+<span class="line"><span class="comment">## 这4个参数意思分别是：</span></span>
+<span class="line"><span class="comment">## 查询时间                 锁定时间            查询结果行数   扫描行数</span></span>
+<span class="line"><span class="comment">## 主要看扫描行数多的语句,然后去数据库加上对应的索引,再优化下变态的sql 语句</span></span>
+<span class="line">SET timestamp=<span class="number">1363916893</span>; </span>
+<span class="line">SELECT * FROM xxx_list WHERE tid = <span class="string">'11xx'</span>  AND del = <span class="number">0</span>  ORDER BY  id DESC  LIMIT <span class="number">0</span>, <span class="number">4</span>;</span>
+<span class="line">.....</span>
+</pre></td></tr></table></figure>
+<h3 id="极端情况kill-sql进程"><a href="#极端情况kill-sql进程" class="headerlink" title="极端情况kill sql进程"></a>极端情况kill sql进程</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找出占用cpu时间过长的sql，在mysql 下执行如下命令： </span></span>
+<span class="line">show processlist; </span>
+<span class="line"><span class="comment"># 确定后一条sql处于Query状态，且Time时间过长，锁定它的ID，执行如下命令： </span></span>
+<span class="line"><span class="keyword">kill</span> QUERY  <span class="number">269815764</span>; </span>
+<span class="line"><span class="comment">#注意：杀死 sql进程，可能导致数据丢失，所以执行前要衡量数据的重要性。</span></span>
+</pre></td></tr></table></figure>
+<h2 id="课程笔记"><a href="#课程笔记" class="headerlink" title="课程笔记"></a>课程笔记</h2><h3 id="设定主机名"><a href="#设定主机名" class="headerlink" title="设定主机名"></a>设定主机名</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/sysconfig/network</span>
+</pre></td></tr></table></figure>
+<h3 id="设定时区"><a href="#设定时区" class="headerlink" title="设定时区"></a>设定时区</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/sysconfig/clock</span>
+<span class="line">ZONE=Asia/Shanghai</span>
+<span class="line">UTC=false</span>
+<span class="line">ARC=false</span>
+<span class="line"></span>
+<span class="line">rm /etc/<span class="keyword">localtime</span></span>
+<span class="line">ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/<span class="keyword">localtime</span></span>
+</pre></td></tr></table></figure>
+<h3 id="设定NTP同步"><a href="#设定NTP同步" class="headerlink" title="设定NTP同步"></a>设定NTP同步</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudocrontab-l</span>
+<span class="line"><span class="number">0</span> * * * * <span class="regexp">/usr/sbin</span><span class="regexp">/ntpdate192.168.50.21; hwclock -w 1&gt;/dev</span><span class="regexp">/null 2&gt;&amp;1</span>
+<span class="line">30 23 * * * /usr</span><span class="regexp">/sbin/ntpdate</span>192.<span class="number">168.50</span>.<span class="number">22</span>; hwclock -w <span class="number">1</span>&gt;<span class="regexp">/dev/null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span>
+</pre></td></tr></table></figure>
+<h3 id="删除操作系统多余组和用户"><a href="#删除操作系统多余组和用户" class="headerlink" title="删除操作系统多余组和用户"></a>删除操作系统多余组和用户</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">groupdel adm</span>
+<span class="line">groupdel lp</span>
+<span class="line">groupdel news</span>
+<span class="line">groupdel uucp</span>
+<span class="line">groupdel games</span>
+<span class="line">groupdel dip</span>
+<span class="line">groupdel pppusers</span>
+<span class="line">groupdel popusers</span>
+<span class="line">groupdel slipusers</span>
+<span class="line"></span>
+<span class="line">userdel adm</span>
+<span class="line">userdel lp</span>
+<span class="line">userdel sync</span>
+<span class="line">userdel <span class="keyword">shutdown</span></span>
+<span class="line">userdel halt</span>
+<span class="line">userdel news</span>
+<span class="line">userdel uucp</span>
+<span class="line">userdel operator</span>
+<span class="line">userdel games</span>
+<span class="line">userdel gopher</span>
+<span class="line">userdel ftp</span>
+</pre></td></tr></table></figure>
+<h3 id="清理不需要的服务"><a href="#清理不需要的服务" class="headerlink" title="清理不需要的服务"></a>清理不需要的服务</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#一般只留下以下服务即可</span></span>
+<span class="line">crond</span>
+<span class="line">haldaemon</span>
+<span class="line">irqbalance</span>
+<span class="line">messagebus</span>
+<span class="line">network</span>
+<span class="line">sshd</span>
+<span class="line">syslog</span>
+</pre></td></tr></table></figure>
+<h3 id="设置口令有效期和最少长度"><a href="#设置口令有效期和最少长度" class="headerlink" title="设置口令有效期和最少长度"></a>设置口令有效期和最少长度</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/login.defs</span>
+<span class="line">PASS_MAX_DAYS=<span class="number">90</span></span>
+<span class="line"><span class="comment"># 设置口令有效期为90（天）</span></span>
+<span class="line">PASS_MIN_LEN <span class="number">8</span></span>
+<span class="line"><span class="comment"># 设置口令最小长度为8</span></span>
+</pre></td></tr></table></figure>
+<h3 id="设置密码复杂度"><a href="#设置密码复杂度" class="headerlink" title="设置密码复杂度"></a>设置密码复杂度</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/pam.d/login</span>
+<span class="line"><span class="comment"># 增加如下内容</span></span>
+<span class="line">password required pam_cracklib.so difok=<span class="number">5</span> dcredit=-<span class="number">1</span> retry=<span class="number">1</span></span>
+<span class="line"><span class="comment"># 新密码与旧密码必须有5个不同字符，必须有一个数字，一次失败后passwd程序返回错误信息</span></span>
+</pre></td></tr></table></figure>
+<h3 id="设置缺省密码长度限制"><a href="#设置缺省密码长度限制" class="headerlink" title="设置缺省密码长度限制"></a>设置缺省密码长度限制</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/login.defs</span>
+<span class="line">PASS_MIN_LEN <span class="number">8</span></span>
+</pre></td></tr></table></figure>
+<h3 id="SSH安全配置"><a href="#SSH安全配置" class="headerlink" title="SSH安全配置"></a>SSH安全配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/ssh/sshd_config</span>
+<span class="line">Procotol2         <span class="comment"># 强制使用协议</span></span>
+<span class="line">PermitRootLoginno <span class="comment"># 不允许root远程登录</span></span>
+</pre></td></tr></table></figure>
+<h3 id="设置历史命令记录增加时间戳"><a href="#设置历史命令记录增加时间戳" class="headerlink" title="设置历史命令记录增加时间戳"></a>设置历史命令记录增加时间戳</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/profile</span>
+<span class="line">HISTTIMEFORMAT=<span class="string">"%Y:%:M:%D %H-%m-%s"</span></span>
+<span class="line"></span>
+<span class="line">export=HISTTIMEFORMAT</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改用户当前目录下.bash_history文件权限</span></span>
+<span class="line"><span class="keyword">chmod</span> <span class="number">600</span> .bash_history</span>
+</pre></td></tr></table></figure>
+<h3 id="sysctl内核参数配置最佳实践"><a href="#sysctl内核参数配置最佳实践" class="headerlink" title="sysctl内核参数配置最佳实践"></a>sysctl内核参数配置最佳实践</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sysctl -p</span>
+<span class="line"><span class="comment">#----------------------------------------------</span></span>
+<span class="line">net.ipv4.ip_forward = <span class="number">0</span></span>
+<span class="line">net.ipv4.conf.default.rp_filter = <span class="number">0</span></span>
+<span class="line">net.ipv4.conf.default.accept_source_route = <span class="number">0</span></span>
+<span class="line">kernel.sysrq = <span class="number">0</span></span>
+<span class="line">kernel.core_uses_pid = <span class="number">1</span></span>
+<span class="line">kernel.msgmnb = <span class="number">65536</span></span>
+<span class="line">kernel.msgmax = <span class="number">65536</span></span>
+<span class="line">kernel.shmmax = <span class="number">4398046511104</span></span>
+<span class="line">kernel.shmall = <span class="number">1073741824</span></span>
+<span class="line">fs.file-max = <span class="number">6815744</span></span>
+<span class="line">net.ipv4.ip_local_port_range = <span class="number">1024</span> <span class="number">65000</span></span>
+<span class="line">net.ipv4.tcp_tw_reuse = <span class="number">1</span></span>
+<span class="line">net.core.rmem_max = <span class="number">4194304</span></span>
+<span class="line">net.core.wmem_max = <span class="number">1048576</span></span>
+<span class="line">net.core.rmem_default = <span class="number">262144</span></span>
+<span class="line">net.core.wmem_default = <span class="number">262144</span></span>
+<span class="line">kernel.shmmni = <span class="number">4096</span></span>
+<span class="line">kernel.sem = <span class="number">250</span> <span class="number">32000</span> <span class="number">100</span> <span class="number">128</span></span>
+<span class="line">net.ipv4.tcp_syncookies = <span class="number">1</span></span>
+<span class="line">net.ipv4.tcp_keepalive_time = <span class="number">1200</span></span>
+<span class="line">net.ipv4.tcp_max_syn_backlog = <span class="number">4096</span></span>
+<span class="line">net.core.netdev_max_backlog = <span class="number">2048</span></span>
+<span class="line">net.ipv4.tcp_fin_timeout = <span class="number">15</span></span>
+<span class="line">net.core.somaxconn = <span class="number">1024</span></span>
+<span class="line">vm.swappiness = <span class="number">10</span></span>
+<span class="line">vm.zone_reclaim_mode = <span class="number">0</span></span>
+<span class="line">vm.extra_free_kbytes = <span class="number">2097152</span></span>
+<span class="line"></span>
+<span class="line">vm.nr_hugepages = <span class="number">20550</span></span>
+<span class="line"><span class="comment">#----------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">net.ipv4.ip_forward = <span class="number">0</span>                          <span class="comment"># 禁止IP包转发</span></span>
+<span class="line">net.ipv4.conf.default.rp_filter = <span class="number">0</span>              <span class="comment"># 避免伪装IP的攻击</span></span>
+<span class="line">kernel.shmmax = <span class="number">4398046511104</span>                    <span class="comment"># 对mysql不生效，oracle用</span></span>
+<span class="line">kernel.shmall = <span class="number">1073741824</span>                       <span class="comment"># 对mysql不生效，oracle用，不能小于SGA</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看os系统页的大小</span></span>
+<span class="line">getconf PAGESIZE</span>
+<span class="line"><span class="comment">#----------------------------------------------</span></span>
+<span class="line"><span class="number">4096</span></span>
+<span class="line"><span class="comment">#----------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 需要共享内存页数(假设SGA=16G)</span></span>
+<span class="line"><span class="number">16</span>G/<span class="number">4</span>KB=<span class="number">16</span>*<span class="number">1024</span>*<span class="number">1024</span>/<span class="number">4</span>=<span class="number">16777216</span>KB/<span class="number">4</span>=<span class="number">4194304</span></span>
+</pre></td></tr></table></figure>
+<h3 id="调整操作系统预读"><a href="#调整操作系统预读" class="headerlink" title="调整操作系统预读"></a>调整操作系统预读</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">lspci -nn | <span class="keyword">grep</span> -i sata</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看预读设置</span></span>
+<span class="line">cat /sys/block/sda/queue/read_ahead_kb </span>
+<span class="line"><span class="number">4096</span></span>
+<span class="line"><span class="comment"># 这个参数没有准确的答案，针对不同的应用场景有不同的合理值，这个不大适合统一标准化。</span></span>
+</pre></td></tr></table></figure>
+<h3 id="文件系统优化"><a href="#文件系统优化" class="headerlink" title="文件系统优化"></a>文件系统优化</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 格式化标准命令</span></span>
+<span class="line">mkfs.xfs -f -iattr=<span class="number">2</span> -l lazy-count=<span class="number">1</span>,sectsize=<span class="number">4096</span> -b size=<span class="number">4096</span> -d sectsize=<span class="number">4096</span> -L data /dev/&lt;XXX&gt;</span>
+<span class="line"><span class="comment"># mount标准命令</span></span>
+<span class="line">mount -o rw,noatime,nodiratime,noikeep,nobarrier,allocsize=<span class="number">100</span>M,attr2,largeio,inode64,swalloc /dev/&lt;XXX&gt; <span class="regexp">/apps</span></span>
+</pre></td></tr></table></figure>
+<h3 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h3><p><a href="http://www.cnblogs.com/sopc-mc/archive/2011/10/09/2204858.html" target="_blank" rel="external">Linux I/O调度</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">
+                    MySQL性能优化最佳实践 - 05 MySQL核心参数优化
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">
+                    MySQL性能优化最佳实践 - 03 MySQL服务器优化
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL中出现存SWAP-主要会是哪些原因？"><span class="toc-number">1.</span> <span class="toc-text">MySQL中出现存SWAP,主要会是哪些原因？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？"><span class="toc-number">2.</span> <span class="toc-text">MySQL中CPU负载很高，是什么原因？给出查找的步骤及解决思路？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#问题排查思路"><span class="toc-number">2.1.</span> <span class="toc-text">问题排查思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#确定负载类型-top"><span class="toc-number">2.2.</span> <span class="toc-text">确定负载类型(top)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看当前的连接数与执行的sql语句"><span class="toc-number">2.3.</span> <span class="toc-text">查看当前的连接数与执行的sql语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#记录慢查询"><span class="toc-number">2.4.</span> <span class="toc-text">记录慢查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看慢查询日志"><span class="toc-number">2.5.</span> <span class="toc-text">查看慢查询日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#极端情况kill-sql进程"><span class="toc-number">2.6.</span> <span class="toc-text">极端情况kill sql进程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#课程笔记"><span class="toc-number">3.</span> <span class="toc-text">课程笔记</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设定主机名"><span class="toc-number">3.1.</span> <span class="toc-text">设定主机名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设定时区"><span class="toc-number">3.2.</span> <span class="toc-text">设定时区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设定NTP同步"><span class="toc-number">3.3.</span> <span class="toc-text">设定NTP同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#删除操作系统多余组和用户"><span class="toc-number">3.4.</span> <span class="toc-text">删除操作系统多余组和用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#清理不需要的服务"><span class="toc-number">3.5.</span> <span class="toc-text">清理不需要的服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置口令有效期和最少长度"><span class="toc-number">3.6.</span> <span class="toc-text">设置口令有效期和最少长度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置密码复杂度"><span class="toc-number">3.7.</span> <span class="toc-text">设置密码复杂度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置缺省密码长度限制"><span class="toc-number">3.8.</span> <span class="toc-text">设置缺省密码长度限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH安全配置"><span class="toc-number">3.9.</span> <span class="toc-text">SSH安全配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置历史命令记录增加时间戳"><span class="toc-number">3.10.</span> <span class="toc-text">设置历史命令记录增加时间戳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sysctl内核参数配置最佳实践"><span class="toc-number">3.11.</span> <span class="toc-text">sysctl内核参数配置最佳实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调整操作系统预读"><span class="toc-number">3.12.</span> <span class="toc-text">调整操作系统预读</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件系统优化"><span class="toc-number">3.13.</span> <span class="toc-text">文件系统优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考："><span class="toc-number">3.14.</span> <span class="toc-text">参考：</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/" title="上一篇: MySQL性能优化最佳实践 - 05 MySQL核心参数优化">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /" title="下一篇: MySQL性能优化最佳实践 - 03 MySQL服务器优化">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

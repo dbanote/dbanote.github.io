@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="什么是归并排序？把在内存中无法直接排序的数据进行分批，每批已排序的结果分别放到文件中。用每个已排序的文件中第一行数据做进行比较，取出最小的值放到最终的合并排序文件中。重复以上操作，直到所有文件文件数据都放到合并排序文件中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析">
+<meta property="og:url" content="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="什么是归并排序？把在内存中无法直接排序的数据进行分批，每批已排序的结果分别放到文件中。用每个已排序的文件中第一行数据做进行比较，取出最小的值放到最终的合并排序文件中。重复以上操作，直到所有文件文件数据都放到合并排序文件中。">
+<meta property="og:updated_time" content="2017-10-17T09:26:43.976Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析">
+<meta name="twitter:description" content="什么是归并排序？把在内存中无法直接排序的数据进行分批，每批已排序的结果分别放到文件中。用每个已排序的文件中第一行数据做进行比较，取出最小的值放到最终的合并排序文件中。重复以上操作，直到所有文件文件数据都放到合并排序文件中。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-10-16T16:00:00.000Z" itemprop="datePublished">2017-10-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="什么是归并排序？"><a href="#什么是归并排序？" class="headerlink" title="什么是归并排序？"></a>什么是归并排序？</h2><p>把在内存中无法直接排序的数据进行分批，每批已排序的结果分别放到文件中。<br>用每个已排序的文件中第一行数据做进行比较，取出最小的值放到最终的合并排序文件中。<br>重复以上操作，直到所有文件文件数据都放到合并排序文件中。<br><a id="more"></a></p>
+<h2 id="执行计划中Using-temporary与using-filesort的区别？"><a href="#执行计划中Using-temporary与using-filesort的区别？" class="headerlink" title="执行计划中Using temporary与using filesort的区别？"></a>执行计划中Using temporary与using filesort的区别？</h2><p>示例：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain</span>
+<span class="line">    -&gt; <span class="keyword">select</span> id from sbtest1</span>
+<span class="line">    -&gt; union</span>
+<span class="line">    -&gt; <span class="keyword">select</span> id from sbtest2</span>
+<span class="line">    -&gt; order by id;</span>
+<span class="line">+----+--------------+------------+-------+---------------+------+---------+------+--------+---------------------------------+</span>
+<span class="line">| id | select_type  | table      | type  | possible_keys | key  | key_len | <span class="keyword">ref</span>  | rows   | Extra                           |</span>
+<span class="line">+----+--------------+------------+-------+---------------+------+---------+------+--------+---------------------------------+</span>
+<span class="line">|  <span class="number">1</span> | PRIMARY      | sbtest1    | <span class="keyword">index</span> | NULL          | k_1  | <span class="number">4</span>       | NULL | <span class="number">986400</span> | Using <span class="keyword">index</span>                     |</span>
+<span class="line">|  <span class="number">2</span> | UNION        | sbtest2    | <span class="keyword">index</span> | NULL          | k_2  | <span class="number">4</span>       | NULL | <span class="number">986400</span> | Using <span class="keyword">index</span>                     |</span>
+<span class="line">| NULL | UNION RESULT | &lt;union1,<span class="number">2</span>&gt; | ALL   | NULL          | NULL | NULL    | NULL |   NULL | Using temporary; Using filesort |</span>
+<span class="line">+----+--------------+------------+-------+---------------+------+---------+------+--------+---------------------------------+</span>
+</pre></td></tr></table></figure></p>
+<p>Using temporary：表示使用临时表，将sbtest1和sbtest2数据放到临时表中<br>Using filesort：表示将这个临时表进行排序，Using filesort只能在一张表中进行，所以需要把数据汇总到临时表中</p>
+<h2 id="表中只有一条数据，为什么在执行计划中也会有using-filesort？（实验测试）"><a href="#表中只有一条数据，为什么在执行计划中也会有using-filesort？（实验测试）" class="headerlink" title="表中只有一条数据，为什么在执行计划中也会有using filesort？（实验测试）"></a>表中只有一条数据，为什么在执行计划中也会有using filesort？（实验测试）</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; <span class="keyword">select</span> * from test;</span>
+<span class="line">+----+------+------+</span>
+<span class="line">| id | name | dept |</span>
+<span class="line">+----+------+------+</span>
+<span class="line">|  <span class="number">1</span> | lyj  | dnb  |</span>
+<span class="line">+----+------+------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; show create table test\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">       Table: test</span>
+<span class="line">Create Table: CREATE TABLE <span class="string">`test`</span> (</span>
+<span class="line">  <span class="string">`id`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL DEFAULT <span class="string">'0'</span>,</span>
+<span class="line">  <span class="string">`name`</span> varchar(<span class="number">30</span>) DEFAULT NULL,</span>
+<span class="line">  <span class="string">`dept`</span> varchar(<span class="number">30</span>) DEFAULT NULL,</span>
+<span class="line">  PRIMARY KEY (<span class="string">`id`</span>),</span>
+<span class="line">  KEY <span class="string">`name`</span> (<span class="string">`name`</span>)</span>
+<span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8</span>
+<span class="line"><span class="number">1</span> row in set (<span class="number">0</span>.<span class="number">00</span> sec)</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> * from test order by name;</span>
+<span class="line">+----+-------------+-------+------+---------------+------+---------+------+------+----------------+</span>
+<span class="line">| id | select_type | table | type | possible_keys | key  | key_len | <span class="keyword">ref</span>  | rows | Extra          |</span>
+<span class="line">+----+-------------+-------+------+---------------+------+---------+------+------+----------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | test  | ALL  | NULL          | NULL | NULL    | NULL |    <span class="number">1</span> | Using filesort |</span>
+<span class="line">+----+-------------+-------+------+---------------+------+---------+------+------+----------------+</span>
+</pre></td></tr></table></figure>
+<p>filesort表示MySQL需要进行实际的排序操作，而不能通过索引获得已排序数据。</p>
+<p>实际上，只要一条 SQL 语句需要进行排序操作，都会显示“Using filesort”，这并不表示就会有文件排序操作。</p>
+<h2 id="explain执行计划包含的信息"><a href="#explain执行计划包含的信息" class="headerlink" title="explain执行计划包含的信息"></a>explain执行计划包含的信息</h2><h3 id="id：执行顺序"><a href="#id：执行顺序" class="headerlink" title="id：执行顺序"></a>id：执行顺序</h3><ul>
+<li>id相同，执行顺序由上至下</li>
+<li>子查询id的序号会递增，id值越大优先级越高，越先被执行</li>
+</ul>
+<h3 id="select-type：查询类型"><a href="#select-type：查询类型" class="headerlink" title="select _type：查询类型"></a>select _type：查询类型</h3><ol>
+<li>SIMPLE：查询中不包含子查询或者UNION</li>
+<li>查询中若包含任何复杂的子部分，最外层查询则被标记为：PRIMARY</li>
+<li>在SELECT或WHERE列表中包含了子查询，该子查询被标记为：SUBQUERY</li>
+<li>在FROM列表中包含的子查询被标记为：DERIVED（衍生）</li>
+<li>若第二个SELECT出现在UNION之后，则被标记为UNION；若UNION包含在FROM子句的子查询中，外层SELECT将被标记为：DERIVED</li>
+<li>从UNION表获取结果的SELECT被标记为：UNION RESULT</li>
+</ol>
+<h3 id="table：表"><a href="#table：表" class="headerlink" title="table：表"></a>table：表</h3><ul>
+<li>每个执行步骤执行时引用的表</li>
+<li>derivedN–有时不是真实的表名字,看到的是derivedN(N是id值,指第几步执行的结果)</li>
+<li>unionM,N(行记录引用的UNIO连接的多个ID值)</li>
+</ul>
+<h3 id="type：搜索类型"><a href="#type：搜索类型" class="headerlink" title="type：搜索类型"></a>type：搜索类型</h3><p>表示MySQL在表中找到所需行的方式，又称“访问类型”，常见类型如下：</p>
+<ul>
+<li>ALL(全表)：Full Table Scan，MySQL将遍历全表以找到匹配的行</li>
+<li>index(索引扫描)：Full Index Scan，index与ALL区别为index类型只遍历索引树</li>
+<li>range(范围扫描)：索引范围扫描，对索引的扫描开始于某一点，返回匹配值域的行，常见于between、&lt;、&gt;等的查询</li>
+<li>ref(关联/参考)：非唯一性索引扫描，返回匹配某个单独值的所有行。常见于使用非唯一索引即唯一索引的非唯一前缀进行的查找</li>
+<li>eq_ref(等值关联/参考)：唯一性索引扫描，对于每个索引键，表中只有一条记录与之匹配。常见于主键或唯一索引扫描</li>
+<li>const, system(常量)：当MySQL对查询某部分进行优化，并转换为一个常量时，使用这些类型访问。如将主键置于where列表中，MySQL就能将该查询转换为一个常量</li>
+<li>NULL(空)：MySQL在优化过程中分解语句，执行时甚至不用访问表或索引</li>
+</ul>
+<p>由上至下，响应时间(RT)由最差到最好,through output不一定</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> id,c,pad from sbtest1 where pad=<span class="string">''</span>;</span>
+<span class="line">+----+-------------+---------+------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line">| id | select_type | table   | type | possible_keys | key  | key_len | <span class="keyword">ref</span>  | rows   | Extra       |</span>
+<span class="line">+----+-------------+---------+------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | sbtest1 | ALL  | NULL          | NULL | NULL    | NULL | <span class="number">986400</span> | Using where |</span>
+<span class="line">+----+-------------+---------+------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> count(*) from sbtest1;</span>
+<span class="line">+----+-------------+---------+-------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line">| id | select_type | table   | type  | possible_keys | key  | key_len | <span class="keyword">ref</span>  | rows   | Extra       |</span>
+<span class="line">+----+-------------+---------+-------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | sbtest1 | <span class="keyword">index</span> | NULL          | k_1  | <span class="number">4</span>       | NULL | <span class="number">986400</span> | Using <span class="keyword">index</span> |</span>
+<span class="line">+----+-------------+---------+-------+---------------+------+---------+------+--------+-------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> id,c,pad from sbtest1 where id between <span class="number">50</span> <span class="keyword">and</span> <span class="number">100</span>;</span>
+<span class="line">+----+-------------+---------+-------+---------------+---------+---------+------+------+-------------+</span>
+<span class="line">| id | select_type | table   | type  | possible_keys | key     | key_len | <span class="keyword">ref</span>  | rows | Extra       |</span>
+<span class="line">+----+-------------+---------+-------+---------------+---------+---------+------+------+-------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | sbtest1 | range | PRIMARY       | PRIMARY | <span class="number">4</span>       | NULL |   <span class="number">51</span> | Using where |</span>
+<span class="line">+----+-------------+---------+-------+---------------+---------+---------+------+------+-------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt;  explain <span class="keyword">select</span> * from test where dept=<span class="string">'zb'</span>;</span>
+<span class="line">+----+-------------+-------+------+----------------+----------------+---------+-------+------+--------------------------+</span>
+<span class="line">| id | select_type | table | type | possible_keys  | key            | key_len | <span class="keyword">ref</span>   | rows | Extra                    |</span>
+<span class="line">+----+-------------+-------+------+----------------+----------------+---------+-------+------+--------------------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | test  | <span class="keyword">ref</span>  | test_dept_name | test_dept_name | <span class="number">93</span>      | const |    <span class="number">5</span> | Using where; Using <span class="keyword">index</span> |</span>
+<span class="line">+----+-------------+-------+------+----------------+----------------+---------+-------+------+--------------------------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> * from (<span class="keyword">select</span> * from test where id=<span class="number">1</span>) d1;</span>
+<span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+------+-------+</span>
+<span class="line">| id | select_type | table      | type   | possible_keys | key     | key_len | <span class="keyword">ref</span>   | rows | Extra |</span>
+<span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+------+-------+</span>
+<span class="line">|  <span class="number">1</span> | PRIMARY     | &lt;derived2&gt; | <span class="keyword">system</span> | NULL          | NULL    | NULL    | NULL  |    <span class="number">1</span> | NULL  |</span>
+<span class="line">|  <span class="number">2</span> | DERIVED     | test       | const  | PRIMARY       | PRIMARY | <span class="number">4</span>       | const |    <span class="number">1</span> | NULL  |</span>
+<span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+------+-------+</span>
+</pre></td></tr></table></figure>
+<h3 id="possible-keys：可能用到的主键-索引"><a href="#possible-keys：可能用到的主键-索引" class="headerlink" title="possible-keys：可能用到的主键/索引"></a>possible-keys：可能用到的主键/索引</h3><p>指出MySQL能使用哪个索引在表中找到行，查询涉及到的字段上若存在索引，则该索引将被列出，但不一定被查询使用</p>
+<h3 id="key：实际用到的主键-索引"><a href="#key：实际用到的主键-索引" class="headerlink" title="key：实际用到的主键/索引"></a>key：实际用到的主键/索引</h3><p>显示MySQL在查询中实际使用的索引，若没有使用索引，显示为NULL。 <br><font color="red">查询中若使用了覆盖索引，则该索引仅出现在key列表中</font></p>
+<h3 id="key-len：key的长度"><a href="#key-len：key的长度" class="headerlink" title="key_len：key的长度"></a>key_len：key的长度</h3><p>表示索引中使用的字节数，可通过该列计算查询中使用的索引的长度。 <br><font color="red">key_len显示的值为索引字段的最大可能长度，并非实际使用长度，即key_len是根据表定义计算而得，不是通过表内检索出的</font></p>
+<h3 id="ref：参考（字段的关联）"><a href="#ref：参考（字段的关联）" class="headerlink" title="ref：参考（字段的关联）"></a>ref：参考（字段的关联）</h3><p>表示上述表的连接匹配条件，即哪些列或常量被用于查找索引列上的值</p>
+<h3 id="row：估计结果行数"><a href="#row：估计结果行数" class="headerlink" title="row：估计结果行数"></a>row：估计结果行数</h3><p>表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数</p>
+<h2 id="MySQL执行计划的局限"><a href="#MySQL执行计划的局限" class="headerlink" title="MySQL执行计划的局限"></a>MySQL执行计划的局限</h2><ul>
+<li>EXPLAIN不会告诉你关于触发器、存储过程的信息或用户自定义函数对查询的影响情况</li>
+<li>EXPLAIN不考虑各种Cache</li>
+<li>EXPLAIN不能显示MySQL在执行查询时所作的优化工作</li>
+<li>部分统计信息是估算的，并非精确值(如:对Innodb行数的估算)</li>
+<li>EXPALIN只能解释SELECT操作，其他操作要重写为SELECT后查看执行计划（5.6.*版本已经可以对update，delete操作做EXPALIN）</li>
+</ul>
+<h2 id="MySQL5-6支持OPTIMIZER-TRACE"><a href="#MySQL5-6支持OPTIMIZER-TRACE" class="headerlink" title="MySQL5.6支持OPTIMIZER_TRACE"></a>MySQL5.6支持OPTIMIZER_TRACE</h2><p>开启可查看步骤：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开启</span></span>
+<span class="line">mysql&gt; show variables like <span class="string">'%trace%'</span>;</span>
+<span class="line">+------------------------------+----------------------------------------------------------------------------+</span>
+<span class="line">| Variable_name                | Value                                                                      |</span>
+<span class="line">+------------------------------+----------------------------------------------------------------------------+</span>
+<span class="line">| optimizer_trace              | enabled=off,one_line=off                                                   |</span>
+<span class="line">| optimizer_trace_features     | greedy_search=on,range_optimizer=on,dynamic_range=on,repeated_subselect=on |</span>
+<span class="line">| optimizer_trace_limit        | <span class="number">1</span>                                                                          |</span>
+<span class="line">| optimizer_trace_max_mem_size | <span class="number">16384</span>                                                                      |</span>
+<span class="line">| optimizer_trace_offset       | -<span class="number">1</span>                                                                         |</span>
+<span class="line">+------------------------------+----------------------------------------------------------------------------+</span>
+<span class="line"></span>
+<span class="line">set optimizer_trace=<span class="string">'enabled=on'</span>;</span>
+<span class="line">set optimizer_trace_max_mem_size=<span class="number">1000000</span>;</span>
+<span class="line">set end_markers_in_json=on;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看</span></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.optimizer_trace\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                            QUERY: explain <span class="keyword">select</span> id,pad from sbtest1 where id&lt;<span class="number">100</span></span>
+<span class="line">                            TRACE: &#123;</span>
+<span class="line">  <span class="string">"steps"</span>: [</span>
+<span class="line">    &#123;</span>
+<span class="line">      <span class="string">"join_preparation"</span>: &#123;</span>
+<span class="line">        <span class="string">"select#"</span>: <span class="number">1</span>,</span>
+<span class="line">        <span class="string">"steps"</span>: [</span>
+<span class="line">          &#123;</span>
+<span class="line">            <span class="string">"expanded_query"</span>: <span class="string">"/* select#1 */ select `sbtest1`.`id` AS `id`,`sbtest1`.`pad` AS `pad` from `sbtest1` where (`sbtest1`.`id` &lt; 100)"</span></span>
+<span class="line">          &#125;</span>
+<span class="line">        ] /* steps *<span class="regexp">/</span>
+<span class="line">      &#125; /</span>* join_preparation *<span class="regexp">/</span>
+<span class="line">    &#125;,</span>
+<span class="line">    &#123;</span>
+<span class="line">......</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">
+                    Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是归并排序？"><span class="toc-number">1.</span> <span class="toc-text">什么是归并排序？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行计划中Using-temporary与using-filesort的区别？"><span class="toc-number">2.</span> <span class="toc-text">执行计划中Using temporary与using filesort的区别？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#表中只有一条数据，为什么在执行计划中也会有using-filesort？（实验测试）"><span class="toc-number">3.</span> <span class="toc-text">表中只有一条数据，为什么在执行计划中也会有using filesort？（实验测试）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#explain执行计划包含的信息"><span class="toc-number">4.</span> <span class="toc-text">explain执行计划包含的信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#id：执行顺序"><span class="toc-number">4.1.</span> <span class="toc-text">id：执行顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#select-type：查询类型"><span class="toc-number">4.2.</span> <span class="toc-text">select _type：查询类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#table：表"><span class="toc-number">4.3.</span> <span class="toc-text">table：表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#type：搜索类型"><span class="toc-number">4.4.</span> <span class="toc-text">type：搜索类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#possible-keys：可能用到的主键-索引"><span class="toc-number">4.5.</span> <span class="toc-text">possible-keys：可能用到的主键/索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#key：实际用到的主键-索引"><span class="toc-number">4.6.</span> <span class="toc-text">key：实际用到的主键/索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#key-len：key的长度"><span class="toc-number">4.7.</span> <span class="toc-text">key_len：key的长度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ref：参考（字段的关联）"><span class="toc-number">4.8.</span> <span class="toc-text">ref：参考（字段的关联）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#row：估计结果行数"><span class="toc-number">4.9.</span> <span class="toc-text">row：估计结果行数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL执行计划的局限"><span class="toc-number">5.</span> <span class="toc-text">MySQL执行计划的局限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL5-6支持OPTIMIZER-TRACE"><span class="toc-number">6.</span> <span class="toc-text">MySQL5.6支持OPTIMIZER_TRACE</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/" title="下一篇: Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="一键获取数据库整体信息脚本将脚本内容放spooldb.sql中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一键获取数据库整体信息脚本">
+<meta property="og:url" content="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="一键获取数据库整体信息脚本将脚本内容放spooldb.sql中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。">
+<meta property="og:updated_time" content="2017-07-28T06:22:50.640Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一键获取数据库整体信息脚本">
+<meta name="twitter:description" content="一键获取数据库整体信息脚本将脚本内容放spooldb.sql中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>一键获取数据库整体信息脚本 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Scripts/一键获取数据库整体信息脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/" class="article-date">
+      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一键获取数据库整体信息脚本
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>一键获取数据库整体信息脚本<br>将脚本内容放<code>spooldb.sql</code>中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。<br><a id="more"></a><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SET markup html ON spool ON pre off entmap off</span>
+<span class="line"></span>
+<span class="line">set term off</span>
+<span class="line">set heading on</span>
+<span class="line">set verify off</span>
+<span class="line">set feedback off</span>
+<span class="line"></span>
+<span class="line">set linesize <span class="number">2000</span></span>
+<span class="line">set pagesize <span class="number">30000</span></span>
+<span class="line">set long <span class="number">999999999</span></span>
+<span class="line">set longchunksize <span class="number">999999</span></span>
+<span class="line"></span>
+<span class="line">column index_name <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column table_name <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column num_rows <span class="keyword">format</span> <span class="number">999999999</span></span>
+<span class="line">column index_type <span class="keyword">format</span> a24</span>
+<span class="line">column num_rows <span class="keyword">format</span> <span class="number">999999999</span></span>
+<span class="line">column status <span class="keyword">format</span> a8</span>
+<span class="line">column clustering_factor <span class="keyword">format</span> <span class="number">999999999</span></span>
+<span class="line">column degree <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">column blevel <span class="keyword">format</span> <span class="number">9</span></span>
+<span class="line">column distinct_keys <span class="keyword">format</span> <span class="number">9999999999</span></span>
+<span class="line">column leaf_blocks <span class="keyword">format</span>   <span class="number">9999999</span></span>
+<span class="line">column last_analyzed    <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">column column_name <span class="keyword">format</span> a25</span>
+<span class="line">column column_position <span class="keyword">format</span> <span class="number">9</span></span>
+<span class="line">column temporary <span class="keyword">format</span> a2</span>
+<span class="line">column partitioned <span class="keyword">format</span> a5</span>
+<span class="line">column partitioning_type <span class="keyword">format</span> a7</span>
+<span class="line">column partition_count <span class="keyword">format</span> <span class="number">999</span></span>
+<span class="line">column program  <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column spid  <span class="keyword">format</span> a6</span>
+<span class="line">column pid  <span class="keyword">format</span> <span class="number">99999</span></span>
+<span class="line">column sid  <span class="keyword">format</span> <span class="number">99999</span></span>
+<span class="line">column serial<span class="comment"># format 99999</span></span>
+<span class="line">column username  <span class="keyword">format</span> a12</span>
+<span class="line">column osuser    <span class="keyword">format</span> a12</span>
+<span class="line">column logon_time <span class="keyword">format</span>  date</span>
+<span class="line">column event    <span class="keyword">format</span> a32</span>
+<span class="line">column JOB_NAME        <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column PROGRAM_NAME    <span class="keyword">format</span> a32</span>
+<span class="line">column STATE           <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">column window_name           <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column repeat_interval       <span class="keyword">format</span> a6<span class="number">0</span></span>
+<span class="line">column machine <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column program <span class="keyword">format</span> a3<span class="number">0</span></span>
+<span class="line">column osuser <span class="keyword">format</span> a15</span>
+<span class="line">column username <span class="keyword">format</span> a15</span>
+<span class="line">column event <span class="keyword">format</span> a5<span class="number">0</span></span>
+<span class="line">column seconds <span class="keyword">format</span> a1<span class="number">0</span></span>
+<span class="line">column sqltext <span class="keyword">format</span> a10<span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">SET markup html off</span>
+<span class="line">column dbid new_value spool_dbid</span>
+<span class="line">column inst_num new_value spool_inst_num</span>
+<span class="line"><span class="keyword">select</span> dbid from v$database where rownum = <span class="number">1</span>;</span>
+<span class="line"><span class="keyword">select</span> instance_number as inst_num from v$instance where rownum = <span class="number">1</span>;</span>
+<span class="line">column spoolfile_name new_value spoolfile</span>
+<span class="line"><span class="keyword">select</span> <span class="string">'spool_'</span>||(<span class="keyword">select</span> name from v$database where rownum=<span class="number">1</span>) ||<span class="string">'_'</span>|| (<span class="keyword">select</span> instance_number from v$instance where rownum=<span class="number">1</span>)||<span class="string">'_'</span>||to_char(sysdate,<span class="string">'yy-mm-dd_hh24.mi'</span>) as spoolfile_name from dual;</span>
+<span class="line">spool &amp;&amp;spoolfile..html</span>
+<span class="line"></span>
+<span class="line">SET markup html off</span>
+<span class="line">set serveroutput on;</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.enable(<span class="number">9999999999</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;html&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;style&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'th &#123;font:bold 8pt Arial,Helvetica,Geneva,sans-serif; color:White; background:#0066CC;padding-left:4px; padding-right:4px;padding-bottom:2px&#125;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;/style&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;head&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;/head&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;body&gt;'</span>);</span>
+<span class="line"></span>
+<span class="line">SET markup html on</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;VERSION</span>
+<span class="line"><span class="keyword">select</span> * from v$version;</span>
+<span class="line"><span class="keyword">select</span> * from dba_registry_history;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Last startup <span class="keyword">time</span>, version, <span class="keyword">and</span> whether RAC</span>
+<span class="line"><span class="keyword">select</span> * from</span>
+<span class="line"> (<span class="keyword">select</span> name db_name from v$database),</span>
+<span class="line"> (<span class="keyword">select</span> instance_name from v$instance),</span>
+<span class="line"> (<span class="keyword">select</span> archiver from v$instance),</span>
+<span class="line"> (<span class="keyword">select</span> snap_interval awr_interval, retention awr_retention FROM DBA_HIST_WR_CONTROL),</span>
+<span class="line"> (<span class="keyword">select</span> flashback_on from v$database),</span>
+<span class="line"> (<span class="keyword">select</span> parallel from v$instance),</span>
+<span class="line"> (<span class="keyword">select</span> startup_time from v$instance),</span>
+<span class="line"> (<span class="keyword">select</span> decode(name,null,<span class="string">'NOT ASM'</span>,<span class="string">'ASM'</span>) IS_ASM from (<span class="keyword">select</span> null name from dual union all (<span class="keyword">select</span> name IS_ASM from v$datafile where name like <span class="string">'+%'</span> <span class="keyword">and</span> rownum = <span class="number">1</span>))),</span>
+<span class="line"> (<span class="keyword">select</span> max(end_time) rman_lastcompleted from v$rman_status where status = <span class="string">'COMPLETED'</span> <span class="keyword">and</span> object_type like <span class="string">'DB FULL'</span>)</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;CPU <span class="keyword">or</span> <span class="keyword">wait</span> <span class="keyword">for</span> the longest in <span class="number">30</span> minutes</span>
+<span class="line"><span class="keyword">select</span> t.*, s.sid, s.serial<span class="comment">#, s.machine, s.program, s.osuser</span></span>
+<span class="line">  from (<span class="keyword">select</span> c.USERNAME,</span>
+<span class="line">               a.event,</span>
+<span class="line">               to_char(a.cnt) as seconds,</span>
+<span class="line">               a.sql_id</span>
+<span class="line">               --,dbms_lob.substr(b.sql_fulltext,<span class="number">50</span>,<span class="number">1</span>) sqltext</span>
+<span class="line">          from (<span class="keyword">select</span> rownum rn, t.*</span>
+<span class="line">                  from (<span class="keyword">select</span> decode(s.session_state,</span>
+<span class="line">                                      <span class="string">'WAITING'</span>,</span>
+<span class="line">                                      s.event,</span>
+<span class="line">                                      <span class="string">'Cpu + Wait For Cpu'</span>) Event,</span>
+<span class="line">                               s.sql_id,</span>
+<span class="line">                               s.user_id,</span>
+<span class="line">                               count(*) CNT</span>
+<span class="line">                          from v$active_session_history <span class="keyword">s</span></span>
+<span class="line">                         where sample_time &gt; sysdate - <span class="number">30</span> / <span class="number">1440</span></span>
+<span class="line">                         group by s.user_id,</span>
+<span class="line">                                  decode(s.session_state,</span>
+<span class="line">                                         <span class="string">'WAITING'</span>,</span>
+<span class="line">                                         s.event,</span>
+<span class="line">                                         <span class="string">'Cpu + Wait For Cpu'</span>),</span>
+<span class="line">                                  s.sql_id</span>
+<span class="line">                         order by CNT desc) t</span>
+<span class="line">                 where rownum &lt; <span class="number">20</span>) a,</span>
+<span class="line">               v$sqlarea b,</span>
+<span class="line">               dba_users c</span>
+<span class="line">         where a.sql_id = b.sql_id</span>
+<span class="line">           <span class="keyword">and</span> a.user_id = c.user_id</span>
+<span class="line">         order by CNT desc) t,</span>
+<span class="line">       v$session <span class="keyword">s</span></span>
+<span class="line">where t.sql_id = s.sql_id(+)</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Recent load status (based on AWR snapshot</span>
+<span class="line"><span class="keyword">select</span> s.snap_date,</span>
+<span class="line">       decode(s.redosize, null, <span class="string">'--shutdown or end--'</span>, s.currtime) <span class="string">"TIME"</span>,</span>
+<span class="line">       to_char(round(s.seconds/<span class="number">60</span>,<span class="number">2</span>)) <span class="string">"elapse(min)"</span>,</span>
+<span class="line">       round(t.db_time / <span class="number">1000000</span> / <span class="number">60</span>, <span class="number">2</span>) <span class="string">"DB time(min)"</span>,</span>
+<span class="line">       s.redosize <span class="keyword">redo</span>,</span>
+<span class="line">       round(s.redosize / s.seconds, <span class="number">2</span>) <span class="string">"redo/s"</span>,</span>
+<span class="line">       s.logicalreads logical,</span>
+<span class="line">       round(s.logicalreads / s.seconds, <span class="number">2</span>) <span class="string">"logical/s"</span>,</span>
+<span class="line">       physicalreads physical,</span>
+<span class="line">       round(s.physicalreads / s.seconds, <span class="number">2</span>) <span class="string">"phy/s"</span>,</span>
+<span class="line">       s.executes execs,</span>
+<span class="line">       round(s.executes / s.seconds, <span class="number">2</span>) <span class="string">"execs/s"</span>,</span>
+<span class="line">       s.parse,</span>
+<span class="line">       round(s.parse / s.seconds, <span class="number">2</span>) <span class="string">"parse/s"</span>,</span>
+<span class="line">       s.hardparse,</span>
+<span class="line">       round(s.hardparse / s.seconds, <span class="number">2</span>) <span class="string">"hardparse/s"</span>,</span>
+<span class="line">       s.transactions trans,</span>
+<span class="line">       round(s.transactions / s.seconds, <span class="number">2</span>) <span class="string">"trans/s"</span></span>
+<span class="line">  from (<span class="keyword">select</span> curr_redo - last_redo redosize,</span>
+<span class="line">               curr_logicalreads - last_logicalreads logicalreads,</span>
+<span class="line">               curr_physicalreads - last_physicalreads physicalreads,</span>
+<span class="line">               curr_executes - last_executes executes,</span>
+<span class="line">               curr_parse - last_parse parse,</span>
+<span class="line">               curr_hardparse - last_hardparse hardparse,</span>
+<span class="line">               curr_transactions - last_transactions transactions,</span>
+<span class="line">               round(((currtime + <span class="number">0</span>) - (lasttime + <span class="number">0</span>)) * <span class="number">3600</span> * <span class="number">24</span>, <span class="number">0</span>) seconds,</span>
+<span class="line">               to_char(currtime, <span class="string">'yy/mm/dd'</span>) snap_date,</span>
+<span class="line">               to_char(currtime, <span class="string">'hh24:mi'</span>) currtime,</span>
+<span class="line">               currsnap_id endsnap_id,</span>
+<span class="line">               to_char(startup_time, <span class="string">'yyyy-mm-dd hh24:mi:ss'</span>) startup_time</span>
+<span class="line">          from (<span class="keyword">select</span> a.redo last_redo,</span>
+<span class="line">                       a.logicalreads last_logicalreads,</span>
+<span class="line">                       a.physicalreads last_physicalreads,</span>
+<span class="line">                       a.executes last_executes,</span>
+<span class="line">                       a.parse last_parse,</span>
+<span class="line">                       a.hardparse last_hardparse,</span>
+<span class="line">                       a.transactions last_transactions,</span>
+<span class="line">                       lead(a.redo, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_redo,</span>
+<span class="line">                       lead(a.logicalreads, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_logicalreads,</span>
+<span class="line">                       lead(a.physicalreads, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_physicalreads,</span>
+<span class="line">                       lead(a.executes, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_executes,</span>
+<span class="line">                       lead(a.parse, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_parse,</span>
+<span class="line">                       lead(a.hardparse, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_hardparse,</span>
+<span class="line">                       lead(a.transactions, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) curr_transactions,</span>
+<span class="line">                       b.end_interval_time lasttime,</span>
+<span class="line">                       lead(b.end_interval_time, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) currtime,</span>
+<span class="line">                       lead(b.snap_id, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) currsnap_id,</span>
+<span class="line">                       b.startup_time</span>
+<span class="line">                  from (<span class="keyword">select</span> snap_id,</span>
+<span class="line">                               dbid,</span>
+<span class="line">                               instance_number,</span>
+<span class="line">                               sum(decode(stat_name, <span class="string">'redo size'</span>, value, <span class="number">0</span>)) <span class="keyword">redo</span>,</span>
+<span class="line">                               sum(decode(stat_name,</span>
+<span class="line">                                          <span class="string">'session logical reads'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="number">0</span>)) logicalreads,</span>
+<span class="line">                               sum(decode(stat_name,</span>
+<span class="line">                                          <span class="string">'physical reads'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="number">0</span>)) physicalreads,</span>
+<span class="line">                               sum(decode(stat_name, <span class="string">'execute count'</span>, value, <span class="number">0</span>)) executes,</span>
+<span class="line">                               sum(decode(stat_name,</span>
+<span class="line">                                          <span class="string">'parse count (total)'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="number">0</span>)) parse,</span>
+<span class="line">                               sum(decode(stat_name,</span>
+<span class="line">                                          <span class="string">'parse count (hard)'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="number">0</span>)) hardparse,</span>
+<span class="line">                               sum(decode(stat_name,</span>
+<span class="line">                                          <span class="string">'user rollbacks'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="string">'user commits'</span>,</span>
+<span class="line">                                          value,</span>
+<span class="line">                                          <span class="number">0</span>)) transactions</span>
+<span class="line">                          from dba_hist_sysstat</span>
+<span class="line">                         where stat_name in</span>
+<span class="line">                               (<span class="string">'redo size'</span>,</span>
+<span class="line">                                <span class="string">'session logical reads'</span>,</span>
+<span class="line">                                <span class="string">'physical reads'</span>,</span>
+<span class="line">                                <span class="string">'execute count'</span>,</span>
+<span class="line">                                <span class="string">'user rollbacks'</span>,</span>
+<span class="line">                                <span class="string">'user commits'</span>,</span>
+<span class="line">                                <span class="string">'parse count (hard)'</span>,</span>
+<span class="line">                                <span class="string">'parse count (total)'</span>)</span>
+<span class="line">                         group by snap_id, dbid, instance_number) a,</span>
+<span class="line">                       dba_hist_snapshot b</span>
+<span class="line">                 where a.snap_id = b.snap_id</span>
+<span class="line">                   <span class="keyword">and</span> a.dbid = b.dbid</span>
+<span class="line">                   <span class="keyword">and</span> a.instance_number = b.instance_number</span>
+<span class="line">                   <span class="keyword">and</span> a.dbid = &amp;&amp;spool_dbid</span>
+<span class="line">                   <span class="keyword">and</span> a.instance_number = &amp;&amp;spool_inst_num</span>
+<span class="line">                 order by end_interval_time)) <span class="keyword">s</span>,</span>
+<span class="line">       (<span class="keyword">select</span> lead(a.value, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) - a.value db_time,</span>
+<span class="line">               lead(b.snap_id, <span class="number">1</span>, null) over(partition by b.startup_time order by b.end_interval_time) endsnap_id</span>
+<span class="line">          from dba_hist_sys_time_model a, dba_hist_snapshot b</span>
+<span class="line">         where a.snap_id = b.snap_id</span>
+<span class="line">           <span class="keyword">and</span> a.dbid = b.dbid</span>
+<span class="line">           <span class="keyword">and</span> a.instance_number = b.instance_number</span>
+<span class="line">           <span class="keyword">and</span> a.stat_name = <span class="string">'DB time'</span></span>
+<span class="line">           <span class="keyword">and</span> a.dbid = &amp;&amp;spool_dbid</span>
+<span class="line">           <span class="keyword">and</span> a.instance_number = &amp;&amp;spool_inst_num) t</span>
+<span class="line"> where s.endsnap_id = t.endsnap_id</span>
+<span class="line">order by s.snap_date desc ,<span class="keyword">time</span> asc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;逻辑读最多</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> sql_id,</span>
+<span class="line">               s.EXECUTIONS,</span>
+<span class="line">               s.LAST_LOAD_TIME,</span>
+<span class="line">               s.FIRST_LOAD_TIME,</span>
+<span class="line">               s.DISK_READS,</span>
+<span class="line">               s.BUFFER_GETS</span>
+<span class="line">          from v$sql <span class="keyword">s</span></span>
+<span class="line">         where s.buffer_gets &gt; <span class="number">300</span></span>
+<span class="line">         order by buffer_gets desc)</span>
+<span class="line">where rownum &lt;= <span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Logical <span class="keyword">read</span> most</span>
+<span class="line"><span class="keyword">select</span> * from (<span class="keyword">select</span> sql_id,</span>
+<span class="line">       s.EXECUTIONS,</span>
+<span class="line">       s.LAST_LOAD_TIME,</span>
+<span class="line">       s.FIRST_LOAD_TIME,</span>
+<span class="line">       s.DISK_READS,</span>
+<span class="line">       s.BUFFER_GETS,</span>
+<span class="line">       s.PARSE_CALLS</span>
+<span class="line">  from v$sql <span class="keyword">s</span></span>
+<span class="line">where s.disk_reads &gt; <span class="number">300</span></span>
+<span class="line">order by disk_reads desc)</span>
+<span class="line">where rownum&lt;=<span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Maximum number of executions</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> sql_id,</span>
+<span class="line">               s.EXECUTIONS,</span>
+<span class="line">               s.LAST_LOAD_TIME,</span>
+<span class="line">               s.FIRST_LOAD_TIME,</span>
+<span class="line">               s.DISK_READS,</span>
+<span class="line">               s.BUFFER_GETS,</span>
+<span class="line">               s.PARSE_CALLS</span>
+<span class="line">          from v$sql <span class="keyword">s</span></span>
+<span class="line">         order by s.EXECUTIONS desc)</span>
+<span class="line">where rownum &lt;= <span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;SQL parsing most</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> sql_id,</span>
+<span class="line">               s.EXECUTIONS,</span>
+<span class="line">               s.LAST_LOAD_TIME,</span>
+<span class="line">               s.FIRST_LOAD_TIME,</span>
+<span class="line">               s.DISK_READS,</span>
+<span class="line">               s.BUFFER_GETS,</span>
+<span class="line">               s.PARSE_CALLS</span>
+<span class="line">          from v$sql <span class="keyword">s</span></span>
+<span class="line">         order by s.PARSE_CALLS desc)</span>
+<span class="line">where rownum &lt;= <span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The disk is sorted most</span>
+<span class="line"><span class="keyword">select</span> sess.username, sql.address, sort1.blocks</span>
+<span class="line">  from v$session sess, v$sqlarea sql, v$sort_usage sort1</span>
+<span class="line">where sess.serial<span class="comment"># = sort1.session_num</span></span>
+<span class="line">   <span class="keyword">and</span> sort1.sqladdr = sql.address</span>
+<span class="line">   <span class="keyword">and</span> sort1.sqlhash = sql.hash_value</span>
+<span class="line">   <span class="keyword">and</span> sort1.blocks &gt; <span class="number">200</span></span>
+<span class="line">order by sort1.blocks desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Commits more than <span class="number">10</span>,<span class="number">000</span> session</span>
+<span class="line"><span class="keyword">select</span> t1.sid, t1.value, t2.name</span>
+<span class="line">  from v$sesstat t1, v$statname t2</span>
+<span class="line"> where t2.name like <span class="string">'%user commits%'</span></span>
+<span class="line">   <span class="keyword">and</span> t1.STATISTIC<span class="comment"># = t2.STATISTIC#</span></span>
+<span class="line">   <span class="keyword">and</span> value &gt;= <span class="number">10000</span></span>
+<span class="line"> order by value desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;SQL with a <span class="keyword">length</span> of more than <span class="number">100</span></span>
+<span class="line">SELECT SQL_ID, COUNT(*) line_count</span>
+<span class="line">  FROM V$SQLTEXT</span>
+<span class="line"> GROUP BY SQL_ID</span>
+<span class="line">HAVING COUNT(*) &gt;= <span class="number">100</span></span>
+<span class="line"> ORDER BY COUNT(*) DESC</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Query shared memory share</span>
+<span class="line"><span class="keyword">select</span> count(*),round(sum(sharable_mem)/<span class="number">1024</span>/<span class="number">1024</span>,<span class="number">2</span>)</span>
+<span class="line">  from v$db_object_cache a</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Table with parallelism</span>
+<span class="line"><span class="keyword">select</span> t.owner, t.table_name, degree</span>
+<span class="line">  from dba_tables t</span>
+<span class="line">where  trim(t.degree) &lt;&gt;<span class="string">'1'</span></span>
+<span class="line">   <span class="keyword">and</span> trim(t.degree)&lt;&gt;<span class="string">'0'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Index with parallelism</span>
+<span class="line"><span class="keyword">select</span> t.owner, t.table_name, index_name, degree, status</span>
+<span class="line">  from dba_indexes t</span>
+<span class="line">where  trim(t.degree) &lt;&gt;<span class="string">'1'</span></span>
+<span class="line">   <span class="keyword">and</span> trim(t.degree)&lt;&gt;<span class="string">'0'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Invalid <span class="keyword">index</span></span>
+<span class="line"><span class="keyword">select</span> t.index_name,</span>
+<span class="line">       t.table_name,</span>
+<span class="line">       blevel,</span>
+<span class="line">       t.num_rows,</span>
+<span class="line">       t.leaf_blocks,</span>
+<span class="line">       t.distinct_keys</span>
+<span class="line">  from dba_indexes t</span>
+<span class="line">  where status = <span class="string">'UNUSABLE'</span></span>
+<span class="line">  <span class="keyword">and</span>  table_owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line">  <span class="keyword">and</span>  table_owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">;</span>
+<span class="line"><span class="keyword">select</span> t2.owner,</span>
+<span class="line">       t1.blevel,</span>
+<span class="line">       t1.leaf_blocks,</span>
+<span class="line">       t1.INDEX_NAME,</span>
+<span class="line">       t2.table_name,</span>
+<span class="line">       t1.PARTITION_NAME,</span>
+<span class="line">       t1.STATUS</span>
+<span class="line">  from dba_ind_partitions t1, dba_indexes t2</span>
+<span class="line">where t1.index_name = t2.index_name</span>
+<span class="line">   <span class="keyword">and</span> t1.STATUS = <span class="string">'UNUSABLE'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Invalid object</span>
+<span class="line"><span class="keyword">select</span> t.owner,</span>
+<span class="line">       t.object_type,</span>
+<span class="line">       t.object_name</span>
+<span class="line">  from dba_objects t</span>
+<span class="line"> where STATUS=<span class="string">'INVALID'</span></span>
+<span class="line">order by <span class="number">1</span>, <span class="number">2</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Bitmap <span class="keyword">index</span> <span class="keyword">and</span> function <span class="keyword">index</span>, <span class="keyword">reverse</span> key <span class="keyword">index</span></span>
+<span class="line"><span class="keyword">select</span> t.owner,</span>
+<span class="line">       t.table_name,</span>
+<span class="line">       t.index_name,</span>
+<span class="line">       t.index_type,</span>
+<span class="line">       t.status,</span>
+<span class="line">       t.blevel,</span>
+<span class="line">       t.leaf_blocks</span>
+<span class="line">  from dba_indexes t</span>
+<span class="line"> where index_type in (<span class="string">'BITMAP'</span>, <span class="string">'FUNCTION-BASED NORMAL'</span>, <span class="string">'NORMAL/REV'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The combination of <span class="keyword">index</span> columns is more than four</span>
+<span class="line"><span class="keyword">select</span> table_owner,table_name, index_name, count(*)</span>
+<span class="line">  from dba_ind_columns</span>
+<span class="line">where  table_owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> table_owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> table_owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line"> group by table_owner,table_name, index_name</span>
+<span class="line">having count(*) &gt;= <span class="number">4</span></span>
+<span class="line"> order by count(*) desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Indexed more than <span class="number">5</span> numbers</span>
+<span class="line"><span class="keyword">select</span> owner,table_name, count(*) cnt</span>
+<span class="line">  from dba_indexes</span>
+<span class="line">where  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line"> group by owner,table_name</span>
+<span class="line">having count(*) &gt;= <span class="number">5</span></span>
+<span class="line">order by cnt desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Never indexed a large table</span>
+<span class="line"><span class="keyword">select</span> segment_name,</span>
+<span class="line">       bytes / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span> <span class="string">"GB"</span>,</span>
+<span class="line">       blocks,</span>
+<span class="line">       tablespace_name</span>
+<span class="line">  from dba_segments</span>
+<span class="line"> where segment_type = <span class="string">'TABLE'</span></span>
+<span class="line">   <span class="keyword">and</span> segment_name <span class="keyword">not</span> in (<span class="keyword">select</span> table_name from dba_indexes)</span>
+<span class="line">   <span class="keyword">and</span> bytes / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span> &gt;= <span class="number">0</span>.<span class="number">5</span></span>
+<span class="line"> order by GB desc</span>
+<span class="line">;</span>
+<span class="line"><span class="keyword">select</span> segment_name, sum(bytes) / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span> <span class="string">"GB"</span>, sum(blocks)</span>
+<span class="line">  from dba_segments</span>
+<span class="line"> where segment_type = <span class="string">'TABLE PARTITION'</span></span>
+<span class="line">   <span class="keyword">and</span> segment_name <span class="keyword">not</span> in (<span class="keyword">select</span> table_name from dba_indexes)</span>
+<span class="line"> group by segment_name</span>
+<span class="line">having sum(bytes) / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span> &gt;= <span class="number">0</span>.<span class="number">5</span></span>
+<span class="line"> order by GB desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;There is a cross between the combined <span class="keyword">index</span> of the table <span class="keyword">and</span> the single column <span class="keyword">index</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> table_name, trunc(count(distinct(column_name)) / count(*),<span class="number">2</span>) cross_idx_rate</span>
+<span class="line">  from dba_ind_columns</span>
+<span class="line"> where table_owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> table_owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> table_owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line"> group by table_name</span>
+<span class="line">having count(distinct(column_name)) / count(*) &lt; <span class="number">1</span> </span>
+<span class="line">order by cross_idx_rate desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Object is built on the <span class="keyword">system</span> tablespace</span>
+<span class="line"><span class="keyword">select</span> * from (</span>
+<span class="line"><span class="keyword">select</span> owner, segment_name, tablespace_name, count(*) num</span>
+<span class="line">  from dba_segments</span>
+<span class="line"> where tablespace_name in(<span class="string">'SYSTEM'</span>,<span class="string">'SYSAUX'</span>)</span>
+<span class="line">group by owner, segment_name, tablespace_name)</span>
+<span class="line">where  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>,<span class="string">'ORDSYS'</span>,<span class="string">'DBSNMP'</span>,<span class="string">'OUTLN'</span>,<span class="string">'TSMSYS'</span>)</span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">   <span class="keyword">and</span> owner <span class="keyword">not</span> like <span class="string">'WK%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Check whether the statistics are collected</span>
+<span class="line"><span class="keyword">select</span> t.job_name,t.program_name,t.state,t.enabled</span>
+<span class="line">  from dba_scheduler_jobs t</span>
+<span class="line">where job_name = <span class="string">'GATHER_STATS_JOB'</span></span>
+<span class="line">;</span>
+<span class="line"><span class="keyword">select</span> client_name,status</span>
+<span class="line">  from dba_autotask_client</span>
+<span class="line">;</span>
+<span class="line"><span class="keyword">select</span> window_next_time,autotask_status</span>
+<span class="line">  from DBA_AUTOTASK_WINDOW_CLIENTS</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Check the object that was <span class="keyword">not</span> collected <span class="keyword">or</span> collected <span class="keyword">for</span> a long <span class="keyword">time</span></span>
+<span class="line"><span class="keyword">select</span> owner, count(*)</span>
+<span class="line">  from dba_tab_statistics t</span>
+<span class="line">where (t.last_analyzed is null <span class="keyword">or</span> t.last_analyzed &lt; sysdate - <span class="number">100</span>)</span>
+<span class="line">   <span class="keyword">and</span> table_name <span class="keyword">not</span> like <span class="string">'BIN$%'</span></span>
+<span class="line">group by owner</span>
+<span class="line">order by owner</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Temporary table <span class="keyword">for</span> collecting statistical information</span>
+<span class="line"><span class="keyword">select</span> owner, table_name, t.last_analyzed, t.num_rows, t.blocks</span>
+<span class="line">  from dba_tables t</span>
+<span class="line">where t.temporary = <span class="string">'Y'</span></span>
+<span class="line">   <span class="keyword">and</span> last_analyzed is <span class="keyword">not</span> null</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Log switching frequency analysis</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> thread<span class="comment">#, sequence#, to_char(first_time, 'MM/DD/RR HH24:MI:SS')</span></span>
+<span class="line">          from v$log_history</span>
+<span class="line">         order by first_time desc)</span>
+<span class="line"> where rownum &lt;= <span class="number">50</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The amount of <span class="keyword">log</span> switch every day in the <span class="keyword">last</span> <span class="number">10</span> days</span>
+<span class="line">SELECT SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH:MI:SS'</span>),<span class="number">1</span>,<span class="number">5</span>) Day,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'00'</span>,<span class="number">1</span>,<span class="number">0</span>)) H0<span class="number">0</span>,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'01'</span>,<span class="number">1</span>,<span class="number">0</span>)) H01,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'02'</span>,<span class="number">1</span>,<span class="number">0</span>)) H02,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'03'</span>,<span class="number">1</span>,<span class="number">0</span>)) H03,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'04'</span>,<span class="number">1</span>,<span class="number">0</span>)) H04,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'05'</span>,<span class="number">1</span>,<span class="number">0</span>)) H05,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'06'</span>,<span class="number">1</span>,<span class="number">0</span>)) H06,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'07'</span>,<span class="number">1</span>,<span class="number">0</span>)) H07,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'08'</span>,<span class="number">1</span>,<span class="number">0</span>)) H08,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'09'</span>,<span class="number">1</span>,<span class="number">0</span>)) H09,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'10'</span>,<span class="number">1</span>,<span class="number">0</span>)) H1<span class="number">0</span>,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'11'</span>,<span class="number">1</span>,<span class="number">0</span>)) H11,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'12'</span>,<span class="number">1</span>,<span class="number">0</span>)) H12,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'13'</span>,<span class="number">1</span>,<span class="number">0</span>)) H13,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'14'</span>,<span class="number">1</span>,<span class="number">0</span>)) H14,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'15'</span>,<span class="number">1</span>,<span class="number">0</span>)) H15,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'16'</span>,<span class="number">1</span>,<span class="number">0</span>)) H16,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'17'</span>,<span class="number">1</span>,<span class="number">0</span>)) H17,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'18'</span>,<span class="number">1</span>,<span class="number">0</span>)) H18,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'19'</span>,<span class="number">1</span>,<span class="number">0</span>)) H19,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'20'</span>,<span class="number">1</span>,<span class="number">0</span>)) H2<span class="number">0</span>,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'21'</span>,<span class="number">1</span>,<span class="number">0</span>)) H21,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'22'</span>,<span class="number">1</span>,<span class="number">0</span>)) H22 ,</span>
+<span class="line">       SUM(DECODE(SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH24:MI:SS'</span>),<span class="number">10</span>,<span class="number">2</span>),<span class="string">'23'</span>,<span class="number">1</span>,<span class="number">0</span>)) H23,</span>
+<span class="line">       COUNT(*) TOTAL</span>
+<span class="line">FROM v$log_history  a</span>
+<span class="line">   where first_time&gt;=to_char(sysdate-<span class="number">11</span>)</span>
+<span class="line">GROUP BY SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH:MI:SS'</span>),<span class="number">1</span>,<span class="number">5</span>)</span>
+<span class="line">ORDER BY SUBSTR(TO_CHAR(first_time, <span class="string">'MM/DD/RR HH:MI:SS'</span>),<span class="number">1</span>,<span class="number">5</span>) DESC</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Log group size</span>
+<span class="line"><span class="keyword">select</span> group<span class="comment">#,bytes,status</span></span>
+<span class="line">  from v$log</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;show recovery_file_dest usage</span>
+<span class="line"> <span class="keyword">select</span> <span class="keyword">substr</span>(name, <span class="number">1</span>, <span class="number">30</span>) name,</span>
+<span class="line">        space_limit as quota,</span>
+<span class="line">        space_used as used,</span>
+<span class="line">        space_reclaimable as reclaimable,</span>
+<span class="line">        number_of_files as files</span>
+<span class="line">   from v$recovery_file_dest</span>
+<span class="line">;</span>
+<span class="line"><span class="keyword">select</span> * from V$FLASH_RECOVERY_AREA_USAGE</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Check <span class="keyword">if</span> the sequence is less than <span class="number">20</span></span>
+<span class="line"><span class="keyword">select</span> sequence_owner,</span>
+<span class="line">       count(*) CNT,</span>
+<span class="line">       sum(case <span class="keyword">when</span> t.cache_size &lt;= <span class="number">20</span> then <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> end ) CNT_LESS_2<span class="number">0</span>,</span>
+<span class="line">       sum(case <span class="keyword">when</span> t.cache_size &gt; <span class="number">20</span> then <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> end ) CNT_MORE_2<span class="number">0</span></span>
+<span class="line">  from dba_sequences t</span>
+<span class="line"> group by sequence_owner</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Table space usage</span>
+<span class="line">set markup html off</span>
+<span class="line">prompt &lt;p&gt;</span>
+<span class="line">declare</span>
+<span class="line">  type NUMBER_ARRAY is table of number(<span class="number">15</span>) <span class="keyword">index</span> by varchar2(<span class="number">30</span>);</span>
+<span class="line">  ts_free_mb NUMBER_ARRAY;</span>
+<span class="line">  cursor c1 is</span>
+<span class="line">    <span class="keyword">select</span> tablespace_name, sum(free_mb) + sum(expired_mb) free_mb</span>
+<span class="line">      from (SELECT tablespace_name,</span>
+<span class="line">                   round(sum(nvl(bytes, <span class="number">0</span>)) / <span class="number">1024</span> / <span class="number">1024</span>, <span class="number">2</span>) free_mb,</span>
+<span class="line">                   <span class="number">0</span> expired_mb</span>
+<span class="line">              FROM dba_free_space</span>
+<span class="line">             GROUP BY tablespace_name</span>
+<span class="line">            union all</span>
+<span class="line">            <span class="keyword">select</span> tablespace_name,</span>
+<span class="line">                   <span class="number">0</span> free_mb,</span>
+<span class="line">                   round(sum(nvl(bytes, <span class="number">0</span>)) / <span class="number">1024</span> / <span class="number">1024</span>, <span class="number">2</span>) expired_mb</span>
+<span class="line">              from dba_undo_extents d</span>
+<span class="line">             where tablespace_name =</span>
+<span class="line">                   (<span class="keyword">select</span> value</span>
+<span class="line">                      from v$parameter</span>
+<span class="line">                     where name = <span class="string">'undo_tablespace'</span>)</span>
+<span class="line">               <span class="keyword">and</span> status = <span class="string">'EXPIRED'</span></span>
+<span class="line">             group by tablespace_name)</span>
+<span class="line">     group by tablespace_name;</span>
+<span class="line">  cursor c2 is</span>
+<span class="line">    SELECT /*+ rule *<span class="regexp">/</span>
+<span class="line">     tablespace_name, round(sum(bytes) /</span> <span class="number">1024</span> / <span class="number">1024</span>, <span class="number">2</span>) total_mb</span>
+<span class="line">      FROM dba_data_files</span>
+<span class="line">     where tablespace_name <span class="keyword">not</span> in</span>
+<span class="line">           (<span class="keyword">select</span> tablespace_name</span>
+<span class="line">              from dba_data_files</span>
+<span class="line">             where upper(AUTOEXTENSIBLE) = <span class="string">'YES'</span>)</span>
+<span class="line">     GROUP BY tablespace_name;</span>
+<span class="line">  ts_name  varchar2(<span class="number">30</span>);</span>
+<span class="line">  ts_total number(<span class="number">15</span>);</span>
+<span class="line">  ts_used  number(<span class="number">15</span>);</span>
+<span class="line">  ts_free  number(<span class="number">15</span>);</span>
+<span class="line">  ts_rate  varchar2(<span class="number">5</span>);</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> rec1 in c1 loop</span>
+<span class="line">    ts_free_mb(rec1.tablespace_name) := rec1.free_mb;</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table border="1" width="90%" align="center" summary="Script output"&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;th&gt;ts_name&lt;/th&gt;&lt;th&gt;ts_total&lt;/th&gt;&lt;th&gt;ts_used&lt;/th&gt;&lt;th&gt;ts_free&lt;/th&gt;&lt;th&gt;ts_rate&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> rec2 in c2 loop</span>
+<span class="line">    ts_name  := null;</span>
+<span class="line">    ts_total := null;</span>
+<span class="line">    ts_used  := null;</span>
+<span class="line">    ts_free  := null;</span>
+<span class="line">    ts_rate  := null;</span>
+<span class="line">    ts_name  := rec2.tablespace_name;</span>
+<span class="line">    ts_total := rec2.total_mb;</span>
+<span class="line">    ts_free  := nvl(ts_free_mb(ts_name), <span class="number">0</span>);</span>
+<span class="line">    ts_used  := nvl(ts_total - ts_free, <span class="number">0</span>);</span>
+<span class="line">    ts_rate  := to_char(round((ts_total - ts_free) / ts_total * <span class="number">100</span>, <span class="number">2</span>),</span>
+<span class="line">                        <span class="string">'fm990.99'</span>);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || ts_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || ts_total ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || ts_used || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || ts_free ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || ts_rate || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;'</span>);</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line">prompt &lt;p&gt;</span>
+<span class="line">set markup html on</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The size of the entire database</span>
+<span class="line">select owner, round(sum(bytes) /</span> <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span>, <span class="number">2</span>) <span class="string">"GB"</span></span>
+<span class="line">  from dba_segments</span>
+<span class="line"> group by owner</span>
+<span class="line"> order by <span class="number">2</span> desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Object size TOP1<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> owner,</span>
+<span class="line">               segment_name,</span>
+<span class="line">               segment_type,</span>
+<span class="line">               round(sum(bytes) / <span class="number">1024</span> / <span class="number">1024</span>) object_size</span>
+<span class="line">          from DBA_segments</span>
+<span class="line">         group by owner, segment_name, segment_type</span>
+<span class="line">         order by object_size desc)</span>
+<span class="line">where rownum &lt;= <span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Recycle Bin situation (size <span class="keyword">and</span> quantity)</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> SUM(BYTES) / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span> as recyb_size</span>
+<span class="line">          from DBA_SEGMENTS</span>
+<span class="line">         WHERE SEGMENT_NAME LIKE <span class="string">'BIN$%'</span>) a,</span>
+<span class="line">       (<span class="keyword">select</span> count(*) as recyb_cnt from dba_recyclebin)</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Check who took up the undo tablespace</span>
+<span class="line"></span>
+<span class="line">SELECT r.name <span class="string">"roll_segment_name"</span>, rssize/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span> <span class="string">"RSSize(G)"</span>,</span>
+<span class="line">  s.sid,</span>
+<span class="line">  s.serial<span class="comment">#,</span></span>
+<span class="line">  s.username,</span>
+<span class="line">  s.status,</span>
+<span class="line">  s.sql_hash_value,</span>
+<span class="line">  s.SQL_ADDRESS,</span>
+<span class="line">  s.MACHINE,</span>
+<span class="line">  s.MODULE,</span>
+<span class="line">  <span class="keyword">substr</span>(s.program, <span class="number">1</span>, <span class="number">78</span>) program,</span>
+<span class="line">  r.usn,</span>
+<span class="line">  hwmsize/<span class="number">1024</span>/<span class="number">1024</span>/<span class="number">1024</span>, shrinks ,xacts</span>
+<span class="line">FROM sys.v<span class="number">_</span>$session <span class="keyword">s</span>,sys.v<span class="number">_</span>$transaction t,sys.v<span class="number">_</span>$rollname r, v$rollstat rs</span>
+<span class="line">WHERE t.addr = s.taddr <span class="keyword">and</span> t.xidusn = r.usn <span class="keyword">and</span> r.usn=rs.USN</span>
+<span class="line">Order by rssize desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Check who took up the temp tablespace</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sql.sql_id,</span>
+<span class="line">       t.Blocks * <span class="number">16</span> / <span class="number">1024</span> / <span class="number">1024</span>,</span>
+<span class="line">       s.USERNAME,</span>
+<span class="line">       s.SCHEMANAME,</span>
+<span class="line">       t.tablespace,</span>
+<span class="line">       t.segtype,</span>
+<span class="line">       t.extents,</span>
+<span class="line">       s.PROGRAM,</span>
+<span class="line">       s.OSUSER,</span>
+<span class="line">       s.TERMINAL,</span>
+<span class="line">       s.sid,</span>
+<span class="line">       s.SERIAL<span class="comment">#</span></span>
+<span class="line">  from v$sort_usage t, v$session <span class="keyword">s</span> , v$sql sql</span>
+<span class="line">where t.SESSION_ADDR = s.SADDR</span>
+<span class="line">  <span class="keyword">and</span> t.SQLADDR=sql.ADDRESS</span>
+<span class="line">  <span class="keyword">and</span> t.SQLHASH=sql.HASH_VALUE</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Observe the rollback segment, the temporary segment <span class="keyword">and</span> the general segment No is automatically expanded</span>
+<span class="line"><span class="keyword">select</span> t2.contents, t1.*</span>
+<span class="line">  from (<span class="keyword">select</span> file_name, tablespace_name, bytes, maxbytes, autoextensible</span>
+<span class="line">          from dba_temp_files</span>
+<span class="line">        union all</span>
+<span class="line">        <span class="keyword">select</span> file_name, tablespace_name, bytes, maxbytes, autoextensible</span>
+<span class="line">          from dba_data_files) t1,</span>
+<span class="line">       dba_tablespaces t2</span>
+<span class="line"> where t1.tablespace_name = t2.tablespace_name</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Table size of more than <span class="number">10</span>GB did <span class="keyword">not</span> build the partition table</span>
+<span class="line"><span class="keyword">select</span> owner,</span>
+<span class="line">       segment_name,</span>
+<span class="line">       segment_type,</span>
+<span class="line">       round(sum(bytes) / <span class="number">1024</span> / <span class="number">1024</span> / <span class="number">1024</span>,<span class="number">2</span>) object_size</span>
+<span class="line">  from dba_segments</span>
+<span class="line">where segment_type = <span class="string">'TABLE'</span></span>
+<span class="line">  <span class="keyword">and</span> bytes &gt; <span class="number">10</span>*<span class="number">1024</span>*<span class="number">1024</span>*<span class="number">1024</span></span>
+<span class="line">group by owner, segment_name, segment_type</span>
+<span class="line">order by object_size desc</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The top <span class="number">10</span> partitions are the most</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> table_owner, table_name, count(*) cnt</span>
+<span class="line">          from dba_tab_partitions</span>
+<span class="line">         group by table_owner, table_name</span>
+<span class="line">         order by cnt desc)</span>
+<span class="line">where rownum &lt;= <span class="number">10</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Partitioned uneven table</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> table_owner,</span>
+<span class="line">               table_name,</span>
+<span class="line">               max(num_rows) max_num_rows,</span>
+<span class="line">               trunc(avg(num_rows), <span class="number">0</span>) avg_num_rows,</span>
+<span class="line">               sum(num_rows) sum_num_rows,</span>
+<span class="line">               case</span>
+<span class="line">                 <span class="keyword">when</span> sum(num_rows) = <span class="number">0</span> then</span>
+<span class="line">                  <span class="number">0</span></span>
+<span class="line">                 <span class="keyword">else</span></span>
+<span class="line">                  trunc(max(num_rows) / trunc(avg(num_rows), <span class="number">0</span>), <span class="number">2</span>)</span>
+<span class="line">               end rate,</span>
+<span class="line">               count(*) part_count</span>
+<span class="line">          from dba_tab_partitions</span>
+<span class="line">         group by table_owner, table_name)</span>
+<span class="line"> where rate &gt; <span class="number">5</span>;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;A table with a column larger than <span class="number">100</span> <span class="keyword">or</span> less than <span class="number">2</span></span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> owner, table_name, count(*) col_count</span>
+<span class="line">          from dba_tab_cols</span>
+<span class="line">         group by owner, table_name)</span>
+<span class="line"> where col_count &gt; <span class="number">100</span></span>
+<span class="line">    <span class="keyword">or</span> col_count &lt;= <span class="number">2</span></span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The table property is NOLOGGING</span>
+<span class="line"><span class="keyword">select</span> owner, table_name, tablespace_name, logging</span>
+<span class="line">  from dba_tables</span>
+<span class="line"> where logging = <span class="string">'NO'</span></span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line"> ;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Table properties, containing COMPRESSION</span>
+<span class="line"><span class="keyword">select</span> owner, table_name, tablespace_name, COMPRESSION</span>
+<span class="line">  from dba_tables</span>
+<span class="line"> where COMPRESSION = <span class="string">'ENABLED'</span></span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;The <span class="keyword">index</span> property contains COMPRESSION</span>
+<span class="line"><span class="keyword">select</span> owner, index_name, table_name, COMPRESSION</span>
+<span class="line">  from dba_indexes</span>
+<span class="line"> where COMPRESSION = <span class="string">'ENABLED'</span></span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span></span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Trigger</span>
+<span class="line"><span class="keyword">select</span> OWNER, TRIGGER_NAME, TABLE_NAME, STATUS</span>
+<span class="line">  from dba_triggers</span>
+<span class="line"> where owner <span class="keyword">not</span> in (<span class="string">'SYSTEM'</span>,<span class="string">'SYSMAN'</span>,<span class="string">'SYS'</span>,<span class="string">'CTXSYS'</span>,<span class="string">'MDSYS'</span>,<span class="string">'OLAPSYS'</span>,<span class="string">'WMSYS'</span>,<span class="string">'EXFSYS'</span>,<span class="string">'LBACSYS'</span>,<span class="string">'WKSYS'</span>,<span class="string">'XDB'</span>)</span>
+<span class="line"> <span class="keyword">and</span>  owner <span class="keyword">not</span> like <span class="string">'FLOWS%'</span>;</span>
+<span class="line"> </span>
+<span class="line">prompt &lt;p&gt;The foreign key is <span class="keyword">not</span> indexed</span>
+<span class="line"><span class="keyword">select</span> *</span>
+<span class="line">  from (<span class="keyword">select</span> pk.owner PK_OWNER,</span>
+<span class="line">               pk.constraint_name PK_NAME,</span>
+<span class="line">               pk.table_name PK_TABLE_NAME,</span>
+<span class="line">               fk.owner FK_OWNER,</span>
+<span class="line">               fk.constraint_name FK_NAME,</span>
+<span class="line">               fk.table_name FK_TABLE_NAME,</span>
+<span class="line">               fk.delete_rule FK_DELETE_RULE,</span>
+<span class="line">               ind_col.INDEX_NAME FK_INDEX_NAME,</span>
+<span class="line">               ind.index_type FK_INDEX_TYPE,</span>
+<span class="line">               con_col.COLUMN_NAME FK_INDEX_COLUMN_NAME,</span>
+<span class="line">               con_col.POSITION FK_INDEX_COLUMN_POSITION,</span>
+<span class="line">               decode(ind_col.INDEX_NAME,</span>
+<span class="line">                      NULL,</span>
+<span class="line">                      NULL,</span>
+<span class="line">                      NVL(x_ind.status, <span class="string">'VALID'</span>)) IS_IND_VALID,</span>
+<span class="line">               decode(ind_col.INDEX_NAME,</span>
+<span class="line">                      NULL,</span>
+<span class="line">                      NULL,</span>
+<span class="line">                      NVL(x_ind_part.status, <span class="string">'VALID'</span>)) IS_IND_PART_VALID</span>
+<span class="line">          from (<span class="keyword">select</span> * from dba_constraints where constraint_type = <span class="string">'R'</span>) fk,</span>
+<span class="line">               (<span class="keyword">select</span> * from dba_constraints where constraint_type = <span class="string">'P'</span>) pk,</span>
+<span class="line">               dba_cons_columns con_col,</span>
+<span class="line">               dba_ind_columns ind_col,</span>
+<span class="line">               dba_indexes ind,</span>
+<span class="line">               (<span class="keyword">select</span> index_owner, index_name, status</span>
+<span class="line">                  from dba_ind_partitions</span>
+<span class="line">                 where status &lt;&gt; <span class="string">'VALID'</span>) x_ind_part,</span>
+<span class="line">               (<span class="keyword">select</span> owner as index_owner, index_name, status</span>
+<span class="line">                  from dba_indexes</span>
+<span class="line">                 where status &lt;&gt; <span class="string">'VALID'</span>) x_ind</span>
+<span class="line">         where fk.r_constraint_name = pk.constraint_name</span>
+<span class="line">           <span class="keyword">and</span> pk.owner = fk.owner</span>
+<span class="line">           <span class="keyword">and</span> fk.owner = con_col.owner</span>
+<span class="line">           <span class="keyword">and</span> fk.table_name = con_col.table_name</span>
+<span class="line">           <span class="keyword">and</span> fk.constraint_name = con_col.CONSTRAINT_NAME</span>
+<span class="line">           <span class="keyword">and</span> con_col.owner = ind_col.TABLE_OWNER(+)</span>
+<span class="line">           <span class="keyword">and</span> con_col.TABLE_NAME = ind_col.TABLE_NAME(+)</span>
+<span class="line">           <span class="keyword">and</span> con_col.COLUMN_NAME = ind_col.COLUMN_NAME(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_OWNER = ind.owner(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_NAME = ind.index_name(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_OWNER = x_ind.index_owner(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_NAME = x_ind.index_name(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_OWNER = x_ind_part.index_owner(+)</span>
+<span class="line">           <span class="keyword">and</span> ind_col.INDEX_NAME = x_ind_part.index_name(+))</span>
+<span class="line"> where FK_INDEX_NAME is null</span>
+<span class="line"> order by FK_OWNER ASC</span>
+<span class="line">;</span>
+<span class="line"></span>
+<span class="line"><span class="regexp">/* Bad performance</span>
+<span class="line">prompt &lt;p&gt;Hot block (summary)</span>
+<span class="line">SELECT *+ rule *</span>
+<span class="line">         e.owner, e.segment_name, e.segment_type, sum(b.tch) tch</span>
+<span class="line">          FROM dba_extents e,</span>
+<span class="line">               (SELECT *</span>
+<span class="line">                  FROM (SELECT addr, ts#, file#, dbarfil, dbablk, tch</span>
+<span class="line">                          FROM x$bh</span>
+<span class="line">                         ORDER BY tch DESC)</span>
+<span class="line">                 WHERE ROWNUM &lt;= 10) b</span>
+<span class="line">         WHERE e.relative_fno = b.dbarfil</span>
+<span class="line">           AND e.block_id &lt;= b.dbablk</span>
+<span class="line">           AND e.block_id + e.blocks &gt; b.dbablk</span>
+<span class="line">           group by e.owner, e.segment_name, e.segment_type</span>
+<span class="line">order by tch desc</span>
+<span class="line">;</span>
+<span class="line">prompt &lt;p&gt;Hot block (unfolded, not summary)</span>
+<span class="line">SELECT *+ rule *</span>
+<span class="line">        distinct e.owner, e.segment_name, e.segment_type, dbablk,b.tch</span>
+<span class="line">          FROM dba_extents e,</span>
+<span class="line">               (SELECT *</span>
+<span class="line">                  FROM (SELECT addr, ts#, file#, dbarfil, dbablk, tch</span>
+<span class="line">                          FROM x$bh</span>
+<span class="line">                         ORDER BY tch DESC)</span>
+<span class="line">                 WHERE ROWNUM &lt;= 10) b</span>
+<span class="line">         WHERE e.relative_fno = b.dbarfil</span>
+<span class="line">           AND e.block_id &lt;= b.dbablk</span>
+<span class="line">           AND e.block_id + e.blocks &gt; b.dbablk</span>
+<span class="line">order by tch desc</span>
+<span class="line">;</span>
+<span class="line">*/</span></span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Appendix: check the parameter settings of session_cached_cursors <span class="keyword">and</span> increase the parameter value <span class="keyword">if</span> the usage rate is <span class="number">100</span>%</span>
+<span class="line">SELECT <span class="string">'session_cached_cursors'</span> PARAMETER,  </span>
+<span class="line">         LPAD(VALUE, <span class="number">5</span>) VALUE,  </span>
+<span class="line">         DECODE(VALUE, <span class="number">0</span>, <span class="string">' n/a'</span>, TO_CHAR(<span class="number">100</span> * USED / VALUE, <span class="string">'990'</span>) || <span class="string">'%'</span>) USAGE  </span>
+<span class="line">   FROM (SELECT MAX(S.VALUE) USED  </span>
+<span class="line">            FROM V$STATNAME N, V$SESSTAT S  </span>
+<span class="line">           WHERE N.NAME = <span class="string">'session cursor cache count'</span>  </span>
+<span class="line">             AND S.STATISTIC<span class="comment"># = N.STATISTIC#),  </span></span>
+<span class="line">         (SELECT VALUE FROM V$PARAMETER WHERE NAME = <span class="string">'session_cached_cursors'</span>)  </span>
+<span class="line">  UNION ALL  </span>
+<span class="line">SELECT <span class="string">'open_cursors'</span>,  </span>
+<span class="line">         LPAD(VALUE, <span class="number">5</span>),  </span>
+<span class="line">         TO_CHAR(<span class="number">100</span> * USED / VALUE, <span class="string">'990'</span>) || <span class="string">'%'</span>  </span>
+<span class="line">   FROM (SELECT MAX(SUM(S.VALUE)) USED  </span>
+<span class="line">            FROM V$STATNAME N, V$SESSTAT S  </span>
+<span class="line">           WHERE N.NAME IN  </span>
+<span class="line">                 (<span class="string">'opened cursors current'</span>, <span class="string">'session cursor cache count'</span>)  </span>
+<span class="line">             AND S.STATISTIC<span class="comment"># = N.STATISTIC#  </span></span>
+<span class="line">           GROUP BY S.SID),  </span>
+<span class="line">         (SELECT VALUE FROM V$PARAMETER WHERE NAME = <span class="string">'open_cursors'</span>);  </span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">prompt &lt;p&gt;Appendix: all parameters of Oracle <span class="keyword">for</span> reference</span>
+<span class="line">show parameter</span>
+<span class="line"></span>
+<span class="line">set markup html off</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;/body&gt;'</span>);</span>
+<span class="line"><span class="keyword">exec</span> dbms_output.put_line(<span class="string">'&lt;/html&gt;'</span>);</span>
+<span class="line"></span>
+<span class="line">spool off</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">/* Obtain awr、addm、ash *<span class="regexp">/</span>
+<span class="line">--HTML tags are not used below</span>
+<span class="line">SET markup html off spool ON pre off entmap off</span>
+<span class="line"></span>
+<span class="line">set trim on</span>
+<span class="line">set trimspool on</span>
+<span class="line">set heading off</span>
+<span class="line"></span>
+<span class="line">--select dbid、instance_number</span>
+<span class="line">column dbid new_value awr_dbid</span>
+<span class="line">column instance_number new_value awr_inst_num</span>
+<span class="line">select dbid from v$database;</span>
+<span class="line">select instance_number from v$instance;</span>
+<span class="line"></span>
+<span class="line">--Ash report in half an hour</span>
+<span class="line">column ashbegintime new_value ashbegin_str</span>
+<span class="line">column ashendtime new_value ashend_str</span>
+<span class="line">select to_char(sysdate-3/</span><span class="number">144</span>,<span class="string">'yyyymmddhh24miss'</span>) as ashbegintime, to_char(sysdate,<span class="string">'yyyymmddhh24miss'</span>) as ashendtime from dual;</span>
+<span class="line"></span>
+<span class="line">column ashfile_name new_value ashfile</span>
+<span class="line"><span class="keyword">select</span> <span class="string">'ashrpt_'</span> || to_char(&amp;&amp;awr_inst_num) || <span class="string">'_'</span> || to_char(&amp;&amp;ashbegin_str) || <span class="string">'_'</span> || to_char(&amp;&amp;ashend_str) ashfile_name from dual;</span>
+<span class="line">spool &amp;&amp;ashfile..html</span>
+<span class="line"><span class="keyword">select</span> * from table(dbms_workload_repository.ash_report_html(to_char(&amp;&amp;awr_dbid),to_char(&amp;&amp;awr_inst_num),to_date(to_char(&amp;&amp;ashbegin_str),<span class="string">'yyyymmddhh24miss'</span>),to_date(to_char(&amp;&amp;ashend_str),<span class="string">'yyyymmddhh24miss'</span>)));</span>
+<span class="line">spool off;</span>
+<span class="line"></span>
+<span class="line">--Create AWR snapshot</span>
+<span class="line">column begin_snap new_value awr_begin_snap</span>
+<span class="line">column end_snap new_value awr_end_snap</span>
+<span class="line"><span class="keyword">select</span> max(snap_id) begin_snap</span>
+<span class="line">  from dba_hist_snapshot</span>
+<span class="line"> where snap_id &lt; (<span class="keyword">select</span> max(snap_id) from dba_hist_snapshot);</span>
+<span class="line"><span class="keyword">select</span> max(snap_id) end_snap from dba_hist_snapshot;</span>
+<span class="line">declare</span>
+<span class="line">  snap_maxtime date;</span>
+<span class="line">  snap_mintime date;</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">select</span> max(end_interval_time) + <span class="number">0</span></span>
+<span class="line">    into snap_maxtime</span>
+<span class="line">    from dba_hist_snapshot</span>
+<span class="line">   where snap_id = to_number(&amp;&amp;awr_end_snap);</span>
+<span class="line">  <span class="keyword">select</span> max(end_interval_time) + <span class="number">0</span></span>
+<span class="line">    into snap_mintime</span>
+<span class="line">    from dba_hist_snapshot</span>
+<span class="line">   where snap_id = to_number(&amp;&amp;awr_begin_snap);</span>
+<span class="line">  <span class="keyword">if</span> sysdate - snap_maxtime &gt; <span class="number">10</span>/<span class="number">1445</span> then</span>
+<span class="line">    dbms_workload_repository.create_snapshot();</span>
+<span class="line">  end <span class="keyword">if</span>;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">--The latest two AWR reports between snap_id</span>
+<span class="line">column begin_snap new_value awr_begin_snap</span>
+<span class="line">column end_snap new_value awr_end_snap</span>
+<span class="line">select max(snap_id) begin_snap</span>
+<span class="line">  from dba_hist_snapshot</span>
+<span class="line"> where snap_id &lt; (select max(snap_id) from dba_hist_snapshot);</span>
+<span class="line">select max(snap_id) end_snap from dba_hist_snapshot;</span>
+<span class="line">column awrfile_name new_value awrfile</span>
+<span class="line">select 'awrrpt_' || to_char(&amp;&amp;awr_inst_num) || '_' || to_char(&amp;&amp;awr_begin_snap) || '_' || to_char(&amp;&amp;awr_end_snap) awrfile_name from dual;</span>
+<span class="line"></span>
+<span class="line">spool &amp;&amp;awrfile..html</span>
+<span class="line">select output from table(dbms_workload_repository.awr_report_html(&amp;&amp;awr_dbid,&amp;&amp;awr_inst_num,&amp;&amp;awr_begin_snap,&amp;&amp;awr_end_snap));</span>
+<span class="line">spool off;</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">--The longest AWR report available (all analyses since a week)</span>
+<span class="line">column begin_snap new_value awr_begin_snap</span>
+<span class="line">column end_snap new_value awr_end_snap</span>
+<span class="line">select a.begin_snap, a.end_snap</span>
+<span class="line">  from (select startup_time, min(snap_id) begin_snap, max(snap_id) end_snap</span>
+<span class="line">          from dba_hist_snapshot</span>
+<span class="line">         group by startup_time) a,</span>
+<span class="line">       (select max(startup_time) startup_time from dba_hist_snapshot) b</span>
+<span class="line"> where a.startup_time = b.startup_time</span>
+<span class="line">   and rownum = 1;</span>
+<span class="line">column awrfile_name new_value awrfile</span>
+<span class="line">select 'awrrpt_' || to_char(&amp;&amp;awr_inst_num) || '_' || to_char(&amp;&amp;awr_begin_snap) || '_' || to_char(&amp;&amp;awr_end_snap) ||'_all' awrfile_name from dual;</span>
+<span class="line"></span>
+<span class="line">spool &amp;&amp;awrfile..html</span>
+<span class="line">select output from table(dbms_workload_repository.awr_report_html(&amp;&amp;awr_dbid,&amp;&amp;awr_inst_num,&amp;&amp;awr_begin_snap,&amp;&amp;awr_end_snap));</span>
+<span class="line">spool off;</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">--Latest ADDM Report</span>
+<span class="line">column addmfile_name new_value addmfile</span>
+<span class="line">select 'addmrpt_' || to_char(&amp;&amp;awr_inst_num) || '_' || to_char(&amp;&amp;awr_begin_snap) || '_' || to_char(&amp;&amp;awr_end_snap) addmfile_name from dual;</span>
+<span class="line">set serveroutput on</span>
+<span class="line">spool &amp;&amp;addmfile..txt</span>
+<span class="line">declare</span>
+<span class="line">  id          number;</span>
+<span class="line">  name        varchar2(200) := '';</span>
+<span class="line">  descr       varchar2(500) := '';</span>
+<span class="line">  addmrpt     clob;</span>
+<span class="line">  v_ErrorCode number;</span>
+<span class="line">BEGIN</span>
+<span class="line">  name := '&amp;&amp;addmfile';</span>
+<span class="line">  begin</span>
+<span class="line">    dbms_advisor.create_task('ADDM', id, name, descr, null);</span>
+<span class="line">    dbms_advisor.set_task_parameter(name, 'START_SNAPSHOT', &amp;&amp;awr_begin_snap);</span>
+<span class="line">    dbms_advisor.set_task_parameter(name, 'END_SNAPSHOT', &amp;&amp;awr_end_snap);</span>
+<span class="line">    dbms_advisor.set_task_parameter(name, 'INSTANCE', &amp;&amp;awr_inst_num);</span>
+<span class="line">    dbms_advisor.set_task_parameter(name, 'DB_ID', &amp;&amp;awr_dbid);</span>
+<span class="line">    dbms_advisor.execute_task(name);</span>
+<span class="line">  exception</span>
+<span class="line">    when others then</span>
+<span class="line">      null;</span>
+<span class="line">  end;</span>
+<span class="line">  select dbms_advisor.get_task_report(name, 'TEXT', 'TYPICAL')</span>
+<span class="line">    into addmrpt</span>
+<span class="line">    from sys.dual;</span>
+<span class="line">  dbms_output.enable(20000000000);</span>
+<span class="line">  for i in 1 .. (DBMS_LOB.GETLENGTH(addmrpt) /</span> <span class="number">2000</span> + <span class="number">1</span>) loop</span>
+<span class="line">    dbms_output.put_line(<span class="keyword">substr</span>(addmrpt, <span class="number">1900</span> * (i - <span class="number">1</span>) + <span class="number">1</span>, <span class="number">1900</span>));</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">''</span>);</span>
+<span class="line">  begin</span>
+<span class="line">    dbms_advisor.delete_task(name);</span>
+<span class="line">  exception</span>
+<span class="line">    <span class="keyword">when</span> others then</span>
+<span class="line">      null;</span>
+<span class="line">  end;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line">spool off;</span>
+<span class="line"></span>
+<span class="line">exit;</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">
+                    MySQL性能优化最佳实践 - 01 MySQL优化方法论
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">
+                    按SQLID一键获取执行计划索引分区等信息的脚本
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/" title="上一篇: MySQL性能优化最佳实践 - 01 MySQL优化方法论">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" title="下一篇: 按SQLID一键获取执行计划索引分区等信息的脚本">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

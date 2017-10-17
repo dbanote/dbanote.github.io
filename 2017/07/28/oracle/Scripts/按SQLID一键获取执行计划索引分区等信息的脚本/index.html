@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="按SQLID一键获取执行计划索引分区等信息的脚本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="按SQLID一键获取执行计划索引分区等信息的脚本">
+<meta property="og:url" content="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="按SQLID一键获取执行计划索引分区等信息的脚本">
+<meta property="og:updated_time" content="2017-07-28T03:16:38.858Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="按SQLID一键获取执行计划索引分区等信息的脚本">
+<meta name="twitter:description" content="按SQLID一键获取执行计划索引分区等信息的脚本">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>按SQLID一键获取执行计划索引分区等信息的脚本 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" class="article-date">
+      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      按SQLID一键获取执行计划索引分区等信息的脚本
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>按SQLID一键获取执行计划索引分区等信息的脚本<br><a id="more"></a><br>以下内容放<code>spoolsql.sql</code>中，在sqlplus中执行，相关信息会自动生成html文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set term off</span>
+<span class="line">set termout off</span>
+<span class="line">set heading on</span>
+<span class="line">set feedback off</span>
+<span class="line">set verify off</span>
+<span class="line">set echo off</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">/*</span>
+<span class="line">功能说明：</span>
+<span class="line">   输入SQL_ID、spool路径。</span>
+<span class="line">   输出与SQL相关的信息，spool到指定文件。</span>
+<span class="line">*<span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">set term on</span>
+<span class="line">set termout on</span>
+<span class="line">set heading off</span>
+<span class="line">set feedback off</span>
+<span class="line">set verify off</span>
+<span class="line">set echo off</span>
+<span class="line"></span>
+<span class="line">SET markup html off spool ON pre off entmap off</span>
+<span class="line"></span>
+<span class="line">set define ^</span>
+<span class="line">var sqlid varchar2(50);</span>
+<span class="line">var outputdir varchar2(256);</span>
+<span class="line">prompt "input sqlid:"</span>
+<span class="line">define tmp_sqlid=^SQL_ID</span>
+<span class="line">exec :sqlid := '^tmp_sqlid'</span>
+<span class="line">column outputdir_sqlid new_value outputfile</span>
+<span class="line">select './</span><span class="string">'||:sqlid||'</span>.html<span class="string">' as outputdir_sqlid from dual;</span>
+<span class="line"></span>
+<span class="line">SET markup html off spool ON pre off entmap off</span>
+<span class="line"></span>
+<span class="line">set term off</span>
+<span class="line">set termout off</span>
+<span class="line">set heading off</span>
+<span class="line">set feedback off</span>
+<span class="line">set verify off</span>
+<span class="line">set trimspool on</span>
+<span class="line">set trim on</span>
+<span class="line">set echo off</span>
+<span class="line"></span>
+<span class="line">set linesize 32767</span>
+<span class="line">set pagesize 999999</span>
+<span class="line">set serveroutput on</span>
+<span class="line"></span>
+<span class="line">spool ^^outputfile</span>
+<span class="line">declare</span>
+<span class="line">  type refcursor is ref cursor;</span>
+<span class="line">  vCur          refcursor;</span>
+<span class="line">  vsqlid        varchar2(4000) := :sqlid;</span>
+<span class="line">  vOwnerstr     varchar2(32767) := '</span><span class="string">';</span>
+<span class="line">  vOwnerCnt     number(3) := 0;</span>
+<span class="line">  vTableStr     varchar2(32767) := '</span><span class="string">';</span>
+<span class="line">  vTableCnt     number(3) := 0;</span>
+<span class="line">  vtmpchldnum   number;</span>
+<span class="line">  vtmpplnval    number;</span>
+<span class="line">  type VARCHARTAB is table of varchar2(32767) index by BINARY_INTEGER;</span>
+<span class="line">  vPlanAddition VARCHARTAB;</span>
+<span class="line">  arr_iter BINARY_INTEGER;</span>
+<span class="line">  vsqltxt_c clob;</span>
+<span class="line">  vsqltxt_a dbms_sql.varchar2a;</span>
+<span class="line">  vsqltxt_lb number(1):= 0;</span>
+<span class="line">  vsqltxt_le number(12);</span>
+<span class="line">  vsqlcur number;</span>
+<span class="line">  vsqlmsg varchar2(4000);</span>
+<span class="line">begin</span>
+<span class="line">  ----打开服务器output</span>
+<span class="line">  dbms_output.enable(10000000000000);</span>
+<span class="line">  </span>
+<span class="line">  ----打印html头和样式</span>
+<span class="line">  dbms_output.put_line('</span>&lt;html&gt;&lt;title&gt;Reports About SQL:<span class="string">'||vsqlid||'</span>&lt;<span class="regexp">/title&gt;&lt;head&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;style&gt;');</span>
+<span class="line">  </span>
+<span class="line">  dbms_output.put_line('th &#123;font:bold 8pt Arial,Helvetica,Geneva,sans-serif; color:White; background:#0066CC;padding-left:4px; padding-right:4px;padding-bottom:2px&#125;');</span>
+<span class="line">  dbms_output.put_line('tr   &#123;font:10pt SimSun,SimSun,SimSun,SimSun;&#125;');</span>
+<span class="line">  dbms_output.put_line('td   &#123;border:1px solid; font:10pt SimSun,SimSun,SimSun,SimSun;&#125;');</span>
+<span class="line">  dbms_output.put_line('&lt;/style</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;<span class="regexp">/head&gt;&lt;body&gt;');</span>
+<span class="line"></span>
+<span class="line">  ----获取SQL文本</span>
+<span class="line">  dbms_output.put_line('&lt;b&gt;sql_text&lt;/b</span>&gt;&lt;br&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;table&gt;&lt;<span class="keyword">tr</span>&gt;&lt;td&gt;<span class="string">');</span>
+<span class="line">  select sqtxt</span>
+<span class="line">    into vsqltxt_c</span>
+<span class="line">    from (select sql_text sqtxt</span>
+<span class="line">            from dba_hist_sqltext</span>
+<span class="line">           where sql_id = vsqlid</span>
+<span class="line">          union all</span>
+<span class="line">          select sql_fulltext sqtxt from v$sqlarea where sql_id = vsqlid)</span>
+<span class="line">   where rownum = 1;</span>
+<span class="line">  vsqltxt_a.delete;</span>
+<span class="line">  vsqltxt_le := DBMS_LOB.GETLENGTH(vsqltxt_c) / 2000 + 1;</span>
+<span class="line">  for i in 1 .. vsqltxt_le loop</span>
+<span class="line">    vsqltxt_a(i) := substr(vsqltxt_c, 1900 * (i - 1) + 1, 1900);</span>
+<span class="line">    dbms_output.put_line(vsqltxt_a(i));</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line('</span>&lt;<span class="regexp">/td&gt;&lt;/tr</span>&gt;&lt;<span class="regexp">/table&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;br&gt;');</span>
+<span class="line">  </span>
+<span class="line">  ----获取执行计划--explain plan for</span>
+<span class="line">  dbms_output.put_line('&lt;b&gt;explain plan for&lt;/b</span>&gt;&lt;table&gt;<span class="string">');</span>
+<span class="line">  for v in (select distinct parsing_schema_name from dba_hist_sqlstat where sql_id = vsqlid) loop</span>
+<span class="line">    dbms_output.put_line('</span>&lt;<span class="keyword">tr</span>&gt;&lt;td&gt;&lt;pre&gt;<span class="string">');</span>
+<span class="line">    begin</span>
+<span class="line">      execute immediate '</span>alter session set current_schema=<span class="string">'||v.parsing_schema_name;</span>
+<span class="line">      vsqlcur := dbms_sql.open_cursor;</span>
+<span class="line">      vsqltxt_a(0) := '</span>explain plan <span class="keyword">for</span> <span class="string">';</span>
+<span class="line">      dbms_sql.parse(vsqlcur, vsqltxt_a, vsqltxt_lb, vsqltxt_le, false, dbms_sql.native);</span>
+<span class="line">      vsqltxt_le := dbms_sql.execute(vsqlcur);</span>
+<span class="line">      for v_in in (select plan_table_output as planline from table(dbms_xplan.display)) loop</span>
+<span class="line">        dbms_output.put_line(v_in.planline);</span>
+<span class="line">      end loop;</span>
+<span class="line">      dbms_sql.close_cursor(vsqlcur);</span>
+<span class="line">      exception</span>
+<span class="line">        when others then</span>
+<span class="line">        vsqlmsg := sqlerrm;</span>
+<span class="line">          dbms_output.put_line(vsqlmsg);</span>
+<span class="line">    end;</span>
+<span class="line">    dbms_output.put_line('</span>&lt;<span class="regexp">/pre&gt;&lt;/td</span>&gt;&lt;<span class="regexp">/tr&gt;');</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line('&lt;/table</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;br&gt;<span class="string">');</span>
+<span class="line"></span>
+<span class="line">  ----获取执行计划--V$SQLPLAN</span>
+<span class="line">  dbms_output.put_line('</span>&lt;b&gt;Execution Plan From V$SQLPLAN&lt;<span class="regexp">/b&gt;&lt;br&gt;');</span>
+<span class="line">  for hashval in (select distinct plan_hash_value from v$sql_plan where sql_id = vsqlid) loop</span>
+<span class="line">    dbms_output.put_line('SQL:'||vsqlid||', PLAN_HASH_VALUE:'||hashval.plan_hash_value);</span>
+<span class="line">    dbms_output.put_line('&lt;table&gt;');</span>
+<span class="line">    dbms_output.put_line('&lt;tr&gt;&lt;th&gt;ID&lt;/th</span>&gt;&lt;th&gt;DEP&lt;<span class="regexp">/th&gt;&lt;th width="400px"&gt;OPERITION&lt;/th</span>&gt;&lt;th&gt;NAME&lt;<span class="regexp">/th&gt;&lt;th&gt;ROWS&lt;/th</span>&gt;&lt;th&gt;BYTES&lt;<span class="regexp">/th&gt;&lt;th&gt;COST(%CPU)&lt;/th</span>&gt;&lt;th&gt;IO_COST&lt;<span class="regexp">/th&gt;&lt;th&gt;TIME&lt;/th</span>&gt;&lt;<span class="regexp">/tr&gt;');</span>
+<span class="line">    vPlanAddition.delete;</span>
+<span class="line">    arr_iter := 0;</span>
+<span class="line">    for v in (select decode(trim(predicates), '', '' || ID, '*' || ID) ID,</span>
+<span class="line">                     DEPTH,</span>
+<span class="line">                     OPERATION,</span>
+<span class="line">                     NAME,</span>
+<span class="line">                     PREDICATES,</span>
+<span class="line">                     "ROWS",</span>
+<span class="line">                     BYTES,</span>
+<span class="line">                     "COST(%CPU)",</span>
+<span class="line">                     IO_COST,</span>
+<span class="line">                     TIME</span>
+<span class="line">                from (select a.plan_hash_value || ' ' plan_hash_value,</span>
+<span class="line">               id ID,</span>
+<span class="line">               depth DEPTH,</span>
+<span class="line">               lpad(operation, length(operation) + depth * 6, '&amp;nbsp;') || ' ' || options OPERATION,</span>
+<span class="line">               decode(OBJECT_NAME,</span>
+<span class="line">                  null,</span>
+<span class="line">                  '',</span>
+<span class="line">                  '[' || OBJECT_TYPE || ']' || OBJECT_OWNER || '.' ||</span>
+<span class="line">                  OBJECT_NAME) || '&amp;nbsp;' NAME,</span>
+<span class="line">               case</span>
+<span class="line">               when (length(access_predicates) &lt; 3 or access_predicates is null) then</span>
+<span class="line">                case</span>
+<span class="line">                when (length(filter_predicates) &lt; 3 or filter_predicates is null) then</span>
+<span class="line">                 ' '</span>
+<span class="line">                else</span>
+<span class="line">                 '[filter]' || substr(filter_predicates, 1, 3990)</span>
+<span class="line">                end</span>
+<span class="line">               else</span>
+<span class="line">                '[access]' || substr(access_predicates, 1, 3990)</span>
+<span class="line">               end PREDICATES,</span>
+<span class="line">               decode(cardinality, null, '', cardinality) || '&amp;nbsp;' "ROWS",</span>
+<span class="line">               decode(Bytes, null, '', Bytes) || '&amp;nbsp;' BYTES,</span>
+<span class="line">               decode(io_cost,</span>
+<span class="line">                  null,</span>
+<span class="line">                  decode(cost, null, '', cost),</span>
+<span class="line">                  decode(cost, null, '', cost) || '(' ||</span>
+<span class="line">                  decode(cost, 0, 0, round((cost - io_cost) /</span> cost * <span class="number">100</span>)) || <span class="string">')'</span>) || <span class="string">'&amp;nbsp;'</span> <span class="string">"COST(%CPU)"</span>,</span>
+<span class="line">               --decode(cpu_cost, null, <span class="string">''</span>, cpu_cost) || <span class="string">' '</span> CPU_COST,</span>
+<span class="line">               decode(io_cost, null, <span class="string">''</span>, io_cost) || <span class="string">' '</span> IO_COST,</span>
+<span class="line">               trim(to_char(round(nvl(<span class="keyword">time</span>, <span class="number">0</span>) / <span class="number">3600</span>), <span class="string">'00'</span>)) || <span class="string">':'</span> ||</span>
+<span class="line">               to_char(to_date(<span class="string">'19000101'</span>, <span class="string">'yyyymmdd'</span>) + nvl(<span class="keyword">time</span>, <span class="number">0</span>) / <span class="number">3600</span> / <span class="number">24</span>,</span>
+<span class="line">                   <span class="string">'mi:ss'</span>) TIME</span>
+<span class="line">            from v$sql_plan a,</span>
+<span class="line">               (<span class="keyword">select</span> plan_hash_value, max(child_number) child_number, sql_id</span>
+<span class="line">                from v$sql_plan</span>
+<span class="line">               where sql_id = vsqlid</span>
+<span class="line">               group by sql_id, plan_hash_value) b</span>
+<span class="line">           where a.sql_id = b.sql_id</span>
+<span class="line">             <span class="keyword">and</span> a.plan_hash_value = b.plan_hash_value</span>
+<span class="line">             <span class="keyword">and</span> a.plan_hash_value = hashval.plan_hash_value</span>
+<span class="line">             <span class="keyword">and</span> a.child_number = b.child_number</span>
+<span class="line">           order by a.plan_hash_value, id asc</span>
+<span class="line">          )) loop</span>
+<span class="line">        arr_iter := arr_iter+<span class="number">1</span>;</span>
+<span class="line">        vPlanAddition(arr_iter) := case <span class="keyword">when</span> trim(v.predicates)||<span class="string">' '</span> = <span class="string">' '</span> then <span class="string">''</span> </span>
+<span class="line">            <span class="keyword">else</span> v.id||<span class="string">' =&gt; '</span>||v.predicates || <span class="string">'&lt;br&gt;'</span> end;</span>
+<span class="line">        dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.ID || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.DEPTH ||</span>
+<span class="line">                             <span class="string">'&lt;/td&gt;&lt;td width="400px"&gt;'</span> || v.OPERATION || </span>
+<span class="line">               <span class="string">'&lt;/td&gt;&lt;td&gt;'</span>|| v.NAME || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.<span class="string">"ROWS"</span> ||</span>
+<span class="line">                              <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.BYTES || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.<span class="string">"COST(%CPU)"</span> ||</span>
+<span class="line">                               <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.IO_COST || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.TIME || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">    end loop;</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;br&gt;'</span>);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;p style="font:10pt SimSun,SimSun,SimSun,SimSun"&gt;'</span>);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'Predicate Information (identified by operation id):&lt;br&gt;'</span>);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'---------------------------------------------------------------------------&lt;br&gt;'</span>);</span>
+<span class="line">    arr_iter := <span class="number">0</span>;</span>
+<span class="line">    <span class="keyword">for</span> v1 in <span class="number">1</span>..vPlanAddition.count loop</span>
+<span class="line">      arr_iter := arr_iter+<span class="number">1</span>;</span>
+<span class="line">      dbms_output.put_line(vPlanAddition(arr_iter));</span>
+<span class="line">     end loop;</span>
+<span class="line">     dbms_output.put_line(<span class="string">'&lt;p&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----SQL统计信息（SQL STATISTICS - V$SQLSTATS)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;SQL STATISTICS- V$SQLPLAN&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;HASH&lt;/th&gt;&lt;th&gt;DB_TIME&lt;/th&gt;&lt;th&gt;MEM&lt;/th&gt;&lt;th&gt;VERS&lt;/th&gt;&lt;th&gt;EXES&lt;/th&gt;&lt;th&gt;DISKS&lt;/th&gt;&lt;th&gt;GETS&lt;/th&gt;&lt;th&gt;ROWS&lt;/th&gt;&lt;th&gt;CPU&lt;/th&gt;&lt;th&gt;ELAPSED&lt;/th&gt;&lt;th&gt;CLUSTER_WAIT&lt;/th&gt;&lt;th&gt;CONCURRENCE_WAIT&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> mem.SQL_ID <span class="string">"ID"</span>,</span>
+<span class="line">         mem.PLAN_HASH_VALUE <span class="string">"HASH"</span>,</span>
+<span class="line">         mem_dbtime.VAL DB_TIME,</span>
+<span class="line">         mem.SHARABLE_MEM MEM,</span>
+<span class="line">         mem.VERSION_COUNT VERS,</span>
+<span class="line">         mem.EXECUTIONS EXES,</span>
+<span class="line">         mem.PARSE_CALLS PARSE_CALLS,</span>
+<span class="line">         mem.DISK_READS <span class="string">"DISKS"</span>,</span>
+<span class="line">         mem.BUFFER_GETS GETS,</span>
+<span class="line">         mem.ROWS_PROCESSED <span class="string">"ROWS"</span>,</span>
+<span class="line">         mem.CPU_TIME <span class="string">"CPU"</span>,</span>
+<span class="line">         mem.ELAPSED_TIME ELAPSED,</span>
+<span class="line">         mem.CLWAIT CLUSTER_WAIT,</span>
+<span class="line">         mem.CCWAIT CONCURRENCE_WAIT</span>
+<span class="line">      from (<span class="keyword">select</span> SQL_ID,</span>
+<span class="line">             PLAN_HASH_VALUE,</span>
+<span class="line">             SHARABLE_MEM,</span>
+<span class="line">             VERSION_COUNT,</span>
+<span class="line">             FETCHES,</span>
+<span class="line">             END_OF_FETCH_COUNT,</span>
+<span class="line">             SORTS,</span>
+<span class="line">             EXECUTIONS,</span>
+<span class="line">             PX_SERVERS_EXECUTIONS PX_SERVERS_EXECS,</span>
+<span class="line">             LOADS,</span>
+<span class="line">             INVALIDATIONS,</span>
+<span class="line">             PARSE_CALLS,</span>
+<span class="line">             DISK_READS,</span>
+<span class="line">             BUFFER_GETS,</span>
+<span class="line">             ROWS_PROCESSED,</span>
+<span class="line">             CPU_TIME,</span>
+<span class="line">             ELAPSED_TIME,</span>
+<span class="line">             CLUSTER_WAIT_TIME     CLWAIT,</span>
+<span class="line">             APPLICATION_WAIT_TIME APWAIT,</span>
+<span class="line">             CONCURRENCY_WAIT_TIME CCWAIT,</span>
+<span class="line">             DIRECT_WRITES,</span>
+<span class="line">             PLSQL_EXEC_TIME       PLSEXEC_TIME,</span>
+<span class="line">             JAVA_EXEC_TIME        JAVEXEC_TIME</span>
+<span class="line">          from v$sqlstats</span>
+<span class="line">         where sql_id = vsqlid) mem,(<span class="keyword">select</span> sum(value) val from v$sysstat where name = <span class="string">'DB time'</span>) mem_dbtime</span>
+<span class="line">      ) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.<span class="string">"ID"</span>||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.<span class="string">"HASH"</span>||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.DB_TIME||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.MEM||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.VERS||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.EXES||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.<span class="string">"DISKS"</span>||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.GETS||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.<span class="string">"ROWS"</span>||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.<span class="string">"CPU"</span>||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.ELAPSED||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.CLUSTER_WAIT||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;td&gt;'</span>||v.CONCURRENCE_WAIT||<span class="string">'&lt;/td&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----获取执行计划--AWR</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Execution Plan From AWR&lt;/b&gt;&lt;br&gt;&lt;br&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> hashval in (<span class="keyword">select</span> distinct plan_hash_value from dba_hist_sql_plan where sql_id = vsqlid) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'SQL:'</span>||vsqlid||<span class="string">', PLAN_HASH_VALUE:'</span>||hashval.plan_hash_value);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;table&gt;'</span>);</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;DEP&lt;/th&gt;&lt;th width="400px"&gt;OPERITION&lt;/th&gt;&lt;th&gt;NAME&lt;/th&gt;&lt;th&gt;ROWS&lt;/th&gt;&lt;th&gt;BYTES&lt;/th&gt;&lt;th&gt;COST(%CPU)&lt;/th&gt;&lt;th&gt;IO_COST&lt;/th&gt;&lt;th&gt;TIME&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  vPlanAddition.delete;</span>
+<span class="line">  arr_iter := <span class="number">0</span>;</span>
+<span class="line">    <span class="keyword">for</span> v in (<span class="keyword">select</span> decode(trim(predicates), <span class="string">''</span>, <span class="string">''</span> || ID, <span class="string">'*'</span> || ID) ID,</span>
+<span class="line">                     DEPTH,</span>
+<span class="line">                     OPERATION,</span>
+<span class="line">                     NAME,</span>
+<span class="line">                     PREDICATES,</span>
+<span class="line">                     <span class="string">"ROWS"</span>,</span>
+<span class="line">                     BYTES,</span>
+<span class="line">                     <span class="string">"COST(%CPU)"</span>,</span>
+<span class="line">                     IO_COST,</span>
+<span class="line">                     TIME</span>
+<span class="line">                from (<span class="keyword">select</span> a.plan_hash_value || <span class="string">' '</span> plan_hash_value,</span>
+<span class="line">               id ID,</span>
+<span class="line">               depth DEPTH,</span>
+<span class="line">               lpad(operation, <span class="keyword">length</span>(operation) + depth * <span class="number">6</span>, <span class="string">'&amp;nbsp;'</span>) || <span class="string">' '</span> || options OPERATION,</span>
+<span class="line">               decode(OBJECT_NAME,</span>
+<span class="line">                  null,</span>
+<span class="line">                  <span class="string">''</span>,</span>
+<span class="line">                  <span class="string">'['</span> || OBJECT_TYPE || <span class="string">']'</span> || OBJECT_OWNER || <span class="string">'.'</span> ||</span>
+<span class="line">                  OBJECT_NAME) || <span class="string">'&amp;nbsp;'</span> NAME,</span>
+<span class="line">               case</span>
+<span class="line">               <span class="keyword">when</span> (<span class="keyword">length</span>(access_predicates) &lt; <span class="number">3</span> <span class="keyword">or</span> access_predicates is null) then</span>
+<span class="line">                case</span>
+<span class="line">                <span class="keyword">when</span> (<span class="keyword">length</span>(filter_predicates) &lt; <span class="number">3</span> <span class="keyword">or</span> filter_predicates is null) then</span>
+<span class="line">                 <span class="string">' '</span></span>
+<span class="line">                <span class="keyword">else</span></span>
+<span class="line">                 <span class="string">'[filter]'</span> || <span class="keyword">substr</span>(filter_predicates, <span class="number">1</span>, <span class="number">3990</span>)</span>
+<span class="line">                end</span>
+<span class="line">               <span class="keyword">else</span></span>
+<span class="line">                <span class="string">'[access]'</span> || <span class="keyword">substr</span>(access_predicates, <span class="number">1</span>, <span class="number">3990</span>)</span>
+<span class="line">               end PREDICATES,</span>
+<span class="line">               decode(cardinality, null, <span class="string">''</span>, cardinality) || <span class="string">'&amp;nbsp;'</span> <span class="string">"ROWS"</span>,</span>
+<span class="line">               decode(Bytes, null, <span class="string">''</span>, Bytes) || <span class="string">'&amp;nbsp;'</span> BYTES,</span>
+<span class="line">               decode(io_cost,</span>
+<span class="line">                  null,</span>
+<span class="line">                  decode(cost, null, <span class="string">''</span>, cost),</span>
+<span class="line">                  decode(cost, null, <span class="string">''</span>, cost) || <span class="string">'('</span> ||</span>
+<span class="line">                  decode(cost, <span class="number">0</span>, <span class="number">0</span>, round((cost - io_cost) / cost * <span class="number">100</span>)) || <span class="string">')'</span>) || <span class="string">'&amp;nbsp;'</span> <span class="string">"COST(%CPU)"</span>,</span>
+<span class="line">               --decode(cpu_cost, null, <span class="string">''</span>, cpu_cost) || <span class="string">' '</span> CPU_COST,</span>
+<span class="line">               decode(io_cost, null, <span class="string">''</span>, io_cost) || <span class="string">' '</span> IO_COST,</span>
+<span class="line">               trim(to_char(round(nvl(<span class="keyword">time</span>, <span class="number">0</span>) / <span class="number">3600</span>), <span class="string">'00'</span>)) || <span class="string">':'</span> ||</span>
+<span class="line">               to_char(to_date(<span class="string">'19000101'</span>, <span class="string">'yyyymmdd'</span>) + nvl(<span class="keyword">time</span>, <span class="number">0</span>) / <span class="number">3600</span> / <span class="number">24</span>,</span>
+<span class="line">                   <span class="string">'mi:ss'</span>) TIME</span>
+<span class="line">            from dba_hist_sql_plan a</span>
+<span class="line">           where a.sql_id = vsqlid</span>
+<span class="line">             <span class="keyword">and</span> a.plan_hash_value = hashval.plan_hash_value</span>
+<span class="line">           order by a.plan_hash_value, id asc</span>
+<span class="line">          )) loop</span>
+<span class="line">    /*AWR里没有Predicate信息</span>
+<span class="line">    arr_iter := arr_iter+<span class="number">1</span>;</span>
+<span class="line">        vPlanAddition(arr_iter) := case <span class="keyword">when</span> trim(v.predicates)||<span class="string">' '</span> = <span class="string">' '</span> then <span class="string">''</span> </span>
+<span class="line">            <span class="keyword">else</span> <span class="string">'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;'</span>|| v.id||<span class="string">' =&gt; '</span>||v.predicates || <span class="string">'&lt;br&gt;'</span> end;</span>
+<span class="line">    *<span class="regexp">/</span>
+<span class="line">        dbms_output.put_line('&lt;tr&gt;&lt;td&gt;' || v.ID || '&lt;/td</span>&gt;&lt;td&gt;<span class="string">' || v.DEPTH ||</span>
+<span class="line">                             '</span>&lt;<span class="regexp">/td&gt;&lt;td width="400px"&gt;' || v.OPERATION || </span>
+<span class="line">               '&lt;/td</span>&gt;&lt;td&gt;<span class="string">'|| v.NAME || '</span>&lt;<span class="regexp">/td&gt;&lt;td&gt;' || v."ROWS" ||</span>
+<span class="line">                              '&lt;/td</span>&gt;&lt;td&gt;<span class="string">' || v.BYTES || '</span>&lt;<span class="regexp">/td&gt;&lt;td&gt;' || v."COST(%CPU)" ||</span>
+<span class="line">                               '&lt;/td</span>&gt;&lt;td&gt;<span class="string">' || v.IO_COST || '</span>&lt;<span class="regexp">/td&gt;&lt;td&gt;' || v.TIME || '&lt;/td</span>&gt;&lt;<span class="regexp">/tr&gt;');</span>
+<span class="line">      end loop;</span>
+<span class="line">    dbms_output.put_line('&lt;/table</span>&gt;&lt;br&gt;<span class="string">');</span>
+<span class="line">  /*AWR里没有Predicate信息</span>
+<span class="line">  dbms_output.put_line('</span>&lt;p style=<span class="string">"font:10pt SimSun,SimSun,SimSun,SimSun"</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Predicate Information (identified by operation id):&lt;br&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;---------------------------------------------------------------------------&lt;br&gt;<span class="string">');</span>
+<span class="line">  arr_iter := 0;</span>
+<span class="line">  for v1 in 1..vPlanAddition.count loop</span>
+<span class="line">    arr_iter := arr_iter+1;</span>
+<span class="line">    dbms_output.put_line(vPlanAddition(arr_iter));</span>
+<span class="line">  end loop;</span>
+<span class="line">  */</span>
+<span class="line">  dbms_output.put_line('</span>&lt;p&gt;<span class="string">');</span>
+<span class="line">  end loop;</span>
+<span class="line"></span>
+<span class="line">/*</span>
+<span class="line">  ----SQL统计信息（SQL STATISTICS - AWR)</span>
+<span class="line">  dbms_output.put_line('</span>&lt;b&gt;SQL STATISTICS&lt;<span class="regexp">/b&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;table&gt;&lt;tr&gt;&lt;th&gt;ID&lt;/th</span>&gt;&lt;th&gt;HASH&lt;<span class="regexp">/th&gt;&lt;th&gt;DB_TIME_TOTAL&lt;/th</span>&gt;&lt;th&gt;DB_TIME_CURRENT&lt;<span class="regexp">/th&gt;&lt;th&gt;MEM&lt;/th</span>&gt;&lt;th&gt;VERS&lt;<span class="regexp">/th&gt;&lt;th&gt;EXES&lt;/th</span>&gt;&lt;th&gt;DISKS&lt;<span class="regexp">/th&gt;&lt;th&gt;GETS&lt;/th</span>&gt;&lt;th&gt;ROWS&lt;<span class="regexp">/th&gt;&lt;th&gt;CPU&lt;/th</span>&gt;&lt;th&gt;ELAPSED&lt;<span class="regexp">/th&gt;&lt;th&gt;CCWAIT&lt;/th</span>&gt;&lt;<span class="regexp">/tr&gt;');</span>
+<span class="line">  for v in (select mem.SQL_ID "ID",</span>
+<span class="line">         mem.PLAN_HASH_VALUE "HASH",</span>
+<span class="line">         mem_dbtime.VAL - awr_dbtime.VAL DB_TIME_TOTAL,</span>
+<span class="line">         mem_dbtime.VAL - (select max(value) VAL</span>
+<span class="line">                   from dba_hist_sysstat</span>
+<span class="line">                  where stat_name = 'DB time') DB_TIME_CURRENT,</span>
+<span class="line">         mem.SHARABLE_MEM MEM,</span>
+<span class="line">         mem.VERSION_COUNT VERS,</span>
+<span class="line">         mem.EXECUTIONS - awr.EXECUTIONS EXES,</span>
+<span class="line">         mem.PARSE_CALLS - awr.PARSE_CALLS PARSE_CALLS,</span>
+<span class="line">         mem.DISK_READS - awr.DISK_READS "DISKS",</span>
+<span class="line">         mem.BUFFER_GETS - awr.BUFFER_GETS GETS,</span>
+<span class="line">         mem.ROWS_PROCESSED - awr.ROWS_PROCESSED "ROWS",</span>
+<span class="line">         mem.CPU_TIME - awr.CPU_TIME "CPU",</span>
+<span class="line">         mem.ELAPSED_TIME - awr.ELAPSED_TIME ELAPSED,</span>
+<span class="line">         mem.CCWAIT - awr.CCWAIT CCWAIT</span>
+<span class="line">      from (select SQL_ID,</span>
+<span class="line">             PLAN_HASH_VALUE,</span>
+<span class="line">             SHARABLE_MEM,</span>
+<span class="line">             VERSION_COUNT,</span>
+<span class="line">             FETCHES,</span>
+<span class="line">             END_OF_FETCH_COUNT,</span>
+<span class="line">             SORTS,</span>
+<span class="line">             EXECUTIONS,</span>
+<span class="line">             PX_SERVERS_EXECUTIONS PX_SERVERS_EXECS,</span>
+<span class="line">             LOADS,</span>
+<span class="line">             INVALIDATIONS,</span>
+<span class="line">             PARSE_CALLS,</span>
+<span class="line">             DISK_READS,</span>
+<span class="line">             BUFFER_GETS,</span>
+<span class="line">             ROWS_PROCESSED,</span>
+<span class="line">             CPU_TIME,</span>
+<span class="line">             ELAPSED_TIME,</span>
+<span class="line">             --IOWAIT,</span>
+<span class="line">             CLUSTER_WAIT_TIME     CLWAIT,</span>
+<span class="line">             APPLICATION_WAIT_TIME APWAIT,</span>
+<span class="line">             CONCURRENCY_WAIT_TIME CCWAIT,</span>
+<span class="line">             DIRECT_WRITES,</span>
+<span class="line">             PLSQL_EXEC_TIME       PLSEXEC_TIME,</span>
+<span class="line">             JAVA_EXEC_TIME        JAVEXEC_TIME</span>
+<span class="line">          from v$sqlstats</span>
+<span class="line">         where sql_id = vsqlid) mem,</span>
+<span class="line">         (select max(SNAP_ID) SNAP_ID,</span>
+<span class="line">             SQL_ID,</span>
+<span class="line">             PLAN_HASH_VALUE,</span>
+<span class="line">             max(SHARABLE_MEM) SHARABLE_MEM,</span>
+<span class="line">             max(VERSION_COUNT) VERSION_COUNT,</span>
+<span class="line">             max(FETCHES_TOTAL) FETCHES,</span>
+<span class="line">             max(END_OF_FETCH_COUNT_TOTAL) END_OF_FETCH_COUNT,</span>
+<span class="line">             max(SORTS_TOTAL) SORTS,</span>
+<span class="line">             max(EXECUTIONS_TOTAL) EXECUTIONS,</span>
+<span class="line">             max(PX_SERVERS_EXECS_TOTAL) PX_SERVERS_EXECS,</span>
+<span class="line">             max(LOADS_TOTAL) LOADS,</span>
+<span class="line">             max(INVALIDATIONS_TOTAL) INVALIDATIONS,</span>
+<span class="line">             max(PARSE_CALLS_TOTAL) PARSE_CALLS,</span>
+<span class="line">             max(DISK_READS_TOTAL) DISK_READS,</span>
+<span class="line">             max(BUFFER_GETS_TOTAL) BUFFER_GETS,</span>
+<span class="line">             max(ROWS_PROCESSED_TOTAL) ROWS_PROCESSED,</span>
+<span class="line">             max(CPU_TIME_TOTAL) CPU_TIME,</span>
+<span class="line">             max(ELAPSED_TIME_TOTAL) ELAPSED_TIME,</span>
+<span class="line">             max(CLWAIT_TOTAL) CLWAIT,</span>
+<span class="line">             max(APWAIT_TOTAL) APWAIT,</span>
+<span class="line">             max(CCWAIT_TOTAL) CCWAIT,</span>
+<span class="line">             max(DIRECT_WRITES_TOTAL) DIRECT_WRITES,</span>
+<span class="line">             max(PLSEXEC_TIME_TOTAL) PLSEXEC_TIME,</span>
+<span class="line">             max(JAVEXEC_TIME_TOTAL) JAVEXEC_TIME</span>
+<span class="line">          from dba_hist_sqlstat</span>
+<span class="line">         where snap_id &gt;</span>
+<span class="line">             (select min(snap_id)</span>
+<span class="line">              from dba_hist_snapshot</span>
+<span class="line">             where startup_time =</span>
+<span class="line">                 (select max(startup_time) from dba_hist_snapshot))</span>
+<span class="line">           and sql_id = vsqlid</span>
+<span class="line">         group by sql_id, plan_hash_value) awr,</span>
+<span class="line">         (select sum(value) val from v$sysstat where name = 'DB time') mem_dbtime,</span>
+<span class="line">         (select a.snap_id, a.value val</span>
+<span class="line">          from dba_hist_sysstat a</span>
+<span class="line">         where a.snap_id &gt;</span>
+<span class="line">             (select min(snap_id)</span>
+<span class="line">              from dba_hist_snapshot</span>
+<span class="line">             where startup_time =</span>
+<span class="line">                 (select max(startup_time) from dba_hist_snapshot))</span>
+<span class="line">           and a.stat_name = 'DB time') awr_dbtime</span>
+<span class="line">     where awr.sql_id(+) = mem.sql_id</span>
+<span class="line">       and awr.plan_hash_value(+) = mem.plan_hash_value</span>
+<span class="line">       and awr.snap_id = awr_dbtime.snap_id</span>
+<span class="line">      ) loop</span>
+<span class="line">    dbms_output.put_line('&lt;tr&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v."ID"||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v."HASH"||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v.DB_TIME_TOTAL||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v.DB_TIME_CURRENT||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v.MEM||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v.VERS||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v.EXES||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v."DISKS"||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v.GETS||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v."ROWS"||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v."CPU"||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;td&gt;<span class="string">'||v.ELAPSED||'</span>&lt;<span class="regexp">/td&gt;');</span>
+<span class="line">  dbms_output.put_line('&lt;td&gt;'||v.CCWAIT||'&lt;/td</span>&gt;<span class="string">');</span>
+<span class="line">  dbms_output.put_line('</span>&lt;<span class="regexp">/tr&gt;');</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line('&lt;/table</span>&gt;&lt;<span class="regexp">/br&gt;');</span>
+<span class="line">*/</span></span>
+<span class="line"></span>
+<span class="line">  ----获取SQL语句所涉及的表</span>
+<span class="line">  vOwnerCnt := <span class="number">0</span>;</span>
+<span class="line">  vOwnerstr := <span class="string">''</span>;</span>
+<span class="line">  vTableCnt := <span class="number">0</span>;</span>
+<span class="line">  vTablestr := <span class="string">''</span>;</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> OBJECT_OWNER, object_name</span>
+<span class="line">              from v$sql_plan</span>
+<span class="line">             where sql_id = vsqlid</span>
+<span class="line">               <span class="keyword">and</span> operation like <span class="string">'%TABLE%'</span></span>
+<span class="line">       union</span>
+<span class="line">      <span class="keyword">select</span> OBJECT_OWNER, object_name from dba_hist_sql_plan</span>
+<span class="line">       where sql_id = vsqlid</span>
+<span class="line">               <span class="keyword">and</span> operation like <span class="string">'%TABLE%'</span></span>
+<span class="line">       union</span>
+<span class="line">      <span class="keyword">select</span> OBJECT_OWNER, object_name from PLAN_TABLE</span>
+<span class="line">       where operation like <span class="string">'%TABLE%'</span></span>
+<span class="line">      ) loop</span>
+<span class="line">    vTablestr := vTablestr || v.OBJECT_NAME || <span class="string">','</span>;</span>
+<span class="line">    vTableCnt := vTableCnt + <span class="number">1</span>;</span>
+<span class="line">    vOwnerstr := vOwnerstr || v.OBJECT_OWNER || <span class="string">','</span>;</span>
+<span class="line">    vOwnerCnt := vOwnerCnt + <span class="number">1</span>;</span>
+<span class="line">  end loop;</span>
+<span class="line">  vOwnerstr := <span class="keyword">substr</span>(vOwnerstr, <span class="number">1</span>, <span class="keyword">length</span>(vOwnerstr) - <span class="number">1</span>);</span>
+<span class="line">  vTablestr := <span class="keyword">substr</span>(vTablestr, <span class="number">1</span>, <span class="keyword">length</span>(vTablestr) - <span class="number">1</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----SQL涉及所有表的尺寸（Table Segment Size)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Table Segment Size&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;&lt;th&gt;owner&lt;/th&gt;&lt;th&gt;segment_name&lt;/th&gt;&lt;th&gt;MB&lt;/th&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> owner, segment_name, to_char(sum(bytes) / <span class="number">1024</span> / <span class="number">1024</span>, <span class="string">'9999990.99'</span>) MB</span>
+<span class="line">              from dba_segments</span>
+<span class="line">             where segment_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vTablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vTableCnt)</span>
+<span class="line">                    <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             group by owner, segment_name</span>
+<span class="line">             order by owner, segment_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.segment_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.MB ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----SQL涉及所有表的相关信息(Table Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Table Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;num_rows&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;blocks&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;degree&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;last_analyzed&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;temporary&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;partitioned&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;pct_free&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;tablespace_name&lt;/th&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> t.OWNER,</span>
+<span class="line">                   t.table_name,</span>
+<span class="line">                   t.num_rows,</span>
+<span class="line">                   t.blocks,</span>
+<span class="line">                   t.degree,</span>
+<span class="line">                   t.last_analyzed,</span>
+<span class="line">                   t.temporary,</span>
+<span class="line">                   t.partitioned,</span>
+<span class="line">                   t.pct_free,</span>
+<span class="line">                   t.tablespace_name</span>
+<span class="line">              from dba_tables t</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vTableCnt)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by owner, table_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.num_rows ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.blocks || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.degree || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.last_analyzed ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.temporary || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.partitioned || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.pct_free ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.tablespace_name || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line"></span>
+<span class="line">  ----SQL涉及所有表的列信息(Table Column Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Table Column Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;column_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;data_type&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;nullable&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;last_analyzed&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;avg_col_len&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> owner,</span>
+<span class="line">                   table_name,</span>
+<span class="line">                   column_name,</span>
+<span class="line">                   data_type,</span>
+<span class="line">                   nullable,</span>
+<span class="line">                   to_char(last_analyzed, <span class="string">'mm/dd/yy hh24:mi:ss'</span>) analyzed,</span>
+<span class="line">                   avg_col_len</span>
+<span class="line">              from dba_tab_cols</span>
+<span class="line">             where table_name in (SELECT REGEXP_SUBSTR(vTABLESTR, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                                    FROM DUAL</span>
+<span class="line">                                  CONNECT BY LEVEL &lt;= vTABLECNT)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">          order by owner, table_name, column_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.column_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.data_type || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.nullable || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.analyzed ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.avg_col_len || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>); </span>
+<span class="line"></span>
+<span class="line">  ----SQL涉及所有表的触发器信息(Table Triggers)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Table Triggers&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;table_owner&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;base_object_type&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;tiggger_owner&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;trigger_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;trigger_type&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;triggering_event&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> table_owner,</span>
+<span class="line">                   table_name,</span>
+<span class="line">                   base_object_type,</span>
+<span class="line">                   owner tiggger_owner,</span>
+<span class="line">                   trigger_name,</span>
+<span class="line">                   trigger_type,</span>
+<span class="line">                   triggering_event</span>
+<span class="line">              from dba_triggers</span>
+<span class="line">             where table_name in (SELECT REGEXP_SUBSTR(vTABLESTR, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                                    FROM DUAL</span>
+<span class="line">                                  CONNECT BY LEVEL &lt;= vTABLECNT)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by table_owner, table_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.table_owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.base_object_type ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.tiggger_owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.trigger_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.trigger_type ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.triggering_event || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>); </span>
+<span class="line">  </span>
+<span class="line">  ----SQL涉及的分区表的相关信息(Partition Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Partition Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;partitioning_type&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;partition_count&lt;/th&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> t.owner,</span>
+<span class="line">                   t.table_name,</span>
+<span class="line">                   t.partitioning_type,</span>
+<span class="line">                   t.partition_count</span>
+<span class="line">              from dba_part_tables t</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.partitioning_type || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.partition_count || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----分区表的分区列相关信息(Partition Key Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Partition Key Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;owner&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;object_type&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;column_name&lt;/th&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> owner, name, object_type, column_name</span>
+<span class="line">              from dba_part_key_columns</span>
+<span class="line">             where name in (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                              FROM DUAL</span>
+<span class="line">                            CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.object_type || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.column_name || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----分区表分区范围信息(Partition Range Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Partition Range Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;owner&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;partition_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;high_value&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;tablespace_name&lt;/th&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (SELECT table_owner owner,</span>
+<span class="line">                   table_name,</span>
+<span class="line">                   partition_name,</span>
+<span class="line">                   high_value,</span>
+<span class="line">                   tablespace_name</span>
+<span class="line">              FROM dba_tab_partitions t</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> table_owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by table_owner, table_name, t.partition_position) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.OWNER || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.partition_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.high_value || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.tablespace_name || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----索引的大小(Index Segments)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Index Segments&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;segment_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;MB&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> t1.owner,</span>
+<span class="line">                   t2.table_name,</span>
+<span class="line">                   t1.segment_name,</span>
+<span class="line">                   to_char(sum(t1.bytes) / <span class="number">1024</span> / <span class="number">1024</span>, <span class="string">'9999990.99'</span>) MB</span>
+<span class="line">              from dba_segments t1, dba_indexes t2</span>
+<span class="line">             where t1.segment_name = t2.index_name</span>
+<span class="line">               <span class="keyword">and</span> t1.segment_type like <span class="string">'%INDEX%'</span></span>
+<span class="line">               <span class="keyword">and</span> t1.owner = t2.owner</span>
+<span class="line">               <span class="keyword">and</span> t2.table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> t1.owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">               <span class="keyword">and</span> t2.owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             group by t1.owner, t2.table_name, t1.segment_name</span>
+<span class="line">             order by owner, table_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.segment_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.MB || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----索引相关信息(Index Statistics)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Index Statistics&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;rows&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;type&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;status&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;factor&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;blevel&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;distinct&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;leaf&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;unique&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;degree&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;analyzed&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> t.owner,</span>
+<span class="line">                   t.table_name,</span>
+<span class="line">                   t.index_name        <span class="string">"name"</span>,</span>
+<span class="line">                   t.num_rows          <span class="string">"rows"</span>,</span>
+<span class="line">                   t.index_type        <span class="string">"type"</span>,</span>
+<span class="line">                   t.status,</span>
+<span class="line">                   t.clustering_factor factor,</span>
+<span class="line">                   t.blevel,</span>
+<span class="line">                   t.distinct_keys     <span class="string">"distinct"</span>,</span>
+<span class="line">                   t.leaf_blocks       leaf,</span>
+<span class="line">                   t.uniqueness        <span class="string">"unique"</span>,</span>
+<span class="line">                   t.degree,</span>
+<span class="line">                   to_char(t.last_analyzed, <span class="string">'mm/dd/yy hh24:mi:ss'</span>) analyzed</span>
+<span class="line">              from dba_indexes t</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by owner, table_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.<span class="string">"name"</span> ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.<span class="string">"rows"</span> || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.<span class="string">"type"</span> || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.status ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.factor || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.blevel || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.<span class="string">"distinct"</span> ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.leaf || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.<span class="string">"unique"</span> || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.degree ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.analyzed || <span class="string">'&lt;/td&gt;&lt;tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----索引列信息，在哪些列有索引(Index columns)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Index columns&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;column_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;column_position&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;DESCEND&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> t.index_owner owner,</span>
+<span class="line">                   t.table_name,</span>
+<span class="line">                   t.index_name,</span>
+<span class="line">                   t.column_name,</span>
+<span class="line">                   t.column_position,</span>
+<span class="line">                   t.DESCEND</span>
+<span class="line">              from dba_ind_columns t</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> index_owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by owner, table_name, index_name, column_position) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.index_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.column_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.column_position || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.DESCEND ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----分区索引的分区个数(Partition Indexes nums)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Partition Indexes Summary&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;table_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;partitioning_type&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;partition_count&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> owner,</span>
+<span class="line">                   table_name,</span>
+<span class="line">                   index_name,</span>
+<span class="line">                   partitioning_type,</span>
+<span class="line">                   partition_count</span>
+<span class="line">              from dba_part_indexes</span>
+<span class="line">             where table_name in</span>
+<span class="line">                   (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">               <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                      FROM DUAL</span>
+<span class="line">                    CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by owner, table_name, index_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.table_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.index_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.partitioning_type || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.partition_count || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----分区索引的详细信息(Partition Indexes details)</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Partition Indexes Details&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;table&gt;&lt;tr&gt;'</span> || <span class="string">'&lt;th&gt;OWNER&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;index_name&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;partition_name&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;status&lt;/th&gt;'</span> || <span class="string">'&lt;th&gt;blevel&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;leaf_blocks&lt;/th&gt;'</span> ||</span>
+<span class="line">                       <span class="string">'&lt;th&gt;tablespace_name&lt;/th&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  <span class="keyword">for</span> v in (<span class="keyword">select</span> index_owner owner,</span>
+<span class="line">                   index_name,</span>
+<span class="line">                   partition_name,</span>
+<span class="line">                   status,</span>
+<span class="line">                   blevel,</span>
+<span class="line">                   leaf_blocks,</span>
+<span class="line">                   tablespace_name</span>
+<span class="line">              from dba_ind_partitions</span>
+<span class="line">             where index_name in</span>
+<span class="line">                   (<span class="keyword">select</span> index_name</span>
+<span class="line">                      from dba_indexes</span>
+<span class="line">                     where table_name in</span>
+<span class="line">                           (SELECT REGEXP_SUBSTR(vtablestr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                              FROM DUAL</span>
+<span class="line">                            CONNECT BY LEVEL &lt;= vtablecnt)</span>
+<span class="line">                       <span class="keyword">and</span> owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                              FROM DUAL</span>
+<span class="line">                            CONNECT BY LEVEL &lt;= vOwnerCnt))</span>
+<span class="line">               <span class="keyword">and</span> index_owner in (SELECT REGEXP_SUBSTR(vOwnerstr, <span class="string">'[^,]+'</span>, <span class="number">1</span>, LEVEL) AS value_str</span>
+<span class="line">                               FROM DUAL</span>
+<span class="line">                   CONNECT BY LEVEL &lt;= vOwnerCnt)</span>
+<span class="line">             order by owner, index_name, partition_name) loop</span>
+<span class="line">    dbms_output.put_line(<span class="string">'&lt;tr&gt;&lt;td&gt;'</span> || v.owner || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> ||</span>
+<span class="line">                         v.index_name || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.partition_name ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.status || <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.blevel || </span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.leaf_blocks ||</span>
+<span class="line">                         <span class="string">'&lt;/td&gt;&lt;td&gt;'</span> || v.tablespace_name || <span class="string">'&lt;/td&gt;&lt;/tr&gt;'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/table&gt;&lt;/br&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  ----嵌入awrsqrpt</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;b&gt;Awrsqrpt Contents&lt;/b&gt;'</span>);</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;div&gt;'</span>);</span>
+<span class="line">  begin</span>
+<span class="line">    <span class="keyword">for</span> v in (<span class="keyword">select</span> max(maxsnap_id) maxsnap_id,</span>
+<span class="line">                     max(maxsnap_id) - <span class="number">1</span> as minsnap_id</span>
+<span class="line">                from (<span class="keyword">select</span> startup_time,</span>
+<span class="line">                             max(a.snap_id) maxsnap_id,</span>
+<span class="line">                             min(a.snap_id) minsnap_id</span>
+<span class="line">                        from dba_hist_snapshot a, dba_hist_sqlstat b</span>
+<span class="line">                       where a.snap_id = b.snap_id</span>
+<span class="line">                         <span class="keyword">and</span> b.sql_id = vsqlid</span>
+<span class="line">                       group by startup_time)</span>
+<span class="line">               where maxsnap_id &lt;&gt; minsnap_id) loop</span>
+<span class="line">      dbms_output.put_line(<span class="string">'&lt;div&gt;'</span>);</span>
+<span class="line">      begin</span>
+<span class="line">        <span class="keyword">for</span> v_in in (<span class="keyword">select</span> output</span>
+<span class="line">                     from table(dbms_workload_repository.awr_sql_report_html((<span class="keyword">select</span> dbid</span>
+<span class="line">                                                                               from v$database</span>
+<span class="line">                                                                              where rownum = <span class="number">1</span>),</span>
+<span class="line">                                                                             (<span class="keyword">select</span> instance_number</span>
+<span class="line">                                                                                from v$instance</span>
+<span class="line">                                                                               where rownum = <span class="number">1</span>),</span>
+<span class="line">                                                                             v.minsnap_id,</span>
+<span class="line">                                                                             v.maxsnap_id,</span>
+<span class="line">                                                                             vsqlid))) loop</span>
+<span class="line">          dbms_output.put_line(v_in.output);</span>
+<span class="line">        end loop;</span>
+<span class="line">      Exception</span>
+<span class="line">      <span class="keyword">when</span> others then</span>
+<span class="line">        vsqlmsg := sqlerrm;</span>
+<span class="line">        dbms_output.put_line(<span class="string">'SQL:'</span> || vsqlid || <span class="string">', cannot be found in DBA_HIST_XXXX.'</span>);</span>
+<span class="line">        dbms_output.put_line(vsqlmsg);</span>
+<span class="line">      end;</span>
+<span class="line">      dbms_output.put_line(<span class="string">'&lt;/div&gt;'</span>);</span>
+<span class="line">    end loop;</span>
+<span class="line">  Exception</span>
+<span class="line">    <span class="keyword">when</span> others then</span>
+<span class="line">      vsqlmsg := sqlerrm;</span>
+<span class="line">      dbms_output.put_line(vsqlmsg);</span>
+<span class="line">  end;</span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/div&gt;'</span>);</span>
+<span class="line">  </span>
+<span class="line">  dbms_output.put_line(<span class="string">'&lt;/body&gt;&lt;/html&gt;'</span>);</span>
+<span class="line">  rollback;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line">set termout on</span>
+<span class="line">spool off;</span>
+<span class="line">exit</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">
+                    一键获取数据库整体信息脚本
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">
+                    收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/" title="上一篇: 一键获取数据库整体信息脚本">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/" title="下一篇: 收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/15/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/07/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/06/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/05/05/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
