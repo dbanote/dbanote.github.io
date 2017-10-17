@@ -29,7 +29,7 @@ SQL开发规范
 分库分表">
 <meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0804_mysql_01.png">
 <meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0804_mysql_02.png">
-<meta property="og:updated_time" content="2017-10-13T12:33:09.759Z">
+<meta property="og:updated_time" content="2017-10-17T09:36:08.649Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL性能优化最佳实践 - 01 MySQL优化方法论">
 <meta name="twitter:description" content="MySQL优化方法的关键是？
@@ -328,12 +328,9 @@ SQL开发规范
 </ul>
 <a id="more"></a>
 <h2 id="如何权衡吞吐率-Throughput-和延时-Latency-？"><a href="#如何权衡吞吐率-Throughput-和延时-Latency-？" class="headerlink" title="如何权衡吞吐率(Throughput) 和延时(Latency)？"></a>如何权衡吞吐率(Throughput) 和延时(Latency)？</h2><ul>
-<li><p>吞吐率：一般使用单位时间内服务器处理的请求数来描述其并发处理能力,称之为吞吐率（Throughput），单位是<code>req/s</code>。吞吐率特指Web服务器单位时间内处理的请求数。</p>
-</li>
-<li><p>延时：延时是描述操作里用来等待服务的时间。在某些情况下，它可以指的是整个操作时间，等同于响应时间。例如，一次应用程序请求、一次数据库查询、一次文件系统操作，等等。举个例子，延时可以表示从点击链接<br>到屏幕显示整个网页加载完成的时间。</p>
-</li>
-<li><p>目标：在用户能够接受的延时下，尽可能的提高吞吐量。</p>
-</li>
+<li>吞吐率：一般使用单位时间内服务器处理的请求数来描述其并发处理能力,称之为吞吐率（Throughput），单位是<code>req/s</code>。吞吐率特指Web服务器单位时间内处理的请求数。</li>
+<li>延时：延时是描述操作里用来等待服务的时间。在某些情况下，它可以指的是整个操作时间，等同于响应时间。例如，一次应用程序请求、一次数据库查询、一次文件系统操作，等等。举个例子，延时可以表示从点击链接<br>到屏幕显示整个网页加载完成的时间。</li>
+<li>目标：在用户能够接受的延时下，尽可能的提高吞吐量。</li>
 </ul>
 <p><img src="http://oligvdnzp.bkt.clouddn.com/0804_mysql_01.png" alt=""></p>
 <h2 id="如何理解5分钟法则和临近法则？"><a href="#如何理解5分钟法则和临近法则？" class="headerlink" title="如何理解5分钟法则和临近法则？"></a>如何理解5分钟法则和临近法则？</h2><ul>
