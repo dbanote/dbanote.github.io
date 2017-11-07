@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="感知事务提交的效果，给出SQL演示：在一个会话里发出一条DML语句（比如插入一条数据），不要提交，在另一个会话里面进行查询，看是否能够查到插入的数据？不能看到插入的数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle职业直通车-03 Oracle数据库的安装和配置">
+<meta property="og:url" content="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="感知事务提交的效果，给出SQL演示：在一个会话里发出一条DML语句（比如插入一条数据），不要提交，在另一个会话里面进行查询，看是否能够查到插入的数据？不能看到插入的数据">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0718_oracle_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0718_oracle_02.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0718_oracle_03.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/0718_oracle_04.png">
+<meta property="og:updated_time" content="2017-10-27T07:50:09.091Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle职业直通车-03 Oracle数据库的安装和配置">
+<meta name="twitter:description" content="感知事务提交的效果，给出SQL演示：在一个会话里发出一条DML语句（比如插入一条数据），不要提交，在另一个会话里面进行查询，看是否能够查到插入的数据？不能看到插入的数据">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/0718_oracle_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle职业直通车-03 Oracle数据库的安装和配置 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/" class="article-date">
+      <time datetime="2015-03-08T16:00:00.000Z" itemprop="datePublished">2015-03-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle职业直通车-03 Oracle数据库的安装和配置
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="感知事务提交的效果，给出SQL演示："><a href="#感知事务提交的效果，给出SQL演示：" class="headerlink" title="感知事务提交的效果，给出SQL演示："></a>感知事务提交的效果，给出SQL演示：</h2><p><strong>在一个会话里发出一条DML语句（比如插入一条数据），不要提交，在另一个会话里面进行查询，看是否能够查到插入的数据？</strong><br>不能看到插入的数据<br><img src="http://oligvdnzp.bkt.clouddn.com/0718_oracle_01.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0718_oracle_02.png" alt=""><br><a id="more"></a><br><strong>在第一个会话中发出commit，在另一个会话里面进行查询，看是否能够查到修改过的数据。</strong><br>可以<br><img src="http://oligvdnzp.bkt.clouddn.com/0718_oracle_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0718_oracle_04.png" alt=""></p>
+<p><strong>同时思考一个问题，在第一个会话插入一条数据之后，不要提交，为什么别的会话查询不到，而当前会话可以查到？</strong><br>这里的场景考虑到事务隔离级别：Oracle数据库支持READ COMMITTED 和SERIALIZABLE这两种事务隔离级别。并且oracle默认采用的是持READ COMMITTED隔离级别，也就是说一个会话只能读取其他事务已提交的更新结果，否则，发生等待，但是其他会话可以修改这个事务中被读取的记录，而不必等待事务结束，显然，在这种隔离级别下，一个事务中的两个相同的读取操作，其结果可能不同。</p>
+<h2 id="计算出你的数据库当前SGA和PGA的大小，给出SQL演示。"><a href="#计算出你的数据库当前SGA和PGA的大小，给出SQL演示。" class="headerlink" title="计算出你的数据库当前SGA和PGA的大小，给出SQL演示。"></a>计算出你的数据库当前SGA和PGA的大小，给出SQL演示。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; show sga</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">838861464</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3523215360</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> sum(PGA_USED_MEM) PGA_USED_MEM from v$process;</span>
+<span class="line"></span>
+<span class="line">PGA_USED_MEM</span>
+<span class="line">------------</span>
+<span class="line">    <span class="number">41467768</span></span>
+</pre></td></tr></table></figure>
+<h2 id="说出服务器进程和实例后台进程有什么区别？"><a href="#说出服务器进程和实例后台进程有什么区别？" class="headerlink" title="说出服务器进程和实例后台进程有什么区别？"></a>说出服务器进程和实例后台进程有什么区别？</h2><p>实例的一半是内存，实例的另外一半就是进程。与内存不同，进程都是实实在在的存在，你可以看得见（不过摸不着）。通过相关进程，Oracle实现数据库与实例的连通；通过相关进程，Oracle实现数据库与实例的互动；通过相关进程，Oracle实现对Oracle数据库的应用。<br>Oracle进程分为两类：服务器进程（Server Process）和后台进程（Background Process），下面分别进行区分。</p>
+<h3 id="服务器进程"><a href="#服务器进程" class="headerlink" title="服务器进程"></a>服务器进程</h3><p>Oracle的服务器进程有Oracle实例自动创建，用来处理连接到实例的客户端进程发出的请求，用户必须通过连接到Oracle的服务器进程来获取数据库中的信息。对于专用服务器模式，客户端进程和Oracle服务器进程是一一对应的，而在共享服务器模式下，一个Oracle服务器进程可能同时服务多个客户端进程。<br>服务器进程主要用来执行下列的任务：</p>
+<ul>
+<li>解析、执行客户端提交的SQL语句。</li>
+<li>从磁盘数据文件中读取必须的数据块到SGA得数据缓存区。</li>
+<li>以适当形式返回SQL语句执行结果。</li>
+</ul>
+<h3 id="实例后台进程"><a href="#实例后台进程" class="headerlink" title="实例后台进程"></a>实例后台进程</h3><p>后台进程是管理实例的，是实例的内存结构与文件系统之间的桥梁。像Oracle数据库这么庞大的结构，要保持高效、稳定并且具有良好的性能，只有几个经纪人显然不行的，因此各项标准服务都由特定进程专门处理，比如写数据文件要有DBWR进程，写归档文件要有ARCH进程等。由Oracle在后台自动启动、管理和维护，因此这些进程才被称为后台进程。</p>
+<h2 id="说说你对数据库实例的理解，它的主要作用是什么？"><a href="#说说你对数据库实例的理解，它的主要作用是什么？" class="headerlink" title="说说你对数据库实例的理解，它的主要作用是什么？"></a>说说你对数据库实例的理解，它的主要作用是什么？</h2><p>实例是由操作系统中的一组内存区和一系列的操作系统进程组成，数据库则是指Oracle保存数据的一系列物理结构和逻辑结构，用户在访问Oracle数据库时主要是在与实例打交道，由实例访问数据库，并返回相应的操作结果。<br>最简单的Oracle数据库结构是由一个实例和一个数据库组成，不过对于RAC(或OPS)架构的Oracle数据库，一个数据库会对应多个实例。<br>在Oracle数据库，实例和数据库可以理解成两个相互间有关联的独立个体，每个数据库都至少有一个与之对应的实例（对于OPS/RAC架构的Oracle数据库，一个数据库会对应多个实例），每个实例在其生命周期内同时只能对应一个数据库。所谓的启动Oracle数据库时，实际上是连接到实例，说的更直白点儿，就是连接到操作系统的某些进程，并由这些进程访问处理内存中的对象，至于这些对象时如何从磁盘被读取到内存，那正是实例所做的工作。<br>Oracle中的实例有内存结构和进程结构两大部分组成。</p>
+<h2 id="创建一个分区表，并插入一些数据，同时查询出每个分区的数据。"><a href="#创建一个分区表，并插入一些数据，同时查询出每个分区的数据。" class="headerlink" title="创建一个分区表，并插入一些数据，同时查询出每个分区的数据。"></a>创建一个分区表，并插入一些数据，同时查询出每个分区的数据。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create table tab_pat (col1 number,col2 varchar2(<span class="number">30</span>))</span>
+<span class="line">partition by range(col1)(</span>
+<span class="line">  partition tab_pat_01 <span class="keyword">values</span> less than(<span class="number">20000</span>),</span>
+<span class="line">  partition tab_pat_02 <span class="keyword">values</span> less than(<span class="number">40000</span>),</span>
+<span class="line">  partition tab_pat_03 <span class="keyword">values</span> less than(<span class="number">60000</span>),</span>
+<span class="line">  partition tab_pat_04 <span class="keyword">values</span> less than(<span class="number">80000</span>),</span>
+<span class="line">  partition tab_pat_05 <span class="keyword">values</span> less than(maxvalue)</span>
+<span class="line">);</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">insert into tab_pat <span class="keyword">select</span> object_id,object_name from all_objects;</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">68327</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat partition (tab_pat_01);</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">11699</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat partition (tab_pat_02);</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">19993</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat partition (tab_pat_03);</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">19999</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat partition (tab_pat_04);</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">15842</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from tab_pat partition (tab_pat_05);</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">794</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from tab_pat partition (tab_pat_05) where rownum&lt;<span class="number">10</span>;</span>
+<span class="line"></span>
+<span class="line">      COL1 COL2</span>
+<span class="line">---------- ------------------------------</span>
+<span class="line">     <span class="number">80001</span> SDO_NETWORK_MANAGER_T</span>
+<span class="line">     <span class="number">80004</span> SDO_NETWORK_MANAGER_T</span>
+<span class="line">     <span class="number">80005</span> SDO_NODE_T</span>
+<span class="line">     <span class="number">80007</span> SDO_NODE_T</span>
+<span class="line">     <span class="number">80008</span> SDO_LINK_T</span>
+<span class="line">     <span class="number">80019</span> SDO_NETWORK_T</span>
+<span class="line">     <span class="number">80010</span> SDO_LINK_T</span>
+<span class="line">     <span class="number">80011</span> SDO_PATH_T</span>
+<span class="line">     <span class="number">80013</span> SDO_PATH_T</span>
+</pre></td></tr></table></figure>
+<h2 id="创建一个视图，并给出一个查询语句。"><a href="#创建一个视图，并给出一个查询语句。" class="headerlink" title="创建一个视图，并给出一个查询语句。"></a>创建一个视图，并给出一个查询语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create view vi_obj</span>
+<span class="line">as</span>
+<span class="line"><span class="keyword">select</span> col1 object_id,col2 object_name</span>
+<span class="line">  from tab_pat</span>
+<span class="line">    where col1&gt;=<span class="number">85000</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from vi_obj;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">       <span class="number">358</span></span>
+</pre></td></tr></table></figure>
+<h2 id="在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。"><a href="#在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。" class="headerlink" title="在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。"></a>在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line">grant <span class="keyword">select</span> any table to hr;</span>
+<span class="line">conn hr/hr</span>
+<span class="line">create synonym dept <span class="keyword">for</span> scott.dept;</span>
+<span class="line"><span class="keyword">select</span> * from dept;</span>
+<span class="line"></span>
+<span class="line">    DEPTNO DNAME          LOC</span>
+<span class="line">---------- -------------- -------------</span>
+<span class="line">        <span class="number">10</span> ACCOUNTING     NEW YORK</span>
+<span class="line">        <span class="number">20</span> RESEARCH       DALLAS</span>
+<span class="line">        <span class="number">30</span> SALES          CHICAGO</span>
+<span class="line">        <span class="number">40</span> OPERATIONS     BOSTON</span>
+<span class="line">        <span class="number">50</span> IT             BEIJING</span>
+</pre></td></tr></table></figure>
+<h2 id="创建一个sequence，并给出一个获得sequence号的语句。"><a href="#创建一个sequence，并给出一个获得sequence号的语句。" class="headerlink" title="创建一个sequence，并给出一个获得sequence号的语句。"></a>创建一个sequence，并给出一个获得sequence号的语句。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create sequence emp_seq</span>
+<span class="line"> start with <span class="number">1000</span></span>
+<span class="line"> increment by <span class="number">1</span></span>
+<span class="line"> nocache</span>
+<span class="line"> nocycle;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> emp_seq.nextval from dual;</span>
+<span class="line"></span>
+<span class="line">   NEXTVAL</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">1000</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> emp_seq.currval from dual;</span>
+<span class="line"></span>
+<span class="line">   CURRVAL</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">1000</span></span>
+</pre></td></tr></table></figure>
+<h2 id="创建一个指向本地数据库的dblink-并通过dblink查询一个表中的数据。"><a href="#创建一个指向本地数据库的dblink-并通过dblink查询一个表中的数据。" class="headerlink" title="创建一个指向本地数据库的dblink,并通过dblink查询一个表中的数据。"></a>创建一个指向本地数据库的dblink,并通过dblink查询一个表中的数据。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; conn / as sysdba</span>
+<span class="line">Connected.</span>
+<span class="line">SQL&gt; grant create database <span class="keyword">link</span> to hr;</span>
+<span class="line"></span>
+<span class="line">Grant succeeded.</span>
+<span class="line"></span>
+<span class="line">conn hr/hr</span>
+<span class="line">create database <span class="keyword">link</span> scott </span>
+<span class="line">  <span class="keyword">connect</span> to scott identified by scott using <span class="string">'orcl'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from scott.dept@scott;</span>
+<span class="line"></span>
+<span class="line">    DEPTNO DNAME          LOC</span>
+<span class="line">---------- -------------- -------------</span>
+<span class="line">        <span class="number">10</span> ACCOUNTING     NEW YORK</span>
+<span class="line">        <span class="number">20</span> RESEARCH       DALLAS</span>
+<span class="line">        <span class="number">30</span> SALES          CHICAGO</span>
+<span class="line">        <span class="number">40</span> OPERATIONS     BOSTON</span>
+<span class="line">        <span class="number">50</span> IT             BEIJING</span>
+</pre></td></tr></table></figure>
+<h2 id="创建一个表空间，并在这个表空间上创建一张表。"><a href="#创建一个表空间，并在这个表空间上创建一张表。" class="headerlink" title="创建一个表空间，并在这个表空间上创建一张表。"></a>创建一个表空间，并在这个表空间上创建一张表。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line">create tablespace test_ts datafile <span class="string">'/u01/app/oracle/oradata/orcl/test_ts01.dbf'</span> size <span class="number">50</span><span class="keyword">m</span>;</span>
+<span class="line">conn hr/hr</span>
+<span class="line">create table test1 (id number,name varchar2(<span class="number">10</span>)) tablespace test_ts;</span>
+</pre></td></tr></table></figure>
+<h2 id="将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。"><a href="#将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。" class="headerlink" title="将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。"></a>将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; conn / as sysdba</span>
+<span class="line">Connected.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              No Archive Mode</span>
+<span class="line">Automatic archival             Disabled</span>
+<span class="line">Archive destination            /u01/app/oracle/<span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4</span>/db_1/dbs/arch</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">4</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">6</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> immediate</span>
+<span class="line">Database closed.</span>
+<span class="line">Database dismounted.</span>
+<span class="line">ORACLE instance shut down.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; startup mount</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">905970328</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3456106496</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database archivelog;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; ! <span class="keyword">mkdir</span> /u01/app/oracle/archive</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> set log_archive_dest=<span class="string">'/u01/app/oracle/archive'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
+<span class="line">Automatic archival             Enabled</span>
+<span class="line">Archive destination            /u01/app/oracle/archive</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">4</span></span>
+<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">7</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">7</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; ! ls -l /u01/app/oracle/archive</span>
+<span class="line">total <span class="number">248</span></span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">253952</span> Jul <span class="number">18</span> <span class="number">16</span>:<span class="number">57</span> <span class="number">1_7_949653805</span>.dbf</span>
+</pre></td></tr></table></figure>
+<h2 id="说说你是如何理解commit和checkpoint的。"><a href="#说说你是如何理解commit和checkpoint的。" class="headerlink" title="说说你是如何理解commit和checkpoint的。"></a>说说你是如何理解commit和checkpoint的。</h2><p>下面这些操作将会触发checkpoint事件：</p>
+<ol>
+<li>日志切换，通过ALTER SYSTEM SWITCH LOGFILE。</li>
+<li>DBA发出checkpoint命令，通过ALTER SYSTEM checkpoint。</li>
+<li>对数据文件进行热备时，针对该数据文件的checkpoint也会进行，ALTER TABLESPACE TS_NAME BEGIN BACKUP/END BACKUP。</li>
+<li>当运行ALTER TABLESPACE/DATAFILE READ ONLY的时候。</li>
+<li>SHUTDOWN命令发出时。</li>
+</ol>
+<p>checkpoint会触发DBWR进程（数据库写进程），将脏数据块写到数据文件中，而commit触发LGWR（日志写进程），将redo日志缓存写到redo日志文件中。<br>如果DBWR进程要将事务的结果写入数据文件，但发现要写入的脏数据块相关的重做信息仍然处于重做日志缓存中，它将通知oracle启动LGWR进程，先将这些重做信息写入重做日志文件，直到重做信息全部被写入后，DBWR进程才开始将脏缓存写入数据文件。</p>
+<h2 id="说说你是如何理解redo和undo的作用的。"><a href="#说说你是如何理解redo和undo的作用的。" class="headerlink" title="说说你是如何理解redo和undo的作用的。"></a>说说你是如何理解redo和undo的作用的。</h2><p>redo 是利用日志恢复已提交的事务；undo是利用undo表空间里的前镜像恢复未提交的但已修改的事务。<br>REDO记录transaction logs，分为online和archived，以恢复为目的。比如，机器停电，那么在重起之后需要online redo logs去恢复系统到失败点。比如，磁盘坏了，需要用archived redo logs和online redo logs区恢复数据。比如，truncate一个表或其他的操作，想恢复到之前的状态，同样也需要。</p>
+<p>REDO是为了重新实现你的操作，而UNDO相反，是为了撤销你做的操作，比如你得一个TRANSACTION执行失败了或你自己后悔了，则需要用 ROLLBACK命令回退到操作之前。回滚是在逻辑层面实现而不是物理层面，因为在一个多用户系统中，数据结构，blocks等都在时时变化，比如我们 INSERT一个数据，表的空间不够，扩展了一个新的EXTENT，我们的数据保存在这新的EXTENT里，其它用户随后也在这EXTENT里插入了数据，而此时我想ROLLBACK，那么显然物理上讲这EXTENT撤销是不可能的，因为这么做会影响其他用户的操作。所以，ROLLBACK是逻辑上回滚，比如对INSERT来说，那么ROLLBACK就是DELETE了。</p>
+<h2 id="对于下面的操作，说一说redo和undo分别是在哪个阶段产生的"><a href="#对于下面的操作，说一说redo和undo分别是在哪个阶段产生的" class="headerlink" title="对于下面的操作，说一说redo和undo分别是在哪个阶段产生的"></a>对于下面的操作，说一说redo和undo分别是在哪个阶段产生的</h2><p>语句：<code>update t set id=1 where id=2</code></p>
+<ol>
+<li>当发出这条update语句后，oracle先将更改前后信息写进redo（当满足一定条件后由日志写进程写入日志文件）</li>
+<li>然后将更新前得数据镜像copy到undo中。</li>
+<li>用户rollback后，oracle 将undo中的数据覆盖回去。T表中的id=1</li>
+<li>用户commit后，oracle可以根据redo 的信息进行数据恢复。T表中的id=2</li>
+</ol>
+<h2 id="杂记"><a href="#杂记" class="headerlink" title="杂记"></a>杂记</h2><h3 id="数据库中的对象"><a href="#数据库中的对象" class="headerlink" title="数据库中的对象"></a>数据库中的对象</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看数据库中所有对象的类型</span></span>
+<span class="line"><span class="keyword">select</span> distinct object_type from dba_objects order by <span class="number">1</span>;</span>
+<span class="line"><span class="comment"># 以下是一些常用的对象类型</span></span>
+<span class="line">INDEX PARTITION</span>
+<span class="line">SEQUENCE</span>
+<span class="line">TABLE PARTITION</span>
+<span class="line">SCHEDULE</span>
+<span class="line">PROCEDURE</span>
+<span class="line">LOB</span>
+<span class="line">PACKAGE</span>
+<span class="line">TRIGGER</span>
+<span class="line">DIRECTORY</span>
+<span class="line">MATERIALIZED VIEW</span>
+<span class="line">TABLE</span>
+<span class="line">INDEX</span>
+<span class="line">SYNONYM</span>
+<span class="line">VIEW</span>
+<span class="line">FUNCTION</span>
+<span class="line">JOB</span>
+<span class="line">DATABASE LINK</span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">
+                    Oracle职业直通车-04 复杂一点的SQL/PLSQL
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">
+                    Oracle职业直通车-02 从最简单的SQL语句开始
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#感知事务提交的效果，给出SQL演示："><span class="toc-number">1.</span> <span class="toc-text">感知事务提交的效果，给出SQL演示：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#计算出你的数据库当前SGA和PGA的大小，给出SQL演示。"><span class="toc-number">2.</span> <span class="toc-text">计算出你的数据库当前SGA和PGA的大小，给出SQL演示。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说出服务器进程和实例后台进程有什么区别？"><span class="toc-number">3.</span> <span class="toc-text">说出服务器进程和实例后台进程有什么区别？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务器进程"><span class="toc-number">3.1.</span> <span class="toc-text">服务器进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实例后台进程"><span class="toc-number">3.2.</span> <span class="toc-text">实例后台进程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说说你对数据库实例的理解，它的主要作用是什么？"><span class="toc-number">4.</span> <span class="toc-text">说说你对数据库实例的理解，它的主要作用是什么？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个分区表，并插入一些数据，同时查询出每个分区的数据。"><span class="toc-number">5.</span> <span class="toc-text">创建一个分区表，并插入一些数据，同时查询出每个分区的数据。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个视图，并给出一个查询语句。"><span class="toc-number">6.</span> <span class="toc-text">创建一个视图，并给出一个查询语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。"><span class="toc-number">7.</span> <span class="toc-text">在当前用户下创建一个同义词，用于查询scott用户下的dept表，并给出一个查询语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个sequence，并给出一个获得sequence号的语句。"><span class="toc-number">8.</span> <span class="toc-text">创建一个sequence，并给出一个获得sequence号的语句。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个指向本地数据库的dblink-并通过dblink查询一个表中的数据。"><span class="toc-number">9.</span> <span class="toc-text">创建一个指向本地数据库的dblink,并通过dblink查询一个表中的数据。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个表空间，并在这个表空间上创建一张表。"><span class="toc-number">10.</span> <span class="toc-text">创建一个表空间，并在这个表空间上创建一张表。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。"><span class="toc-number">11.</span> <span class="toc-text">将数据库设置为归档模式，并进行一次日志切换，观察归档文件的产生。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说说你是如何理解commit和checkpoint的。"><span class="toc-number">12.</span> <span class="toc-text">说说你是如何理解commit和checkpoint的。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说说你是如何理解redo和undo的作用的。"><span class="toc-number">13.</span> <span class="toc-text">说说你是如何理解redo和undo的作用的。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对于下面的操作，说一说redo和undo分别是在哪个阶段产生的"><span class="toc-number">14.</span> <span class="toc-text">对于下面的操作，说一说redo和undo分别是在哪个阶段产生的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#杂记"><span class="toc-number">15.</span> <span class="toc-text">杂记</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库中的对象"><span class="toc-number">15.1.</span> <span class="toc-text">数据库中的对象</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/" title="上一篇: Oracle职业直通车-04 复杂一点的SQL/PLSQL">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/" title="下一篇: Oracle职业直通车-02 从最简单的SQL语句开始">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

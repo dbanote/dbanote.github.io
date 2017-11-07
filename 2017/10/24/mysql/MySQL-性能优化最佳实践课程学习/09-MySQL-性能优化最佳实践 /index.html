@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="MySQL优化器目标给定一个SQL，查找SQL最优（局部最优）的执行路径，使得用户能够更快的得到SQL的执行结果。
+指标
+代价模型：RBO(基于规则的优化)、CBO(基于成本的优化)
+SQL的每一种执行路径，均可计算一个对应的执行代价，代价越小，执行效率越高">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL性能优化最佳实践 - 09 MySQL优化器算法解析">
+<meta property="og:url" content="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="MySQL优化器目标给定一个SQL，查找SQL最优（局部最优）的执行路径，使得用户能够更快的得到SQL的执行结果。
+指标
+代价模型：RBO(基于规则的优化)、CBO(基于成本的优化)
+SQL的每一种执行路径，均可计算一个对应的执行代价，代价越小，执行效率越高">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_02.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_03.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_04.png">
+<meta property="og:updated_time" content="2017-10-24T10:17:04.603Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL性能优化最佳实践 - 09 MySQL优化器算法解析">
+<meta name="twitter:description" content="MySQL优化器目标给定一个SQL，查找SQL最优（局部最优）的执行路径，使得用户能够更快的得到SQL的执行结果。
+指标
+代价模型：RBO(基于规则的优化)、CBO(基于成本的优化)
+SQL的每一种执行路径，均可计算一个对应的执行代价，代价越小，执行效率越高">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL性能优化最佳实践 - 09 MySQL优化器算法解析 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 " class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /" class="article-date">
+      <time datetime="2017-10-23T16:00:00.000Z" itemprop="datePublished">2017-10-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL性能优化最佳实践 - 09 MySQL优化器算法解析
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="MySQL优化器"><a href="#MySQL优化器" class="headerlink" title="MySQL优化器"></a>MySQL优化器</h2><h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p>给定一个SQL，查找SQL最优（局部最优）的执行路径，使得用户能够更快的得到SQL的执行结果。</p>
+<h3 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h3><ol>
+<li>代价模型：RBO(基于规则的优化)、CBO(基于成本的优化)</li>
+<li>SQL的每一种执行路径，均可计算一个对应的执行代价，代价越小，执行效率越高<a id="more"></a>
+</li>
+</ol>
+<h3 id="CBO方式成本的计算"><a href="#CBO方式成本的计算" class="headerlink" title="CBO方式成本的计算"></a>CBO方式成本的计算</h3><blockquote>
+<p>Total cost = CPU cost + IO cost</p>
+</blockquote>
+<h4 id="CPU-cost计算模型"><a href="#CPU-cost计算模型" class="headerlink" title="CPU cost计算模型"></a>CPU cost计算模型</h4><p>CPU cost = rows/5 + (rows/10 if comparing key)</p>
+<blockquote>
+<p>CPU cost:</p>
+<ol>
+<li>MySQL上层，处理返回记录所花开销</li>
+<li>CPU Cost=records/TIME_FOR_COMPARE=Records/5</li>
+<li>每5条记录处的时间，作为1 Cost</li>
+</ol>
+</blockquote>
+<h4 id="IO-cost计算模型"><a href="#IO-cost计算模型" class="headerlink" title="IO cost计算模型"></a>IO cost计算模型</h4><p><img src="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_01.png" alt=""><br>IO cost以聚集索引叶子节点的数量进行计算</p>
+<ul>
+<li>全扫描<br>IO Cost = table stat_clustered_index_size<br>聚簇索引page总数，一个page作为1 cost</li>
+<li>范围扫描<br>IO Cost = [(ranges+rows)/total_rows]*全扫描IO Cost<br>聚簇索引范围扫描与返回记录成比率</li>
+</ul>
+<p><img src="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_02.png" alt=""><br>若需要回表，则IO cost以预估的记录数量进行计算，开销相当巨大</p>
+<ul>
+<li>二级索引之索引覆盖扫描<ul>
+<li>索引覆盖扫描，减少返回聚簇索引的IO代价<br>keys_per_block=(stats_block_size/2)/(key_info[keynr].key_lenth+ref_length+1)<br>stats_block_size/2 = 索引页半满</li>
+<li>IO Cost：(records+keys_per_block-1)/keys_per_block</li>
+<li>计算range占用多少个二级索引页面，既为索引覆盖扫描的IO Cost</li>
+</ul>
+</li>
+<li>二级索引之索引非覆盖扫描<ul>
+<li>索引非覆盖扫描，需要回聚簇索引读取完整记录，增加IO代价</li>
+<li>IO Cost = （range+rows）</li>
+<li>range:多少个范围<br>对于IN查询，就会转换为多个索引范围查询</li>
+<li>row:为范围中一共有多少记录<br>由于每一条记录都需要返回聚簇索引，因此每一条记录都会产生1 Cost</li>
+</ul>
+</li>
+</ul>
+<h3 id="Cost模型分析"><a href="#Cost模型分析" class="headerlink" title="Cost模型分析"></a>Cost模型分析</h3><ul>
+<li>聚簇索引扫描代价为索引页面总数量</li>
+<li>二级索引覆盖扫描代价较小</li>
+<li>二级索引非覆盖扫描，代价巨大</li>
+<li>Cost模型的计算，需要统计信息的支持<ul>
+<li>stat_clustered_index_size</li>
+<li>ranges</li>
+<li>records/rows</li>
+<li>stats_block_size</li>
+<li>key_info[keynr].key_length</li>
+<li>rec_per_key</li>
+<li>……</li>
+</ul>
+</li>
+</ul>
+<h2 id="MySQL优化总流程"><a href="#MySQL优化总流程" class="headerlink" title="MySQL优化总流程"></a>MySQL优化总流程</h2><p><img src="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_03.png" alt=""></p>
+<h2 id="索引元数据的统计"><a href="#索引元数据的统计" class="headerlink" title="索引元数据的统计"></a>索引元数据的统计</h2><p><img src="http://oligvdnzp.bkt.clouddn.com/1024_mysql_tune_04.png" alt=""></p>
+<h3 id="随机抽样统计元数据参数"><a href="#随机抽样统计元数据参数" class="headerlink" title="随机抽样统计元数据参数"></a>随机抽样统计元数据参数</h3><p>innodb_stats_sample_pages (5.5版本)<br>innodb_stats_transient_sample_pages (5.6版本)</p>
+<h3 id="MySQL-5-6版本默认持久化索引元数据参数"><a href="#MySQL-5-6版本默认持久化索引元数据参数" class="headerlink" title="MySQL 5.6版本默认持久化索引元数据参数"></a>MySQL 5.6版本默认持久化索引元数据参数</h3><p>innodb_stats_persistent<br>nnodb_stats_persistent_sample_pages<br>innodb_stats_on_metadata<br>innodb_stats_auto_recalc</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h3 id="测试环境脚本"><a href="#测试环境脚本" class="headerlink" title="测试环境脚本"></a>测试环境脚本</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">drop database lyj;</span>
+<span class="line">create database lyj;</span>
+<span class="line"><span class="keyword">use</span> lyj;</span>
+<span class="line"></span>
+<span class="line">create table t1 (</span>
+<span class="line">    c1 <span class="keyword">int</span>(<span class="number">11</span>) <span class="keyword">not</span> null default <span class="string">'0'</span>,</span>
+<span class="line">    c2 varchar(<span class="number">128</span>) default null,</span>
+<span class="line">    c3 varchar(<span class="number">64</span>) default null,</span>
+<span class="line">    c4 <span class="keyword">int</span>(<span class="number">11</span>) default null,</span>
+<span class="line">    primary key (c1),</span>
+<span class="line">    key ind_c2 (c2),</span>
+<span class="line">    key ind_c4 (c4));</span>
+<span class="line"></span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'a'</span>,<span class="string">'A'</span>,<span class="number">10</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'b'</span>,<span class="string">'B'</span>,<span class="number">20</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">3</span>,<span class="string">'b'</span>,<span class="string">'BB'</span>,<span class="number">20</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">4</span>,<span class="string">'b'</span>,<span class="string">'BBB'</span>,<span class="number">30</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">5</span>,<span class="string">'b'</span>,<span class="string">'BBB'</span>,<span class="number">40</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">6</span>,<span class="string">'c'</span>,<span class="string">'C'</span>,<span class="number">50</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">7</span>,<span class="string">'d'</span>,<span class="string">'D'</span>,<span class="number">60</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from t1;</span>
+<span class="line">+----+------+------+------+</span>
+<span class="line">| c1 | c2   | c3   | c4   |</span>
+<span class="line">+----+------+------+------+</span>
+<span class="line">|  <span class="number">1</span> | a    | A    |   <span class="number">10</span> |</span>
+<span class="line">|  <span class="number">2</span> | b    | B    |   <span class="number">20</span> |</span>
+<span class="line">|  <span class="number">3</span> | b    | BB   |   <span class="number">20</span> |</span>
+<span class="line">|  <span class="number">4</span> | b    | BBB  |   <span class="number">30</span> |</span>
+<span class="line">|  <span class="number">5</span> | b    | BBB  |   <span class="number">40</span> |</span>
+<span class="line">|  <span class="number">6</span> | c    | C    |   <span class="number">50</span> |</span>
+<span class="line">|  <span class="number">7</span> | d    | D    |   <span class="number">60</span> |</span>
+<span class="line">+----+------+------+------+</span>
+</pre></td></tr></table></figure>
+<h3 id="执行以下SQL为什么不走索引ind-c2？"><a href="#执行以下SQL为什么不走索引ind-c2？" class="headerlink" title="执行以下SQL为什么不走索引ind_c2？"></a>执行以下SQL为什么不走索引ind_c2？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> * from t1 where c4=<span class="number">20</span> <span class="keyword">and</span> c2=<span class="string">'b'</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           id: <span class="number">1</span></span>
+<span class="line">  select_type: SIMPLE</span>
+<span class="line">        table: t1</span>
+<span class="line">         type: <span class="keyword">ref</span></span>
+<span class="line">possible_keys: ind_c2,ind_c4,ind_c2_c4</span>
+<span class="line">          key: ind_c4</span>
+<span class="line">      key_len: <span class="number">5</span></span>
+<span class="line">          <span class="keyword">ref</span>: const</span>
+<span class="line">         rows: <span class="number">2</span></span>
+<span class="line">        Extra: Using where</span>
+<span class="line"></span>
+<span class="line">set optimizer_trace=<span class="string">'enabled=on'</span>;</span>
+<span class="line">set optimizer_trace_max_mem_size=<span class="number">1000000</span>;</span>
+<span class="line">set end_markers_in_json=on;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from t1 where c4=<span class="number">20</span> <span class="keyword">and</span> c2=<span class="string">'b'</span>;</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.optimizer_trace\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                            QUERY: <span class="keyword">select</span> * from t1 where c4=<span class="number">20</span> <span class="keyword">and</span> c2=<span class="string">'b'</span></span>
+<span class="line">                            TRACE: &#123;</span>
+<span class="line">......</span>
+<span class="line">                  <span class="string">"potential_range_indices"</span>: [ <span class="comment"># 列出备选索引</span></span>
+<span class="line">                    &#123;</span>
+<span class="line">                      <span class="string">"index"</span>: <span class="string">"PRIMARY"</span>, </span>
+<span class="line">                      <span class="string">"usable"</span>: false,         <span class="comment"># 本行表明主键索引不可用</span></span>
+<span class="line">                      <span class="string">"cause"</span>: <span class="string">"not_applicable"</span></span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      <span class="string">"index"</span>: <span class="string">"ind_c2"</span>,</span>
+<span class="line">                      <span class="string">"usable"</span>: true,</span>
+<span class="line">                      <span class="string">"key_parts"</span>: [</span>
+<span class="line">                        <span class="string">"c2"</span>,</span>
+<span class="line">                        <span class="string">"c1"</span></span>
+<span class="line">                      ] /* key_parts *<span class="regexp">/</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "index": "ind_c4",</span>
+<span class="line">                      "usable": true,</span>
+<span class="line">                      "key_parts": [</span>
+<span class="line">                        "c4",</span>
+<span class="line">                        "c1"</span>
+<span class="line">                      ] /</span>* key_parts *<span class="regexp">/</span>
+<span class="line">                    &#125;</span>
+<span class="line">                  ] /</span>* potential_range_indices *<span class="regexp">/,</span>
+<span class="line">                  "setup_range_conditions": [</span>
+<span class="line">                  ] /</span>* setup_range_conditions *<span class="regexp">/,</span>
+<span class="line">                  "group_index_range": &#123;</span>
+<span class="line">                    "chosen": false,</span>
+<span class="line">                    "cause": "not_group_by_or_distinct"</span>
+<span class="line">                  &#125; /</span>* group_index_range *<span class="regexp">/,</span>
+<span class="line">                  "analyzing_range_alternatives": &#123;   # 开始计算每个索引做范围扫描的花费</span>
+<span class="line">                    "range_scan_alternatives": [</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c2",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "b &lt;= c2 &lt;= b"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 4,         # c2=b的结果有4行</span>
+<span class="line">                        "cost": 5.81,</span>
+<span class="line">                        "chosen": false,   # 这个索引没有被选中，原因是cost</span>
+<span class="line">                        "cause": "cost"   </span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": true     # 这个索引的代价最小,被选中</span>
+<span class="line">                      &#125;</span>
+<span class="line">......</span>
+<span class="line">                  "chosen_range_access_summary": &#123;  # 总结：因为cost最小选择了ind_c4</span>
+<span class="line">                    "range_access_plan": &#123;</span>
+<span class="line">                      "type": "range_scan",</span>
+<span class="line">                      "index": "ind_c4",</span>
+<span class="line">                      "rows": 2,</span>
+<span class="line">                      "ranges": [</span>
+<span class="line">                        "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                      ] /</span>* ranges *<span class="regexp">/</span>
+<span class="line">                    &#125; /</span>* range_access_plan *<span class="regexp">/,</span>
+<span class="line">                    "rows_for_plan": 2,</span>
+<span class="line">                    "cost_for_plan": 3.41,</span>
+<span class="line">                    "chosen": true</span>
+<span class="line">                  &#125; /</span>* chosen_range_access_summary *<span class="regexp">/</span>
+<span class="line">......</span></span>
+</pre></td></tr></table></figure>
+<p>因为ind_c4范围扫描的cost要小于ind_c2，所以索引不走ind_c2</p>
+<h3 id="where条件中字段c2和c4换个位置，索引还是不走ind-c2？为什么？"><a href="#where条件中字段c2和c4换个位置，索引还是不走ind-c2？为什么？" class="headerlink" title="where条件中字段c2和c4换个位置，索引还是不走ind_c2？为什么？"></a>where条件中字段c2和c4换个位置，索引还是不走ind_c2？为什么？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">explain <span class="keyword">select</span> * from t1 where  c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           id: <span class="number">1</span></span>
+<span class="line">  select_type: SIMPLE</span>
+<span class="line">        table: t1</span>
+<span class="line">         type: <span class="keyword">ref</span></span>
+<span class="line">possible_keys: ind_c2,ind_c4,ind_c2_c4</span>
+<span class="line">          key: ind_c4</span>
+<span class="line">      key_len: <span class="number">5</span></span>
+<span class="line">          <span class="keyword">ref</span>: const</span>
+<span class="line">         rows: <span class="number">2</span></span>
+<span class="line">        Extra: Using where</span>
+</pre></td></tr></table></figure>
+<p>因为ind_c4范围扫描的cost要小于ind_c2，所以索引不走ind_c2，跟c2和c4的位置无关。验证方法同上。</p>
+<h3 id="如下语句，换个条件c2-’c’，为什么可以走索引ind-c2？"><a href="#如下语句，换个条件c2-’c’，为什么可以走索引ind-c2？" class="headerlink" title="如下语句，换个条件c2=’c’，为什么可以走索引ind_c2？"></a>如下语句，换个条件c2=’c’，为什么可以走索引ind_c2？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> * from t1 where c2=<span class="string">'c'</span> <span class="keyword">and</span> c4=<span class="number">20</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           id: <span class="number">1</span></span>
+<span class="line">  select_type: SIMPLE</span>
+<span class="line">        table: t1</span>
+<span class="line">         type: <span class="keyword">ref</span></span>
+<span class="line">possible_keys: ind_c2,ind_c4,ind_c2_c4</span>
+<span class="line">          key: ind_c2</span>
+<span class="line">      key_len: <span class="number">387</span></span>
+<span class="line">          <span class="keyword">ref</span>: const</span>
+<span class="line">         rows: <span class="number">1</span></span>
+<span class="line">        Extra: Using <span class="keyword">index</span> condition; Using where</span>
+<span class="line"></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.optimizer_trace\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                            QUERY: <span class="keyword">select</span> * from t1 where c2=<span class="string">'c'</span> <span class="keyword">and</span> c4=<span class="number">20</span></span>
+<span class="line">                            TRACE: &#123;</span>
+<span class="line">......</span>
+<span class="line">                  <span class="string">"analyzing_range_alternatives"</span>: &#123;</span>
+<span class="line">                    <span class="string">"range_scan_alternatives"</span>: [</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        <span class="string">"index"</span>: <span class="string">"ind_c2"</span>,</span>
+<span class="line">                        <span class="string">"ranges"</span>: [</span>
+<span class="line">                          <span class="string">"c &lt;= c2 &lt;= c"</span></span>
+<span class="line">                        ] /* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 1,           # c2=c 的结果集有1行</span>
+<span class="line">                        "cost": 2.21,</span>
+<span class="line">                        "chosen": true       # 这个索引的代价最小,被选中</span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": false,   # 这个索引没有被选中，原因是cost</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;</span>
+<span class="line">                  ......</span></span>
+</pre></td></tr></table></figure>
+<h3 id="创建复合索引"><a href="#创建复合索引" class="headerlink" title="创建复合索引"></a>创建复合索引</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">ALTER TABLE t1 ADD KEY ind_c2_c4(c2,c4);</span>
+</pre></td></tr></table></figure>
+<p><strong>下面语句为什么不走复合索引ind_c2_c4？</strong><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">explain <span class="keyword">select</span> * from t1 where  c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           id: <span class="number">1</span></span>
+<span class="line">  select_type: SIMPLE</span>
+<span class="line">        table: t1</span>
+<span class="line">         type: <span class="keyword">ref</span></span>
+<span class="line">possible_keys: ind_c2,ind_c4,ind_c2_c4</span>
+<span class="line">          key: ind_c4</span>
+<span class="line">      key_len: <span class="number">5</span></span>
+<span class="line">          <span class="keyword">ref</span>: const</span>
+<span class="line">         rows: <span class="number">2</span></span>
+<span class="line">        Extra: Using where</span>
+<span class="line"></span>
+<span class="line">set optimizer_trace=<span class="string">'enabled=on'</span>;</span>
+<span class="line">set optimizer_trace_max_mem_size=<span class="number">1000000</span>;</span>
+<span class="line">set end_markers_in_json=on;</span>
+<span class="line"><span class="keyword">select</span> * from t1 where  c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span>;</span>
+<span class="line"><span class="keyword">select</span> * from information_schema.optimizer_trace\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                            QUERY: <span class="keyword">select</span> * from t1 where  c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span></span>
+<span class="line">                            TRACE: &#123;</span>
+<span class="line">......</span>
+<span class="line">                  <span class="string">"potential_range_indices"</span>: [</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      <span class="string">"index"</span>: <span class="string">"PRIMARY"</span>,</span>
+<span class="line">                      <span class="string">"usable"</span>: false,</span>
+<span class="line">                      <span class="string">"cause"</span>: <span class="string">"not_applicable"</span></span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      <span class="string">"index"</span>: <span class="string">"ind_c2"</span>,</span>
+<span class="line">                      <span class="string">"usable"</span>: true,</span>
+<span class="line">                      <span class="string">"key_parts"</span>: [</span>
+<span class="line">                        <span class="string">"c2"</span>,</span>
+<span class="line">                        <span class="string">"c1"</span></span>
+<span class="line">                      ] /* key_parts *<span class="regexp">/</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "index": "ind_c4",</span>
+<span class="line">                      "usable": true,</span>
+<span class="line">                      "key_parts": [</span>
+<span class="line">                        "c4",</span>
+<span class="line">                        "c1"</span>
+<span class="line">                      ] /</span>* key_parts *<span class="regexp">/</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "index": "ind_c2_c4",</span>
+<span class="line">                      "usable": true,</span>
+<span class="line">                      "key_parts": [</span>
+<span class="line">                        "c2",</span>
+<span class="line">                        "c4",</span>
+<span class="line">                        "c1"</span>
+<span class="line">                      ] /</span>* key_parts *<span class="regexp">/</span>
+<span class="line">                    &#125;</span>
+<span class="line">                  ] /</span>* potential_range_indices *<span class="regexp">/,</span>
+<span class="line">                  "setup_range_conditions": [</span>
+<span class="line">                  ] /</span>* setup_range_conditions *<span class="regexp">/,</span>
+<span class="line">                  "group_index_range": &#123;</span>
+<span class="line">                    "chosen": false,</span>
+<span class="line">                    "cause": "not_group_by_or_distinct"</span>
+<span class="line">                  &#125; /</span>* group_index_range *<span class="regexp">/,</span>
+<span class="line">                  "analyzing_range_alternatives": &#123;</span>
+<span class="line">                    "range_scan_alternatives": [</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c2",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "b &lt;= c2 &lt;= b"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 4,</span>
+<span class="line">                        "cost": 5.81,</span>
+<span class="line">                        "chosen": false,</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": true</span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c2_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "b &lt;= c2 &lt;= b AND 20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": false,</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;</span>
+<span class="line">......</span>
+<span class="line">                  "chosen_range_access_summary": &#123;</span>
+<span class="line">                    "range_access_plan": &#123;</span>
+<span class="line">                      "type": "range_scan",</span>
+<span class="line">                      "index": "ind_c4",</span>
+<span class="line">                      "rows": 2,</span>
+<span class="line">                      "ranges": [</span>
+<span class="line">                        "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                      ] /</span>* ranges *<span class="regexp">/</span>
+<span class="line">                    &#125; /</span>* range_access_plan *<span class="regexp">/,</span>
+<span class="line">                    "rows_for_plan": 2,</span>
+<span class="line">                    "cost_for_plan": 3.41,</span>
+<span class="line">                    "chosen": true</span>
+<span class="line">                  &#125; /</span>* chosen_range_access_summary *<span class="regexp">/</span>
+<span class="line">                &#125; /</span>* range_analysis *<span class="regexp">/</span>
+<span class="line">              &#125;</span>
+<span class="line"> ......</span></span>
+</pre></td></tr></table></figure></p>
+<p>索引ind_c4和ind_c2_c4都是非覆盖扫描，而ind_c4和ind_c2_c4的cost是一样的，mysql会选择叶子块数量较少的那个索引，很明显ind_c4叶子块数量较少。</p>
+<p><strong>下面语句为什么又可以走复合索引ind_c2_c4？</strong><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">explain <span class="keyword">select</span> c2,c4 from t1 where c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span>\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">           id: <span class="number">1</span></span>
+<span class="line">  select_type: SIMPLE</span>
+<span class="line">        table: t1</span>
+<span class="line">         type: <span class="keyword">ref</span></span>
+<span class="line">possible_keys: ind_c2,ind_c4,ind_c2_c4</span>
+<span class="line">          key: ind_c2_c4</span>
+<span class="line">      key_len: <span class="number">392</span></span>
+<span class="line">          <span class="keyword">ref</span>: const,const</span>
+<span class="line">         rows: <span class="number">2</span></span>
+<span class="line">        Extra: Using where; Using <span class="keyword">index</span></span>
+<span class="line"></span>
+<span class="line">set optimizer_trace=<span class="string">'enabled=on'</span>;</span>
+<span class="line">set optimizer_trace_max_mem_size=<span class="number">1000000</span>;</span>
+<span class="line">set end_markers_in_json=on;</span>
+<span class="line"><span class="keyword">select</span> c2,c4 from t1 where c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span>;</span>
+<span class="line"><span class="keyword">select</span> * from information_schema.optimizer_trace\G;</span>
+<span class="line"></span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">                            QUERY: <span class="keyword">select</span> c2,c4 from t1 where c2=<span class="string">'b'</span> <span class="keyword">and</span> c4=<span class="number">20</span></span>
+<span class="line">                            TRACE: &#123;</span>
+<span class="line">......</span>
+<span class="line">                  <span class="string">"analyzing_range_alternatives"</span>: &#123;</span>
+<span class="line">                    <span class="string">"range_scan_alternatives"</span>: [</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        <span class="string">"index"</span>: <span class="string">"ind_c2"</span>,</span>
+<span class="line">                        <span class="string">"ranges"</span>: [</span>
+<span class="line">                          <span class="string">"b &lt;= c2 &lt;= b"</span></span>
+<span class="line">                        ] /* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 4,</span>
+<span class="line">                        "cost": 5.81,</span>
+<span class="line">                        "chosen": false,</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": false,</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": false,</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;,</span>
+<span class="line">                      &#123;</span>
+<span class="line">                        "index": "ind_c2_c4",</span>
+<span class="line">                        "ranges": [</span>
+<span class="line">                          "b &lt;= c2 &lt;= b AND 20 &lt;= c4 &lt;= 20"</span>
+<span class="line">                        ] /</span>* ranges *<span class="regexp">/,</span>
+<span class="line">                        "index_dives_for_eq_ranges": true,</span>
+<span class="line">                        "rowid_ordered": true,</span>
+<span class="line">                        "using_mrr": false,</span>
+<span class="line">                        "index_only": true,    # 索引覆盖扫描</span>
+<span class="line">                        "rows": 2,</span>
+<span class="line">                        "cost": 3.41,</span>
+<span class="line">                        "chosen": false,</span>
+<span class="line">                        "cause": "cost"</span>
+<span class="line">                      &#125;</span>
+<span class="line">                    ] /</span>* range_scan_alternatives *<span class="regexp">/,</span>
+<span class="line">                    "analyzing_roworder_intersect": &#123;</span>
+<span class="line">                      "intersecting_indices": [</span>
+<span class="line">                        &#123;</span>
+<span class="line">                          "index": "ind_c2_c4",</span>
+<span class="line">                          "index_scan_cost": 1.0476,</span>
+<span class="line">                          "cumulated_index_scan_cost": 1.0476,</span>
+<span class="line">                          "disk_sweep_cost": 0,</span>
+<span class="line">                          "cumulated_total_cost": 1.0476,</span>
+<span class="line">                          "usable": true,</span>
+<span class="line">                          "matching_rows_now": 2,</span>
+<span class="line">                          "isect_covering_with_this_index": true,</span>
+<span class="line">                          "chosen": true</span>
+<span class="line">                        &#125;</span>
+<span class="line">                      ] /</span>* intersecting_indices *<span class="regexp">/,</span>
+<span class="line">                      "clustered_pk": &#123;</span>
+<span class="line">                        "clustered_pk_added_to_intersect": false,</span>
+<span class="line">                        "cause": "no_clustered_pk_index"</span>
+<span class="line">                      &#125; /</span>* clustered_pk *<span class="regexp">/,</span>
+<span class="line">                      "chosen": false,</span>
+<span class="line">                      "cause": "too_few_indexes_to_merge"</span>
+<span class="line">                    &#125; /</span>* analyzing_roworder_intersect *<span class="regexp">/</span>
+<span class="line">                  &#125; /</span>* analyzing_range_alternatives *<span class="regexp">/</span>
+<span class="line">                &#125; /</span>* range_analysis *<span class="regexp">/</span>
+<span class="line">              &#125;</span>
+<span class="line">            ] /</span>* rows_estimation *<span class="regexp">/</span>
+<span class="line">          &#125;,</span>
+<span class="line">          &#123;</span>
+<span class="line">            "considered_execution_plans": [</span>
+<span class="line">              &#123;</span>
+<span class="line">                "plan_prefix": [</span>
+<span class="line">                ] /</span>* plan_prefix *<span class="regexp">/,</span>
+<span class="line">                "table": "`t1`",</span>
+<span class="line">                "best_access_path": &#123;</span>
+<span class="line">                  "considered_access_paths": [</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "access_type": "ref",</span>
+<span class="line">                      "index": "ind_c2",</span>
+<span class="line">                      "rows": 4,</span>
+<span class="line">                      "cost": 2.8,</span>
+<span class="line">                      "chosen": true</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "access_type": "ref",</span>
+<span class="line">                      "index": "ind_c4",</span>
+<span class="line">                      "rows": 2,</span>
+<span class="line">                      "cost": 2.4,</span>
+<span class="line">                      "chosen": true</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "access_type": "ref",</span>
+<span class="line">                      "index": "ind_c2_c4",</span>
+<span class="line">                      "rows": 2,</span>
+<span class="line">                      "cost": 1.4476,</span>
+<span class="line">                      "chosen": true</span>
+<span class="line">                    &#125;,</span>
+<span class="line">                    &#123;</span>
+<span class="line">                      "access_type": "scan",</span>
+<span class="line">                      "cause": "covering_index_better_than_full_scan",  </span>
+<span class="line">                      "chosen": false</span>
+<span class="line">                    &#125;</span>
+<span class="line">                  ] /</span>* considered_access_paths *<span class="regexp">/</span>
+<span class="line">                &#125; /</span>* best_access_path *<span class="regexp">/,</span>
+<span class="line">                "cost_for_plan": 1.4476,</span>
+<span class="line">                "rows_for_plan": 2,</span>
+<span class="line">                "chosen": true</span>
+<span class="line">              &#125;</span>
+<span class="line">......</span></span>
+</pre></td></tr></table></figure></p>
+<p>因为语中ind_c2_c4是索引覆盖扫描，不需要回表，代价较小。</p>
+<h3 id="查看索引元数据持久化"><a href="#查看索引元数据持久化" class="headerlink" title="查看索引元数据持久化"></a>查看索引元数据持久化</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * from mysql.innodb_table_stats where table_name=<span class="string">'t1'</span>;</span>
+<span class="line">+---------------+------------+---------------------+--------+----------------------+--------------------------+</span>
+<span class="line">| database_name | table_name | last_update         | n_rows | clustered_index_size | sum_of_other_index_sizes |</span>
+<span class="line">+---------------+------------+---------------------+--------+----------------------+--------------------------+</span>
+<span class="line">| lyj           | t1         | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> |      <span class="number">7</span> |                    <span class="number">1</span> |                        <span class="number">2</span> |</span>
+<span class="line">+---------------+------------+---------------------+--------+----------------------+--------------------------+</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from mysql.innodb_index_stats where table_name=<span class="string">'t1'</span>;</span>
+<span class="line">+---------------+------------+------------+---------------------+--------------+------------+-------------+-----------------------------------+</span>
+<span class="line">| database_name | table_name | index_name | last_update         | stat_name    | stat_value | sample_size | stat_description                  |</span>
+<span class="line">+---------------+------------+------------+---------------------+--------------+------------+-------------+-----------------------------------+</span>
+<span class="line">| lyj           | t1         | PRIMARY    | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_diff_pfx01 |          <span class="number">7</span> |           <span class="number">1</span> | c1                                |</span>
+<span class="line">| lyj           | t1         | PRIMARY    | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_leaf_pages |          <span class="number">1</span> |        NULL | Number of leaf pages in the <span class="keyword">index</span> |</span>
+<span class="line">| lyj           | t1         | PRIMARY    | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | size         |          <span class="number">1</span> |        NULL | Number of pages in the <span class="keyword">index</span>      |</span>
+<span class="line">| lyj           | t1         | ind_c2     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_diff_pfx01 |          <span class="number">4</span> |           <span class="number">1</span> | c2                                |</span>
+<span class="line">| lyj           | t1         | ind_c2     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_diff_pfx02 |          <span class="number">7</span> |           <span class="number">1</span> | c2,c1                             |</span>
+<span class="line">| lyj           | t1         | ind_c2     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_leaf_pages |          <span class="number">1</span> |        NULL | Number of leaf pages in the <span class="keyword">index</span> |</span>
+<span class="line">| lyj           | t1         | ind_c2     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | size         |          <span class="number">1</span> |        NULL | Number of pages in the <span class="keyword">index</span>      |</span>
+<span class="line">| lyj           | t1         | ind_c2_c4  | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> | n_diff_pfx01 |          <span class="number">4</span> |           <span class="number">1</span> | c2                                |</span>
+<span class="line">| lyj           | t1         | ind_c2_c4  | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> | n_diff_pfx02 |          <span class="number">6</span> |           <span class="number">1</span> | c2,c4                             |</span>
+<span class="line">| lyj           | t1         | ind_c2_c4  | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> | n_diff_pfx03 |          <span class="number">7</span> |           <span class="number">1</span> | c2,c4,c1                          |</span>
+<span class="line">| lyj           | t1         | ind_c2_c4  | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> | n_leaf_pages |          <span class="number">1</span> |        NULL | Number of leaf pages in the <span class="keyword">index</span> |</span>
+<span class="line">| lyj           | t1         | ind_c2_c4  | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">16</span>:<span class="number">39</span>:<span class="number">48</span> | size         |          <span class="number">1</span> |        NULL | Number of pages in the <span class="keyword">index</span>      |</span>
+<span class="line">| lyj           | t1         | ind_c4     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_diff_pfx01 |          <span class="number">6</span> |           <span class="number">1</span> | c4                                |</span>
+<span class="line">| lyj           | t1         | ind_c4     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_diff_pfx02 |          <span class="number">7</span> |           <span class="number">1</span> | c4,c1                             |</span>
+<span class="line">| lyj           | t1         | ind_c4     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | n_leaf_pages |          <span class="number">1</span> |        NULL | Number of leaf pages in the <span class="keyword">index</span> |</span>
+<span class="line">| lyj           | t1         | ind_c4     | <span class="number">2017</span>-<span class="number">10</span>-<span class="number">24</span> <span class="number">15</span>:<span class="number">17</span>:<span class="number">27</span> | size         |          <span class="number">1</span> |        NULL | Number of pages in the <span class="keyword">index</span>      |</span>
+<span class="line">+---------------+------------+------------+---------------------+--------------+------------+-------------+-----------------------------------+</span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/10/19/oracle/flashback常用命令整理/">
+                    flashback常用命令整理
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL优化器"><span class="toc-number">1.</span> <span class="toc-text">MySQL优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#目标"><span class="toc-number">1.1.</span> <span class="toc-text">目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指标"><span class="toc-number">1.2.</span> <span class="toc-text">指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CBO方式成本的计算"><span class="toc-number">1.3.</span> <span class="toc-text">CBO方式成本的计算</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CPU-cost计算模型"><span class="toc-number">1.3.1.</span> <span class="toc-text">CPU cost计算模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IO-cost计算模型"><span class="toc-number">1.3.2.</span> <span class="toc-text">IO cost计算模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cost模型分析"><span class="toc-number">1.4.</span> <span class="toc-text">Cost模型分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL优化总流程"><span class="toc-number">2.</span> <span class="toc-text">MySQL优化总流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引元数据的统计"><span class="toc-number">3.</span> <span class="toc-text">索引元数据的统计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#随机抽样统计元数据参数"><span class="toc-number">3.1.</span> <span class="toc-text">随机抽样统计元数据参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL-5-6版本默认持久化索引元数据参数"><span class="toc-number">3.2.</span> <span class="toc-text">MySQL 5.6版本默认持久化索引元数据参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实验"><span class="toc-number">4.</span> <span class="toc-text">实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试环境脚本"><span class="toc-number">4.1.</span> <span class="toc-text">测试环境脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#执行以下SQL为什么不走索引ind-c2？"><span class="toc-number">4.2.</span> <span class="toc-text">执行以下SQL为什么不走索引ind_c2？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#where条件中字段c2和c4换个位置，索引还是不走ind-c2？为什么？"><span class="toc-number">4.3.</span> <span class="toc-text">where条件中字段c2和c4换个位置，索引还是不走ind_c2？为什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如下语句，换个条件c2-’c’，为什么可以走索引ind-c2？"><span class="toc-number">4.4.</span> <span class="toc-text">如下语句，换个条件c2=’c’，为什么可以走索引ind_c2？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建复合索引"><span class="toc-number">4.5.</span> <span class="toc-text">创建复合索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看索引元数据持久化"><span class="toc-number">4.6.</span> <span class="toc-text">查看索引元数据持久化</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/10/19/oracle/flashback常用命令整理/" title="下一篇: flashback常用命令整理">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

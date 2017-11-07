@@ -187,7 +187,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
                     </div>
                 </section>
                 
@@ -266,6 +266,286 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 " class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /" class="article-date">
+      <time datetime="2017-08-24T16:00:00.000Z" itemprop="datePublished">2017-08-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="如何配置一个进程只跑在单个CPU上？"><a href="#如何配置一个进程只跑在单个CPU上？" class="headerlink" title="如何配置一个进程只跑在单个CPU上？"></a>如何配置一个进程只跑在单个CPU上？</h2><p>CPU性能调优方法之一：把进程或线程绑定在单个CPU上，这可以增加进程的CPU缓存温度，提高它的内存I/O性能。方法如下：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动MySQL，将该进程绑定到CPU1上</span></span>
+<span class="line">taskset -c <span class="number">1</span> mysqld_safe --defaults-file=<span class="regexp">/u01/conf</span><span class="regexp">/my3306.cnf &amp;</span>
+<span class="line"></span>
+<span class="line"># 使用sysbench压测工具查看CPU绑定后效果</span>
+<span class="line">drop database test;</span>
+<span class="line">create database test;</span>
+<span class="line"></span>
+<span class="line">sysbench /usr</span><span class="regexp">/local/share</span><span class="regexp">/sysbench/tests</span><span class="regexp">/include/oltp</span>_legacy/select.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">100000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
+<span class="line"></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/select.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">100000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/20170823_CentOS7下MySQL57的安装" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/" class="article-date">
+      <time datetime="2017-08-22T16:00:00.000Z" itemprop="datePublished">2017-08-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="Installing-MySQL-on-Linux-Using-RPM-Packages"><a href="#Installing-MySQL-on-Linux-Using-RPM-Packages" class="headerlink" title="Installing MySQL on Linux Using RPM Packages"></a>Installing MySQL on Linux Using RPM Packages</h2><h3 id="下载安装包"><a href="#下载安装包" class="headerlink" title="下载安装包"></a>下载安装包</h3><p>mysql下载地址：<a href="https://dev.mysql.com/downloads/mysql/">https://dev.mysql.com/downloads/mysql/</a><br><img src="http://oligvdnzp.bkt.clouddn.com/0823_mysql_01.png" alt=""></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-08-18T16:00:00.000Z" itemprop="datePublished">2017-08-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="测试服务器（或虚拟机）的QPS峰值"><a href="#测试服务器（或虚拟机）的QPS峰值" class="headerlink" title="测试服务器（或虚拟机）的QPS峰值"></a>测试服务器（或虚拟机）的QPS峰值</h2><h3 id="利用sysbench压测工具模拟SELECT操作"><a href="#利用sysbench压测工具模拟SELECT操作" class="headerlink" title="利用sysbench压测工具模拟SELECT操作"></a>利用sysbench压测工具模拟SELECT操作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 已有test库的话先drop掉</span></span>
+<span class="line">drop database test;</span>
+<span class="line">create database test;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># prepare准备阶段，构建压测环境</span></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/select.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">20000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 开始压测</span></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/select.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">20000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
+<span class="line"></span>
+<span class="line">sysbench <span class="number">1.0</span>.<span class="number">5</span> (using bundled LuaJIT <span class="number">2.1</span>.<span class="number">0</span>-beta2)</span>
+<span class="line"></span>
+<span class="line">Running the test with following options:</span>
+<span class="line">Number of threads: <span class="number">2</span></span>
+<span class="line">Report intermediate results every <span class="number">10</span> second(<span class="keyword">s</span>)</span>
+<span class="line">Initializing random number generator from current <span class="keyword">time</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Initializing worker threads...</span>
+<span class="line"></span>
+<span class="line">Threads started!</span>
+<span class="line"></span>
+<span class="line">[ <span class="number">10</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">8087.29</span> qps: <span class="number">8087.29</span> (r/w/o: <span class="number">8087.29</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">34</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">[ <span class="number">20</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">6949.28</span> qps: <span class="number">6949.28</span> (r/w/o: <span class="number">6949.28</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">35</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">[ <span class="number">30</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">7251.71</span> qps: <span class="number">7251.71</span> (r/w/o: <span class="number">7251.71</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">34</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">[ <span class="number">40</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">6927.19</span> qps: <span class="number">6927.19</span> (r/w/o: <span class="number">6927.19</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">35</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">[ <span class="number">50</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">7387.64</span> qps: <span class="number">7387.64</span> (r/w/o: <span class="number">7387.64</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">32</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">[ <span class="number">60</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">10171.21</span> qps: <span class="number">10171.21</span> (r/w/o: <span class="number">10171.21</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">26</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
+<span class="line">SQL statistics:</span>
+<span class="line">    queries performed:</span>
+<span class="line">        <span class="keyword">read</span>:                            <span class="number">467780</span></span>
+<span class="line">        <span class="keyword">write</span>:                           <span class="number">0</span></span>
+<span class="line">        other:                           <span class="number">0</span></span>
+<span class="line">        total:                           <span class="number">467780</span></span>
+<span class="line">    transactions:                        <span class="number">467780</span> (<span class="number">7795.29</span> per sec.)</span>
+<span class="line">    queries:                             <span class="number">467780</span> (<span class="number">7795.29</span> per sec.)</span>
+<span class="line">    ignored errors:                      <span class="number">0</span>      (<span class="number">0</span>.<span class="number">00</span> per sec.)</span>
+<span class="line">    reconnects:                          <span class="number">0</span>      (<span class="number">0</span>.<span class="number">00</span> per sec.)</span>
+<span class="line"></span>
+<span class="line">General statistics:</span>
+<span class="line">    total <span class="keyword">time</span>:                          <span class="number">60.0008</span><span class="keyword">s</span></span>
+<span class="line">    total number of events:              <span class="number">467780</span></span>
+<span class="line"></span>
+<span class="line">Latency (ms):</span>
+<span class="line">         min:                                  <span class="number">0</span>.<span class="number">11</span></span>
+<span class="line">         avg:                                  <span class="number">0</span>.<span class="number">25</span></span>
+<span class="line">         max:                                 <span class="number">27.63</span></span>
+<span class="line">         <span class="number">95</span>th percentile:                      <span class="number">0</span>.<span class="number">34</span></span>
+<span class="line">         sum:                             <span class="number">119092.82</span></span>
+<span class="line"></span>
+<span class="line">Threads fairness:</span>
+<span class="line">    events (avg/stddev):           <span class="number">233890.0000</span>/<span class="number">242.00</span></span>
+<span class="line">    execution <span class="keyword">time</span> (avg/stddev):   <span class="number">59.5464</span>/<span class="number">0</span>.<span class="number">00</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -321,6 +601,86 @@
         <p class="article-more-link">
           <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
       
       <div class="clearfix"></div>
     </div>
@@ -466,90 +826,10 @@
 
 
   
-    <article id="post-oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
-      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/SQL优化/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
-<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-</pre></td></tr></table></figure>
-<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-</pre></td></tr></table></figure>
-<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
       <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
 </a>
 
@@ -565,7 +845,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
     </h1>
   
 
@@ -596,7 +876,7 @@
 
       
         <p class="article-more-link">
-          <a href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -615,10 +895,10 @@
 
 
   
-    <article id="post-oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/" class="article-date">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/" class="article-date">
       <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
 </a>
 
@@ -634,7 +914,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a>
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a>
     </h1>
   
 
@@ -679,7 +959,7 @@
 
       
         <p class="article-more-link">
-          <a href="/2017/07/25/oracle/SQL优化/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -822,266 +1102,9 @@
 
 
   
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-07-03T16:00:00.000Z" itemprop="datePublished">2017-07-04</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="练习DG-Broker-switchover和failover的过程"><a href="#练习DG-Broker-switchover和failover的过程" class="headerlink" title="练习DG Broker switchover和failover的过程"></a>练习DG Broker switchover和failover的过程</h2><h3 id="练习switchover"><a href="#练习switchover" class="headerlink" title="练习switchover"></a>练习switchover</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># switchover可以在主或备库上运行</span></span>
-<span class="line"><span class="comment"># 使用TNS的方式登陆DG Broker</span></span>
-<span class="line">$ dgmgrl sys/Center08@dgtp</span>
-<span class="line">DGMGRL <span class="keyword">for</span> Linux: Release <span class="number">12.2</span>.<span class="number">0</span>.<span class="number">1.0</span> - Production on Tue Jul <span class="number">4</span> <span class="number">15</span>:<span class="number">01</span>:<span class="number">13</span> <span class="number">2017</span></span>
-<span class="line"></span>
-<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2017</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
-<span class="line"></span>
-<span class="line">Welcome to DGMGRL, type <span class="string">"help"</span> <span class="keyword">for</span> information.</span>
-<span class="line">Connected to <span class="string">"DGTP"</span></span>
-<span class="line">Connected as SYSDBA.</span>
-<span class="line">DGMGRL&gt; show configuration;</span>
-<span class="line"></span>
-<span class="line">Configuration - dgt_dg</span>
-<span class="line"></span>
-<span class="line">  Protection Mode: MaxPerformance</span>
-<span class="line">  Members:</span>
-<span class="line">  dgtp - Primary database</span>
-<span class="line">    dgts - Physical standby database </span>
-<span class="line"></span>
-<span class="line">Fast-Start Failover: DISABLED</span>
-<span class="line"></span>
-<span class="line">Configuration Status:</span>
-<span class="line">SUCCESS   (status updated <span class="number">13</span> seconds ago)</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-07-01T16:00:00.000Z" itemprop="datePublished">2017-07-02</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="Snapshot-Standby"><a href="#Snapshot-Standby" class="headerlink" title="Snapshot Standby"></a>Snapshot Standby</h2><h3 id="查看数据库状态"><a href="#查看数据库状态" class="headerlink" title="查看数据库状态"></a>查看数据库状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库状态</span></span>
-<span class="line">set line <span class="number">150</span></span>
-<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
-<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
-<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
-<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
-<span class="line">DGT       DGTP            READ WRITE           PRIMARY          YES                YES             ARCHIVELOG</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看备库状态</span></span>
-<span class="line">set line <span class="number">150</span></span>
-<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
-<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
-<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
-<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
-<span class="line">DGT       DGTS            READ ONLY WITH APPLY PHYSICAL STANDBY YES                YES             ARCHIVELOG</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/SQL优化--dbms_sqltune应用实例" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/" class="article-date">
-      <time datetime="2017-06-27T16:00:00.000Z" itemprop="datePublished">2017-06-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="需要优化的SQL"><a href="#需要优化的SQL" class="headerlink" title="需要优化的SQL"></a>需要优化的SQL</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SELECT a.sjhm</span>
-<span class="line">FROM    bfcrm8.hyk_hyxx  b,</span>
-<span class="line">        bfcrm8.hyk_grxx  a,</span>
-<span class="line">        bfcrm8.hyxfjl    c,</span>
-<span class="line">        bfcrm8.hyxfjl_sp d</span>
-<span class="line">WHERE   a.hyid         =b.hyid</span>
-<span class="line">        AND a.hyid     =c.hyid</span>
-<span class="line">        AND c.xfjlid   =d.xfjlid</span>
-<span class="line">        AND b.hyktype IN (<span class="string">'101'</span>)</span>
-<span class="line">        AND b.status  &gt;=<span class="number">0</span></span>
-<span class="line">        AND a.sex      =<span class="string">'1'</span></span>
-<span class="line">        AND d.bmdm LIKE <span class="string">'010104%'</span></span>
-<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>)&gt;=<span class="string">'20'</span></span>
-<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>) &lt;<span class="string">'41'</span></span>
-<span class="line">GROUP BY a.sjhm</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
     </nav>
   
 </div>

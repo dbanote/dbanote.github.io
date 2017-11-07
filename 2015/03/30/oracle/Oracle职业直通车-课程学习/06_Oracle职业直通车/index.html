@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="Oracle实例SGA(System Global Area)
+SGA区包括Oracle实例需要的一系列内存组件，用于存放共享的数据信息和数据控制信息
+Database Buffer Cache
+Redo Log Buffer
+Shared Pool  Library Cache、Data dictionary Cache
+Large Pool
+Streams Pool
+Fixed SGA
+
+
+这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle职业直通车-06 Oracle的内存结构与后台进程">
+<meta property="og:url" content="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="Oracle实例SGA(System Global Area)
+SGA区包括Oracle实例需要的一系列内存组件，用于存放共享的数据信息和数据控制信息
+Database Buffer Cache
+Redo Log Buffer
+Shared Pool  Library Cache、Data dictionary Cache
+Large Pool
+Streams Pool
+Fixed SGA
+
+
+这">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1031_oracle_01.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1031_oracle_02.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1031_oracle_01.gif">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1031_oracle_02.gif">
+<meta property="og:updated_time" content="2017-10-31T10:15:54.408Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle职业直通车-06 Oracle的内存结构与后台进程">
+<meta name="twitter:description" content="Oracle实例SGA(System Global Area)
+SGA区包括Oracle实例需要的一系列内存组件，用于存放共享的数据信息和数据控制信息
+Database Buffer Cache
+Redo Log Buffer
+Shared Pool  Library Cache、Data dictionary Cache
+Large Pool
+Streams Pool
+Fixed SGA
+
+
+这">
+<meta name="twitter:image" content="http://oligvdnzp.bkt.clouddn.com/1031_oracle_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle职业直通车-06 Oracle的内存结构与后台进程 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/" class="article-date">
+      <time datetime="2015-03-29T16:00:00.000Z" itemprop="datePublished">2015-03-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle职业直通车-06 Oracle的内存结构与后台进程
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="Oracle实例"><a href="#Oracle实例" class="headerlink" title="Oracle实例"></a>Oracle实例</h2><h3 id="SGA-System-Global-Area"><a href="#SGA-System-Global-Area" class="headerlink" title="SGA(System Global Area)"></a>SGA(System Global Area)</h3><ul>
+<li>SGA区包括Oracle实例需要的一系列内存组件，用于存放共享的数据信息和数据控制信息<ul>
+<li>Database Buffer Cache</li>
+<li>Redo Log Buffer</li>
+<li>Shared Pool  Library Cache、Data dictionary Cache</li>
+<li>Large Pool</li>
+<li>Streams Pool</li>
+<li>Fixed SGA</li>
+</ul>
+</li>
+<li>这些内存信息被所有进程所共享(server process,background process)</li>
+</ul>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; show sga</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size- - - <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size- -  <span class="number">838861464</span> bytes    <span class="comment"># shared pool</span></span>
+<span class="line">Database Buffers-    <span class="number">3523215360</span> bytes</span>
+<span class="line">Redo Buffers- -    <span class="number">11661312</span> bytes</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="Database-Buffer-Cache"><a href="#Database-Buffer-Cache" class="headerlink" title="Database Buffer Cache"></a>Database Buffer Cache</h3><p>Buffer cache里面存放这从磁盘上读到内存中的数据块，这些数据块可以被所有的会话访问，是全局共享的。</p>
+<ul>
+<li>Default pool 正常情况下，数据块存放的内存区域。</li>
+<li>Keep pool 这个区域（池）用于将一些数据始终固定在内存中，Default pool会根据一个过期算法（LRU）将过期的脏数据写到磁盘上。</li>
+<li>Recycle pool 存放一些不经常使用的数据块，避免这些数据块在Default pool池中占据空间。</li>
+<li>2k，4k，16k 用于存放不是标准大小（8k）表空间的数据块信息<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建一个16k块大小的表空间示例</span></span>
+<span class="line">show parameter cache_size</span>
+<span class="line"></span>
+<span class="line">NAME- - - - -    TYPE-   VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">client_result_cache_size- -  big integer <span class="number">0</span></span>
+<span class="line">db_16k_cache_size- - -   big integer <span class="number">0</span></span>
+<span class="line">db_2k_cache_size- - -    big integer <span class="number">0</span></span>
+<span class="line">db_32k_cache_size- - -   big integer <span class="number">0</span></span>
+<span class="line">db_4k_cache_size- - -    big integer <span class="number">0</span></span>
+<span class="line">db_8k_cache_size- - -    big integer <span class="number">0</span></span>
+<span class="line">db_cache_size- - - - big integer <span class="number">0</span></span>
+<span class="line">db_flash_cache_size- - - big integer <span class="number">0</span></span>
+<span class="line">db_keep_cache_size- - -  big integer <span class="number">0</span></span>
+<span class="line">db_recycle_cache_size- -     big integer <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> set db_16k_cache_size=<span class="number">10</span>M;</span>
+<span class="line">show parameter db_16k_cache_size</span>
+<span class="line">NAME- - - - -    TYPE-   VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">db_16k_cache_size- - -   big integer <span class="number">16</span>M</span>
+<span class="line"></span>
+<span class="line">create tablespace ts_16 datafile <span class="string">'/u01/app/oracle/oradata/orcl/ts16k_01.dbf'</span> size <span class="number">100</span><span class="keyword">m</span> blocksize <span class="number">16</span>k;</span>
+</pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="buffer的概念"><a href="#buffer的概念" class="headerlink" title="buffer的概念"></a>buffer的概念</h3><p>在database buffer cache当中，一个buffer指的是用来从磁盘中读入的数据块在内存中的存放位置，可以理解为<code>1 buffer=1 block</code>。</p>
+<h4 id="buffer（内存数据块）的3种状态"><a href="#buffer（内存数据块）的3种状态" class="headerlink" title="buffer（内存数据块）的3种状态"></a>buffer（内存数据块）的3种状态</h4><ul>
+<li>unused</li>
+<li>clean</li>
+<li>dirty</li>
+</ul>
+<h4 id="Buffer-的2种模式"><a href="#Buffer-的2种模式" class="headerlink" title="Buffer 的2种模式"></a>Buffer 的2种模式</h4><ul>
+<li>Current mode     update/delete/insert</li>
+<li>Consistent mode  select</li>
+</ul>
+<h3 id="Shared-Pool-Server-Result-Cache"><a href="#Shared-Pool-Server-Result-Cache" class="headerlink" title="Shared Pool - Server Result Cache"></a>Shared Pool - Server Result Cache</h3><p>这部分内存中保留了SQL查询的结果集，这样对于后续的相同查询，Oracle无需重新加载数据块进行计算，直接使用现有的数据集。</p>
+<ul>
+<li>由参数<code>RESULT_CACHE_MODE</code>设定</li>
+<li>默认值<code>Manual</code>，需要使用<code>RESULT_CACHE hint</code>来启用。</li>
+<li><code>FORCE</code>对所有<code>SELECT</code>操作生效（会消耗更多shared_pool空间）<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; show parameter result_cache_mode</span>
+<span class="line"></span>
+<span class="line">NAME- - - - -    TYPE-   VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">result_cache_mode- - -   string- MANUAL</span>
+</pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="PGA-Program-Global-Area"><a href="#PGA-Program-Global-Area" class="headerlink" title="PGA(Program Global Area)"></a>PGA(Program Global Area)</h3><ul>
+<li>不同于SGA，PGA属于独占式内存区，它的数据和控制信息为某个会话所独有，当一个会话产生时，Oracle会为这个会话分配一个PGA内存区域。</li>
+<li>PGA属于单个的服务端进程或者后台进程，而实例级别说的PGA，通常指的是所有这些会话占用的PGA的总和，也就是由参数pga_aggregate_target设定的值。</li>
+</ul>
+<h3 id="PGA-amp-UGA"><a href="#PGA-amp-UGA" class="headerlink" title="PGA &amp; UGA"></a>PGA &amp; UGA</h3><ul>
+<li>PGA是一个进程占用的内存区域，可以理解为操作系统在一个进程启动时，为它分配的内存空间，是一个操作系统含义上的内存区。</li>
+<li>UGA(User global area)是一个会话含义的内存区，它保存着和会话相关的信息，比如会话登录信息，绑定变量的值，Pl/SQL包的参数信息等。</li>
+<li>UGA必须保证会话能够访问到UGA当中的数据，因此UGA的位置会随数据库连接方式的不同而不同。<ul>
+<li>当连接使用的是专用模式(dedicated)时，因为会话是专有的，所以UGA属于PGA的一部分。</li>
+<li>当连接模式为MTS(Shared)时，由于会话可能会使用任意一个共享进程，因此这些进程必须能够同时访问UGA中的数据，此时Oracle会把UGA放在SGA区中（共享内存区域）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Oracle的进程"><a href="#Oracle的进程" class="headerlink" title="Oracle的进程"></a>Oracle的进程</h2><ul>
+<li>用户进程 user process</li>
+<li>服务器进程 server process</li>
+<li>实例后台进程 background process</li>
+</ul>
+<h3 id="Oracle实例的后台进程–SMON"><a href="#Oracle实例的后台进程–SMON" class="headerlink" title="Oracle实例的后台进程–SMON"></a>Oracle实例的后台进程–SMON</h3><p>SMON 的主要工作：</p>
+<ul>
+<li>数据库启动时的实例恢复，在RAC环境下，一个节点的SMON可以对另外一个节点做实例恢复</li>
+<li>清理和释放临时段上的数据（排序，临时表…)</li>
+<li>对于DMT(字典管理表空间）,SMON可以合并连续空闲的extent</li>
+<li>维护回滚段的online,offline以及空间的回收</li>
+</ul>
+<h3 id="Oracle实例的后台进程–PMON"><a href="#Oracle实例的后台进程–PMON" class="headerlink" title="Oracle实例的后台进程–PMON"></a>Oracle实例的后台进程–PMON</h3><h4 id="Pmon后台进程负责的工作"><a href="#Pmon后台进程负责的工作" class="headerlink" title="Pmon后台进程负责的工作"></a>Pmon后台进程负责的工作</h4><ul>
+<li>进程异常终止</li>
+<li>会话被杀掉</li>
+<li>事务超过空闲时间</li>
+<li>网络连接超时</li>
+<li>将实例信息注册到监听器上<ul>
+<li>手工注册 <code>alter system register;</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="Pmon进程的清理工作"><a href="#Pmon进程的清理工作" class="headerlink" title="Pmon进程的清理工作"></a>Pmon进程的清理工作</h4><ul>
+<li>回滚未提交的事务，释放事务相关的资源<ul>
+<li>重置undo数据块上的事务表的状态为inactive。</li>
+<li>释放事务产生的锁。</li>
+<li>从v$session中清除异常终止的会话ID。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Oracle实例的后台进程–DBWn"><a href="#Oracle实例的后台进程–DBWn" class="headerlink" title="Oracle实例的后台进程–DBWn"></a>Oracle实例的后台进程–DBWn</h3><ul>
+<li>负责将buffer cache中脏数据（修改过的数据）块写到磁盘上，由于数据块在磁盘上的位置不连续，这个过程会比LGWR比较耗时。</li>
+<li>DBWn触发条件<ul>
+<li>当server process无法在buffer cache中无法找到可用的buffer时。</li>
+<li>DBWn接到checkpoint的指令，将脏数据写到磁盘上。</li>
+</ul>
+</li>
+<li>可以通过设置多个DBWn进程加快脏数据写入磁盘的速度，参数是<code>DB_WRITER_PROCESSES</code></li>
+</ul>
+<h3 id="Oracle实例的后台进程–CKPT"><a href="#Oracle实例的后台进程–CKPT" class="headerlink" title="Oracle实例的后台进程–CKPT"></a>Oracle实例的后台进程–CKPT</h3><h4 id="checkpoint的目的和作用"><a href="#checkpoint的目的和作用" class="headerlink" title="checkpoint的目的和作用"></a>checkpoint的目的和作用</h4><ul>
+<li>减少数据库实例恢复的时间</li>
+<li>让内存中的脏数据及时的写到磁盘上，CKPT进程通知DBWn进程开始将内存(buffer cache)中的脏数据写到磁盘的文件上</li>
+<li>在安全关闭数据库时，保证所有提交的数据被写到磁盘上 </li>
+<li>CKPT负责更新文件头和控制文件的信息</li>
+</ul>
+<h4 id="checkpoint的触发"><a href="#checkpoint的触发" class="headerlink" title="checkpoint的触发"></a>checkpoint的触发</h4><ul>
+<li>database checkpoint<ul>
+<li>Consistent database shutdown</li>
+<li>ALTER SYSTEM CHECKPOINT statement</li>
+<li>Online redo log switch</li>
+<li>ALTER DATABASE BEGIN BACKUP statement</li>
+</ul>
+</li>
+<li>Tablespace and data file checkpoints<ul>
+<li>tablespace read only</li>
+<li>tablespace offline normal</li>
+<li>shrinking a data file</li>
+<li>alter tablespace begin backup</li>
+</ul>
+</li>
+<li>Incremental checkpoints</li>
+</ul>
+<h3 id="Oracle实例的后台进程–LGWR"><a href="#Oracle实例的后台进程–LGWR" class="headerlink" title="Oracle实例的后台进程–LGWR"></a>Oracle实例的后台进程–LGWR</h3><p>LGWR负责将log buffer中的数据顺序的写到磁盘上的online redo file,由于是顺序的写入，效率要比DBWn高很多。LGWR触发条件：</p>
+<ul>
+<li>用户提交事务(commit)</li>
+<li>日志切换</li>
+<li>最后一次提交经过了3秒。</li>
+<li>redo log buffer容量达到1/3或者达到1M的redo数据。</li>
+<li>DBWn进程在把脏数据写入磁盘之前，必须保证这些脏数据对应的日志信息已经被写入磁盘，如果发现脏数据的日志信息没有写入磁盘，DBWn通知LGWR进程写日志信息，完成后继续将<br>脏数据写入磁盘。</li>
+</ul>
+<h3 id="checkpoint和commit"><a href="#checkpoint和commit" class="headerlink" title="checkpoint和commit"></a>checkpoint和commit</h3><p>commit 提交的事务修改的数据产生的日志，必须立即写到磁盘上。</p>
+<ul>
+<li>刷新到磁盘上的日志中，包含未提交的日志。</li>
+</ul>
+<p>checkpoint 将脏数据写到磁盘上，加快数据的恢复时间，为data buffer提供空闲空间</p>
+<ul>
+<li>写到磁盘上的数据，并不一定是提交的。</li>
+<li>数据写到磁盘之前，这部分数据对应的日志信息，必须提前写到磁盘上。</li>
+<li>如果是alter system checkpoint,将只把commited的数据块写到磁盘。</li>
+<li>安全关闭数据库，所有的commited的数据会写到磁盘上。</li>
+</ul>
+<h3 id="Oracle实例的后台进程–ARCn"><a href="#Oracle实例的后台进程–ARCn" class="headerlink" title="Oracle实例的后台进程–ARCn"></a>Oracle实例的后台进程–ARCn</h3><ul>
+<li>归档进程，当数据库处于归档模式时(archive mode)，ARCn负责将online redo file归档到目标存储位置，用于数据库的恢复，当在线日志切换时，会触发ARCn进程将在线日志文件归档。</li>
+<li>ARCn进程在data guard下，负责将日志向standby 服务器发送。</li>
+</ul>
+<h3 id="Oracle实例的后台进程–其它"><a href="#Oracle实例的后台进程–其它" class="headerlink" title="Oracle实例的后台进程–其它"></a>Oracle实例的后台进程–其它</h3><ul>
+<li>ASMB–ASM实例的核心后台进程，负责管理ASM的存储。</li>
+<li>CJQ0–job任务协调进程，负责数据库中JOB的自动执行。</li>
+<li>Jnnn–job具体执行进程，接受CJQ0分发的job任务。</li>
+<li>MMAN–内存管理进程，负责内存的动态管理，分配和收回。</li>
+<li>Pnnn–并行执行子进程，接受并行协调进程分配的任务并执行。</li>
+<li>RBAL–ASM的rebalance进程，负责ASM数据的rebalance操作。</li>
+<li>RECO–分布式事务的恢复进程。</li>
+<li>Snnn–MTS下共享进程。</li>
+</ul>
+<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。"><a href="#用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。" class="headerlink" title="用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。"></a>用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create tablespace ts_lyj datafile </span>
+<span class="line"> <span class="string">'/u01/app/oracle/oradata/orcl/ts_lyj01.dbf'</span> size <span class="number">100</span><span class="keyword">m</span>,</span>
+<span class="line"> <span class="string">'/u01/app/oracle/oradata/orcl/ts_lyj02.dbf'</span> size <span class="number">100</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line">drop user lyj cascade;</span>
+<span class="line">create user lyj identified by lyj default tablespace ts_lyj;</span>
+<span class="line">grant <span class="keyword">connect</span>,resource to lyj;</span>
+<span class="line"></span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">create table test01 as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line">create table test02 as <span class="keyword">select</span> * from all_users;</span>
+<span class="line"></span>
+<span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">select</span> TABLESPACE_NAME, sum(bytes)/<span class="number">1024</span>/<span class="number">1024</span> tablespace_size_m from dba_data_files </span>
+<span class="line">  where TABLESPACE_NAME=<span class="string">'TS_LYJ'</span> group by tablespace_name;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE_NAME                TABLESPACE_SIZE_M</span>
+<span class="line">------------------------------ -----------------</span>
+<span class="line">TS_LYJ                                       <span class="number">200</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">col OWNER <span class="keyword">for</span> a1<span class="number">0</span></span>
+<span class="line">col SEGMENT_NAME <span class="keyword">for</span> a1<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> TABLESPACE_NAME,sum(bytes)/<span class="number">1024</span>/<span class="number">1024</span> object_size_m from dba_segments </span>
+<span class="line">  where TABLESPACE_NAME=<span class="string">'TS_LYJ'</span> group by TABLESPACE_NAME;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE_NAME                OBJECT_SIZE_M</span>
+<span class="line">------------------------------ -------------</span>
+<span class="line">TS_LYJ                                <span class="number">8.0625</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 把以上两条语句拼成一条</span></span>
+<span class="line"><span class="keyword">select</span></span>
+<span class="line">  t.tablespace_name,</span>
+<span class="line">  t.tablespace_size_m,</span>
+<span class="line">  o.object_size_m</span>
+<span class="line">from (<span class="keyword">select</span> TABLESPACE_NAME,sum(bytes)/<span class="number">1024</span>/<span class="number">1024</span> tablespace_size_m </span>
+<span class="line">         from dba_data_files where TABLESPACE_NAME=<span class="string">'TS_LYJ'</span> group by tablespace_name) t,</span>
+<span class="line">     (<span class="keyword">select</span> TABLESPACE_NAME,sum(bytes)/<span class="number">1024</span>/<span class="number">1024</span> object_size_m </span>
+<span class="line">         from dba_segments where TABLESPACE_NAME=<span class="string">'TS_LYJ'</span> group by tablespace_name) o</span>
+<span class="line">where t.tablespace_name=o.tablespace_name;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE_NAME                TABLESPACE_SIZE_M OBJECT_SIZE_M</span>
+<span class="line">------------------------------ ----------------- -------------</span>
+<span class="line">TS_LYJ                                       <span class="number">200</span>        <span class="number">8.0625</span></span>
+</pre></td></tr></table></figure>
+<h3 id="在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。"><a href="#在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。" class="headerlink" title="在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。"></a>在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; !rm /u01/app/oracle/oradata/orcl/ts_lyj01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重启数据库报错</span></span>
+<span class="line">SQL&gt; startup force</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size- - - <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size- -  <span class="number">939524760</span> bytes</span>
+<span class="line">Database Buffers-    <span class="number">3422552064</span> bytes</span>
+<span class="line">Redo Buffers- -    <span class="number">11661312</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">13</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">13</span>: <span class="string">'/u01/app/oracle/oradata/orcl/ts_lyj01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 找到alert日志所在目录</span></span>
+<span class="line">col VALUE <span class="keyword">for</span> a8<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> value from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">VALUE</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl/trace</span><span class="regexp">/orcl_ora_25472.trc   # 这个目录的地址就是alert日志所在的目录</span>
+<span class="line"></span>
+<span class="line"># 查看alert日志</span>
+<span class="line">vi /u</span>01/app/oracle/diag/rdbms/orcl/orcl/trace/alert_orcl.log </span>
+<span class="line"><span class="comment">#==============================================================================</span></span>
+<span class="line">ALTER DATABASE OPEN</span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_dbw0_29603.trc:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">13</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">13</span>: <span class="string">'/u01/app/oracle/oradata/orcl/ts_lyj01.dbf'</span></span>
+<span class="line">ORA-<span class="number">27037</span>: unable to obtain file status</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_29627.trc:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">13</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">13</span>: <span class="string">'/u01/app/oracle/oradata/orcl/ts_lyj01.dbf'</span></span>
+<span class="line">ORA-<span class="number">1157</span> signalled during: ALTER DATABASE OPEN...</span>
+<span class="line"><span class="comment">#==============================================================================</span></span>
+</pre></td></tr></table></figure>
+<h3 id="学会使用官方文档，在网站https-docs-oracle-com上查找V-session的描述信息，查出dbms-stats包的信息，并截图贴出来。"><a href="#学会使用官方文档，在网站https-docs-oracle-com上查找V-session的描述信息，查出dbms-stats包的信息，并截图贴出来。" class="headerlink" title="学会使用官方文档，在网站https://docs.oracle.com上查找V$session的描述信息，查出dbms_stats包的信息，并截图贴出来。"></a>学会使用官方文档，在网站<code>https://docs.oracle.com</code>上查找V$session的描述信息，查出<code>dbms_stats</code>包的信息，并截图贴出来。</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1031_oracle_01.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/1031_oracle_02.png" alt=""></p>
+<h3 id="画一个Oracle内存结构示意图，并给出文字描述。"><a href="#画一个Oracle内存结构示意图，并给出文字描述。" class="headerlink" title="画一个Oracle内存结构示意图，并给出文字描述。"></a>画一个Oracle内存结构示意图，并给出文字描述。</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1031_oracle_01.gif" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>System Global Area (SGA)</th>
+<th>文字描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared Pool</td>
+<td>-  包括library cache，存储最近使用的SQL和pl/sql语句的信息<br>- 通过“最近最少使用”<code>least recently used(LRU)</code>算法来管理<br>- 还包括data dictionary cache在解析过程中会频繁的访问数据字典<br> - 包括数据库文件、表、索引、列、用户、权限、和其它对象的信息<br> - 在解析阶段，服务器进程寻找数据字典信息来解析对象的名字和访问权限<br>- 把数据字典的信息加载到shared pool里面，来提高查询和DML(Data Manipulation Language)数据操纵语言语句的反应时间<br>- 包括Server Result cache,sql 查询的结果集 </td>
+</tr>
+<tr>
+<td>Database Buffer Cache</td>
+<td>- 数据库缓冲区快速缓存<br> - 存储从数据文件提取出来的数据块的一个拷贝<br> - 当提取数据或者修改数据的时候，能很大的提高性能<br> - 通过LRU(Least Recently Used )算法来管理<br> - DB_BLOCK_SIZE决定了主数据块的大小<br> - Redo Log Buffer 重做日志缓冲区<br> - 记录了对数据块的所有改变<br> - 主要的目的是为了恢复数据库</td>
+</tr>
+<tr>
+<td>Java Pool</td>
+<td>- Java池<br>- 用于解析java命令<br>- 在安装和使用java的时候需要使用</td>
+</tr>
+<tr>
+<td>Large Pool</td>
+<td>- 大池<br>- SGA中可选的一块内存区域<br>- 减少了共享池（Shared Pool）的负担</td>
+</tr>
+</tbody>
+</table>
+<p>System Global Area (SGA): 在实例启动的时候分配, 是数据库实例的基本组成部分<br>Program Global Area (PGA): 当服务器进程启动的时候分配</p>
+<ul>
+<li>每个用户连接到Oracle数据库的内存区域；</li>
+<li>当进程建立的时候单独分配；</li>
+<li>当进程终止的时候释放；</li>
+<li>只能用于一个进程,是私有的，不能够共享</li>
+</ul>
+<h3 id="画一个CKPT进程工作机制示意图，并给出文字描述。"><a href="#画一个CKPT进程工作机制示意图，并给出文字描述。" class="headerlink" title="画一个CKPT进程工作机制示意图，并给出文字描述。"></a>画一个CKPT进程工作机制示意图，并给出文字描述。</h3><blockquote>
+<p>The checkpoint process (CKPT) updates the control file and data file headers with checkpoint information and signals DBWn to write blocks to disk. Checkpoint information includes the checkpoint position, SCN, location in online redo log to begin recovery, and so on. CKPT does not write data blocks to data files or redo blocks to online redo log files.</p>
+</blockquote>
+<p><img src="http://oligvdnzp.bkt.clouddn.com/1031_oracle_02.gif" alt=""><br>CKPT进程通知DBWn进程开始将内存(buffer cache)中的脏数据写到磁盘的文件上，并负责更新文件头和控制文件的信息。</p>
+<h3 id="列出你所用数据库运行的后台进程，并对每个进程做文字描述。"><a href="#列出你所用数据库运行的后台进程，并对每个进程做文字描述。" class="headerlink" title="列出你所用数据库运行的后台进程，并对每个进程做文字描述。"></a>列出你所用数据库运行的后台进程，并对每个进程做文字描述。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">ps -ef | <span class="keyword">grep</span> ora<span class="number">_</span> | <span class="keyword">grep</span> -v <span class="keyword">grep</span></span>
+<span class="line"></span>
+<span class="line">oracle    <span class="number">7873</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">44</span>:<span class="number">29</span> ora_pmon_bi</span>
+<span class="line">oracle    <span class="number">7876</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">33</span>:<span class="number">30</span> ora_psp0_bi</span>
+<span class="line">oracle    <span class="number">7878</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">1</span>-<span class="number">02</span>:<span class="number">00</span>:<span class="number">41</span> ora_vktm_bi</span>
+<span class="line">oracle    <span class="number">7882</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">06</span>:<span class="number">12</span> ora_gen0_bi</span>
+<span class="line">oracle    <span class="number">7884</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:08:<span class="number">46</span> ora_diag_bi</span>
+<span class="line">oracle    <span class="number">7886</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:08:<span class="number">20</span> ora_dbrm_bi</span>
+<span class="line">oracle    <span class="number">7888</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">02</span>:<span class="number">31</span>:<span class="number">19</span> ora_dia0_bi</span>
+<span class="line">oracle    <span class="number">7890</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">07</span>:<span class="number">32</span> ora_mman_bi</span>
+<span class="line">oracle    <span class="number">7892</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">01</span>:<span class="number">20</span>:<span class="number">11</span> ora_dbw0_bi</span>
+<span class="line">oracle    <span class="number">7894</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">01</span>:<span class="number">18</span>:<span class="number">40</span> ora_dbw1_bi</span>
+<span class="line">oracle    <span class="number">7896</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">01</span>:<span class="number">21</span>:<span class="number">50</span> ora_dbw2_bi</span>
+<span class="line">oracle    <span class="number">7898</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">02</span>:<span class="number">14</span>:<span class="number">10</span> ora_lgwr_bi</span>
+<span class="line">oracle    <span class="number">7900</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">01</span>:<span class="number">05</span>:<span class="number">55</span> ora_ckpt_bi</span>
+<span class="line">oracle    <span class="number">7902</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">44</span>:<span class="number">00</span> ora_smon_bi</span>
+<span class="line">oracle    <span class="number">7904</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">02</span>:<span class="number">26</span> ora_reco_bi</span>
+<span class="line">oracle    <span class="number">7906</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">07</span>:<span class="number">04</span> ora_rbal_bi</span>
+<span class="line">oracle    <span class="number">7908</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">05</span>:<span class="number">21</span> ora_asmb_bi</span>
+<span class="line">oracle    <span class="number">7910</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">02</span>:<span class="number">00</span>:<span class="number">37</span> ora_mmon_bi</span>
+<span class="line">oracle    <span class="number">7914</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">01</span>:<span class="number">57</span>:<span class="number">32</span> ora_mmnl_bi</span>
+<span class="line">oracle    <span class="number">7916</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">00</span> ora_d000_bi</span>
+<span class="line">oracle    <span class="number">7918</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">02</span>:<span class="number">52</span> ora_s000_bi</span>
+<span class="line">oracle    <span class="number">7921</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:09:<span class="number">49</span> ora_mark_bi</span>
+<span class="line">oracle    <span class="number">8042</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">24</span>:<span class="number">13</span> ora_arc0_bi</span>
+<span class="line">oracle    <span class="number">8061</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">06</span>:<span class="number">31</span> ora_arc1_bi</span>
+<span class="line">oracle    <span class="number">8064</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">24</span>:<span class="number">10</span> ora_arc2_bi</span>
+<span class="line">oracle    <span class="number">8066</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">24</span>:<span class="number">05</span> ora_arc3_bi</span>
+<span class="line">oracle    <span class="number">8097</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">21</span> ora_qmnc_bi</span>
+<span class="line">oracle    <span class="number">8132</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">02</span>:<span class="number">53</span> ora_emnc_bi</span>
+<span class="line">oracle    <span class="number">8248</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">02</span>:<span class="number">32</span> ora_q001_bi</span>
+<span class="line">oracle    <span class="number">8270</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">10</span> ora_e000_bi</span>
+<span class="line">oracle    <span class="number">8272</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">14</span> ora_e001_bi</span>
+<span class="line">oracle    <span class="number">8276</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">13</span> ora_e002_bi</span>
+<span class="line">oracle    <span class="number">8282</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">03</span>:<span class="number">13</span> ora_e003_bi</span>
+<span class="line">oracle    <span class="number">8284</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:<span class="number">31</span>:<span class="number">24</span> ora_e004_bi</span>
+<span class="line">oracle    <span class="number">8307</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">02</span>:<span class="number">40</span>:<span class="number">31</span> ora_cjq0_bi</span>
+<span class="line">oracle    <span class="number">8789</span>     <span class="number">1</span>  <span class="number">0</span> May27 ?        <span class="number">00</span>:09:<span class="number">11</span> ora_smco_bi</span>
+<span class="line">oracle   <span class="number">15439</span>     <span class="number">1</span>  <span class="number">0</span> Oct26 ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">12</span> ora_q002_bi</span>
+<span class="line">oracle   <span class="number">16793</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">04</span>:<span class="number">37</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">43</span> ora_o000_bi</span>
+<span class="line">oracle   <span class="number">24737</span>     <span class="number">1</span>  <span class="number">4</span> <span class="number">16</span>:<span class="number">33</span> ?        <span class="number">00</span>:<span class="number">01</span>:<span class="number">46</span> ora_j001_bi</span>
+<span class="line">oracle   <span class="number">27582</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">16</span>:<span class="number">59</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> ora_w000_bi</span>
+<span class="line">oracle   <span class="number">28020</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">17</span>:<span class="number">03</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> ora_j000_bi</span>
+<span class="line">oracle   <span class="number">28135</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">17</span>:<span class="number">05</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> ora_w001_bi</span>
+</pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ARCn</td>
+<td>Archiver Process, Copies the redo log files to archival storage when they are full or an online redo log switch occurs</td>
+</tr>
+<tr>
+<td>ASMB</td>
+<td>ASM Background Process, Communicates with the ASM instance, managing storage and providing statistics</td>
+</tr>
+<tr>
+<td>CJQ0</td>
+<td>Job Queue Coordinator Process, Selects jobs that need to be run from the data dictionary and spawns job queue slave processes (Jnnn) to run the jobs</td>
+</tr>
+<tr>
+<td>CKPT</td>
+<td>Checkpoint Process, Signals DBWn at checkpoints and updates all the data files and control files of the database to indicate the most recent checkpoint</td>
+</tr>
+<tr>
+<td>Dnnn</td>
+<td>Dispatcher Process, Performs network communication in the shared server architecture</td>
+</tr>
+<tr>
+<td>DBRM</td>
+<td>Database Resource Manager Process, Sets resource plans and performs other tasks related to the Database Resource Manager</td>
+</tr>
+<tr>
+<td>DBWn</td>
+<td>Database Writer Process, Writes modified blocks from the database buffer cache to the data files</td>
+</tr>
+<tr>
+<td>DIA0</td>
+<td>Diagnostic Process, Detects and resolves hangs and deadlocks</td>
+</tr>
+<tr>
+<td>DIAG</td>
+<td>Diagnostic Capture Process, Performs diagnostic dumps</td>
+</tr>
+<tr>
+<td>EMNC</td>
+<td>EMON Coordinator Process, Coordinates database event management and notifications</td>
+</tr>
+<tr>
+<td>Ennn</td>
+<td>EMON Slave Process, Performs database event management and notifications</td>
+</tr>
+<tr>
+<td>GEN0</td>
+<td>General Task Execution Process, Performs required tasks including SQL and DML</td>
+</tr>
+<tr>
+<td>Jnnn</td>
+<td>Job Queue Slave Process, Executes jobs assigned by the job coordinator</td>
+</tr>
+<tr>
+<td>LGWR</td>
+<td>Log Writer Process, Writes redo entries to the online redo log</td>
+</tr>
+<tr>
+<td>MARK</td>
+<td>Mark AU for Resynchronization Coordinator Process, Marks ASM allocation units as stale following a missed write to an offline disk</td>
+</tr>
+<tr>
+<td>MMAN</td>
+<td>Memory Manager Process, Serves as the instance memory manager</td>
+</tr>
+<tr>
+<td>MMNL</td>
+<td>Manageability Monitor Lite Process, Performs tasks relating to manageability, including active session history sampling and metrics computation</td>
+</tr>
+<tr>
+<td>MMON</td>
+<td>Manageability Monitor Process, Performs or schedules many manageability tasks</td>
+</tr>
+<tr>
+<td>Onnn</td>
+<td>ASM Connection Pool Process, Maintains a connection to the ASM instance for metadata operations</td>
+</tr>
+<tr>
+<td>PMON</td>
+<td>Process Monitor, Monitors the other background processes and performs process recovery when a server or dispatcher process terminates abnormally</td>
+</tr>
+<tr>
+<td>PSP0</td>
+<td>Process Spawner Process, Spawns Oracle background processes after initial instance startup</td>
+</tr>
+<tr>
+<td>QMNC</td>
+<td>AQ Coordinator Process, Monitors AQ</td>
+</tr>
+<tr>
+<td>Qnnn</td>
+<td>AQ Server Class Process, Performs various AQ-related background task for QMNC</td>
+</tr>
+<tr>
+<td>RBAL</td>
+<td>ASM Rebalance Master Process, Coordinates rebalance activity</td>
+</tr>
+<tr>
+<td>RECO</td>
+<td>Recoverer Process, Resolves distributed transactions that are pending because of a network or system failure in a distributed database</td>
+</tr>
+<tr>
+<td>SMCO</td>
+<td>Space Management Coordinator Process, Coordinates the execution of various space management tasks</td>
+</tr>
+<tr>
+<td>SMON</td>
+<td>System Monitor Process, Performs critical tasks such as instance recovery and dead transaction recovery, and maintenance tasks such as temporary space reclamation, data dictionary cleanup, and undo tablespace management</td>
+</tr>
+<tr>
+<td>Snnn</td>
+<td>Shared Server Process, Handles client requests in the shared server architecture</td>
+</tr>
+<tr>
+<td>VKTM</td>
+<td>Virtual Keeper of Time Process, Provides a wall clock time and reference time for time interval measurements</td>
+</tr>
+<tr>
+<td>Wnnn</td>
+<td>Space Management Slave Process, Performs various background space management tasks, including proactive space allocation and space reclamation</td>
+</tr>
+</tbody>
+</table>
+<p>官方文档中全部的<a href="https://docs.oracle.com/cd/E11882_01/server.112/e40402/bgprocesses.htm#REFRN104" target="_blank" rel="external">Background Processes</a>说明</p>
+<h3 id="演示Oracle实例自动注册到监听器的例子，贴出输出或截图。"><a href="#演示Oracle实例自动注册到监听器的例子，贴出输出或截图。" class="headerlink" title="演示Oracle实例自动注册到监听器的例子，贴出输出或截图。"></a>演示Oracle实例自动注册到监听器的例子，贴出输出或截图。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[grid@bi ~]$ lsnrctl status</span>
+<span class="line"></span>
+<span class="line">LSNRCTL <span class="keyword">for</span> Linux: Version <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">3.0</span> - Production on <span class="number">31</span>-OCT-<span class="number">2017</span> <span class="number">18</span>:<span class="number">05</span>:<span class="number">11</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1991</span>, <span class="number">2011</span>, Oracle.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=IPC)(KEY=EXTPROC1521)))</span>
+<span class="line">STATUS of the LISTENER</span>
+<span class="line">------------------------</span>
+<span class="line">Alias                     LISTENER</span>
+<span class="line">Version                   TNSLSNR <span class="keyword">for</span> Linux: Version <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">3.0</span> - Production</span>
+<span class="line">Start Date                <span class="number">23</span>-OCT-<span class="number">2015</span> <span class="number">10</span>:<span class="number">55</span>:<span class="number">47</span></span>
+<span class="line">Uptime                    <span class="number">242</span> days <span class="number">4</span> hr. <span class="number">41</span> min. <span class="number">31</span> sec</span>
+<span class="line">Trace Level               off</span>
+<span class="line">Security                  ON: Local OS Authentication</span>
+<span class="line">SNMP                      OFF</span>
+<span class="line">Listener Parameter File   /u01/app/<span class="number">11.2</span>.<span class="number">0</span>/grid/network/admin/listener.ora</span>
+<span class="line">Listener Log File         /u01/app/grid/diag/tnslsnr/bi/listener/alert/log.xml</span>
+<span class="line">Listening Endpoints Summary...</span>
+<span class="line">  (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))</span>
+<span class="line">  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=bi.localdomain)(PORT=<span class="number">1521</span>)))</span>
+<span class="line">Services Summary...</span>
+<span class="line">Service <span class="string">"+ASM"</span> has <span class="number">1</span> instance(<span class="keyword">s</span>).</span>
+<span class="line">  Instance <span class="string">"+ASM"</span>, status READY, has <span class="number">1</span> handler(<span class="keyword">s</span>) <span class="keyword">for</span> this service...</span>
+<span class="line">Service <span class="string">"bi"</span> has <span class="number">1</span> instance(<span class="keyword">s</span>).</span>
+<span class="line">  Instance <span class="string">"bi"</span>, status READY, has <span class="number">1</span> handler(<span class="keyword">s</span>) <span class="keyword">for</span> this service...</span>
+<span class="line">Service <span class="string">"biXDB"</span> has <span class="number">1</span> instance(<span class="keyword">s</span>).</span>
+<span class="line">  Instance <span class="string">"bi"</span>, status READY, has <span class="number">1</span> handler(<span class="keyword">s</span>) <span class="keyword">for</span> this service...</span>
+<span class="line">The command completed successfully</span>
+<span class="line">[grid@bi ~]$ vi /u01/app/<span class="number">11.2</span>.<span class="number">0</span>/grid/network/admin/listener.ora</span>
+<span class="line"><span class="comment"># listener.ora Network Configuration File: /u01/app/11.2.0/grid/network/admin/listener.ora</span></span>
+<span class="line"><span class="comment"># Generated by Oracle configuration tools.</span></span>
+<span class="line"></span>
+<span class="line">LISTENER =</span>
+<span class="line">  (DESCRIPTION_LIST =</span>
+<span class="line">    (DESCRIPTION =</span>
+<span class="line">      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1521))</span>
+<span class="line">      (ADDRESS = (PROTOCOL = TCP)(HOST = bi.localdomain)(PORT = <span class="number">1521</span>))</span>
+<span class="line">    )</span>
+<span class="line">  )</span>
+<span class="line"></span>
+<span class="line">ADR_BASE_LISTENER = <span class="regexp">/u01/app</span><span class="regexp">/grid</span>
+<span class="line"></span>
+<span class="line">ENABLE_GLOBAL_DYNAMIC_ENDPOINT_LISTENER=ON              # line added by Agent</span>
+<span class="line"></span>
+<span class="line">#----ADDED BY TNSLSNR 23-OCT-2015 10:29:01---</span>
+<span class="line">SAVE_CONFIG_ON_STOP_LISTENER = ON</span>
+<span class="line">INBOUND_CONNECT_TIMEOUT_LISTENER = 0</span>
+<span class="line">#--------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert-xxx-ora日志中的信息，贴出演示过程和结果。"><a href="#将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert-xxx-ora日志中的信息，贴出演示过程和结果。" class="headerlink" title="将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert_xxx.ora日志中的信息，贴出演示过程和结果。"></a>将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert_xxx.ora日志中的信息，贴出演示过程和结果。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              No Archive Mode</span>
+<span class="line">Automatic archival             Disabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">40</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">43</span></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> immediate</span>
+<span class="line">Database closed.</span>
+<span class="line">Database dismounted.</span>
+<span class="line">ORACLE instance shut down.</span>
+<span class="line">SQL&gt; startup mount</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">939524760</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3422552064</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">SQL&gt; alter database archivelog;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> archive <span class="keyword">log</span> current; </span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># alter日志中信息</span></span>
+<span class="line"><span class="comment">#==============================================================================</span></span>
+<span class="line">Thread <span class="number">1</span> advanced to <span class="keyword">log</span> sequence <span class="number">45</span> (LGWR switch)</span>
+<span class="line">  Current <span class="keyword">log</span><span class="comment"># 1 seq# 45 mem# 0: /u01/app/oracle/oradata/orcl/redo01.log</span></span>
+<span class="line">Archived Log entry <span class="number">297</span> added <span class="keyword">for</span> thread <span class="number">1</span> sequence <span class="number">44</span> ID <span class="number">0x588d1e5b</span> dest <span class="number">1</span>:</span>
+<span class="line"><span class="comment">#==============================================================================</span></span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">
+                    Oracle职业直通车-07 重做日志、日志挖掘和回滚段
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">
+                    Oracle职业直通车-05 数据字典&amp;数据库的备份和恢复
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle实例"><span class="toc-number">1.</span> <span class="toc-text">Oracle实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SGA-System-Global-Area"><span class="toc-number">1.1.</span> <span class="toc-text">SGA(System Global Area)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Database-Buffer-Cache"><span class="toc-number">1.2.</span> <span class="toc-text">Database Buffer Cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#buffer的概念"><span class="toc-number">1.3.</span> <span class="toc-text">buffer的概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer（内存数据块）的3种状态"><span class="toc-number">1.3.1.</span> <span class="toc-text">buffer（内存数据块）的3种状态</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Buffer-的2种模式"><span class="toc-number">1.3.2.</span> <span class="toc-text">Buffer 的2种模式</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Shared-Pool-Server-Result-Cache"><span class="toc-number">1.4.</span> <span class="toc-text">Shared Pool - Server Result Cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PGA-Program-Global-Area"><span class="toc-number">1.5.</span> <span class="toc-text">PGA(Program Global Area)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PGA-amp-UGA"><span class="toc-number">1.6.</span> <span class="toc-text">PGA & UGA</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle的进程"><span class="toc-number">2.</span> <span class="toc-text">Oracle的进程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–SMON"><span class="toc-number">2.1.</span> <span class="toc-text">Oracle实例的后台进程–SMON</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–PMON"><span class="toc-number">2.2.</span> <span class="toc-text">Oracle实例的后台进程–PMON</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pmon后台进程负责的工作"><span class="toc-number">2.2.1.</span> <span class="toc-text">Pmon后台进程负责的工作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pmon进程的清理工作"><span class="toc-number">2.2.2.</span> <span class="toc-text">Pmon进程的清理工作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–DBWn"><span class="toc-number">2.3.</span> <span class="toc-text">Oracle实例的后台进程–DBWn</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–CKPT"><span class="toc-number">2.4.</span> <span class="toc-text">Oracle实例的后台进程–CKPT</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#checkpoint的目的和作用"><span class="toc-number">2.4.1.</span> <span class="toc-text">checkpoint的目的和作用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#checkpoint的触发"><span class="toc-number">2.4.2.</span> <span class="toc-text">checkpoint的触发</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–LGWR"><span class="toc-number">2.5.</span> <span class="toc-text">Oracle实例的后台进程–LGWR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#checkpoint和commit"><span class="toc-number">2.6.</span> <span class="toc-text">checkpoint和commit</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–ARCn"><span class="toc-number">2.7.</span> <span class="toc-text">Oracle实例的后台进程–ARCn</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle实例的后台进程–其它"><span class="toc-number">2.8.</span> <span class="toc-text">Oracle实例的后台进程–其它</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#作业"><span class="toc-number">3.</span> <span class="toc-text">作业</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。"><span class="toc-number">3.1.</span> <span class="toc-text">用SQL计算某个表空间的大小及所包含对象的大小，给出SQL语句和结果。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。"><span class="toc-number">3.2.</span> <span class="toc-text">在告警日志中找到一条错误信息，并贴出来（如果没有，自己造出一条错误信息）。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#学会使用官方文档，在网站https-docs-oracle-com上查找V-session的描述信息，查出dbms-stats包的信息，并截图贴出来。"><span class="toc-number">3.3.</span> <span class="toc-text">学会使用官方文档，在网站https://docs.oracle.com上查找V$session的描述信息，查出dbms_stats包的信息，并截图贴出来。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#画一个Oracle内存结构示意图，并给出文字描述。"><span class="toc-number">3.4.</span> <span class="toc-text">画一个Oracle内存结构示意图，并给出文字描述。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#画一个CKPT进程工作机制示意图，并给出文字描述。"><span class="toc-number">3.5.</span> <span class="toc-text">画一个CKPT进程工作机制示意图，并给出文字描述。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#列出你所用数据库运行的后台进程，并对每个进程做文字描述。"><span class="toc-number">3.6.</span> <span class="toc-text">列出你所用数据库运行的后台进程，并对每个进程做文字描述。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#演示Oracle实例自动注册到监听器的例子，贴出输出或截图。"><span class="toc-number">3.7.</span> <span class="toc-text">演示Oracle实例自动注册到监听器的例子，贴出输出或截图。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert-xxx-ora日志中的信息，贴出演示过程和结果。"><span class="toc-number">3.8.</span> <span class="toc-text">将数据库设置为归档模式，手工产生一个归档日志，观察归档日志的产生，以及alert_xxx.ora日志中的信息，贴出演示过程和结果。</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/" title="上一篇: Oracle职业直通车-07 重做日志、日志挖掘和回滚段">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/" title="下一篇: Oracle职业直通车-05 数据字典&amp;数据库的备份和恢复">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装/">CentOS7下MySQL5.7的安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
