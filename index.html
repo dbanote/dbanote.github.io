@@ -266,6 +266,84 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-11-08T16:00:00.000Z" itemprop="datePublished">2017-11-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="MySQL设计标准"><a href="#MySQL设计标准" class="headerlink" title="MySQL设计标准"></a>MySQL设计标准</h2><ol>
+<li>数据库命名规范、统一，如vip_xxxx</li>
+<li><strong><font color=red>表一旦设计好，字段只允许增加，不允许减少(drop column)</font></strong></li>
+<li>统一使用INNODB存储引擎，UTF8编码（整个数据库的编码统一为<code>utf8_general_ci</code>，为此不需要建立表的DDL上加上<code>CHARACTER SET COLLATE utf8_general_ci）</code></li>
+<li>需在设计阶段考虑如果访问量非常大，且不做<code>scale out(横向扩展)</code>表拆分的话，需读写分离，但读写分离注意主人复制有延迟的可能性</li>
+<li><strong><font color=red>禁用</font></strong>stored procedure(包括存储过程，函数，触发器)，容易将业务逻辑和DB耦合在一起，并且MySQL的存储过程、触发器、函数中存在一定的bug</li>
+<li><strong><font color=red>禁止使用</font></strong><code>UUID()</code>，<code>USER()</code>这样的<code>MYSQL INSIDE</code>函数，对于复制来说是很危险的，会导致主备数据不一致，重要的是会严重影响mysql性能</li>
+<li>表必须有主键，建议统一由<code>auto_increment</code>字段生成整型，不建议使用组合主键， <strong><font color=red>另外<code>auto_increment</code>主键字段只作为虚拟主键，不建议与业务数据处理有关联关系，如果把控不好，会有问题</font></strong></li>
+<li>库名、表名、字段名、索引名必须使用小写字母</li>
+<li>多表join写SQL的时候，一定要给每个字段指定表名做前缀</li>
+<li>如果应用使用的是长连接，应用必须具有自动重连的机制。但需避免每执行一个SQL去检查一次DB可用性
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 " class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -434,7 +512,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="flashback常用命令整理"><a href="#flashback常用命令整理" class="headerlink" title="flashback常用命令整理"></a>flashback常用命令整理</h2><p>###打开数据库闪回<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> name,open_mode,log_mode,force_logging,flashback_on from v$database;</span>
+              <h2 id="flashback常用命令整理"><a href="#flashback常用命令整理" class="headerlink" title="flashback常用命令整理"></a>flashback常用命令整理</h2><h3 id="打开数据库闪回"><a href="#打开数据库闪回" class="headerlink" title="打开数据库闪回"></a>打开数据库闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> name,open_mode,log_mode,force_logging,flashback_on from v$database;</span>
 <span class="line"></span>
 <span class="line">NAME      OPEN_MODE            LOG_MODE     FOR FLASHBACK_ON</span>
 <span class="line">--------- -------------------- ------------ --- ------------------</span>
@@ -464,7 +542,7 @@
 <span class="line">alter <span class="keyword">system</span> set db_flashback_retention_target=<span class="number">2880</span>;</span>
 <span class="line"></span>
 <span class="line">alter database flashback on;</span>
-</pre></td></tr></table></figure></p>
+</pre></td></tr></table></figure>
           
       
     </div>
@@ -942,93 +1020,6 @@
       
         <p class="article-more-link">
           <a href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-08-27T16:00:00.000Z" itemprop="datePublished">2017-08-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="MySQL中出现存SWAP-主要会是哪些原因？"><a href="#MySQL中出现存SWAP-主要会是哪些原因？" class="headerlink" title="MySQL中出现存SWAP,主要会是哪些原因？"></a>MySQL中出现存SWAP,主要会是哪些原因？</h2><ol>
-<li><p>没设置内核参数<code>sysctl.conf</code>中的<code>vm.swappiness=0</code></p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在CentOS 6.4及更新版本的内核中设置vm.swappiness=0，有可能会导致MySQL数据库所在的系统出现内存溢出(OOM)，</span></span>
-<span class="line"><span class="comment"># 可将vm.swappiness设置成1</span></span>
-<span class="line">vm.swappiness = <span class="number">1</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># CentOS 7.x中</span></span>
-<span class="line"><span class="comment">## 查找到存在vm.swappiness参数的配置文件</span></span>
-<span class="line">find /usr/lib/tuned -name <span class="string">'*.conf'</span> -type f -<span class="keyword">exec</span> <span class="keyword">grep</span> <span class="string">"vm.swappiness"</span> &#123;&#125; \+</span>
-<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
-<span class="line">/usr/lib/tuned/latency-performance/tuned.conf:vm.swappiness=<span class="number">10</span></span>
-<span class="line">/usr/lib/tuned/throughput-performance/tuned.conf:vm.swappiness=<span class="number">10</span></span>
-<span class="line">/usr/lib/tuned/virtual-guest/tuned.conf:vm.swappiness = <span class="number">30</span></span>
-<span class="line"><span class="comment">#----------------------------------------------------------</span></span>
-<span class="line"><span class="comment"># 把以上3个文件中的vm.swappiness的值都修改为0或1</span></span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>没配置MySQL的配置参数memlock<br>这个参数会强迫mysqld进程的地址空间一直被锁定在物理内存上，对于os来说是非常霸道的一个要求。要用root帐号来启动MySQL才能生效。</p>
-</li>
-<li>没关闭NUMA
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
