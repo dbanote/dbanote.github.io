@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="不同索引加锁顺序的问题，模拟重现死锁走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待
+测试表结构及相关语句mysql&amp;gt; show create table employees\G;
+*************************** 1. row ***************************
+       Table: employees
+Create Tabl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL性能优化最佳实践 - 11 MySQL锁优化分析">
+<meta property="og:url" content="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="不同索引加锁顺序的问题，模拟重现死锁走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待
+测试表结构及相关语句mysql&amp;gt; show create table employees\G;
+*************************** 1. row ***************************
+       Table: employees
+Create Tabl">
+<meta property="og:updated_time" content="2017-12-04T01:54:49.388Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL性能优化最佳实践 - 11 MySQL锁优化分析">
+<meta name="twitter:description" content="不同索引加锁顺序的问题，模拟重现死锁走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待
+测试表结构及相关语句mysql&amp;gt; show create table employees\G;
+*************************** 1. row ***************************
+       Table: employees
+Create Tabl">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL性能优化最佳实践 - 11 MySQL锁优化分析 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-11-08T16:00:00.000Z" itemprop="datePublished">2017-11-09</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL性能优化最佳实践 - 11 MySQL锁优化分析
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="不同索引加锁顺序的问题，模拟重现死锁"><a href="#不同索引加锁顺序的问题，模拟重现死锁" class="headerlink" title="不同索引加锁顺序的问题，模拟重现死锁"></a>不同索引加锁顺序的问题，模拟重现死锁</h2><p>走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待</p>
+<h3 id="测试表结构及相关语句"><a href="#测试表结构及相关语句" class="headerlink" title="测试表结构及相关语句"></a>测试表结构及相关语句</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show create table employees\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">       Table: employees</span>
+<span class="line">Create Table: CREATE TABLE <span class="string">`employees`</span> (</span>
+<span class="line">  <span class="string">`emp_no`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL,</span>
+<span class="line">  <span class="string">`birth_date`</span> date NOT NULL,</span>
+<span class="line">  <span class="string">`first_name`</span> varchar(<span class="number">14</span>) NOT NULL,</span>
+<span class="line">  <span class="string">`last_name`</span> varchar(<span class="number">16</span>) NOT NULL,</span>
+<span class="line">  <span class="string">`gender`</span> enum(<span class="string">'M'</span>,<span class="string">'F'</span>) NOT NULL,</span>
+<span class="line">  <span class="string">`hire_date`</span> date NOT NULL,</span>
+<span class="line">  <span class="string">`base_salaries`</span> decimal(<span class="number">8</span>,<span class="number">2</span>) NOT NULL,</span>
+<span class="line">  <span class="string">`id`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL AUTO_INCREMENT,</span>
+<span class="line">  PRIMARY KEY (<span class="string">`id`</span>),</span>
+<span class="line">  KEY <span class="string">`idx_emp_hire`</span> (<span class="string">`hire_date`</span>),</span>
+<span class="line">  KEY <span class="string">`idx_emp_no`</span> (<span class="string">`emp_no`</span>)</span>
+<span class="line">) ENGINE=InnoDB AUTO_INCREMENT=<span class="number">300151</span> DEFAULT CHARSET=utf8</span>
+<span class="line"></span>
+<span class="line">alter table employees drop primary key;</span>
+<span class="line">create <span class="keyword">index</span> idx_emp_no on employees(emp_no);</span>
+<span class="line">alter table employees add id <span class="keyword">int</span>;</span>
+<span class="line">alter table employees change id id <span class="keyword">int</span> <span class="keyword">not</span> null auto_increment primary key;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="模拟重现死锁"><a href="#模拟重现死锁" class="headerlink" title="模拟重现死锁"></a>模拟重现死锁</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打开两个会话</span></span>
+<span class="line"><span class="comment"># 1. 会话1</span></span>
+<span class="line">mysql&gt; start transaction;</span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from employees where emp_no=<span class="number">99075</span> <span class="keyword">for</span> update;</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">| emp_no | birth_date | first_name | last_name | gender | hire_date  | base_salaries | id    |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">|  <span class="number">99075</span> | <span class="number">1961</span>-08-<span class="number">14</span> | Filipp     | Covnot    | M      | <span class="number">1999</span>-<span class="number">01</span>-<span class="number">02</span> |          <span class="number">0</span>.<span class="number">00</span> | <span class="number">89075</span> |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> * from employees where emp_no=<span class="number">99075</span>;</span>
+<span class="line">+----+-------------+-----------+------+---------------+------------+---------+-------+------+-------+</span>
+<span class="line">| id | select_type | table     | type | possible_keys | key        | key_len | <span class="keyword">ref</span>   | rows | Extra |</span>
+<span class="line">+----+-------------+-----------+------+---------------+------------+---------+-------+------+-------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | employees | <span class="keyword">ref</span>  | idx_emp_no    | idx_emp_no | <span class="number">4</span>       | const |    <span class="number">1</span> | NULL  |</span>
+<span class="line">+----+-------------+-----------+------+---------------+------------+---------+-------+------+-------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 2. 会话2</span></span>
+<span class="line">mysql&gt; start transaction;</span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from employees where emp_no=<span class="number">108961</span> <span class="keyword">for</span> update;</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">| emp_no | birth_date | first_name | last_name | gender | hire_date  | base_salaries | id    |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">| <span class="number">108961</span> | <span class="number">1962</span>-<span class="number">11</span>-<span class="number">13</span> | Jianhua    | Piveteau  | F      | <span class="number">1999</span>-<span class="number">01</span>-<span class="number">02</span> |       <span class="number">1000.00</span> | <span class="number">98961</span> |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 3. 会话1</span></span>
+<span class="line">mysql&gt; update employees set base_salaries=base_salaries+<span class="number">1000</span> where emp_no=<span class="number">108961</span>;</span>
+<span class="line"><span class="comment">## 这时会产生锁等待，新开一个会话可以查看锁的状态</span></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from information_schema.innodb_locks;</span>
+<span class="line">+--------------------+-------------+-----------+-----------+-------------------------+------------+------------+-----------+----------+---------------+</span>
+<span class="line">| lock_id            | lock_trx_id | lock_mode | lock_type | lock_table              | lock_index | lock_space | lock_page | lock_rec | lock_data     |</span>
+<span class="line">+--------------------+-------------+-----------+-----------+-------------------------+------------+------------+-----------+----------+---------------+</span>
+<span class="line">| <span class="number">26909</span>:<span class="number">208</span>:<span class="number">1522</span>:<span class="number">918</span> | <span class="number">26909</span>       | X         | RECORD    | <span class="string">`employees`</span>.<span class="string">`employees`</span> | idx_emp_no |        <span class="number">208</span> |      <span class="number">1522</span> |      <span class="number">918</span> | <span class="number">108961</span>, <span class="number">98961</span> |</span>
+<span class="line">| <span class="number">26910</span>:<span class="number">208</span>:<span class="number">1522</span>:<span class="number">918</span> | <span class="number">26910</span>       | X         | RECORD    | <span class="string">`employees`</span>.<span class="string">`employees`</span> | idx_emp_no |        <span class="number">208</span> |      <span class="number">1522</span> |      <span class="number">918</span> | <span class="number">108961</span>, <span class="number">98961</span> |</span>
+<span class="line">+--------------------+-------------+-----------+-----------+-------------------------+------------+------------+-----------+----------+---------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 4. 会话2</span></span>
+<span class="line">mysql&gt; update employees set base_salaries=base_salaries+<span class="number">1000</span> where emp_no=<span class="number">99075</span>;</span>
+<span class="line">ERROR <span class="number">1213</span> (<span class="number">40001</span>): Deadlock found <span class="keyword">when</span> trying to get lock; try restarting transaction</span>
+<span class="line"><span class="comment">## 产生死锁</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 5. 会话1</span></span>
+<span class="line">mysql&gt; update employees set base_salaries=base_salaries+<span class="number">1000</span> where emp_no=<span class="number">108961</span>;</span>
+<span class="line">Query OK, <span class="number">1</span> row affected (<span class="number">29.87</span> sec)</span>
+<span class="line">Rows matched: <span class="number">1</span>  Changed: <span class="number">1</span>  Warnings: <span class="number">0</span></span>
+<span class="line"><span class="comment">## 解锁，update语句执行成功</span></span>
+<span class="line">mysql&gt; <span class="keyword">select</span> * from employees where emp_no=<span class="number">108961</span>;</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">| emp_no | birth_date | first_name | last_name | gender | hire_date  | base_salaries | id    |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line">| <span class="number">108961</span> | <span class="number">1962</span>-<span class="number">11</span>-<span class="number">13</span> | Jianhua    | Piveteau  | F      | <span class="number">1999</span>-<span class="number">01</span>-<span class="number">02</span> |       <span class="number">2000.00</span> | <span class="number">98961</span> |</span>
+<span class="line">+--------+------------+------------+-----------+--------+------------+---------------+-------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 6. 在新开会话中查看最后一次死锁信息</span></span>
+<span class="line">mysql&gt; show engine innodb status\G;</span>
+<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
+<span class="line">  Type: InnoDB</span>
+<span class="line">  Name: </span>
+<span class="line">Status: </span>
+<span class="line">....</span>
+<span class="line"></span>
+<span class="line">------------------------</span>
+<span class="line">LATEST DETECTED DEADLOCK</span>
+<span class="line">------------------------</span>
+<span class="line"><span class="number">2017</span>-<span class="number">11</span>-<span class="number">21</span> <span class="number">16</span>:<span class="number">46</span>:<span class="number">52</span> <span class="number">7</span>fc588cb970<span class="number">0</span></span>
+<span class="line">*** (<span class="number">1</span>) TRANSACTION:</span>
+<span class="line">TRANSACTION <span class="number">26909</span>, ACTIVE <span class="number">71</span> sec starting <span class="keyword">index</span> <span class="keyword">read</span></span>
+<span class="line">mysql tables in <span class="keyword">use</span> <span class="number">1</span>, locked <span class="number">1</span></span>
+<span class="line">LOCK WAIT <span class="number">4</span> lock struct(<span class="keyword">s</span>), heap size <span class="number">1184</span>, <span class="number">3</span> row lock(<span class="keyword">s</span>)</span>
+<span class="line">MySQL thread id <span class="number">157583</span>, OS thread handle <span class="number">0x7fc588c78700</span>, query id <span class="number">2221313</span> localhost root updating</span>
+<span class="line">update employees set base_salaries=base_salaries+<span class="number">1000</span> where emp_no=<span class="number">108961</span></span>
+<span class="line">*** (<span class="number">1</span>) WAITING FOR THIS LOCK TO BE GRANTED:</span>
+<span class="line">RECORD LOCKS space id <span class="number">208</span> page <span class="keyword">no</span> <span class="number">1522</span> n bits <span class="number">1272</span> <span class="keyword">index</span> <span class="string">`idx_emp_no`</span> of table <span class="string">`employees`</span>.<span class="string">`employees`</span> trx id <span class="number">26909</span> lock_mode X locks rec but <span class="keyword">not</span> gap waiting</span>
+<span class="line">Record lock, heap <span class="keyword">no</span> <span class="number">918</span> PHYSICAL RECORD: n_fields <span class="number">2</span>; compact <span class="keyword">format</span>; info bits <span class="number">0</span></span>
+<span class="line"> <span class="number">0</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">8001</span>a9a1; asc     ;;</span>
+<span class="line"> <span class="number">1</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">80018291</span>; asc     ;;</span>
+<span class="line"></span>
+<span class="line">*** (<span class="number">2</span>) TRANSACTION:</span>
+<span class="line">TRANSACTION <span class="number">26910</span>, ACTIVE <span class="number">32</span> sec starting <span class="keyword">index</span> <span class="keyword">read</span></span>
+<span class="line">mysql tables in <span class="keyword">use</span> <span class="number">1</span>, locked <span class="number">1</span></span>
+<span class="line"><span class="number">4</span> lock struct(<span class="keyword">s</span>), heap size <span class="number">1184</span>, <span class="number">3</span> row lock(<span class="keyword">s</span>)</span>
+<span class="line">MySQL thread id <span class="number">157584</span>, OS thread handle <span class="number">0x7fc588cb9700</span>, query id <span class="number">2221315</span> localhost root updating</span>
+<span class="line">update employees set base_salaries=base_salaries+<span class="number">1000</span> where emp_no=<span class="number">99075</span></span>
+<span class="line">*** (<span class="number">2</span>) HOLDS THE LOCK(S):</span>
+<span class="line">RECORD LOCKS space id <span class="number">208</span> page <span class="keyword">no</span> <span class="number">1522</span> n bits <span class="number">1272</span> <span class="keyword">index</span> <span class="string">`idx_emp_no`</span> of table <span class="string">`employees`</span>.<span class="string">`employees`</span> trx id <span class="number">26910</span> lock_mode X locks rec but <span class="keyword">not</span> gap</span>
+<span class="line">Record lock, heap <span class="keyword">no</span> <span class="number">918</span> PHYSICAL RECORD: n_fields <span class="number">2</span>; compact <span class="keyword">format</span>; info bits <span class="number">0</span></span>
+<span class="line"> <span class="number">0</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">8001</span>a9a1; asc     ;;</span>
+<span class="line"> <span class="number">1</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">80018291</span>; asc     ;;</span>
+<span class="line"></span>
+<span class="line">*** (<span class="number">2</span>) WAITING FOR THIS LOCK TO BE GRANTED:</span>
+<span class="line">RECORD LOCKS space id <span class="number">208</span> page <span class="keyword">no</span> <span class="number">1514</span> n bits <span class="number">1272</span> <span class="keyword">index</span> <span class="string">`idx_emp_no`</span> of table <span class="string">`employees`</span>.<span class="string">`employees`</span> trx id <span class="number">26910</span> lock_mode X locks rec but <span class="keyword">not</span> gap waiting</span>
+<span class="line">Record lock, heap <span class="keyword">no</span> <span class="number">656</span> PHYSICAL RECORD: n_fields <span class="number">2</span>; compact <span class="keyword">format</span>; info bits <span class="number">0</span></span>
+<span class="line"> <span class="number">0</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">80018303</span>; asc     ;;</span>
+<span class="line"> <span class="number">1</span>: len <span class="number">4</span>; <span class="keyword">hex</span> <span class="number">80015</span>bf3; asc   [ ;;</span>
+<span class="line">......</span>
+</pre></td></tr></table></figure>
+<h2 id="TMS死锁分析和处理，模拟重现死锁"><a href="#TMS死锁分析和处理，模拟重现死锁" class="headerlink" title="TMS死锁分析和处理，模拟重现死锁"></a>TMS死锁分析和处理，模拟重现死锁</h2><p>重现死锁<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">show variables like <span class="string">'%isolation%'</span>;</span>
+<span class="line">+---------------+-----------------+</span>
+<span class="line">| Variable_name | Value           |</span>
+<span class="line">+---------------+-----------------+</span>
+<span class="line">| tx_isolation  | REPEATABLE-READ |</span>
+<span class="line">+---------------+-----------------+</span>
+<span class="line"></span>
+<span class="line">show variables like <span class="string">'%lock_wait%'</span>;</span>
+<span class="line">+--------------------------+----------+</span>
+<span class="line">| Variable_name            | Value    |</span>
+<span class="line">+--------------------------+----------+</span>
+<span class="line">| innodb_lock_wait_timeout | <span class="number">20</span>       |</span>
+<span class="line">| lock_wait_timeout        | <span class="number">31536000</span> |</span>
+<span class="line">+--------------------------+----------+</span>
+<span class="line"></span>
+<span class="line">show variables like <span class="string">'%autocommit%'</span>;</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| Variable_name | Value |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line">| autocommit    | OFF   |</span>
+<span class="line">+---------------+-------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话1</span></span>
+<span class="line"><span class="keyword">use</span> lyj</span>
+<span class="line">create table t2 (</span>
+<span class="line">    a <span class="keyword">int</span> <span class="keyword">not</span> null default <span class="number">0</span>,</span>
+<span class="line">    b <span class="keyword">int</span> default null,</span>
+<span class="line">    primary key (a));</span>
+<span class="line"></span>
+<span class="line">insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">2</span>,<span class="number">2</span>);</span>
+<span class="line">insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">3</span>,<span class="number">3</span>);</span>
+<span class="line">insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">4</span>,<span class="number">4</span>);</span>
+<span class="line">commit;</span>
+<span class="line"><span class="keyword">select</span> * from t2;</span>
+<span class="line">+---+------+</span>
+<span class="line">| a | b    |</span>
+<span class="line">+---+------+</span>
+<span class="line">| <span class="number">2</span> |    <span class="number">2</span> |</span>
+<span class="line">| <span class="number">3</span> |    <span class="number">3</span> |</span>
+<span class="line">| <span class="number">4</span> |    <span class="number">4</span> |</span>
+<span class="line">+---+------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 下面为了方便区分，将提示符加上时间显示</span></span>
+<span class="line"><span class="comment">## 启动mysql时添加 --prompt="\\u@\\h:\\d \\r:\\m:\\s&gt; "</span></span>
+<span class="line">root@localhost:lyj <span class="number">10</span>:<span class="number">35</span>:<span class="number">42</span>&gt; insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">5</span>,<span class="number">5</span>);</span>
+<span class="line">Query OK, <span class="number">1</span> row affected (<span class="number">0</span>.<span class="number">00</span> sec)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话2</span></span>
+<span class="line">root@localhost:lyj <span class="number">10</span>:<span class="number">35</span>:<span class="number">37</span>&gt; <span class="keyword">use</span> lyj</span>
+<span class="line">Database changed</span>
+<span class="line">root@localhost:lyj <span class="number">10</span>:<span class="number">36</span>:<span class="number">30</span>&gt; <span class="keyword">select</span> * from t2;</span>
+<span class="line">+---+------+</span>
+<span class="line">| a | b    |</span>
+<span class="line">+---+------+</span>
+<span class="line">| <span class="number">2</span> |    <span class="number">2</span> |</span>
+<span class="line">| <span class="number">3</span> |    <span class="number">3</span> |</span>
+<span class="line">| <span class="number">4</span> |    <span class="number">4</span> |</span>
+<span class="line">+---+------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment">## 这时有锁等待</span></span>
+<span class="line">root@localhost:lyj <span class="number">06</span>:<span class="number">07</span>:<span class="number">24</span>&gt; <span class="keyword">delete</span> from t2 where b=<span class="number">2</span>;</span>
+<span class="line"><span class="comment">## 查看锁信息</span></span>
+<span class="line"><span class="keyword">select</span> * from information_schema.innodb_locks;</span>
+<span class="line">+---------------+-------------+-----------+-----------+------------+------------+------------+-----------+----------+-----------+</span>
+<span class="line">| lock_id       | lock_trx_id | lock_mode | lock_type | lock_table | lock_index | lock_space | lock_page | lock_rec | lock_data |</span>
+<span class="line">+---------------+-------------+-----------+-----------+------------+------------+------------+-----------+----------+-----------+</span>
+<span class="line">| <span class="number">29509</span>:<span class="number">211</span>:<span class="number">3</span>:<span class="number">5</span> | <span class="number">29509</span>       | X         | RECORD    | <span class="string">`lyj`</span>.<span class="string">`t2`</span> | PRIMARY    |        <span class="number">211</span> |         <span class="number">3</span> |        <span class="number">5</span> | <span class="number">5</span>         |</span>
+<span class="line">| <span class="number">29504</span>:<span class="number">211</span>:<span class="number">3</span>:<span class="number">5</span> | <span class="number">29504</span>       | X         | RECORD    | <span class="string">`lyj`</span>.<span class="string">`t2`</span> | PRIMARY    |        <span class="number">211</span> |         <span class="number">3</span> |        <span class="number">5</span> | <span class="number">5</span>         |</span>
+<span class="line">+---------------+-------------+-----------+-----------+------------+------------+------------+-----------+----------+-----------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话1</span></span>
+<span class="line">root@localhost:lyj <span class="number">06</span>:<span class="number">07</span>:<span class="number">32</span>&gt;insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">6</span>,<span class="number">6</span>);</span>
+<span class="line">Query OK, <span class="number">1</span> row affected (<span class="number">0</span>.<span class="number">00</span> sec)</span>
+<span class="line"></span>
+<span class="line">root@localhost:lyj <span class="number">06</span>:08:<span class="number">13</span>&gt;insert into t2 (a,b) <span class="keyword">values</span>(<span class="number">1</span>,<span class="number">1</span>);</span>
+<span class="line">Query OK, <span class="number">1</span> row affected (<span class="number">0</span>.<span class="number">00</span> sec)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话2，刚才的等待出现死锁错误</span></span>
+<span class="line">ERROR <span class="number">1213</span> (<span class="number">40001</span>): Deadlock found <span class="keyword">when</span> trying to get lock; try restarting transaction</span>
+</pre></td></tr></table></figure></p>
+<p>死锁分析：在RR事务隔离级别下，由于DELETE没有用主键或者唯一索引，和INSERT形成死锁，无法避免。<br>处理办法：将事务隔离级别修改为RC，或才在RR事务隔离级别，将<code>innodb_locks_unsafe_for_binlog</code>设置为<code>on</code>也可以。</p>
+<h2 id="MySQL如何避免死锁"><a href="#MySQL如何避免死锁" class="headerlink" title="MySQL如何避免死锁"></a>MySQL如何避免死锁</h2><h3 id="注意程序的逻辑（最重要）"><a href="#注意程序的逻辑（最重要）" class="headerlink" title="注意程序的逻辑（最重要）"></a>注意程序的逻辑（最重要）</h3><p>根本的原因是程序逻辑的顺序，最常见的是交差更新<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">Transaction <span class="number">1</span>: 更新表A -&gt; 更新表B</span>
+<span class="line">Transaction <span class="number">2</span>: 更新表B -&gt; 更新表A</span>
+</pre></td></tr></table></figure></p>
+<p>这类问题要从程序上避免，所有的更新需要按照一定顺序</p>
+<h3 id="保持事务的轻量"><a href="#保持事务的轻量" class="headerlink" title="保持事务的轻量"></a>保持事务的轻量</h3><p>越是轻量的事务，占有越少的锁资源，这样发生死锁的几率就越小</p>
+<ol>
+<li>提高运行速度，避免使用子查询，尽量使用主键等</li>
+<li>尽量快提交事务，减少持有锁的时间</li>
+</ol>
+<p>死锁是数据库对事务的保护机制，一旦发生死锁，mysql会选择相对小的事务(undo较少的)进行回滚。死锁的发生与否，并不在于事务中有多少条SQL语句，死锁的关键在于：两个或两个以上的session加锁的顺序不一致。分析MySQ每条SQL的加锁规则、顺序，检查多个并发SQL间是否存在相反的顺序加锁的情况，就可以分析出各种潜在的死锁情况，也可以分析出线上死锁发生的原因。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">
+                    MySQL性能优化最佳实践 - 10 MySQL写出高效SQL
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">
+                    MySQL性能优化最佳实践 - 09 MySQL优化器算法解析
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#不同索引加锁顺序的问题，模拟重现死锁"><span class="toc-number">1.</span> <span class="toc-text">不同索引加锁顺序的问题，模拟重现死锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试表结构及相关语句"><span class="toc-number">1.1.</span> <span class="toc-text">测试表结构及相关语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#模拟重现死锁"><span class="toc-number">1.2.</span> <span class="toc-text">模拟重现死锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TMS死锁分析和处理，模拟重现死锁"><span class="toc-number">2.</span> <span class="toc-text">TMS死锁分析和处理，模拟重现死锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL如何避免死锁"><span class="toc-number">3.</span> <span class="toc-text">MySQL如何避免死锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#注意程序的逻辑（最重要）"><span class="toc-number">3.1.</span> <span class="toc-text">注意程序的逻辑（最重要）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#保持事务的轻量"><span class="toc-number">3.2.</span> <span class="toc-text">保持事务的轻量</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/" title="上一篇: MySQL性能优化最佳实践 - 10 MySQL写出高效SQL">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /" title="下一篇: MySQL性能优化最佳实践 - 09 MySQL优化器算法解析">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
