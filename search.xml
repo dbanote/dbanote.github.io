@@ -6,7 +6,7 @@
     <entry>
       <title><![CDATA[Docker学习笔记_02 Docker的部署安装]]></title>
       <url>/2017/12/12/docker/02_docker%E7%9A%84%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/</url>
-      <content type="html"><![CDATA[<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="操作系统需求"><a href="#操作系统需求" class="headerlink" title="操作系统需求"></a>操作系统需求</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1212_docker_15.png" alt=""></p>
+      <content type="html"><![CDATA[<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="操作系统需求"><a href="#操作系统需求" class="headerlink" title="操作系统需求"></a>操作系统需求</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1212_docker_15.png" alt=""><br><a id="more"></a></p>
 <p><strong>为兼容企业级应用，学习选用Centos7做为部署安装Docker的系统平台</strong><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 通过以下命令可查看系统版本和内核版本等信息</span></span>
 <span class="line">cat /etc/redhat-release</span>
 <span class="line"><span class="comment">#-----------------------------------</span></span>
@@ -37,7 +37,6 @@
 <span class="line">REDHAT_SUPPORT_PRODUCT_VERSION=<span class="string">"7"</span></span>
 <span class="line"><span class="comment">#------------------------------------------</span></span>
 </pre></td></tr></table></figure></p>
-<a id="more"></a>
 <h3 id="更换默认的yum源"><a href="#更换默认的yum源" class="headerlink" title="更换默认的yum源"></a>更换默认的yum源</h3><p>Centos默认的yun源在国外，速度很慢有时间也无法访问<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">yum repolist</span>
 <span class="line"><span class="comment">#------------------------------------------------------------------------------------------------------------------------------</span></span>
 <span class="line">Loaded plugins: fastestmirror</span>
@@ -92,7 +91,8 @@
 <span class="line">yum remove docker docker-common docker-selinux docker-engine</span>
 </pre></td></tr></table></figure>
 <h2 id="安装-Docker-CE"><a href="#安装-Docker-CE" class="headerlink" title="安装 Docker CE"></a>安装 Docker CE</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">yum install -<span class="keyword">y</span> yum-utils device-mapper-persistent-data lvm2</span>
-<span class="line">yum-config-manager --add-repo https:<span class="regexp">//download</span>.docker.com/linux/centos/docker-ce.repo</span>
+<span class="line"><span class="comment"># yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</span></span>
+<span class="line">yum-config-manager --add-repo http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/centos/docker-ce.repo</span>
 <span class="line">yum install -<span class="keyword">y</span> docker-ce</span>
 <span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
 <span class="line">.......</span>
@@ -144,7 +144,7 @@
 <span class="line">docker version</span>
 <span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
 <span class="line">Client:</span>
-<span class="line"> Version:      <span class="number">17.09</span>.<span class="number">1</span>-ce</span>
+<span class="line"> Version:      <span class="number">17.09</span>.<span class="number">1</span>-ce       <span class="comment"># 客户端版本</span></span>
 <span class="line"> API version:  <span class="number">1.32</span></span>
 <span class="line"> Go version:   go1.<span class="number">8.3</span></span>
 <span class="line"> Git commit:   <span class="number">19</span>e2cf6</span>
@@ -152,13 +152,36 @@
 <span class="line"> OS/Arch:      linux/amd64</span>
 <span class="line"></span>
 <span class="line">Server:</span>
-<span class="line"> Version:      <span class="number">17.09</span>.<span class="number">1</span>-ce</span>
+<span class="line"> Version:      <span class="number">17.09</span>.<span class="number">1</span>-ce       <span class="comment"># 服务端版本</span></span>
 <span class="line"> API version:  <span class="number">1.32</span> (minimum version <span class="number">1.12</span>)</span>
 <span class="line"> Go version:   go1.<span class="number">8.3</span></span>
 <span class="line"> Git commit:   <span class="number">19</span>e2cf6</span>
 <span class="line"> Built:        Thu Dec  <span class="number">7</span> <span class="number">22</span>:<span class="number">25</span>:<span class="number">03</span> <span class="number">2017</span></span>
 <span class="line"> OS/Arch:      linux/amd64</span>
 <span class="line"> Experimental: false</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看网络信息</span></span>
+<span class="line">ip addr</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="number">1</span>: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class="number">65536</span> qdisc noqueue <span class="keyword">state</span> UNKNOWN qlen <span class="number">1</span></span>
+<span class="line">    <span class="keyword">link</span>/loopback <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> brd <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span></span>
+<span class="line">    inet <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">8</span> scope host lo</span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
+<span class="line">    inet6 ::<span class="number">1</span>/<span class="number">128</span> scope host </span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
+<span class="line"><span class="number">2</span>: ens16<span class="number">0</span>: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class="number">1500</span> qdisc mq <span class="keyword">state</span> UP qlen <span class="number">1000</span></span>
+<span class="line">    <span class="keyword">link</span>/ether <span class="number">00</span>:<span class="number">50</span>:<span class="number">56</span>:ab:<span class="number">4</span>c:<span class="number">50</span> brd ff:ff:ff:ff:ff:ff</span>
+<span class="line">    inet <span class="number">10.240</span>.<span class="number">4.185</span>/<span class="number">24</span> brd <span class="number">10.240</span>.<span class="number">4.255</span> scope global ens16<span class="number">0</span></span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
+<span class="line">    inet6 fe8<span class="number">0</span>::<span class="number">250</span>:<span class="number">56</span>ff:feab:<span class="number">4</span>c5<span class="number">0</span>/<span class="number">64</span> scope <span class="keyword">link</span> </span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
+<span class="line"><span class="number">3</span>: docker<span class="number">0</span>: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span class="number">1500</span> qdisc noqueue <span class="keyword">state</span> DOWN  <span class="comment"># docker0 虚拟网桥</span></span>
+<span class="line">    <span class="keyword">link</span>/ether <span class="number">02</span>:<span class="number">42</span>:<span class="number">72</span>:ac:<span class="number">05</span>:bf brd ff:ff:ff:ff:ff:ff</span>
+<span class="line">    inet <span class="number">172.17</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">16</span> scope global docker<span class="number">0</span></span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
+<span class="line">    inet6 fe8<span class="number">0</span>::<span class="number">42</span>:<span class="number">72</span>ff:feac:<span class="number">5</span>bf/<span class="number">64</span> scope <span class="keyword">link</span> </span>
+<span class="line">       valid_lft forever preferred_lft forever</span>
 <span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
 <span class="line"></span>
 <span class="line">systemctl list-unit-files | <span class="keyword">grep</span> docker</span>
@@ -233,6 +256,22 @@
 <span class="line"><span class="comment"># 删除Images, containers, volumes, or customized configuration files </span></span>
 <span class="line">rm -rf /var/lib/docker</span>
 </pre></td></tr></table></figure>
+<h2 id="使用阿里镜像加速器"><a href="#使用阿里镜像加速器" class="headerlink" title="使用阿里镜像加速器"></a>使用阿里镜像加速器</h2><p>使用阿里云专属加速器加快获取Docker官方镜像，否则在国内速度会慢到你无法忍受哒。步骤如下：</p>
+<ol>
+<li>免费注册一个阿里云账号 <a href="https://www.aliyun.com/" target="_blank" rel="external">www.aliyun.com</a></li>
+<li>进入加速器页面 <a href="https://cr.console.aliyun.com/#/accelerator" target="_blank" rel="external">https://cr.console.aliyun.com/#/accelerator </a></li>
+<li>选择<code>镜像加速器</code><br><img src="http://oligvdnzp.bkt.clouddn.com/1213_docker_02.png" alt=""></li>
+</ol>
+<p>按图中进行相关配置<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下面的xxxxx要替换成你的专属加速器的地址哦</span></span>
+<span class="line">tee /etc/docker/daemon.json &lt;&lt;-<span class="string">'EOF'</span></span>
+<span class="line">&#123;</span>
+<span class="line">  <span class="string">"registry-mirrors"</span>: [<span class="string">"https://xxxxxxx.mirror.aliyuncs.com"</span>]</span>
+<span class="line">&#125;</span>
+<span class="line">EOF</span>
+<span class="line"></span>
+<span class="line">systemctl daemon-reload</span>
+<span class="line">systemctl restart docker</span>
+</pre></td></tr></table></figure></p>
 <h2 id="参考文档："><a href="#参考文档：" class="headerlink" title="参考文档："></a>参考文档：</h2><ul>
 <li><a href="https://docs.docker.com/engine/installation/linux/docker-ce/centos/" target="_blank" rel="external">官方文档：Get Docker CE for CentOS</a></li>
 </ul>
@@ -817,187 +856,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[MySQL性能优化最佳实践 - 10 MySQL写出高效SQL]]></title>
-      <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/10-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-      <content type="html"><![CDATA[<h2 id="MySQL设计标准"><a href="#MySQL设计标准" class="headerlink" title="MySQL设计标准"></a>MySQL设计标准</h2><ol>
-<li>数据库命名规范、统一，如vip_xxxx</li>
-<li><strong><font color="red">表一旦设计好，字段只允许增加，不允许减少(drop column)</font></strong></li>
-<li>统一使用INNODB存储引擎，UTF8编码（整个数据库的编码统一为<code>utf8_general_ci</code>，为此不需要建立表的DDL上加上<code>CHARACTER SET COLLATE utf8_general_ci）</code></li>
-<li>需在设计阶段考虑如果访问量非常大，且不做<code>scale out(横向扩展)</code>表拆分的话，需读写分离，但读写分离注意主从复制有延迟的可能性</li>
-<li><strong><font color="red">禁用</font></strong>stored procedure(包括存储过程，函数，触发器)，容易将业务逻辑和DB耦合在一起，并且MySQL的存储过程、触发器、函数中存在一定的bug</li>
-<li><strong><font color="red">禁止使用</font></strong><code>UUID()</code>，<code>USER()</code>这样的<code>MYSQL INSIDE</code>函数，对于复制来说是很危险的，会导致主备数据不一致，重要的是会严重影响mysql性能</li>
-<li>表必须有主键，建议统一由<code>auto_increment</code>字段生成整型，不建议使用组合主键， <strong><font color="red">另外<code>auto_increment</code>主键字段只作为虚拟主键，不建议与业务数据处理有关联关系，如果把控不好，会有问题</font></strong></li>
-<li>库名、表名、字段名、索引名必须使用小写字母</li>
-<li>多表join写SQL的时候，一定要给每个字段指定表名做前缀</li>
-<li>如果应用使用的是长连接，应用必须具有自动重连的机制。但需避免每执行一个SQL去检查一次DB可用性<a id="more"></a></li>
-<li>如果应用使用的是长连接，应用应该具有连接的TIMEOUT检查机制，及时回收长时间没有使用的连接，TIMEOUNT时间一般建议为20min</li>
-<li>存储精确浮点数必须使用DECIMAL替代FLOAT和DOUBLE，DECIMAL类型具有更高的精度和更小的范围，它适合于财务和货币计算，如金额等</li>
-<li>表名、列名必须有注释（必须加上<code>COMMENT &#39;&lt;字段扼要解说&gt;&#39;</code>），表结构变更须由库表OWNER所在团队发起</li>
-<li>SQL语句必须采用<code>PreparedStatement</code>技术，可以提升性能并且避免SQL注入，如果编程语言不支持<code>PreparedStatement</code>技术，需要做好特殊字符过滤，如不要前后有空串等</li>
-<li>尽可能不要使用TEXT、BLOB、CHAR字段类型，请使用<code>VARCHAR(N)</code>，N表示的是字符数不是字节数，比如<code>VARCHAR(255)</code>，可以最大存储255个汉字，需要根据实际宽度来设置N，<strong><font color="red">请注意同一表中，所有VARCHAR字段的长度加起来，不能大于65535</font></strong></li>
-<li>每张表数据量建议控制在千万级别行以下，为此设计阶段需要考虑数据的归档</li>
-<li>如果字段只有<code>ture or false</code>，请使用tinyint(数值范围-128～127)，如果模块分类：1订单/2商品；删除标示：0正常/1删除</li>
-<li>存储时间（精确到秒）建议使用TIMESTAMP类型，因为TIMESTAMP使用4个字节，DATETIME使用8个字节，同时TIMESTAMP具有自动赋值以及自动更新的特性</li>
-<li>每个字段的默认值不能用NULL，禁止<code>default NULL</code>，数据类型用<code>default 0</code>，字符类型用<code>default &#39;&#39;</code></li>
-<li><strong><font color="red">关键业务数据表，建议用<code>create_time</code>和<code>last_update_time</code>，方便后期数据分析，如订单表，库存表</font></strong></li>
-<li><strong><font color="red">关键业务数据表，如订单表、用户信息表，钱包支付信息等，禁止硬删除，必须软删除，加上<code>is_deleted</code>字段，标注这条记录的状态</font></strong></li>
-<li><strong><font color="red">避免使用</font></strong><code>select col1,col2 from table where id in (select col from table) 这样的子查询</code></li>
-<li>需要多表join的字段(<strong><font color="red">尽量避免多于两表join</font></strong>)，数据类型保持一致</li>
-<li><strong><font color="red">加字段禁止使用after，因为不能确定全局代码里面是否都采用了类似<code>insert into table(col,col,col...) values ....</code>，若中间插一个字段，就会导致数据偏移的问题，影响可大可小，同样<code>select *</code>的也可能会影响数值的偏移</font></strong></li>
-<li><strong><font color="red">生产环境中，MySQL忽略大小写，配置了<code>lower_case_table_names=1</code></font></strong></li>
-<li>select语句只获取需要的字段，禁止使用select * from语句，这是有效防止新增字段对应用逻辑的影响，还能减少对性能的影响</li>
-<li>INSERT语句必须显式的指明字段名称，不使用INSERT INTO table values()</li>
-<li>禁止在where子句中对字段施加函数，如to_date(add_time)&gt;xxxxx，应改为add_time&gt;=unix_timestamp(date_add(str_to_date(‘20171109’,’%Y%m%d’),interval-29 day))</li>
-<li>where条件中必须使用合适的类型，避免MySOL进行隐式类型转化，如ISENDED=1，字段类型是tinyint，则不能写成ISENDED=’1’</li>
-<li>应用程序里的SQL语句，禁止一切DDL操作，如有特殊需要需与DBA协商，同意后方可使用</li>
-<li>避免在SQL语句进行数学运算或函数运算，容易将业务逻辑和DB耦合在一起</li>
-<li>INSERT语句使用batch提交</li>
-<li>INNODB表避免使用count(*)操作，计数统计实时要求较强可以使用memcache或redis，非实时统计可以使用单独统计表，定时更新</li>
-<li>使用%前缀模糊查询将不走索引，例如LIKE ‘%weibo’，不建议使用</li>
-<li>避免多余的排序，使用group by时，默认会进行排序，当不需要排序时，可以使用order by null</li>
-<li>不鼓励在数据库里排序，行数小的，建议放在应用服务上排序</li>
-</ol>
-<h2 id="事务的处理标准"><a href="#事务的处理标准" class="headerlink" title="事务的处理标准"></a>事务的处理标准</h2><ol>
-<li>一个事务，处理的行数不能超过1000 rows/s，超出会导致主从复制延迟的问题</li>
-<li>禁止一些框架或定制化的底层类等使用<code>set autocommit=0;</code>、<code>set autocommit=1;</code>这样控制事务，应该由程序把控，需要时<code>begin;</code>，操作完后及时<code>commit;</code></li>
-</ol>
-<h2 id="索引使用标准"><a href="#索引使用标准" class="headerlink" title="索引使用标准"></a>索引使用标准</h2><ol>
-<li>非唯一索引建议使用<code>idx_表缩写名称_字段缩写名称</code>进行命名</li>
-<li>唯一索引建议使用<code>uniq_表缩写名称_字段缩写名称</code>进行命名</li>
-<li>索引名称必须使用小写</li>
-<li>唯一键不和主键重复</li>
-<li>索引字段的顺序需要考虑字段去重之后的个数，个数多的放在前面，就是数据分布</li>
-<li>使用EXPLAIN判断SQL语句是否合理的使用索引，尽量避免extra列出现：<code>Using File Sort</code>，<code>Using Temporary</code></li>
-<li>UPDATE、DELETE语句需要根据WHERE条件添加索引</li>
-<li>合理创建联合索引（避免冗余），<code>(a,b,c)</code>相当于<code>(a)</code>、<code>(a,b)</code>、<code>(a,b,c)</code></li>
-<li>合理利用覆盖索引（三星索引），如<code>select emain,uid from user_email where uid=xx</code>，如果uid不是主键，适当时候可以添加<code>(uid,email)</code>覆盖索引，以获得性能提升</li>
-</ol>
-<h2 id="约束设计"><a href="#约束设计" class="headerlink" title="约束设计"></a>约束设计</h2><ol>
-<li>主键的内容不能被修改</li>
-<li>禁用外键约束，外键约束一般不在数据库上创建，只表达一个逻辑的概念，由程序控制</li>
-<li>unique约束命名<code>UK_列名</code>，check约束命名<code>CK_列名</code></li>
-</ol>
-<h2 id="怎么写出高效SQL"><a href="#怎么写出高效SQL" class="headerlink" title="怎么写出高效SQL"></a>怎么写出高效SQL</h2><ol>
-<li>清晰无误的了知业务需求</li>
-<li>满足业务需求，不做无用功</li>
-<li>知道表数据量和索引基本情况</li>
-<li>知道完成SQL需要扫描的数据量级</li>
-<li>SQL执行计划OK？SQL性能达到要求？</li>
-<li>调整索引和SQL，优化SQL</li>
-</ol>
-<h2 id="关于IN子查询"><a href="#关于IN子查询" class="headerlink" title="关于IN子查询"></a>关于IN子查询</h2><p>IN子查询容易导致问题，禁止使用，需改成join</p>
-<ol>
-<li>in子查询包含group by，外部查询的值传不到in子查询中，会导致in子查询效率低下</li>
-<li>外部查询传入到in子查询中的值没法利用索引时，会导致in子查询效率低下</li>
-<li>in子查询总是返回单个值时，用=，=和in处理机制不同</li>
-<li>多个filter类子查询，一般在SQL后面的先执行</li>
-</ol>
-<h2 id="选择正确的驱动表"><a href="#选择正确的驱动表" class="headerlink" title="选择正确的驱动表"></a>选择正确的驱动表</h2><ol>
-<li>多表关联查询，选择正确驱动表是最重要一步,好的开始是成功的一半</li>
-<li>驱动表不一定是小表；表大，但过滤条件很强，能快速减少关联中间结果也可以选为驱动表</li>
-<li>access vs filter</li>
-<li>关联字段需建索引</li>
-</ol>
-<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="为什么使用prepared-statement能提高性能？"><a href="#为什么使用prepared-statement能提高性能？" class="headerlink" title="为什么使用prepared statement能提高性能？"></a>为什么使用prepared statement能提高性能？</h3><p>Statement主要用于执行静态SQL语句，即内容固定不变的SQL语句。Statement每执行一次都要对传入的SQL语句编译一次，效率较差。</p>
-<p>PreparedStatement是Statement的子类，表示预编译的SQL语句的对象。在使用PreparedStatement对象执行SQL命令时，命令被数据库编译和解析，并放入命令缓冲区。缓冲区中的预编译SQL命令可以重复使用。</p>
-<p>使用PreparedStatement时，SQL语句已提前编译，三种常用方法<code>execute</code>、<code>executeQuery</code>和<code>executeUpdate</code>已被更改，以使之不再需要参数。PreparedStatement 实例包含已事先编译的SQL语句，SQL语句可有一个或多个IN参数，IN参数的值在SQL语句创建时未被指定。该语句为每个IN留一个问号（“？”）作为占位符。 每个问号的值必须在该语句执行之前，通过适当的setInt或者setString 等方法提供。由于 PreparedStatement 对象已预编译过，所以其执行速度要快于Statement 对象。因此，多次执行的 SQL 语句经常创建为PreparedStatement 对象，以提高效率。</p>
-<p>PreparedStatement的另外一个好处就是预防sql注入攻击。对JDBC而言，SQL注入攻击对PreparedStatement无效，因为PreparedStatement不允许在插入参数时改变SQL语句的逻辑结构。</p>
-<h3 id="MySql优化的一般步骤是什么？举个例子详细说明。"><a href="#MySql优化的一般步骤是什么？举个例子详细说明。" class="headerlink" title="MySql优化的一般步骤是什么？举个例子详细说明。"></a>MySql优化的一般步骤是什么？举个例子详细说明。</h3><h4 id="通过show-status命令了解各种sql的执行效率"><a href="#通过show-status命令了解各种sql的执行效率" class="headerlink" title="通过show status命令了解各种sql的执行效率"></a>通过<code>show status</code>命令了解各种sql的执行效率</h4><p>通过SHOW STATUS可以提供服务器状态信息，也可以使用mysqladmin extended-status命令获得。SHOW STATUS可以根据需要显示session级别的统计结果和global级别的统计结果。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下几个参数对Myisam和Innodb存储引擎都计数</span></span>
-<span class="line">Com_select  执行<span class="keyword">select</span>操作的次数，一次查询只累加<span class="number">1</span></span>
-<span class="line">Com_insert  执行insert操作的次数，对于批量插入的insert操作，只累加一次</span>
-<span class="line">Com_update  执行update操作的次数</span>
-<span class="line">Com_delete　执行<span class="keyword">delete</span>操作的次数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 以下几个参数是针对Innodb存储引擎计数的，累加的算法也略有不同</span></span>
-<span class="line">Innodb_rows_read　   <span class="keyword">select</span>查询返回的行数</span>
-<span class="line">Innodb_rows_inserted 执行insert操作插入的行数</span>
-<span class="line">Innodb_rows_updated  执行update操作更新的行数</span>
-<span class="line">Innodb_rows_deleted　执行<span class="keyword">delete</span>操作删除的行数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 以下几个参数便于了解数据库的基本情况</span></span>
-<span class="line">Connections  试图连接Mysql服务器的次数</span>
-<span class="line">Uptime　     服务器工作时间</span>
-<span class="line">Slow_queries 慢查询的次数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 对于事务型的应用，通过Com_commit和Com_rollback可以了解事务提交和回滚的情况</span></span>
-<span class="line"><span class="comment"># 对于回滚操作非常频繁的数据库，可能意味着应用编写存在问题</span></span>
-</pre></td></tr></table></figure></p>
-<h4 id="定位执行效率较低的SQL语句"><a href="#定位执行效率较低的SQL语句" class="headerlink" title="定位执行效率较低的SQL语句"></a>定位执行效率较低的SQL语句</h4><p>可以通过以下两种方式定位执行效率较低的SQL语句：</p>
-<ol>
-<li>可以通过慢查询日志定位那些执行效率较低的sql语句，用<code>--log-slow-queries[=file_name]</code>选项启动时，mysqld写一个包含所有执行时间超过<code>long_query_time</code>秒的SQL语句的日志文件。可以链接到管理维护中的相关章节。</li>
-<li>慢查询日志在查询结束以后才纪录，所以在应用反映执行效率出现问题的时候查询慢查询日志并不能定位问题，可以使用<code>show processlist</code>命令查看当前MySQL在进行的线程，包括线程的状态，是否锁表等等，可以实时的查看SQL执行情况，同时对一些锁表操作进行优化</li>
-</ol>
-<h4 id="通过explain分析低效率的SQL语句的执行情况"><a href="#通过explain分析低效率的SQL语句的执行情况" class="headerlink" title="通过explain分析低效率的SQL语句的执行情况"></a>通过explain分析低效率的SQL语句的执行情况</h4><p>通过以上步骤查询到效率低的SQL后，可以通过explain或者desc获取MySQL如何执行SELECT语句的信息，包括select语句执行过程表如何连接和连接的次序。<br>执行计划说明：</p>
-<blockquote>
-<p>select_type：select类型<br>table：输出结果集的表<br>type：表示表的连接类型<br>　　1. 当表中仅有一行是type的值为system是最佳的连接类型；<br>　　2. 当select操作中使用索引进行表连接时type的值为ref；<br>　　3. 当select的表连接没有使用索引时，经常会看到type的值为ALL，表示对该表进行了全表扫描，这时需要考虑通过创建索引来提高表连接的效率。<br>possible_keys：表示查询时,可以使用的索引列.<br>key：表示使用的索引<br>key_len：索引长度<br>rows：扫描范围<br>Extra：执行情况的说明和描述</p>
-</blockquote>
-<h4 id="确定问题，并采取相应的优化措施"><a href="#确定问题，并采取相应的优化措施" class="headerlink" title="确定问题，并采取相应的优化措施"></a>确定问题，并采取相应的优化措施</h4><p>确认问题出现的原因后，可以根据情况采取相应的措施，进行优化提高执行的效率。 示例如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
-<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | <span class="keyword">ref</span>                | rows   | Extra       |</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | ALL    | NULL          | NULL    | NULL    | NULL               | <span class="number">331290</span> | Using where |</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY       | PRIMARY | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL        |</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 这个例子，对表dept_emp全表扫描，效果不理想，对d表的dept_no字段创建了索引，查询需要扫描的行数明显较少</span></span>
-<span class="line">create <span class="keyword">index</span> idx_dept_emp_dn on dept_emp(dept_no);</span>
-<span class="line"></span>
-<span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
-<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-<span class="line">| id | select_type | table | type   | possible_keys   | key             | key_len | <span class="keyword">ref</span>                | rows   | Extra                 |</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | <span class="keyword">ref</span>    | idx_dept_emp_dn | idx_dept_emp_dn | <span class="number">12</span>      | const              | <span class="number">164256</span> | Using <span class="keyword">index</span> condition |</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY         | PRIMARY         | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL                  |</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-</pre></td></tr></table></figure></p>
-<h3 id="MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？"><a href="#MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？" class="headerlink" title="MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？"></a>MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优化前</span></span>
-<span class="line">SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2 WHERE id = <span class="number">1</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 优化后</span></span>
-<span class="line">SELECT s1 from t1 a,(SELECT s1 FROM t2 WHERE id = <span class="number">1</span>) b where a.s1=b.s1;</span>
-</pre></td></tr></table></figure>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这是一个简单的示例，每1000个语句为一批插入提交，它避免了SQL注入和内存不足的问题</span></span>
-<span class="line"><span class="comment"># 插入到数据库使用批处理上万条记录，有可能产生的OutOfMemoryError</span></span>
-<span class="line">import java.sql.Connection;</span>
-<span class="line">import java.sql.PreparedStatement;</span>
-<span class="line">...</span>
-<span class="line">String sql = <span class="string">"insert into employee (name, city, phone) values (?, ?, ?)"</span>;</span>
-<span class="line">Connection connection = new getConnection();</span>
-<span class="line">PreparedStatement ps = connection.prepareStatement(sql);</span>
-<span class="line">final <span class="keyword">int</span> batchSize = <span class="number">1000</span>;</span>
-<span class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</span>
-<span class="line"><span class="keyword">for</span> (Employee employee: employees) &#123;</span>
-<span class="line">    ps.setString(<span class="number">1</span>, employee.getName());</span>
-<span class="line">    ps.setString(<span class="number">2</span>, employee.getCity());</span>
-<span class="line">    ps.setString(<span class="number">3</span>, employee.getPhone());</span>
-<span class="line">    ps.addBatch();</span>
-<span class="line">    <span class="keyword">if</span>(++count % batchSize == <span class="number">0</span>) &#123;</span>
-<span class="line">        ps.executeBatch();</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-<span class="line">ps.executeBatch(); <span class="regexp">//</span> insert remaining records</span>
-<span class="line">ps.close();</span>
-<span class="line">connection.close();</span>
-</pre></td></tr></table></figure>]]></content>
-      
-        <categories>
-            
-            <category> MySQL性能优化最佳实践 </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> mysql </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[MySQL性能优化最佳实践 - 11 MySQL锁优化分析]]></title>
       <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/11-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
       <content type="html"><![CDATA[<h2 id="不同索引加锁顺序的问题，模拟重现死锁"><a href="#不同索引加锁顺序的问题，模拟重现死锁" class="headerlink" title="不同索引加锁顺序的问题，模拟重现死锁"></a>不同索引加锁顺序的问题，模拟重现死锁</h2><p>走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待</p>
@@ -1213,6 +1071,187 @@
 </ol>
 <p>死锁是数据库对事务的保护机制，一旦发生死锁，mysql会选择相对小的事务(undo较少的)进行回滚。死锁的发生与否，并不在于事务中有多少条SQL语句，死锁的关键在于：两个或两个以上的session加锁的顺序不一致。分析MySQ每条SQL的加锁规则、顺序，检查多个并发SQL间是否存在相反的顺序加锁的情况，就可以分析出各种潜在的死锁情况，也可以分析出线上死锁发生的原因。</p>
 ]]></content>
+      
+        <categories>
+            
+            <category> MySQL性能优化最佳实践 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[MySQL性能优化最佳实践 - 10 MySQL写出高效SQL]]></title>
+      <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/10-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+      <content type="html"><![CDATA[<h2 id="MySQL设计标准"><a href="#MySQL设计标准" class="headerlink" title="MySQL设计标准"></a>MySQL设计标准</h2><ol>
+<li>数据库命名规范、统一，如vip_xxxx</li>
+<li><strong><font color="red">表一旦设计好，字段只允许增加，不允许减少(drop column)</font></strong></li>
+<li>统一使用INNODB存储引擎，UTF8编码（整个数据库的编码统一为<code>utf8_general_ci</code>，为此不需要建立表的DDL上加上<code>CHARACTER SET COLLATE utf8_general_ci）</code></li>
+<li>需在设计阶段考虑如果访问量非常大，且不做<code>scale out(横向扩展)</code>表拆分的话，需读写分离，但读写分离注意主从复制有延迟的可能性</li>
+<li><strong><font color="red">禁用</font></strong>stored procedure(包括存储过程，函数，触发器)，容易将业务逻辑和DB耦合在一起，并且MySQL的存储过程、触发器、函数中存在一定的bug</li>
+<li><strong><font color="red">禁止使用</font></strong><code>UUID()</code>，<code>USER()</code>这样的<code>MYSQL INSIDE</code>函数，对于复制来说是很危险的，会导致主备数据不一致，重要的是会严重影响mysql性能</li>
+<li>表必须有主键，建议统一由<code>auto_increment</code>字段生成整型，不建议使用组合主键， <strong><font color="red">另外<code>auto_increment</code>主键字段只作为虚拟主键，不建议与业务数据处理有关联关系，如果把控不好，会有问题</font></strong></li>
+<li>库名、表名、字段名、索引名必须使用小写字母</li>
+<li>多表join写SQL的时候，一定要给每个字段指定表名做前缀</li>
+<li>如果应用使用的是长连接，应用必须具有自动重连的机制。但需避免每执行一个SQL去检查一次DB可用性<a id="more"></a></li>
+<li>如果应用使用的是长连接，应用应该具有连接的TIMEOUT检查机制，及时回收长时间没有使用的连接，TIMEOUNT时间一般建议为20min</li>
+<li>存储精确浮点数必须使用DECIMAL替代FLOAT和DOUBLE，DECIMAL类型具有更高的精度和更小的范围，它适合于财务和货币计算，如金额等</li>
+<li>表名、列名必须有注释（必须加上<code>COMMENT &#39;&lt;字段扼要解说&gt;&#39;</code>），表结构变更须由库表OWNER所在团队发起</li>
+<li>SQL语句必须采用<code>PreparedStatement</code>技术，可以提升性能并且避免SQL注入，如果编程语言不支持<code>PreparedStatement</code>技术，需要做好特殊字符过滤，如不要前后有空串等</li>
+<li>尽可能不要使用TEXT、BLOB、CHAR字段类型，请使用<code>VARCHAR(N)</code>，N表示的是字符数不是字节数，比如<code>VARCHAR(255)</code>，可以最大存储255个汉字，需要根据实际宽度来设置N，<strong><font color="red">请注意同一表中，所有VARCHAR字段的长度加起来，不能大于65535</font></strong></li>
+<li>每张表数据量建议控制在千万级别行以下，为此设计阶段需要考虑数据的归档</li>
+<li>如果字段只有<code>ture or false</code>，请使用tinyint(数值范围-128～127)，如果模块分类：1订单/2商品；删除标示：0正常/1删除</li>
+<li>存储时间（精确到秒）建议使用TIMESTAMP类型，因为TIMESTAMP使用4个字节，DATETIME使用8个字节，同时TIMESTAMP具有自动赋值以及自动更新的特性</li>
+<li>每个字段的默认值不能用NULL，禁止<code>default NULL</code>，数据类型用<code>default 0</code>，字符类型用<code>default &#39;&#39;</code></li>
+<li><strong><font color="red">关键业务数据表，建议用<code>create_time</code>和<code>last_update_time</code>，方便后期数据分析，如订单表，库存表</font></strong></li>
+<li><strong><font color="red">关键业务数据表，如订单表、用户信息表，钱包支付信息等，禁止硬删除，必须软删除，加上<code>is_deleted</code>字段，标注这条记录的状态</font></strong></li>
+<li><strong><font color="red">避免使用</font></strong><code>select col1,col2 from table where id in (select col from table) 这样的子查询</code></li>
+<li>需要多表join的字段(<strong><font color="red">尽量避免多于两表join</font></strong>)，数据类型保持一致</li>
+<li><strong><font color="red">加字段禁止使用after，因为不能确定全局代码里面是否都采用了类似<code>insert into table(col,col,col...) values ....</code>，若中间插一个字段，就会导致数据偏移的问题，影响可大可小，同样<code>select *</code>的也可能会影响数值的偏移</font></strong></li>
+<li><strong><font color="red">生产环境中，MySQL忽略大小写，配置了<code>lower_case_table_names=1</code></font></strong></li>
+<li>select语句只获取需要的字段，禁止使用select * from语句，这是有效防止新增字段对应用逻辑的影响，还能减少对性能的影响</li>
+<li>INSERT语句必须显式的指明字段名称，不使用INSERT INTO table values()</li>
+<li>禁止在where子句中对字段施加函数，如to_date(add_time)&gt;xxxxx，应改为add_time&gt;=unix_timestamp(date_add(str_to_date(‘20171109’,’%Y%m%d’),interval-29 day))</li>
+<li>where条件中必须使用合适的类型，避免MySOL进行隐式类型转化，如ISENDED=1，字段类型是tinyint，则不能写成ISENDED=’1’</li>
+<li>应用程序里的SQL语句，禁止一切DDL操作，如有特殊需要需与DBA协商，同意后方可使用</li>
+<li>避免在SQL语句进行数学运算或函数运算，容易将业务逻辑和DB耦合在一起</li>
+<li>INSERT语句使用batch提交</li>
+<li>INNODB表避免使用count(*)操作，计数统计实时要求较强可以使用memcache或redis，非实时统计可以使用单独统计表，定时更新</li>
+<li>使用%前缀模糊查询将不走索引，例如LIKE ‘%weibo’，不建议使用</li>
+<li>避免多余的排序，使用group by时，默认会进行排序，当不需要排序时，可以使用order by null</li>
+<li>不鼓励在数据库里排序，行数小的，建议放在应用服务上排序</li>
+</ol>
+<h2 id="事务的处理标准"><a href="#事务的处理标准" class="headerlink" title="事务的处理标准"></a>事务的处理标准</h2><ol>
+<li>一个事务，处理的行数不能超过1000 rows/s，超出会导致主从复制延迟的问题</li>
+<li>禁止一些框架或定制化的底层类等使用<code>set autocommit=0;</code>、<code>set autocommit=1;</code>这样控制事务，应该由程序把控，需要时<code>begin;</code>，操作完后及时<code>commit;</code></li>
+</ol>
+<h2 id="索引使用标准"><a href="#索引使用标准" class="headerlink" title="索引使用标准"></a>索引使用标准</h2><ol>
+<li>非唯一索引建议使用<code>idx_表缩写名称_字段缩写名称</code>进行命名</li>
+<li>唯一索引建议使用<code>uniq_表缩写名称_字段缩写名称</code>进行命名</li>
+<li>索引名称必须使用小写</li>
+<li>唯一键不和主键重复</li>
+<li>索引字段的顺序需要考虑字段去重之后的个数，个数多的放在前面，就是数据分布</li>
+<li>使用EXPLAIN判断SQL语句是否合理的使用索引，尽量避免extra列出现：<code>Using File Sort</code>，<code>Using Temporary</code></li>
+<li>UPDATE、DELETE语句需要根据WHERE条件添加索引</li>
+<li>合理创建联合索引（避免冗余），<code>(a,b,c)</code>相当于<code>(a)</code>、<code>(a,b)</code>、<code>(a,b,c)</code></li>
+<li>合理利用覆盖索引（三星索引），如<code>select emain,uid from user_email where uid=xx</code>，如果uid不是主键，适当时候可以添加<code>(uid,email)</code>覆盖索引，以获得性能提升</li>
+</ol>
+<h2 id="约束设计"><a href="#约束设计" class="headerlink" title="约束设计"></a>约束设计</h2><ol>
+<li>主键的内容不能被修改</li>
+<li>禁用外键约束，外键约束一般不在数据库上创建，只表达一个逻辑的概念，由程序控制</li>
+<li>unique约束命名<code>UK_列名</code>，check约束命名<code>CK_列名</code></li>
+</ol>
+<h2 id="怎么写出高效SQL"><a href="#怎么写出高效SQL" class="headerlink" title="怎么写出高效SQL"></a>怎么写出高效SQL</h2><ol>
+<li>清晰无误的了知业务需求</li>
+<li>满足业务需求，不做无用功</li>
+<li>知道表数据量和索引基本情况</li>
+<li>知道完成SQL需要扫描的数据量级</li>
+<li>SQL执行计划OK？SQL性能达到要求？</li>
+<li>调整索引和SQL，优化SQL</li>
+</ol>
+<h2 id="关于IN子查询"><a href="#关于IN子查询" class="headerlink" title="关于IN子查询"></a>关于IN子查询</h2><p>IN子查询容易导致问题，禁止使用，需改成join</p>
+<ol>
+<li>in子查询包含group by，外部查询的值传不到in子查询中，会导致in子查询效率低下</li>
+<li>外部查询传入到in子查询中的值没法利用索引时，会导致in子查询效率低下</li>
+<li>in子查询总是返回单个值时，用=，=和in处理机制不同</li>
+<li>多个filter类子查询，一般在SQL后面的先执行</li>
+</ol>
+<h2 id="选择正确的驱动表"><a href="#选择正确的驱动表" class="headerlink" title="选择正确的驱动表"></a>选择正确的驱动表</h2><ol>
+<li>多表关联查询，选择正确驱动表是最重要一步,好的开始是成功的一半</li>
+<li>驱动表不一定是小表；表大，但过滤条件很强，能快速减少关联中间结果也可以选为驱动表</li>
+<li>access vs filter</li>
+<li>关联字段需建索引</li>
+</ol>
+<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="为什么使用prepared-statement能提高性能？"><a href="#为什么使用prepared-statement能提高性能？" class="headerlink" title="为什么使用prepared statement能提高性能？"></a>为什么使用prepared statement能提高性能？</h3><p>Statement主要用于执行静态SQL语句，即内容固定不变的SQL语句。Statement每执行一次都要对传入的SQL语句编译一次，效率较差。</p>
+<p>PreparedStatement是Statement的子类，表示预编译的SQL语句的对象。在使用PreparedStatement对象执行SQL命令时，命令被数据库编译和解析，并放入命令缓冲区。缓冲区中的预编译SQL命令可以重复使用。</p>
+<p>使用PreparedStatement时，SQL语句已提前编译，三种常用方法<code>execute</code>、<code>executeQuery</code>和<code>executeUpdate</code>已被更改，以使之不再需要参数。PreparedStatement 实例包含已事先编译的SQL语句，SQL语句可有一个或多个IN参数，IN参数的值在SQL语句创建时未被指定。该语句为每个IN留一个问号（“？”）作为占位符。 每个问号的值必须在该语句执行之前，通过适当的setInt或者setString 等方法提供。由于 PreparedStatement 对象已预编译过，所以其执行速度要快于Statement 对象。因此，多次执行的 SQL 语句经常创建为PreparedStatement 对象，以提高效率。</p>
+<p>PreparedStatement的另外一个好处就是预防sql注入攻击。对JDBC而言，SQL注入攻击对PreparedStatement无效，因为PreparedStatement不允许在插入参数时改变SQL语句的逻辑结构。</p>
+<h3 id="MySql优化的一般步骤是什么？举个例子详细说明。"><a href="#MySql优化的一般步骤是什么？举个例子详细说明。" class="headerlink" title="MySql优化的一般步骤是什么？举个例子详细说明。"></a>MySql优化的一般步骤是什么？举个例子详细说明。</h3><h4 id="通过show-status命令了解各种sql的执行效率"><a href="#通过show-status命令了解各种sql的执行效率" class="headerlink" title="通过show status命令了解各种sql的执行效率"></a>通过<code>show status</code>命令了解各种sql的执行效率</h4><p>通过SHOW STATUS可以提供服务器状态信息，也可以使用mysqladmin extended-status命令获得。SHOW STATUS可以根据需要显示session级别的统计结果和global级别的统计结果。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下几个参数对Myisam和Innodb存储引擎都计数</span></span>
+<span class="line">Com_select  执行<span class="keyword">select</span>操作的次数，一次查询只累加<span class="number">1</span></span>
+<span class="line">Com_insert  执行insert操作的次数，对于批量插入的insert操作，只累加一次</span>
+<span class="line">Com_update  执行update操作的次数</span>
+<span class="line">Com_delete　执行<span class="keyword">delete</span>操作的次数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 以下几个参数是针对Innodb存储引擎计数的，累加的算法也略有不同</span></span>
+<span class="line">Innodb_rows_read　   <span class="keyword">select</span>查询返回的行数</span>
+<span class="line">Innodb_rows_inserted 执行insert操作插入的行数</span>
+<span class="line">Innodb_rows_updated  执行update操作更新的行数</span>
+<span class="line">Innodb_rows_deleted　执行<span class="keyword">delete</span>操作删除的行数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 以下几个参数便于了解数据库的基本情况</span></span>
+<span class="line">Connections  试图连接Mysql服务器的次数</span>
+<span class="line">Uptime　     服务器工作时间</span>
+<span class="line">Slow_queries 慢查询的次数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 对于事务型的应用，通过Com_commit和Com_rollback可以了解事务提交和回滚的情况</span></span>
+<span class="line"><span class="comment"># 对于回滚操作非常频繁的数据库，可能意味着应用编写存在问题</span></span>
+</pre></td></tr></table></figure></p>
+<h4 id="定位执行效率较低的SQL语句"><a href="#定位执行效率较低的SQL语句" class="headerlink" title="定位执行效率较低的SQL语句"></a>定位执行效率较低的SQL语句</h4><p>可以通过以下两种方式定位执行效率较低的SQL语句：</p>
+<ol>
+<li>可以通过慢查询日志定位那些执行效率较低的sql语句，用<code>--log-slow-queries[=file_name]</code>选项启动时，mysqld写一个包含所有执行时间超过<code>long_query_time</code>秒的SQL语句的日志文件。可以链接到管理维护中的相关章节。</li>
+<li>慢查询日志在查询结束以后才纪录，所以在应用反映执行效率出现问题的时候查询慢查询日志并不能定位问题，可以使用<code>show processlist</code>命令查看当前MySQL在进行的线程，包括线程的状态，是否锁表等等，可以实时的查看SQL执行情况，同时对一些锁表操作进行优化</li>
+</ol>
+<h4 id="通过explain分析低效率的SQL语句的执行情况"><a href="#通过explain分析低效率的SQL语句的执行情况" class="headerlink" title="通过explain分析低效率的SQL语句的执行情况"></a>通过explain分析低效率的SQL语句的执行情况</h4><p>通过以上步骤查询到效率低的SQL后，可以通过explain或者desc获取MySQL如何执行SELECT语句的信息，包括select语句执行过程表如何连接和连接的次序。<br>执行计划说明：</p>
+<blockquote>
+<p>select_type：select类型<br>table：输出结果集的表<br>type：表示表的连接类型<br>　　1. 当表中仅有一行是type的值为system是最佳的连接类型；<br>　　2. 当select操作中使用索引进行表连接时type的值为ref；<br>　　3. 当select的表连接没有使用索引时，经常会看到type的值为ALL，表示对该表进行了全表扫描，这时需要考虑通过创建索引来提高表连接的效率。<br>possible_keys：表示查询时,可以使用的索引列.<br>key：表示使用的索引<br>key_len：索引长度<br>rows：扫描范围<br>Extra：执行情况的说明和描述</p>
+</blockquote>
+<h4 id="确定问题，并采取相应的优化措施"><a href="#确定问题，并采取相应的优化措施" class="headerlink" title="确定问题，并采取相应的优化措施"></a>确定问题，并采取相应的优化措施</h4><p>确认问题出现的原因后，可以根据情况采取相应的措施，进行优化提高执行的效率。 示例如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
+<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | <span class="keyword">ref</span>                | rows   | Extra       |</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | ALL    | NULL          | NULL    | NULL    | NULL               | <span class="number">331290</span> | Using where |</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY       | PRIMARY | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL        |</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这个例子，对表dept_emp全表扫描，效果不理想，对d表的dept_no字段创建了索引，查询需要扫描的行数明显较少</span></span>
+<span class="line">create <span class="keyword">index</span> idx_dept_emp_dn on dept_emp(dept_no);</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
+<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+<span class="line">| id | select_type | table | type   | possible_keys   | key             | key_len | <span class="keyword">ref</span>                | rows   | Extra                 |</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | <span class="keyword">ref</span>    | idx_dept_emp_dn | idx_dept_emp_dn | <span class="number">12</span>      | const              | <span class="number">164256</span> | Using <span class="keyword">index</span> condition |</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY         | PRIMARY         | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL                  |</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+</pre></td></tr></table></figure></p>
+<h3 id="MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？"><a href="#MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？" class="headerlink" title="MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？"></a>MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优化前</span></span>
+<span class="line">SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2 WHERE id = <span class="number">1</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 优化后</span></span>
+<span class="line">SELECT s1 from t1 a,(SELECT s1 FROM t2 WHERE id = <span class="number">1</span>) b where a.s1=b.s1;</span>
+</pre></td></tr></table></figure>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这是一个简单的示例，每1000个语句为一批插入提交，它避免了SQL注入和内存不足的问题</span></span>
+<span class="line"><span class="comment"># 插入到数据库使用批处理上万条记录，有可能产生的OutOfMemoryError</span></span>
+<span class="line">import java.sql.Connection;</span>
+<span class="line">import java.sql.PreparedStatement;</span>
+<span class="line">...</span>
+<span class="line">String sql = <span class="string">"insert into employee (name, city, phone) values (?, ?, ?)"</span>;</span>
+<span class="line">Connection connection = new getConnection();</span>
+<span class="line">PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="line">final <span class="keyword">int</span> batchSize = <span class="number">1000</span>;</span>
+<span class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</span>
+<span class="line"><span class="keyword">for</span> (Employee employee: employees) &#123;</span>
+<span class="line">    ps.setString(<span class="number">1</span>, employee.getName());</span>
+<span class="line">    ps.setString(<span class="number">2</span>, employee.getCity());</span>
+<span class="line">    ps.setString(<span class="number">3</span>, employee.getPhone());</span>
+<span class="line">    ps.addBatch();</span>
+<span class="line">    <span class="keyword">if</span>(++count % batchSize == <span class="number">0</span>) &#123;</span>
+<span class="line">        ps.executeBatch();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+<span class="line">ps.executeBatch(); <span class="regexp">//</span> insert remaining records</span>
+<span class="line">ps.close();</span>
+<span class="line">connection.close();</span>
+</pre></td></tr></table></figure>]]></content>
       
         <categories>
             
@@ -5424,39 +5463,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程]]></title>
-      <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/02_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
-      <content type="html"><![CDATA[<h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
-<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
-<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
-<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
-<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
-</ol>
-<a id="more"></a>
-<h2 id="如何缩短SQL调优时间"><a href="#如何缩短SQL调优时间" class="headerlink" title="如何缩短SQL调优时间"></a>如何缩短SQL调优时间</h2><ol>
-<li>先获取有助调优的数据库整体信息</li>
-<li>快速获取SQL运行台前信息</li>
-<li>快速拿到SQL关联幕后信息</li>
-</ol>
-<p>相关脚本：</p>
-<ul>
-<li><a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li>
-<li><a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li>
-</ul>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> sql优化 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化]]></title>
       <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/01_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
       <content type="html"><![CDATA[<h2 id="SQL优化不同场景对应工具"><a href="#SQL优化不同场景对应工具" class="headerlink" title="SQL优化不同场景对应工具"></a>SQL优化不同场景对应工具</h2><h3 id="数据库的整体分析调优工具"><a href="#数据库的整体分析调优工具" class="headerlink" title="数据库的整体分析调优工具"></a>数据库的整体分析调优工具</h3><ol>
@@ -5542,6 +5548,39 @@
 <span class="line"></span>
 <span class="line">SELECT dbms_advisor.get_task_report(<span class="string">'TASK_30670'</span>,<span class="string">'TEXT'</span>,<span class="string">'ALL'</span>) FROM DUAL ;</span>
 </pre></td></tr></table></figure>]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> sql优化 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程]]></title>
+      <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/02_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
+<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
+<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
+<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
+<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
+</ol>
+<a id="more"></a>
+<h2 id="如何缩短SQL调优时间"><a href="#如何缩短SQL调优时间" class="headerlink" title="如何缩短SQL调优时间"></a>如何缩短SQL调优时间</h2><ol>
+<li>先获取有助调优的数据库整体信息</li>
+<li>快速获取SQL运行台前信息</li>
+<li>快速拿到SQL关联幕后信息</li>
+</ol>
+<p>相关脚本：</p>
+<ul>
+<li><a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li>
+<li><a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li>
+</ul>
+]]></content>
       
         
         <tags>
@@ -9371,6 +9410,133 @@
     </entry>
     
     <entry>
+      <title><![CDATA[Hugepage计算脚本]]></title>
+      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
+<li>Oracle Database instance(s) are up and running</li>
+<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
+<li>The shared memory segments can be listed by command “ipcs -m”</li>
+<li>Oracle Linux</li>
+<li>Package ‘bc’ installed<a id="more"></a>
+</li>
+</ol>
+<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
+<li>Create a text file named hugepages_settings.sh</li>
+<li><p>Copy the contents below in the file</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># hugepages_settings.sh</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># Linux bash script to compute values for the</span></span>
+<span class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></span>
+<span class="line"><span class="comment"># on Oracle Linux</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></span>
+<span class="line"><span class="comment"># segments available when the script is run, no matter it</span></span>
+<span class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></span>
+<span class="line"><span class="comment">#</span></span>
+<span class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></span>
+<span class="line"><span class="comment"># http://support.oracle.com</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Welcome text</span></span>
+<span class="line">echo <span class="string">"</span>
+<span class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </span>
+<span class="line">(http://support.oracle.com) where it is intended to compute values for </span>
+<span class="line">the recommended HugePages/HugeTLB configuration for the current shared </span>
+<span class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</span>
+<span class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</span>
+<span class="line"> * The 'pga_aggregate_target' is outside the SGA and </span>
+<span class="line">   you should accommodate this while calculating SGA size.</span>
+<span class="line"> * In case you changes the DB SGA size, </span>
+<span class="line">   as the new SGA will not fit in the previous HugePages configuration, </span>
+<span class="line">   it had better disable the whole HugePages, </span>
+<span class="line">   start the DB with new SGA size and run the script again.</span>
+<span class="line">And make sure that:</span>
+<span class="line"> * Oracle Database instance(s) are up and running</span>
+<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </span>
+<span class="line">   (See Doc ID 749851.1)</span>
+<span class="line"> * The shared memory segments can be listed by command:</span>
+<span class="line">     # ipcs -m</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Press Enter to proceed..."</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">read</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Check for the kernel version</span></span>
+<span class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Find out the HugePage size</span></span>
+<span class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></span>
+<span class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</span>
+<span class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></span>
+<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
+<span class="line">fi</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Initialize the counter</span></span>
+<span class="line">NUM_PG=<span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></span>
+<span class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></span>
+<span class="line"><span class="keyword">do</span></span>
+<span class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></span>
+<span class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</span>
+<span class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></span>
+<span class="line">    fi</span>
+<span class="line">done</span>
+<span class="line"></span>
+<span class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></span>
+<span class="line"><span class="comment"># Bail out if that is the case</span></span>
+<span class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</span>
+<span class="line">    echo <span class="string">"***********"</span></span>
+<span class="line">    echo <span class="string">"** ERROR **"</span></span>
+<span class="line">    echo <span class="string">"***********"</span></span>
+<span class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span>
+<span class="line">HugePages configuration. HugePages can only be used for shared memory segments </span>
+<span class="line">that you can list by command:</span>
+<span class="line"></span>
+<span class="line">    # ipcs -m</span>
+<span class="line"></span>
+<span class="line">of a size that can match an Oracle Database SGA. Please make sure that:</span>
+<span class="line"> * Oracle Database instance is up and running </span>
+<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</span></span>
+<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
+<span class="line">fi</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Finish with results</span></span>
+<span class="line">case $KERN in</span>
+<span class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</span>
+<span class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</span>
+<span class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</span>
+<span class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
+<span class="line">esac</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># End</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>Run:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</span>
+<span class="line">./hugepages_settings.sh</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化]]></title>
       <url>/2017/05/08/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/02_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
@@ -9569,133 +9735,6 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Hugepage计算脚本]]></title>
-      <url>/2017/05/08/oracle/hugepage%E8%AE%A1%E7%AE%97%E8%84%9A%E6%9C%AC/</url>
-      <content type="html"><![CDATA[<h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
-<li>Oracle Database instance(s) are up and running</li>
-<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
-<li>The shared memory segments can be listed by command “ipcs -m”</li>
-<li>Oracle Linux</li>
-<li>Package ‘bc’ installed<a id="more"></a>
-</li>
-</ol>
-<h2 id="CONFIGURING"><a href="#CONFIGURING" class="headerlink" title="CONFIGURING"></a>CONFIGURING</h2><ol>
-<li>Create a text file named hugepages_settings.sh</li>
-<li><p>Copy the contents below in the file</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># hugepages_settings.sh</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># Linux bash script to compute values for the</span></span>
-<span class="line"><span class="comment"># recommended HugePages/HugeTLB configuration</span></span>
-<span class="line"><span class="comment"># on Oracle Linux</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># Note: This script does calculation for all shared memory</span></span>
-<span class="line"><span class="comment"># segments available when the script is run, no matter it</span></span>
-<span class="line"><span class="comment"># is an Oracle RDBMS shared memory segment or not.</span></span>
-<span class="line"><span class="comment">#</span></span>
-<span class="line"><span class="comment"># This script is provided by Doc ID 401749.1 from My Oracle Support </span></span>
-<span class="line"><span class="comment"># http://support.oracle.com</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Welcome text</span></span>
-<span class="line">echo <span class="string">"</span>
-<span class="line">This script is provided by Doc ID 401749.1 from My Oracle Support </span>
-<span class="line">(http://support.oracle.com) where it is intended to compute values for </span>
-<span class="line">the recommended HugePages/HugeTLB configuration for the current shared </span>
-<span class="line">memory segments on Oracle Linux. Before proceeding with the execution please note following:</span>
-<span class="line"> * For ASM instance, it needs to configure ASMM instead of AMM.</span>
-<span class="line"> * The 'pga_aggregate_target' is outside the SGA and </span>
-<span class="line">   you should accommodate this while calculating SGA size.</span>
-<span class="line"> * In case you changes the DB SGA size, </span>
-<span class="line">   as the new SGA will not fit in the previous HugePages configuration, </span>
-<span class="line">   it had better disable the whole HugePages, </span>
-<span class="line">   start the DB with new SGA size and run the script again.</span>
-<span class="line">And make sure that:</span>
-<span class="line"> * Oracle Database instance(s) are up and running</span>
-<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not setup </span>
-<span class="line">   (See Doc ID 749851.1)</span>
-<span class="line"> * The shared memory segments can be listed by command:</span>
-<span class="line">     # ipcs -m</span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line">Press Enter to proceed..."</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">read</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Check for the kernel version</span></span>
-<span class="line">KERN=<span class="string">`uname -r | awk -F. '&#123; printf("%d.%d\n",$1,$2); &#125;'`</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Find out the HugePage size</span></span>
-<span class="line">HPG_SZ=<span class="string">`grep Hugepagesize /proc/meminfo | awk '&#123;print $2&#125;'`</span></span>
-<span class="line"><span class="keyword">if</span> [ -z <span class="string">"$HPG_SZ"</span> ];then</span>
-<span class="line">    echo <span class="string">"The hugepages may not be supported in the system where the script is being executed."</span></span>
-<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
-<span class="line">fi</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Initialize the counter</span></span>
-<span class="line">NUM_PG=<span class="number">0</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Cumulative number of pages required to handle the running shared memory segments</span></span>
-<span class="line"><span class="keyword">for</span> SEG_BYTES in <span class="string">`ipcs -m | cut -c44-300 | awk '&#123;print $1&#125;' | grep "[0-9][0-9]*"`</span></span>
-<span class="line"><span class="keyword">do</span></span>
-<span class="line">    MIN_PG=<span class="string">`echo "$SEG_BYTES/($HPG_SZ*1024)" | bc -q`</span></span>
-<span class="line">    <span class="keyword">if</span> [ $MIN_PG -<span class="keyword">gt</span> <span class="number">0</span> ]; then</span>
-<span class="line">        NUM_PG=<span class="string">`echo "$NUM_PG+$MIN_PG+1" | bc -q`</span></span>
-<span class="line">    fi</span>
-<span class="line">done</span>
-<span class="line"></span>
-<span class="line">RES_BYTES=<span class="string">`echo "$NUM_PG * $HPG_SZ * 1024" | bc -q`</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># An SGA less than 100MB does not make sense</span></span>
-<span class="line"><span class="comment"># Bail out if that is the case</span></span>
-<span class="line"><span class="keyword">if</span> [ $RES_BYTES -<span class="keyword">lt</span> <span class="number">100000000</span> ]; then</span>
-<span class="line">    echo <span class="string">"***********"</span></span>
-<span class="line">    echo <span class="string">"** ERROR **"</span></span>
-<span class="line">    echo <span class="string">"***********"</span></span>
-<span class="line">    echo <span class="string">"Sorry! There are not enough total of shared memory segments allocated for </span>
-<span class="line">HugePages configuration. HugePages can only be used for shared memory segments </span>
-<span class="line">that you can list by command:</span>
-<span class="line"></span>
-<span class="line">    # ipcs -m</span>
-<span class="line"></span>
-<span class="line">of a size that can match an Oracle Database SGA. Please make sure that:</span>
-<span class="line"> * Oracle Database instance is up and running </span>
-<span class="line"> * Oracle Database 11g Automatic Memory Management (AMM) is not configured"</span></span>
-<span class="line">    <span class="keyword">exit</span> <span class="number">1</span></span>
-<span class="line">fi</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># Finish with results</span></span>
-<span class="line">case $KERN in</span>
-<span class="line">    <span class="string">'2.2'</span>) echo <span class="string">"Kernel version $KERN is not supported. Exiting."</span> ;;</span>
-<span class="line">    <span class="string">'2.4'</span>) HUGETLB_POOL=<span class="string">`echo "$NUM_PG*$HPG_SZ/1024" | bc -q`</span>;</span>
-<span class="line">           echo <span class="string">"Recommended setting: vm.hugetlb_pool = $HUGETLB_POOL"</span> ;;</span>
-<span class="line">    <span class="string">'2.6'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'3.8'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'3.10'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">    <span class="string">'4.1'</span>) echo <span class="string">"Recommended setting: vm.nr_hugepages = $NUM_PG"</span> ;;</span>
-<span class="line">esac</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># End</span></span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>Run:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">chmod</span> +<span class="keyword">x</span> hugepages_settings.sh</span>
-<span class="line">./hugepages_settings.sh</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
             
         </tags>
         
@@ -15571,80 +15610,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[hexo博客添加常用插件]]></title>
-      <url>/2017/02/10/tools/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/</url>
-      <content type="html"><![CDATA[<p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/" target="_blank" rel="external"><code>http://hexo.io/plugins</code></a></p>
-<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf" target="_blank" rel="external">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
-</pre></td></tr></table></figure>
-<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
-<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
-</pre></td></tr></table></figure>
-<a id="more"></a>
-<h2 id="添加生成文章目录插件hexo-toc"><a href="#添加生成文章目录插件hexo-toc" class="headerlink" title="添加生成文章目录插件hexo-toc"></a>添加生成文章目录插件hexo-toc</h2><ol>
-<li><p>安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-toc --save</span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>配置<br>在博客根目录下的<code>_config.yml</code>中如下配置：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toc:</span>
-<span class="line">  maxdepth: 3</span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>使用<br>在Markdown中需要显示文章目录的地方添加 </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!-- toc --&gt;</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="添加百度统计支持"><a href="#添加百度统计支持" class="headerlink" title="添加百度统计支持"></a>添加百度统计支持</h2><p><code>yilia</code>主题自带统计支持</p>
-<ol>
-<li><p>打开<a href="http://tongji.baidu.com/web/welcome/login" target="_blank" rel="external">百度统计</a>网站，注册账号<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_01.png" alt="baidu_stat_01.png"></p>
-</li>
-<li><p>填写注册信息<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_02.png" alt="baidu_stat_02.png"></p>
-</li>
-<li><p>记录百度统计ID号码<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_03.png" alt="baidu_stat_03.png"></p>
-</li>
-<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Miscellaneous</span></span>
-<span class="line">baidu_analytics: <span class="string">'xxxxxxxxxxxx'</span>   <span class="comment"># xxxxxx是刚获得的百度统计ID号码</span></span>
-</pre></td></tr></table></figure>
-</li>
-<li><p>统计代码安装检查，确保代码安装正确<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_04.png" alt="baidu_stat_04.png"></p>
-</li>
-</ol>
-<h2 id="添加多说评论支持"><a href="#添加多说评论支持" class="headerlink" title="添加多说评论支持"></a>添加多说评论支持</h2><ol>
-<li><p>打开<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>网站<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_01.png" alt="duoshuo_01.png"></p>
-</li>
-<li><p>选择微信登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_02.png" alt="duoshuo_02.png"></p>
-</li>
-<li><p>点击<code>我要安装</code><br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_03.png" alt="duoshuo_03.png"></p>
-</li>
-<li><p>填写相应信息<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_04.png" alt="duoshuo_04.png"></p>
-</li>
-<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#是否开启多说评论，开启填写你在多说申请的项目的short_name: dbanote</span></span>
-<span class="line"><span class="comment">#duoshuo: false</span></span>
-<span class="line">duoshuo: dbanote</span>
-</pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="http://www.ituring.com.cn/article/199624" target="_blank" rel="external">Hexo站点中添加文章目录以及归档</a></li>
-<li><a href="http://www.cnblogs.com/peihao/p/5269131.html" target="_blank" rel="external">hexo优化目录</a></li>
-</ul>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> tools </tag>
-            
-            <tag> hexo </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[hexo更换主题并个性化定制]]></title>
       <url>/2017/02/10/tools/hexo%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98%E5%B9%B6%E4%B8%AA%E6%80%A7%E5%8C%96%E5%AE%9A%E5%88%B6/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -15795,6 +15760,80 @@
 </pre></td></tr></table></figure>
 </li>
 </ol>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> tools </tag>
+            
+            <tag> hexo </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[hexo博客添加常用插件]]></title>
+      <url>/2017/02/10/tools/hexo%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%B8%B8%E7%94%A8%E6%8F%92%E4%BB%B6/</url>
+      <content type="html"><![CDATA[<p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/" target="_blank" rel="external"><code>http://hexo.io/plugins</code></a></p>
+<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf" target="_blank" rel="external">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
+</pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
+<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="添加生成文章目录插件hexo-toc"><a href="#添加生成文章目录插件hexo-toc" class="headerlink" title="添加生成文章目录插件hexo-toc"></a>添加生成文章目录插件hexo-toc</h2><ol>
+<li><p>安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-toc --save</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>配置<br>在博客根目录下的<code>_config.yml</code>中如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">toc:</span>
+<span class="line">  maxdepth: 3</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>使用<br>在Markdown中需要显示文章目录的地方添加 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;!-- toc --&gt;</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="添加百度统计支持"><a href="#添加百度统计支持" class="headerlink" title="添加百度统计支持"></a>添加百度统计支持</h2><p><code>yilia</code>主题自带统计支持</p>
+<ol>
+<li><p>打开<a href="http://tongji.baidu.com/web/welcome/login" target="_blank" rel="external">百度统计</a>网站，注册账号<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_01.png" alt="baidu_stat_01.png"></p>
+</li>
+<li><p>填写注册信息<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_02.png" alt="baidu_stat_02.png"></p>
+</li>
+<li><p>记录百度统计ID号码<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_03.png" alt="baidu_stat_03.png"></p>
+</li>
+<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Miscellaneous</span></span>
+<span class="line">baidu_analytics: <span class="string">'xxxxxxxxxxxx'</span>   <span class="comment"># xxxxxx是刚获得的百度统计ID号码</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>统计代码安装检查，确保代码安装正确<br><img src="http://oligvdnzp.bkt.clouddn.com/baidu_stat_04.png" alt="baidu_stat_04.png"></p>
+</li>
+</ol>
+<h2 id="添加多说评论支持"><a href="#添加多说评论支持" class="headerlink" title="添加多说评论支持"></a>添加多说评论支持</h2><ol>
+<li><p>打开<a href="http://duoshuo.com/" target="_blank" rel="external">多说</a>网站<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_01.png" alt="duoshuo_01.png"></p>
+</li>
+<li><p>选择微信登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_02.png" alt="duoshuo_02.png"></p>
+</li>
+<li><p>点击<code>我要安装</code><br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_03.png" alt="duoshuo_03.png"></p>
+</li>
+<li><p>填写相应信息<br><img src="http://oligvdnzp.bkt.clouddn.com/duoshuo_04.png" alt="duoshuo_04.png"></p>
+</li>
+<li><p>编辑修改<code>themes\yilia</code>目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#是否开启多说评论，开启填写你在多说申请的项目的short_name: dbanote</span></span>
+<span class="line"><span class="comment">#duoshuo: false</span></span>
+<span class="line">duoshuo: dbanote</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="http://www.ituring.com.cn/article/199624" target="_blank" rel="external">Hexo站点中添加文章目录以及归档</a></li>
+<li><a href="http://www.cnblogs.com/peihao/p/5269131.html" target="_blank" rel="external">hexo优化目录</a></li>
+</ul>
 ]]></content>
       
         
