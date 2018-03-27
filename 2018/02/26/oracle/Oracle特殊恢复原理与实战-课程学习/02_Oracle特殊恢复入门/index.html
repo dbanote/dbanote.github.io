@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="控制文件没有备份全部丢失恢复实战准备测试环境SQL&amp;gt; archive log list;
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            USE_DB_RECOVERY_FILE_DEST
+Oldest onlin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle特殊恢复原理与实战_02 Control file丢失的恢复">
+<meta property="og:url" content="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="控制文件没有备份全部丢失恢复实战准备测试环境SQL&amp;gt; archive log list;
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            USE_DB_RECOVERY_FILE_DEST
+Oldest onlin">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0226_oracle_dsi_01.png">
+<meta property="og:updated_time" content="2018-02-26T10:40:38.132Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle特殊恢复原理与实战_02 Control file丢失的恢复">
+<meta name="twitter:description" content="控制文件没有备份全部丢失恢复实战准备测试环境SQL&amp;gt; archive log list;
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            USE_DB_RECOVERY_FILE_DEST
+Oldest onlin">
+<meta name="twitter:image" content="http://p2c0rtsgc.bkt.clouddn.com/0226_oracle_dsi_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle特殊恢复原理与实战_02 Control file丢失的恢复 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-02-25T16:00:00.000Z" itemprop="datePublished">2018-02-26</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle特殊恢复原理与实战_02 Control file丢失的恢复
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="控制文件没有备份全部丢失恢复实战"><a href="#控制文件没有备份全部丢失恢复实战" class="headerlink" title="控制文件没有备份全部丢失恢复实战"></a>控制文件没有备份全部丢失恢复实战</h2><h3 id="准备测试环境"><a href="#准备测试环境" class="headerlink" title="准备测试环境"></a>准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
+<span class="line">Automatic archival             Enabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">110</span></span>
+<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">112</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">112</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">READ WRITE</span>
+<span class="line"></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">set pagesize <span class="number">9999</span></span>
+<span class="line">col name <span class="keyword">for</span> a6<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> * from v$controlfile;</span>
+<span class="line"></span>
+<span class="line">STATUS  NAME                                                         IS<span class="number">_</span> BLOCK_SIZE FILE_SIZE_BLKS</span>
+<span class="line">------- ------------------------------------------------------------ --- ---------- --------------</span>
+<span class="line">        <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/control</span>01.ctl                   NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line">        /u01/app/oracle/fast_recovery_area/orcl/control02.ctl        NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 为方便后续测试，先生成一个创建控制文件的脚本(也可以不生成，创建脚本可以oracle官方文档中找到)</span></span>
+<span class="line">alter database backup controlfile to trace as <span class="string">'/tmp/control_bak.sql'</span>;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="摸拟控制文件全部丢失"><a href="#摸拟控制文件全部丢失" class="headerlink" title="摸拟控制文件全部丢失"></a>摸拟控制文件全部丢失</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">rm -rf /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line">rm -rf /u01/app/oracle/fast_recovery_area/orcl/control02.ctl</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 丢失控制文件后，数据库仍能正常进行相关操作</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter system checkpoint;</span>
+<span class="line"></span>
+<span class="line">System altered.</span></span>
+</pre></td></tr></table></figure>
+<h3 id="关闭和打开数据库报错"><a href="#关闭和打开数据库报错" class="headerlink" title="关闭和打开数据库报错"></a>关闭和打开数据库报错</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> immediate</span>
+<span class="line">ORA-<span class="number">00210</span>: cannot <span class="keyword">open</span> the specified control file</span>
+<span class="line">ORA-<span class="number">00202</span>: control file: <span class="string">'/u01/app/oracle/oradata/orcl/control01.ctl'</span></span>
+<span class="line">ORA-<span class="number">27041</span>: unable to <span class="keyword">open</span> file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 强制关闭</span></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> abort</span>
+<span class="line">ORACLE instance shut down.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; startup</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">905970328</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3456106496</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">ORA-<span class="number">00205</span>: error in identifying control file, check alert <span class="keyword">log</span> <span class="keyword">for</span> more info</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># alert日志中报错信息</span></span>
+<span class="line">Mon Feb <span class="number">26</span> <span class="number">14</span>:<span class="number">16</span>:<span class="number">27</span> <span class="number">2018</span></span>
+<span class="line">ALTER DATABASE   MOUNT</span>
+<span class="line">ORA-<span class="number">00210</span>: cannot <span class="keyword">open</span> the specified control file</span>
+<span class="line">ORA-<span class="number">00202</span>: control file: <span class="string">'/u01/app/oracle/fast_recovery_area/orcl/control02.ctl'</span></span>
+<span class="line">ORA-<span class="number">27037</span>: unable to obtain file status</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line">ORA-<span class="number">00210</span>: cannot <span class="keyword">open</span> the specified control file</span>
+<span class="line">ORA-<span class="number">00202</span>: control file: <span class="string">'/u01/app/oracle/oradata/orcl/control01.ctl'</span></span>
+<span class="line">ORA-<span class="number">27037</span>: unable to obtain file status</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line">ORA-<span class="number">205</span> signalled during: ALTER DATABASE   MOUNT...</span>
+<span class="line">Mon Feb <span class="number">26</span> <span class="number">14</span>:<span class="number">16</span>:<span class="number">27</span> <span class="number">2018</span></span>
+<span class="line">Checker run found <span class="number">2</span> new persistent data failures</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库无法mount情况下获得数据库基本信息"><a href="#数据库无法mount情况下获得数据库基本信息" class="headerlink" title="数据库无法mount情况下获得数据库基本信息"></a>数据库无法mount情况下获得数据库基本信息</h3><h4 id="获得DB-NAME"><a href="#获得DB-NAME" class="headerlink" title="获得DB_NAME"></a>获得DB_NAME</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> status from v$instance;</span>
+<span class="line"></span>
+<span class="line">STATUS</span>
+<span class="line">------------------------</span>
+<span class="line">STARTED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; show parameter db_name</span>
+<span class="line"></span>
+<span class="line">NAME                                 TYPE                   VALUE</span>
+<span class="line">------------------------------------ ---------------------- ------------------------------</span>
+<span class="line">db_name                              string                 orcl</span>
+</pre></td></tr></table></figure>
+<p>也可以使用<a href="/2018/02/25/oracle/Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/01_Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%85%A5%E9%97%A8/#BBED解析DB-NAME">BBED解析DB-NAME</a></p>
+<h4 id="获得字符集"><a href="#获得字符集" class="headerlink" title="获得字符集"></a>获得字符集</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> * from v$version;</span>
+<span class="line"></span>
+<span class="line">BANNER</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line">Oracle Database <span class="number">11</span>g Enterprise Edition Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - <span class="number">64</span>bit Production</span>
+<span class="line">PL/SQL Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production</span>
+<span class="line">CORE    <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span>      Production</span>
+<span class="line">TNS <span class="keyword">for</span> Linux: Version <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production</span>
+<span class="line">NLSRTL Version <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在同版本可正常打开的数据库中执行</span></span>
+<span class="line"><span class="keyword">select</span> distinct dbms_rowid.rowid_relative_fno(rowid) file<span class="comment">#,</span></span>
+<span class="line">       dbms_rowid.rowid_block_number(rowid) block<span class="comment">#</span></span>
+<span class="line">  from props$;</span>
+<span class="line"></span>
+<span class="line">     FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span>        <span class="number">801</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用dd工具dump</span></span>
+<span class="line">dd <span class="keyword">if</span>=<span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf of=<span class="regexp">/tmp/props</span> bs=<span class="number">8192</span> skip=<span class="number">801</span> count=<span class="number">1</span></span>
+<span class="line"></span>
+<span class="line">strings /tmp/props</span>
+<span class="line"><span class="comment">#------------------------------</span></span>
+<span class="line">......</span>
+<span class="line">NLS_CHARACTERSET</span>
+<span class="line">ZHS16GBK</span>
+<span class="line">Character set,</span>
+<span class="line">......</span>
+<span class="line"><span class="comment">#------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h4 id="确认数据库是否归档"><a href="#确认数据库是否归档" class="headerlink" title="确认数据库是否归档"></a>确认数据库是否归档</h4><p>查看归档目录是否有文件，本测试是在归档环境</p>
+<h3 id="恢复控制文件"><a href="#恢复控制文件" class="headerlink" title="恢复控制文件"></a>恢复控制文件</h3><p>结合上面获得的信息，构建创建controlfile的脚本恢复控制文件，根据REDO LOG日志是否有丢失，有以下两种</p>
+<h4 id="NORESETLOGS"><a href="#NORESETLOGS" class="headerlink" title="NORESETLOGS"></a>NORESETLOGS</h4><p>REDO LOG日志没有丢失时使用NORESETLOGS脚本创建控制文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">STARTUP NOMOUNT</span>
+<span class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL"</span> NORESETLOGS  ARCHIVELOG</span>
+<span class="line">    MAXLOGFILES <span class="number">16</span></span>
+<span class="line">    MAXLOGMEMBERS <span class="number">3</span></span>
+<span class="line">    MAXDATAFILES <span class="number">100</span></span>
+<span class="line">    MAXINSTANCES <span class="number">8</span></span>
+<span class="line">    MAXLOGHISTORY <span class="number">292</span></span>
+<span class="line">LOGFILE</span>
+<span class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo01.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span></span>
+<span class="line">-- STANDBY LOGFILE</span>
+<span class="line">DATAFILE</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/users01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/dsi01.dbf'</span></span>
+<span class="line">CHARACTER SET ZHS16GBK</span>
+<span class="line">;</span>
+</pre></td></tr></table></figure></p>
+<p>控制文件创建成功后，数据库打开到mount状态下<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 可以看到，两个controlfile都已被创建成功</span></span>
+<span class="line">ll /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">10076160</span> Feb <span class="number">26</span> <span class="number">15</span>:<span class="number">58</span> /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line"></span>
+<span class="line">ll /u01/app/oracle/fast_recovery_area/orcl/control02.ctl</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">10076160</span> Feb <span class="number">26</span> <span class="number">15</span>:<span class="number">59</span> /u01/app/oracle/fast_recovery_area/orcl/control02.ctl</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 数据库打开到mount状态下</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> status from v$instance;</span>
+<span class="line"></span>
+<span class="line">STATUS</span>
+<span class="line">------------</span>
+<span class="line">MOUNTED</span>
+</pre></td></tr></table></figure></p>
+<p>手工注册归档文件并打开数据库<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> SEQUENCE<span class="comment">#,RESETLOGS_ID from v$archived_log;</span></span>
+<span class="line"><span class="keyword">no</span> rows selected</span>
+<span class="line"></span>
+<span class="line">alter database register physical logfile <span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_02_26/o1_mf_1_1_f97c8j9n_.arc'</span>;</span>
+<span class="line">alter database register physical logfile <span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_02_26/o1_mf_1_2_f97c8k76_.arc'</span>;</span>
+<span class="line">alter database register physical logfile <span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_02_26/o1_mf_1_3_f97c90sy_.arc'</span>;</span>
+<span class="line">alter database register physical logfile <span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_02_26/o1_mf_1_4_f97c92v1_.arc'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 如果归档很多，使用rman catalog方式注册归档，命令如下</span></span>
+<span class="line">rman target /</span>
+<span class="line">catalog start with <span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_02_26/*.dbf'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> SEQUENCE<span class="comment">#,RESETLOGS_ID from v$archived_log;</span></span>
+<span class="line"></span>
+<span class="line"> SEQUENCE<span class="comment"># RESETLOGS_ID</span></span>
+<span class="line">---------- ------------</span>
+<span class="line">         <span class="number">1</span>    <span class="number">969114806</span></span>
+<span class="line">         <span class="number">2</span>    <span class="number">969114806</span></span>
+<span class="line">         <span class="number">3</span>    <span class="number">969114806</span></span>
+<span class="line">         <span class="number">4</span>    <span class="number">969114806</span></span>
+<span class="line"><span class="comment"># 恢复数据库</span></span>
+<span class="line">SQL&gt; recover database;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 所有redo日志归档（可选）</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> archive <span class="keyword">log</span> all;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 打开数据库</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建临时表空间</span></span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl/temp01.dbf'</span></span>
+<span class="line">     SIZE <span class="number">500</span><span class="keyword">m</span>  REUSE AUTOEXTEND ON NEXT <span class="number">50</span><span class="keyword">m</span>  MAXSIZE <span class="number">32767</span>M;</span>
+</pre></td></tr></table></figure></p>
+<h4 id="RESETLOGS"><a href="#RESETLOGS" class="headerlink" title="RESETLOGS"></a>RESETLOGS</h4><p>重新准备环境<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 正常关闭数据库</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除所有控制文件和redo log文件</span></span>
+<span class="line">rm -rf /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line">rm -rf /u01/app/oracle/fast_recovery_area/orcl/control02.ctl</span>
+<span class="line">rm -rf /u01/app/oracle/oradata/orcl/<span class="keyword">redo</span>*.log</span>
+<span class="line"></span>
+<span class="line">ll /u01/app/oracle/oradata/orcl/</span>
+<span class="line">total <span class="number">2237496</span></span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">524296192</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">07</span> dsi01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">786440192</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">07</span> sysaux01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">796925952</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">07</span> system01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">524296192</span> Feb <span class="number">26</span> <span class="number">16</span>:<span class="number">34</span> temp01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">173023232</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">07</span> undotbs01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall   <span class="number">5251072</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">07</span> users01.dbf</span>
+</pre></td></tr></table></figure></p>
+<p>REDO LOG日志有丢失时需要重建时用RESETLOGS脚本创建控制文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">STARTUP NOMOUNT</span>
+<span class="line">CREATE CONTROLFILE REUSE DATABASE <span class="string">"ORCL"</span> RESETLOGS  ARCHIVELOG</span>
+<span class="line">    MAXLOGFILES <span class="number">16</span></span>
+<span class="line">    MAXLOGMEMBERS <span class="number">3</span></span>
+<span class="line">    MAXDATAFILES <span class="number">100</span></span>
+<span class="line">    MAXINSTANCES <span class="number">8</span></span>
+<span class="line">    MAXLOGHISTORY <span class="number">292</span></span>
+<span class="line">LOGFILE</span>
+<span class="line">  GROUP <span class="number">1</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo01.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">2</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span>,</span>
+<span class="line">  GROUP <span class="number">3</span> <span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span>  SIZE <span class="number">50</span>M BLOCKSIZE <span class="number">512</span></span>
+<span class="line">-- STANDBY LOGFILE</span>
+<span class="line">DATAFILE</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/sysaux01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/undotbs01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/users01.dbf'</span>,</span>
+<span class="line">  <span class="string">'/u01/app/oracle/oradata/orcl/dsi01.dbf'</span></span>
+<span class="line">CHARACTER SET ZHS16GBK</span>
+<span class="line">;</span>
+<span class="line"><span class="comment"># 控制文件创建成功后，数据库打开到mount状态下</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 直接recover database报错</span></span>
+<span class="line">SQL&gt; recover database;</span>
+<span class="line">ORA-<span class="number">002</span>83: recovery session canceled due to errors</span>
+<span class="line">ORA-<span class="number">01610</span>: recovery using the BACKUP CONTROLFILE option must be done</span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover database using backup controlfile <span class="keyword">until</span> cancel;</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------</span></span>
+<span class="line">ORA-<span class="number">0027</span>9: change <span class="number">2985399</span> generated at <span class="number">02</span>/<span class="number">26</span>/<span class="number">2018</span> <span class="number">17</span>:<span class="number">07</span>:08 needed <span class="keyword">for</span> thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">002</span>89: suggestion :</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/ORCL/archivelog/<span class="number">2018_02_26</span>/o1_mf_1_10<span class="number">_</span>%u_.arc</span>
+<span class="line">ORA-<span class="number">002</span>8<span class="number">0</span>: change <span class="number">2985399</span> <span class="keyword">for</span> thread <span class="number">1</span> is in sequence <span class="comment">#10</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Specify <span class="keyword">log</span>: &#123;&lt;RET&gt;=suggested | filename | AUTO | CANCEL&#125;</span>
+<span class="line">CANCEL</span>
+<span class="line">Media recovery cancelled.</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># resetlogs打开数据库</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建临时表空间</span></span>
+<span class="line">ALTER TABLESPACE TEMP ADD TEMPFILE <span class="string">'/u01/app/oracle/oradata/orcl/temp01.dbf'</span></span>
+<span class="line">     SIZE <span class="number">500</span><span class="keyword">m</span>  REUSE AUTOEXTEND ON NEXT <span class="number">50</span><span class="keyword">m</span>  MAXSIZE <span class="number">32767</span>M;</span>
+</pre></td></tr></table></figure></p>
+<h2 id="RESETLOGS解析"><a href="#RESETLOGS解析" class="headerlink" title="RESETLOGS解析"></a>RESETLOGS解析</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0226_oracle_dsi_01.png" alt=""></p>
+<h2 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CONFIGURE CONTROLFILE AUTOBACKUP ON;</span>
+<span class="line">CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO <span class="string">'/oradata/rmanbackup/ctrl_bak_%F'</span>;</span>
+<span class="line">backup database <span class="keyword">format</span> <span class="string">'/oradata/rmanbackup/full_bak_%d_%T_%s_%U.bak'</span>;</span>
+<span class="line">restore controlfile from autobackup;</span>
+<span class="line"></span>
+<span class="line">restore controlfile to <span class="string">'/u01/app/oracle/oradata/orcl/control01.ctl'</span> from <span class="string">'/oradata/rmanbackup/ctrl_bak_c-1493347395-20180226-02'</span>;</span>
+<span class="line"></span>
+<span class="line">list incarnation;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from v$database_incarnation;</span>
+<span class="line"></span>
+<span class="line">INCARNATION<span class="comment"># RESETLOGS_CHANGE# RESETLOGS_TIME      PRIOR_RESETLOGS_CHANGE# PRIOR_RESETLOGS_TIM STATUS  RESETLOGS_ID PRIOR_INCARNATION# FLASHBACK_DATABASE_ALLOWED</span></span>
+<span class="line">------------ ----------------- ------------------- ----------------------- ------------------- ------- ------------ ------------------ --------------------------</span>
+<span class="line">           <span class="number">1</span>           <span class="number">2962246</span> <span class="number">2018</span>-<span class="number">02</span>-<span class="number">26</span> <span class="number">14</span>:<span class="number">33</span>:<span class="number">26</span>                  <span class="number">925702</span> <span class="number">2018</span>-<span class="number">01</span>-<span class="number">16</span> <span class="number">12</span>:<span class="number">57</span>:<span class="number">41</span> PARENT     <span class="number">969114806</span>                  <span class="number">0</span> NO</span>
+<span class="line">           <span class="number">2</span>           <span class="number">2985400</span> <span class="number">2018</span>-<span class="number">02</span>-<span class="number">26</span> <span class="number">17</span>:<span class="number">24</span>:<span class="number">23</span>                 <span class="number">2962246</span> <span class="number">2018</span>-<span class="number">02</span>-<span class="number">26</span> <span class="number">14</span>:<span class="number">33</span>:<span class="number">26</span> CURRENT    <span class="number">969125063</span>                  <span class="number">1</span> NO</span>
+</pre></td></tr></table></figure>
+<h2 id="课后作业"><a href="#课后作业" class="headerlink" title="课后作业"></a>课后作业</h2><h3 id="哪些场景下需要用alter-database-open-resetlogs打开库？"><a href="#哪些场景下需要用alter-database-open-resetlogs打开库？" class="headerlink" title="哪些场景下需要用alter database open resetlogs打开库？"></a>哪些场景下需要用alter database open resetlogs打开库？</h3><ol>
+<li>在不完全恢复（介质恢复）时</li>
+<li>使用备份的控制文件进行数据库恢复时</li>
+<li>丢失redo log，并使用RESETLOGS方式手工创建控制文件进行数据库恢复时</li>
+</ol>
+<h3 id="在删除所有controlfile和redolog日志的情况下shutdown-abort异常关库，能用resetlogs打开库吗？为什么？"><a href="#在删除所有controlfile和redolog日志的情况下shutdown-abort异常关库，能用resetlogs打开库吗？为什么？" class="headerlink" title="在删除所有controlfile和redolog日志的情况下shutdown abort异常关库，能用resetlogs打开库吗？为什么？"></a>在删除所有controlfile和redolog日志的情况下shutdown abort异常关库，能用resetlogs打开库吗？为什么？</h3><p>不能。<br>实例崩溃(shutdown abort)后启动数据库时需要恢复所需要的日志文件。丢失/损坏redolog日志的情况下，只能尝试使用隐含参数_allow_resetlogs_corruption，强制进行不完全恢复。</p>
+<h3 id="用dd命令损坏其中一个控制文件的文件头（1号块）-然后尝试用startup-mount-命令挂载数据库报错-请用最快的恢复方式恢复控制文件，给出详细操作步骤？"><a href="#用dd命令损坏其中一个控制文件的文件头（1号块）-然后尝试用startup-mount-命令挂载数据库报错-请用最快的恢复方式恢复控制文件，给出详细操作步骤？" class="headerlink" title="用dd命令损坏其中一个控制文件的文件头（1号块）,然后尝试用startup mount;命令挂载数据库报错,请用最快的恢复方式恢复控制文件，给出详细操作步骤？"></a>用dd命令损坏其中一个控制文件的文件头（1号块）,然后尝试用startup mount;命令挂载数据库报错,请用最快的恢复方式恢复控制文件，给出详细操作步骤？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">ll</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------</span></span>
+<span class="line">total <span class="number">2400952</span></span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall  <span class="number">10076160</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">13</span> control01.ctl</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">524296192</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">06</span> dsi01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall  <span class="number">52429312</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">32</span> redo01.log</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall  <span class="number">52429312</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">32</span> redo02.log</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall  <span class="number">52429312</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">12</span> redo03.log</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">786440192</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">06</span> sysaux01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">796925952</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">06</span> system01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">524296192</span> Feb <span class="number">26</span> <span class="number">17</span>:<span class="number">25</span> temp01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall <span class="number">173023232</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">06</span> undotbs01.dbf</span>
+<span class="line">-rw-r----- <span class="number">1</span> oracle oinstall   <span class="number">5251072</span> Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">06</span> users01.dbf</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">echo <span class="string">"database_name:orcl"</span> &gt; db</span>
+<span class="line"></span>
+<span class="line">dd <span class="keyword">if</span>=db of=control01.ctl bs=<span class="number">16834</span> <span class="keyword">seek</span>=<span class="number">1</span> count=<span class="number">1</span> conv=notrunc</span>
+<span class="line"><span class="comment"># seek=BLOCKS     skip BLOCKS obs-sized blocks at start of output</span></span>
+<span class="line"><span class="comment">#                 跳过一段以后才输出，是在备份时对of后面的部分也就是目标文件跳过多少块再开始写。</span></span>
+<span class="line"><span class="comment"># conv=CONVS      convert the file as per the comma separated symbol list</span></span>
+<span class="line"></span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> immediate</span>
+<span class="line">ORA-<span class="number">00227</span>: corrupt block detected in control file: (block <span class="number">1</span>, <span class="comment"># blocks 1)</span></span>
+<span class="line">ORA-<span class="number">00202</span>: control file: <span class="string">'/u01/app/oracle/oradata/orcl/control01.ctl'</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> abort;</span>
+<span class="line">ORACLE instance shut down.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; startup mount;</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">905970328</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3456106496</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">ORA-<span class="number">00227</span>: corrupt block detected in control file: (block <span class="number">0</span>, <span class="comment"># blocks )</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">$ bbed</span>
+<span class="line"></span>
+<span class="line">BBED: Release <span class="number">2.0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span> - Limited Production on Mon Feb <span class="number">26</span> <span class="number">18</span>:<span class="number">22</span>:<span class="number">19</span> <span class="number">2018</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2011</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">************* !!! For Oracle Internal Use only !!! ***************</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set filename <span class="string">'/u01/app/oracle/oradata/orcl/control01.ctl'</span></span>
+<span class="line">        FILENAME        /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set block <span class="number">1</span></span>
+<span class="line">        BLOCK<span class="comment">#          1</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/control</span>01.ctl (<span class="number">0</span>)</span>
+<span class="line"> Block: <span class="number">1</span>                Offsets:    <span class="number">0</span> to  <span class="number">511</span>           Dba:<span class="number">0x00000000</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">15</span>c2000<span class="number">0</span> <span class="number">01000000</span> <span class="number">00000000</span> <span class="number">00000104</span> e9bd000<span class="number">0</span> <span class="number">00000000</span> <span class="number">0004200</span>b <span class="number">43</span>ac0259 </span>
+<span class="line"> <span class="number">4</span>f52434c <span class="number">00000000</span> <span class="number">6</span>d56000<span class="number">0</span> <span class="number">66020000</span> <span class="number">00400000</span> <span class="number">00000100</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">8</span>d4f3859 0eaac339 c5942d0<span class="number">0</span> <span class="number">00000000</span> c0b6c339 <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> 0800000<span class="number">0</span> 0800000<span class="number">0</span> 0800000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">01000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00006461</span> <span class="number">74616261</span> <span class="number">73655</span>f6e <span class="number">616</span>d653a <span class="number">6</span>f72636c 0a00000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span></span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+</pre></td></tr></table></figure>
+<p>最快的恢复方式恢复控制文件，就是用第二个控制文件来恢复第一个<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cp /u01/app/oracle/fast_recovery_area/orcl/control02.ctl /u01/app/oracle/oradata/orcl/control01.ctl</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database mount;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/02/27/tools/github与gitlab一起使用/">
+                    一台电脑同时使用GitHub和GitLab仓库
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">
+                    Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#控制文件没有备份全部丢失恢复实战"><span class="toc-number">1.</span> <span class="toc-text">控制文件没有备份全部丢失恢复实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#准备测试环境"><span class="toc-number">1.1.</span> <span class="toc-text">准备测试环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#摸拟控制文件全部丢失"><span class="toc-number">1.2.</span> <span class="toc-text">摸拟控制文件全部丢失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关闭和打开数据库报错"><span class="toc-number">1.3.</span> <span class="toc-text">关闭和打开数据库报错</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库无法mount情况下获得数据库基本信息"><span class="toc-number">1.4.</span> <span class="toc-text">数据库无法mount情况下获得数据库基本信息</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获得DB-NAME"><span class="toc-number">1.4.1.</span> <span class="toc-text">获得DB_NAME</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获得字符集"><span class="toc-number">1.4.2.</span> <span class="toc-text">获得字符集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#确认数据库是否归档"><span class="toc-number">1.4.3.</span> <span class="toc-text">确认数据库是否归档</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#恢复控制文件"><span class="toc-number">1.5.</span> <span class="toc-text">恢复控制文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#NORESETLOGS"><span class="toc-number">1.5.1.</span> <span class="toc-text">NORESETLOGS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RESETLOGS"><span class="toc-number">1.5.2.</span> <span class="toc-text">RESETLOGS</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RESETLOGS解析"><span class="toc-number">2.</span> <span class="toc-text">RESETLOGS解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关命令"><span class="toc-number">3.</span> <span class="toc-text">相关命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#课后作业"><span class="toc-number">4.</span> <span class="toc-text">课后作业</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#哪些场景下需要用alter-database-open-resetlogs打开库？"><span class="toc-number">4.1.</span> <span class="toc-text">哪些场景下需要用alter database open resetlogs打开库？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在删除所有controlfile和redolog日志的情况下shutdown-abort异常关库，能用resetlogs打开库吗？为什么？"><span class="toc-number">4.2.</span> <span class="toc-text">在删除所有controlfile和redolog日志的情况下shutdown abort异常关库，能用resetlogs打开库吗？为什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用dd命令损坏其中一个控制文件的文件头（1号块）-然后尝试用startup-mount-命令挂载数据库报错-请用最快的恢复方式恢复控制文件，给出详细操作步骤？"><span class="toc-number">4.3.</span> <span class="toc-text">用dd命令损坏其中一个控制文件的文件头（1号块）,然后尝试用startup mount;命令挂载数据库报错,请用最快的恢复方式恢复控制文件，给出详细操作步骤？</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/02/27/tools/github与gitlab一起使用/" title="上一篇: 一台电脑同时使用GitHub和GitLab仓库">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/" title="下一篇: Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

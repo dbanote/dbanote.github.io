@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="为什么生产环境中Docker要部署在Ubuntu上原来为了兼容企业级应用，之前学习Docker选用了Centos7做为部署安装Docker的系统平台，但在阅读官方文档后发现，Centos7下默认的Docker存储驱动在生产环境中部署是会有一些问题。
+详细可参考这篇文章：http://blog.csdn.net/csdn_duomaomao/article/details/78499639">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker学习笔记_03 Docker的部署安装(Ubuntu)">
+<meta property="og:url" content="/2018/01/11/docker/03_docker的部署安装-Ubuntu/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="为什么生产环境中Docker要部署在Ubuntu上原来为了兼容企业级应用，之前学习Docker选用了Centos7做为部署安装Docker的系统平台，但在阅读官方文档后发现，Centos7下默认的Docker存储驱动在生产环境中部署是会有一些问题。
+详细可参考这篇文章：http://blog.csdn.net/csdn_duomaomao/article/details/78499639">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_01.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_02.png">
+<meta property="og:image" content="http://oligvdnzp.bkt.clouddn.com/1213_docker_02.png">
+<meta property="og:updated_time" content="2018-02-13T01:35:17.621Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker学习笔记_03 Docker的部署安装(Ubuntu)">
+<meta name="twitter:description" content="为什么生产环境中Docker要部署在Ubuntu上原来为了兼容企业级应用，之前学习Docker选用了Centos7做为部署安装Docker的系统平台，但在阅读官方文档后发现，Centos7下默认的Docker存储驱动在生产环境中部署是会有一些问题。
+详细可参考这篇文章：http://blog.csdn.net/csdn_duomaomao/article/details/78499639">
+<meta name="twitter:image" content="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Docker学习笔记_03 Docker的部署安装(Ubuntu) | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-docker/03_docker的部署安装-Ubuntu" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/" class="article-date">
+      <time datetime="2018-01-10T16:00:00.000Z" itemprop="datePublished">2018-01-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Docker学习笔记_03 Docker的部署安装(Ubuntu)
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="为什么生产环境中Docker要部署在Ubuntu上"><a href="#为什么生产环境中Docker要部署在Ubuntu上" class="headerlink" title="为什么生产环境中Docker要部署在Ubuntu上"></a>为什么生产环境中Docker要部署在Ubuntu上</h2><p>原来为了兼容企业级应用，之前学习Docker选用了Centos7做为部署安装Docker的系统平台，但在阅读官方文档后发现，Centos7下默认的Docker存储驱动在生产环境中部署是会有一些问题。<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_01.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_02.png" alt=""></p>
+<p>详细可参考这篇文章：<a href="http://blog.csdn.net/csdn_duomaomao/article/details/78499639" target="_blank" rel="external">http://blog.csdn.net/csdn_duomaomao/article/details/78499639</a></p>
+<a id="more"></a>
+<h2 id="在Ubuntu上安装Docker"><a href="#在Ubuntu上安装Docker" class="headerlink" title="在Ubuntu上安装Docker"></a>在Ubuntu上安装Docker</h2><h3 id="查看系统版本"><a href="#查看系统版本" class="headerlink" title="查看系统版本"></a>查看系统版本</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname -a</span>
+<span class="line">Linux rancher1 <span class="number">4.4</span>.<span class="number">0</span>-<span class="number">87</span>-generic <span class="comment">#110-Ubuntu SMP Tue Jul 18 12:55:35 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux</span></span>
+<span class="line"></span>
+<span class="line">cat /proc/version</span>
+<span class="line">[sudo] password <span class="keyword">for</span> ubuntu: </span>
+<span class="line">Linux version <span class="number">4.4</span>.<span class="number">0</span>-<span class="number">87</span>-generic (buildd@lcy01-<span class="number">31</span>) (gcc version <span class="number">5.4</span>.<span class="number">0</span> <span class="number">20160609</span> (Ubuntu <span class="number">5.4</span>.<span class="number">0</span>-<span class="number">6</span>ubuntu1~<span class="number">16.04</span>.<span class="number">4</span>) ) <span class="comment">#110-Ubuntu SMP Tue Jul 18 12:55:35 UTC 2017</span></span>
+<span class="line"></span>
+<span class="line">lsb_release -a</span>
+<span class="line">No LSB modules are available.</span>
+<span class="line">Distributor ID: Ubuntu</span>
+<span class="line">Description:    Ubuntu <span class="number">16.04</span>.<span class="number">3</span> LTS</span>
+<span class="line">Release:        <span class="number">16.04</span></span>
+<span class="line">Codename:       xenial</span>
+</pre></td></tr></table></figure>
+<h3 id="移除旧的Docker版本"><a href="#移除旧的Docker版本" class="headerlink" title="移除旧的Docker版本"></a>移除旧的Docker版本</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudo apt-get remove docker docker-engine docker.io</span>
+</pre></td></tr></table></figure>
+<h3 id="安装必要的一些系统工具"><a href="#安装必要的一些系统工具" class="headerlink" title="安装必要的一些系统工具"></a>安装必要的一些系统工具</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Update the apt package index</span></span>
+<span class="line">sudo apt-get update</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Install packages to allow apt to use a repository over HTTPS</span></span>
+<span class="line">sudo apt-get -<span class="keyword">y</span> install apt-transport-https ca-certificates curl software-properties-common</span>
+</pre></td></tr></table></figure>
+<h3 id="安装GPG证书并使用阿里源"><a href="#安装GPG证书并使用阿里源" class="headerlink" title="安装GPG证书并使用阿里源"></a>安装GPG证书并使用阿里源</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Add Docker’s official GPG key</span></span>
+<span class="line">curl -fsSL http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -</span>
+<span class="line"></span>
+<span class="line">sudo apt-key fingerprint 0EBFCD88</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------</span></span>
+<span class="line">pub   <span class="number">4096</span>R/0EBFCD88 <span class="number">2017</span>-<span class="number">02</span>-<span class="number">22</span></span>
+<span class="line">      Key fingerprint = <span class="number">9</span>DC8 <span class="number">5822</span> <span class="number">9</span>FC7 DD38 <span class="number">854</span>A  E2D8 <span class="number">8</span>D81 <span class="number">803</span>C 0EBF CD88</span>
+<span class="line">uid                  Docker Release (CE deb) &lt;docker@docker.com&gt;</span>
+<span class="line"><span class="function"><span class="keyword">sub</span>   4096<span class="title">R</span>/<span class="title">F273FCD8</span> 2017-02-22</span>
+<span class="line">#--------------------------------------------------------------</span>
+<span class="line"></span>
+<span class="line"><span class="title">sudo</span> <span class="title">add</span>-<span class="title">apt</span>-<span class="title">repository</span> "<span class="title">deb</span> [<span class="title">arch</span>=<span class="title">amd64</span>] <span class="title">http</span>://<span class="title">mirrors</span>.<span class="title">aliyun</span>.<span class="title">com</span>/<span class="title">docker</span>-<span class="title">ce</span>/<span class="title">linux</span>/<span class="title">ubuntu</span> $(<span class="title">lsb_release</span> -<span class="title">cs</span>) <span class="title">stable</span>"</span>
+<span class="line"><span class="title">sudo</span> <span class="title">apt</span>-<span class="title">get</span> <span class="title">update</span></span></span>
+</pre></td></tr></table></figure>
+<h3 id="安装DOCKER-CE"><a href="#安装DOCKER-CE" class="headerlink" title="安装DOCKER CE"></a>安装DOCKER CE</h3><p>为了之后配置使用rancher和kubernetes，这里安装指定版本的docker(17.03.2-ce)<br>版本的选择参考：<a href="https://rancher.com/docs/rancher/v1.6/en/hosts/#supported-docker-versions" target="_blank" rel="external">https://rancher.com/docs/rancher/v1.6/en/hosts/#supported-docker-versions</a><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查找可用Docker-CE的版本</span></span>
+<span class="line">sudo apt-cache madison docker-ce</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"> docker-ce | <span class="number">17.12</span>.<span class="number">0</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.09</span>.<span class="number">1</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.09</span>.<span class="number">0</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.06</span>.<span class="number">2</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.06</span>.<span class="number">1</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.06</span>.<span class="number">0</span>~ce-<span class="number">0</span>~ubuntu | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.03</span>.<span class="number">2</span>~ce-<span class="number">0</span>~ubuntu-xenial | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.03</span>.<span class="number">1</span>~ce-<span class="number">0</span>~ubuntu-xenial | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"> docker-ce | <span class="number">17.03</span>.<span class="number">0</span>~ce-<span class="number">0</span>~ubuntu-xenial | http:<span class="regexp">//mirrors</span>.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 安装指定版本的Docker-CE: (VERSION 例如上面的 17.03.2~ce-0~ubuntu-xenial)</span></span>
+<span class="line">sudo apt-get -<span class="keyword">y</span> install docker-ce=<span class="number">17.03</span>.<span class="number">2</span>~ce-<span class="number">0</span>~ubuntu-xenial</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># The Docker daemon starts automatically.</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="查看docker版本及运行信息"><a href="#查看docker版本及运行信息" class="headerlink" title="查看docker版本及运行信息"></a>查看docker版本及运行信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudo docker version</span>
+<span class="line"><span class="comment">#-----------------------------------</span></span>
+<span class="line">Client:</span>
+<span class="line"> Version:      <span class="number">17.03</span>.<span class="number">2</span>-ce</span>
+<span class="line"> API version:  <span class="number">1.27</span></span>
+<span class="line"> Go version:   go1.<span class="number">7.5</span></span>
+<span class="line"> Git commit:   f5ec1e2</span>
+<span class="line"> Built:        Tue Jun <span class="number">27</span> <span class="number">03</span>:<span class="number">35</span>:<span class="number">14</span> <span class="number">2017</span></span>
+<span class="line"> OS/Arch:      linux/amd64</span>
+<span class="line"></span>
+<span class="line">Server:</span>
+<span class="line"> Version:      <span class="number">17.03</span>.<span class="number">2</span>-ce</span>
+<span class="line"> API version:  <span class="number">1.27</span> (minimum version <span class="number">1.12</span>)</span>
+<span class="line"> Go version:   go1.<span class="number">7.5</span></span>
+<span class="line"> Git commit:   f5ec1e2</span>
+<span class="line"> Built:        Tue Jun <span class="number">27</span> <span class="number">03</span>:<span class="number">35</span>:<span class="number">14</span> <span class="number">2017</span></span>
+<span class="line"> OS/Arch:      linux/amd64</span>
+<span class="line"> Experimental: false</span>
+<span class="line"><span class="comment">#-----------------------------------</span></span>
+<span class="line"></span>
+<span class="line">sudo docker info</span>
+<span class="line"><span class="comment">#-----------------------------------</span></span>
+<span class="line">Containers: <span class="number">0</span></span>
+<span class="line"> Running: <span class="number">0</span></span>
+<span class="line"> Paused: <span class="number">0</span></span>
+<span class="line"> Stopped: <span class="number">0</span></span>
+<span class="line">Images: <span class="number">0</span></span>
+<span class="line">Server Version: <span class="number">17.03</span>.<span class="number">2</span>-ce</span>
+<span class="line">Storage Driver: aufs</span>
+<span class="line"> Root Dir: <span class="regexp">/var/lib</span><span class="regexp">/docker/aufs</span></span>
+<span class="line"> Backing Filesystem: extfs</span>
+<span class="line"> Dirs: <span class="number">0</span></span>
+<span class="line"> Dirperm1 Supported: true</span>
+<span class="line">Logging Driver: json-file</span>
+<span class="line">Cgroup Driver: cgroupfs</span>
+<span class="line">Plugins: </span>
+<span class="line"> Volume: <span class="keyword">local</span></span>
+<span class="line"> Network: bridge host macvlan null overlay</span>
+<span class="line">Swarm: inactive</span>
+<span class="line">Runtimes: runc</span>
+<span class="line">Default Runtime: runc</span>
+<span class="line">Init Binary: docker-init</span>
+<span class="line">containerd version: <span class="number">4</span>ab9917febca54791c5f071a9d1f404867857fcc</span>
+<span class="line">runc version: <span class="number">54296</span>cf40ad8143b62dbcaa1d90e520a2136ddfe</span>
+<span class="line">init version: <span class="number">949</span>e6fa</span>
+<span class="line">Security Options:</span>
+<span class="line"> apparmor</span>
+<span class="line"> seccomp</span>
+<span class="line">  Profile: default</span>
+<span class="line">Kernel Version: <span class="number">4.4</span>.<span class="number">0</span>-<span class="number">87</span>-generic</span>
+<span class="line">Operating System: Ubuntu <span class="number">16.04</span>.<span class="number">3</span> LTS</span>
+<span class="line">OSType: linux</span>
+<span class="line">Architecture: x86_64</span>
+<span class="line">CPUs: <span class="number">4</span></span>
+<span class="line">Total Memory: <span class="number">3.859</span> GiB</span>
+<span class="line">Name: rancher1</span>
+<span class="line">ID: <span class="number">7</span>IDE:C4U7:SPVA:AQPL:KCPV:XCWC:ESIT:JAQL:NIVJ:FTZB:<span class="number">2</span>WNH:BTZJ</span>
+<span class="line">Docker Root Dir: <span class="regexp">/var/lib</span><span class="regexp">/docker</span>
+<span class="line">Debug Mode (client): false</span>
+<span class="line">Debug Mode (server): false</span>
+<span class="line">Registry: https:/</span><span class="regexp">/index.docker.io/v</span>1/</span>
+<span class="line">Experimental: false</span>
+<span class="line">Insecure Registries:</span>
+<span class="line"> <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">0</span>/<span class="number">8</span></span>
+<span class="line">Live Restore Enabled: false</span>
+<span class="line"></span>
+<span class="line">WARNING: No swap limit support</span>
+<span class="line"><span class="comment">#-----------------------------------</span></span>
+<span class="line"><span class="comment"># WARNING: No swap limit support 这个警告不影响正常使用</span></span>
+</pre></td></tr></table></figure>
+<h3 id="设置不更新指定版本的docker-ce"><a href="#设置不更新指定版本的docker-ce" class="headerlink" title="设置不更新指定版本的docker-ce"></a>设置不更新指定版本的docker-ce</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudo echo <span class="string">"docker-ce hold"</span> | sudo dpkg --set-selections</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查询当前系统内所有软件包的状态，命令为：</span></span>
+<span class="line">sudo dpkg --get-selections | more</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查询当前系统被锁定不更新的软件包状态(hold)，命令为</span></span>
+<span class="line">sudo dpkg --get-selections | <span class="keyword">grep</span> hold</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 取消不更新</span></span>
+<span class="line">sudo echo <span class="string">"docker-ce install"</span> | sudo dpkg --set-selections</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看</span></span>
+<span class="line">sudo dpkg --get-selections | <span class="keyword">grep</span> docker</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+<span class="line">docker-ce                                       install</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h2 id="卸载Docker-CE"><a href="#卸载Docker-CE" class="headerlink" title="卸载Docker CE"></a>卸载Docker CE</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudo apt-get purge docker-ce</span>
+<span class="line">sudo rm -rf /var/lib/docker</span>
+</pre></td></tr></table></figure>
+<h2 id="使用阿里镜像加速器"><a href="#使用阿里镜像加速器" class="headerlink" title="使用阿里镜像加速器"></a>使用阿里镜像加速器</h2><p>使用阿里云专属加速器加快获取Docker官方镜像，否则在国内速度会慢到你无法忍受哒。步骤如下：</p>
+<ol>
+<li>免费注册一个阿里云账号 <a href="https://www.aliyun.com/" target="_blank" rel="external">www.aliyun.com</a></li>
+<li>进入加速器页面 <a href="https://cr.console.aliyun.com/#/accelerator" target="_blank" rel="external">https://cr.console.aliyun.com/#/accelerator </a></li>
+<li>选择<code>镜像加速器</code><br><img src="http://oligvdnzp.bkt.clouddn.com/1213_docker_02.png" alt=""></li>
+</ol>
+<p>按图中进行相关配置<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下面的xxxxx要替换成你的专属加速器的地址哦</span></span>
+<span class="line">sudo tee /etc/docker/daemon.json &lt;&lt;-<span class="string">'EOF'</span></span>
+<span class="line">&#123;</span>
+<span class="line">  <span class="string">"registry-mirrors"</span>: [<span class="string">"https://xxxxxxx.mirror.aliyuncs.com"</span>]</span>
+<span class="line">&#125;</span>
+<span class="line">EOF</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重启docker</span></span>
+<span class="line">sudo /etc/init.d/docker restart</span>
+</pre></td></tr></table></figure></p>
+<h2 id="更改ubuntu源为阿里源"><a href="#更改ubuntu源为阿里源" class="headerlink" title="更改ubuntu源为阿里源"></a>更改ubuntu源为阿里源</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sudo vi /etc/apt/sources.list</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 输入ggdG删除所有内容，添加以下内容</span></span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+<span class="line">deb http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial main restricted universe multiverse  </span>
+<span class="line">deb http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-security main restricted universe multiverse  </span>
+<span class="line">deb http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-updates main restricted universe multiverse  </span>
+<span class="line">deb http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-backports main restricted universe multiverse  </span>
+<span class="line">deb http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-proposed main restricted universe multiverse  </span>
+<span class="line">deb-src http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial main restricted universe multiverse  </span>
+<span class="line">deb-src http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-security main restricted universe multiverse  </span>
+<span class="line">deb-src http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-updates main restricted universe multiverse  </span>
+<span class="line">deb-src http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-backports main restricted universe multiverse  </span>
+<span class="line">deb-src http:<span class="regexp">//mirrors</span>.aliyun.com/ubuntu/ xenial-proposed main restricted universe multiverse  </span>
+<span class="line">deb http:<span class="regexp">//archive</span>.canonical.com/ubuntu/ xenial partner  </span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 更新获取阿里云软件源 提供的软件列表</span></span>
+<span class="line">sudo apt-get update</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 更新软件</span></span>
+<span class="line">sudo apt-get -<span class="keyword">y</span> upgrade</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 公司局域网域名解析有问题，手动配置hosts</span></span>
+<span class="line">sudo vi /etc/hosts</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+<span class="line"><span class="number">221.206</span>.<span class="number">129.236</span>  mirrors.aliyun.com</span>
+<span class="line"><span class="number">91.189</span>.<span class="number">88.162</span>  archive.ubuntu.com</span>
+<span class="line"><span class="number">91.189</span>.<span class="number">92.150</span>  archive.canonical.com</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/01/12/docker/04_rancher的部署安装/">
+                    Docker学习笔记_04 Rancher的部署安装(编排选用K8S)
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">
+                    Ubuntu Server 16.04.3安装及常用配置图解
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么生产环境中Docker要部署在Ubuntu上"><span class="toc-number">1.</span> <span class="toc-text">为什么生产环境中Docker要部署在Ubuntu上</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在Ubuntu上安装Docker"><span class="toc-number">2.</span> <span class="toc-text">在Ubuntu上安装Docker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看系统版本"><span class="toc-number">2.1.</span> <span class="toc-text">查看系统版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#移除旧的Docker版本"><span class="toc-number">2.2.</span> <span class="toc-text">移除旧的Docker版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装必要的一些系统工具"><span class="toc-number">2.3.</span> <span class="toc-text">安装必要的一些系统工具</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装GPG证书并使用阿里源"><span class="toc-number">2.4.</span> <span class="toc-text">安装GPG证书并使用阿里源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装DOCKER-CE"><span class="toc-number">2.5.</span> <span class="toc-text">安装DOCKER CE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看docker版本及运行信息"><span class="toc-number">2.6.</span> <span class="toc-text">查看docker版本及运行信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置不更新指定版本的docker-ce"><span class="toc-number">2.7.</span> <span class="toc-text">设置不更新指定版本的docker-ce</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#卸载Docker-CE"><span class="toc-number">3.</span> <span class="toc-text">卸载Docker CE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用阿里镜像加速器"><span class="toc-number">4.</span> <span class="toc-text">使用阿里镜像加速器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#更改ubuntu源为阿里源"><span class="toc-number">5.</span> <span class="toc-text">更改ubuntu源为阿里源</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/01/12/docker/04_rancher的部署安装/" title="上一篇: Docker学习笔记_04 Rancher的部署安装(编排选用K8S)">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/" title="下一篇: Ubuntu Server 16.04.3安装及常用配置图解">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
