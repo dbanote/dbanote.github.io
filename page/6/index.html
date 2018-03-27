@@ -957,10 +957,10 @@
 
 
   
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/ORA/ORA-27086" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/" class="article-date">
+      <a href="/2017/04/13/oracle/ORA/ORA-27086/" class="article-date">
       <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
 </a>
 
@@ -976,7 +976,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a>
+      <a class="article-title" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a>
     </h1>
   
 
@@ -986,38 +986,37 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
-<span class="line">yum -<span class="keyword">y</span> install make automake libtool pkgconfig libaio-devel vim-common</span>
-<span class="line">yum -<span class="keyword">y</span> install mysql-devel</span>
+        <p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
 <span class="line"></span>
-<span class="line"><span class="comment"># 编译源码安装，下载地址：https://codeload.github.com/akopytov/Sysbench/zip/1.0.5</span></span>
-<span class="line">unzip sysbench-<span class="number">1.0</span>.<span class="number">5</span>.zip</span>
-<span class="line">cd sysbench-<span class="number">1.0</span>.<span class="number">5</span></span>
-<span class="line">./autogen.sh</span>
-<span class="line">./configure --with-mysql-includes=<span class="regexp">/usr/include</span><span class="regexp">/mysql --with-mysql-libs=/usr</span><span class="regexp">/lib64/mysql</span>   <span class="comment"># 注意修改路径</span></span>
-<span class="line">make &amp;&amp; make install</span>
-</pre></td></tr></table></figure>
-          
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+
       
     </div>
     
     <div class="article-info article-info-index">
       
       
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>
