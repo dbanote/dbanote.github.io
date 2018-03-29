@@ -266,6 +266,74 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-docker/06_使用rancher搭建gitlab服务并启用https" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/" class="article-date">
+      <time datetime="2018-01-21T16:00:00.000Z" itemprop="datePublished">2018-01-22</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="添加一个服务"><a href="#添加一个服务" class="headerlink" title="添加一个服务"></a>添加一个服务</h2><p>添加应用(使用rancher默认的编排工具Cattle，docker-ce升级到最新版本)<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0205_rancher_01.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0205_rancher_02.png" alt=""><br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-docker/05_rancher的访问控制" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -677,86 +745,6 @@
 
 
   
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本章有部分内容与《<a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a>》互为补充。</p>
-<h2 id="从程序员的角度优化"><a href="#从程序员的角度优化" class="headerlink" title="从程序员的角度优化"></a>从程序员的角度优化</h2><ul>
-<li>数据库的操作越来越成为整个应的的性能瓶颈，这点对于WEB应用尤其明显。</li>
-<li>关于数据库性能，这不只是DBA才需要担心的事，更是程序员需要去关注的事情。</li>
-<li>当设计表结构和操作数据库（DML操作）时，需要注意数据操作的性能。</li>
-</ul>
-<h3 id="为查询缓存优化你的查询"><a href="#为查询缓存优化你的查询" class="headerlink" title="为查询缓存优化你的查询"></a>为查询缓存优化你的查询</h3><p>大多数的MySQL服务器都开启了查询缓存</p>
-<h3 id="EXPLAIN-你的SELECT-查询"><a href="#EXPLAIN-你的SELECT-查询" class="headerlink" title="EXPLAIN 你的SELECT 查询"></a>EXPLAIN 你的SELECT 查询</h3><ul>
-<li>使用EXPLAIN 关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。</li>
-<li>EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你的数据表是如何被搜索和排序的等等。</li>
-<li>挑一个你的SELECT语句（推荐挑选那个最复杂的，有多表联接的），把关键字EXPLAIN加到前面。你可以使用phpmyadmin来做这个事。然后，你会看到一张表格。下面的这个示例中，我们忘记加上了group_id索引，并且有表联接。</li>
-<li>当我们为group_id字段加上索引后：我们可以看到，前一个结果显示搜索了7883 行，而后一个只是搜索了两个表的9 和16 行。查看rows列可以让我们找到潜在的性能问题。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -868,6 +856,86 @@
 
 
   
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>本章有部分内容与《<a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a>》互为补充。</p>
+<h2 id="从程序员的角度优化"><a href="#从程序员的角度优化" class="headerlink" title="从程序员的角度优化"></a>从程序员的角度优化</h2><ul>
+<li>数据库的操作越来越成为整个应的的性能瓶颈，这点对于WEB应用尤其明显。</li>
+<li>关于数据库性能，这不只是DBA才需要担心的事，更是程序员需要去关注的事情。</li>
+<li>当设计表结构和操作数据库（DML操作）时，需要注意数据操作的性能。</li>
+</ul>
+<h3 id="为查询缓存优化你的查询"><a href="#为查询缓存优化你的查询" class="headerlink" title="为查询缓存优化你的查询"></a>为查询缓存优化你的查询</h3><p>大多数的MySQL服务器都开启了查询缓存</p>
+<h3 id="EXPLAIN-你的SELECT-查询"><a href="#EXPLAIN-你的SELECT-查询" class="headerlink" title="EXPLAIN 你的SELECT 查询"></a>EXPLAIN 你的SELECT 查询</h3><ul>
+<li>使用EXPLAIN 关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。</li>
+<li>EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你的数据表是如何被搜索和排序的等等。</li>
+<li>挑一个你的SELECT语句（推荐挑选那个最复杂的，有多表联接的），把关键字EXPLAIN加到前面。你可以使用phpmyadmin来做这个事。然后，你会看到一张表格。下面的这个示例中，我们忘记加上了group_id索引，并且有表联接。</li>
+<li>当我们为group_id字段加上索引后：我们可以看到，前一个结果显示搜索了7883 行，而后一个只是搜索了两个表的9 和16 行。查看rows列可以让我们找到潜在的性能问题。</li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/ORA/ORA-603" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -934,96 +1002,6 @@
       
         <p class="article-more-link">
           <a href="/2017/11/24/oracle/ORA/ORA-603/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-11-08T16:00:00.000Z" itemprop="datePublished">2017-11-09</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="不同索引加锁顺序的问题，模拟重现死锁"><a href="#不同索引加锁顺序的问题，模拟重现死锁" class="headerlink" title="不同索引加锁顺序的问题，模拟重现死锁"></a>不同索引加锁顺序的问题，模拟重现死锁</h2><p>走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待</p>
-<h3 id="测试表结构及相关语句"><a href="#测试表结构及相关语句" class="headerlink" title="测试表结构及相关语句"></a>测试表结构及相关语句</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; show create table employees\G;</span>
-<span class="line">*************************** <span class="number">1</span>. row ***************************</span>
-<span class="line">       Table: employees</span>
-<span class="line">Create Table: CREATE TABLE <span class="string">`employees`</span> (</span>
-<span class="line">  <span class="string">`emp_no`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL,</span>
-<span class="line">  <span class="string">`birth_date`</span> date NOT NULL,</span>
-<span class="line">  <span class="string">`first_name`</span> varchar(<span class="number">14</span>) NOT NULL,</span>
-<span class="line">  <span class="string">`last_name`</span> varchar(<span class="number">16</span>) NOT NULL,</span>
-<span class="line">  <span class="string">`gender`</span> enum(<span class="string">'M'</span>,<span class="string">'F'</span>) NOT NULL,</span>
-<span class="line">  <span class="string">`hire_date`</span> date NOT NULL,</span>
-<span class="line">  <span class="string">`base_salaries`</span> decimal(<span class="number">8</span>,<span class="number">2</span>) NOT NULL,</span>
-<span class="line">  <span class="string">`id`</span> <span class="keyword">int</span>(<span class="number">11</span>) NOT NULL AUTO_INCREMENT,</span>
-<span class="line">  PRIMARY KEY (<span class="string">`id`</span>),</span>
-<span class="line">  KEY <span class="string">`idx_emp_hire`</span> (<span class="string">`hire_date`</span>),</span>
-<span class="line">  KEY <span class="string">`idx_emp_no`</span> (<span class="string">`emp_no`</span>)</span>
-<span class="line">) ENGINE=InnoDB AUTO_INCREMENT=<span class="number">300151</span> DEFAULT CHARSET=utf8</span>
-<span class="line"></span>
-<span class="line">alter table employees drop primary key;</span>
-<span class="line">create <span class="keyword">index</span> idx_emp_no on employees(emp_no);</span>
-<span class="line">alter table employees add id <span class="keyword">int</span>;</span>
-<span class="line">alter table employees change id id <span class="keyword">int</span> <span class="keyword">not</span> null auto_increment primary key;</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

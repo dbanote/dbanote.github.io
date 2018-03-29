@@ -266,6 +266,75 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-tools/hexo博客添加常用插件" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/10/tools/hexo博客添加常用插件/" class="article-date">
+      <time datetime="2017-02-10T06:39:26.667Z" itemprop="datePublished">2017-02-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Hexo提供了诸多插件来增强博客体验，地址<a href="http://hexo.io/plugins/"><code>http://hexo.io/plugins</code></a></p>
+<h2 id="添加pdf浏览插件"><a href="#添加pdf浏览插件" class="headerlink" title="添加pdf浏览插件"></a>添加pdf浏览插件</h2><h3 id="安装hexo-pdf"><a href="#安装hexo-pdf" class="headerlink" title="安装hexo-pdf"></a>安装<a href="https://github.com/superalsrk/hexo-pdf">hexo-pdf</a></h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cnpm install --save hexo-pdf</span>
+</pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&#123;% pdf http:<span class="regexp">//</span><span class="number">7</span>xov2f.com1.z<span class="number">0</span>.glb.clouddn.com/bash_freshman.pdf %&#125;</span>
+<span class="line">&#123;% pdf ./bash_freshman.pdf %&#125;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/02/10/tools/hexo博客添加常用插件/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-tools/git常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -887,95 +956,6 @@
       
         <p class="article-more-link">
           <a href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/" class="article-date">
-      <time datetime="2015-03-22T16:00:00.000Z" itemprop="datePublished">2015-03-23</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&amp;数据库的备份和恢复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h3 id="创建一张表，在表上创建一个索引，查询表，索引各自分配了多少个extents-多少个数据块以及共占空间大小-bytes"><a href="#创建一张表，在表上创建一个索引，查询表，索引各自分配了多少个extents-多少个数据块以及共占空间大小-bytes" class="headerlink" title="创建一张表，在表上创建一个索引，查询表，索引各自分配了多少个extents,多少个数据块以及共占空间大小(bytes)"></a>创建一张表，在表上创建一个索引，查询表，索引各自分配了多少个extents,多少个数据块以及共占空间大小(bytes)</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
-<span class="line">drop table t purge;</span>
-<span class="line">create table t as <span class="keyword">select</span> * from all_objects;</span>
-<span class="line">create <span class="keyword">index</span> ind_t_oid on t(object_id);</span>
-<span class="line"></span>
-<span class="line">col segment_name <span class="keyword">for</span> a2<span class="number">0</span></span>
-<span class="line"><span class="keyword">select</span> segment_name,extents,blocks,bytes/<span class="number">1024</span>/<span class="number">1024</span> size_m</span>
-<span class="line">  from user_segments</span>
-<span class="line">  where segment_name=<span class="string">'T'</span>;</span>
-<span class="line"></span>
-<span class="line">SEGMENT_NAME            EXTENTS     BLOCKS     SIZE_M</span>
-<span class="line">-------------------- ---------- ---------- ----------</span>
-<span class="line">T                            <span class="number">23</span>       <span class="number">1024</span>          <span class="number">8</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">select</span> segment_name,extents,blocks,bytes/<span class="number">1024</span>/<span class="number">1024</span> size_m</span>
-<span class="line">  from user_segments</span>
-<span class="line">  where segment_name=<span class="string">'IND_T_OID'</span>;</span>
-<span class="line"></span>
-<span class="line">SEGMENT_NAME            EXTENTS     BLOCKS     SIZE_M</span>
-<span class="line">-------------------- ---------- ---------- ----------</span>
-<span class="line">IND_T_OID                    <span class="number">17</span>        <span class="number">256</span>          <span class="number">2</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

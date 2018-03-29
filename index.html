@@ -266,6 +266,96 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/oracle 11g修改自动收集统计信息计划任务的执行时间" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/" class="article-date">
+      <time datetime="2018-03-28T16:00:00.000Z" itemprop="datePublished">2018-03-29</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>oracle 11g默认的自动收集统计信息的时间是22:00–2:00。<br>但这个时段在公司大型活动期间是业务的高峰期，给本已紧张的系统带来更大的负担。所以，需要把自动执行的时间改到空闲的时段。</p>
+</blockquote>
+<h2 id="获得当前自动收集统计信息的执行时间"><a href="#获得当前自动收集统计信息的执行时间" class="headerlink" title="获得当前自动收集统计信息的执行时间"></a>获得当前自动收集统计信息的执行时间</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">col WINDOW_NAME <span class="keyword">for</span> a2<span class="number">0</span></span>
+<span class="line">col REPEAT_INTERVAL <span class="keyword">for</span> a6<span class="number">0</span></span>
+<span class="line">col DURATION <span class="keyword">for</span> a3<span class="number">0</span></span>
+<span class="line">set linesize <span class="number">120</span></span>
+<span class="line">SELECT t1.window_name, t1.repeat_interval, t1.duration,enabled</span>
+<span class="line">	FROM dba_scheduler_windows t1, dba_scheduler_wingroup_members t2</span>
+<span class="line">		WHERE t1.window_name = t2.window_name</span>
+<span class="line">			AND t2.window_group_name IN</span>
+<span class="line">			(<span class="string">'MAINTENANCE_WINDOW_GROUP'</span>, <span class="string">'BSLN_MAINTAIN_STATS_SCHED'</span>);</span>
+<span class="line"></span>
+<span class="line">WINDOW_NAME          REPEAT_INTERVAL                                              DURATION                       ENABL</span>
+<span class="line">-------------------- ------------------------------------------------------------ ------------------------------ -----</span>
+<span class="line">MONDAY_WINDOW        freq=daily;byday=MON;byhour=<span class="number">22</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>        +<span class="number">000</span> <span class="number">04</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">TUESDAY_WINDOW       freq=daily;byday=TUE;byhour=<span class="number">22</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>        +<span class="number">000</span> <span class="number">04</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">WEDNESDAY_WINDOW     freq=daily;byday=WED;byhour=<span class="number">22</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>        +<span class="number">000</span> <span class="number">04</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">THURSDAY_WINDOW      freq=daily;byday=THU;byhour=<span class="number">22</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>        +<span class="number">000</span> <span class="number">04</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">FRIDAY_WINDOW        freq=daily;byday=FRI;byhour=<span class="number">22</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>        +<span class="number">000</span> <span class="number">04</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">SATURDAY_WINDOW      freq=daily;byday=SAT;byhour=<span class="number">6</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>         +<span class="number">000</span> <span class="number">20</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line">SUNDAY_WINDOW        freq=daily;byday=SUN;byhour=<span class="number">6</span>;byminute=<span class="number">0</span>; bysecond=<span class="number">0</span>         +<span class="number">000</span> <span class="number">20</span>:<span class="number">00</span>:<span class="number">00</span>                  TRUE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># WINDOW_NAME：任务名</span></span>
+<span class="line"><span class="comment"># REPEAT_INTERVAL：任务重复间隔时间</span></span>
+<span class="line"><span class="comment"># DURATION：持续时间</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -592,70 +682,6 @@
 
 
   
-    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
-      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -713,6 +739,70 @@
       
         <p class="article-more-link">
           <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -986,74 +1076,6 @@
       
         <p class="article-more-link">
           <a href="/2018/01/30/docker/07_搭建harbor企业级register/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/06_使用rancher搭建gitlab服务并启用https" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/" class="article-date">
-      <time datetime="2018-01-21T16:00:00.000Z" itemprop="datePublished">2018-01-22</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="添加一个服务"><a href="#添加一个服务" class="headerlink" title="添加一个服务"></a>添加一个服务</h2><p>添加应用(使用rancher默认的编排工具Cattle，docker-ce升级到最新版本)<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0205_rancher_01.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0205_rancher_02.png" alt=""><br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -266,6 +266,75 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
+<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
+<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
+<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
+<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1128,85 +1197,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
-<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
-<span class="line"><span class="comment">---------- ------------------------------ ---------- ----------</span></span>
-<span class="line">         2 PDB$SEED                       READ ONLY  NO</span>
-<span class="line">         3 PDB1                           READ WRITE NO</span>
-<span class="line">         4 PDB2                           READ WRITE NO</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">show</span> con_name</span>
-<span class="line">CON_NAME</span>
-<span class="line"><span class="comment">------------------------------</span></span>
-<span class="line">CDB$ROOT</span>
-</pre></td></tr></table></figure></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
