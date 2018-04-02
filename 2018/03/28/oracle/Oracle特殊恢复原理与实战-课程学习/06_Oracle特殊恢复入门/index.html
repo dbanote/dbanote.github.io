@@ -29,7 +29,10 @@
 <meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0327_oracle_dsi_06.png">
 <meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0327_oracle_dsi_07.png">
 <meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0327_oracle_dsi_08.png">
-<meta property="og:updated_time" content="2018-03-27T09:30:50.833Z">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0329_oracle_dsi_01.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0330_oracle_dsi_01.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0330_oracle_dsi_02.png">
+<meta property="og:updated_time" content="2018-04-02T09:44:27.602Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据">
 <meta name="twitter:description" content="Oracle 11g Data Block Layout">
@@ -366,9 +369,6 @@
 <span class="line">   ub1 flg_kcbh                             @15       <span class="number">0x06</span> (KCBHFDLC, KCBHFCKV)</span>
 <span class="line">   ub2 chkval_kcbh                          @16       <span class="number">0x9200</span>     <span class="comment"># db_block_checksum </span></span>
 <span class="line">   ub2 spare3_kcbh                          @18       <span class="number">0x0000</span>     <span class="comment"># 保留值</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 下面为rdba换算成文件号块号的方法</span></span>
 </pre></td></tr></table></figure></p>
 <h4 id="rdba转换成文件号块号的方法"><a href="#rdba转换成文件号块号的方法" class="headerlink" title="rdba转换成文件号块号的方法"></a>rdba转换成文件号块号的方法</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">rdba：<span class="number">0x01800083</span>   </span>
 <span class="line">      <span class="number">0000</span> <span class="number">0001</span> <span class="number">1000</span> <span class="number">0000</span> <span class="number">0000</span> <span class="number">0000</span> <span class="number">1000</span> <span class="number">0011</span></span>
@@ -551,7 +551,1244 @@
 <span class="line">AAAW0oAAGAAAACDAAA          <span class="number">1</span> AAAAAA              <span class="number">6</span>        <span class="number">131</span></span>
 <span class="line">AAAW0oAAGAAAACDAAB          <span class="number">2</span> BBBBB               <span class="number">6</span>        <span class="number">131</span></span>
 </pre></td></tr></table></figure></p>
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="insert一条记录，没有提交事务，会写入Datablock吗？"><a href="#insert一条记录，没有提交事务，会写入Datablock吗？" class="headerlink" title="insert一条记录，没有提交事务，会写入Datablock吗？"></a>insert一条记录，没有提交事务，会写入Datablock吗？</h3><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://wenku.baidu.com/view/0624178076eeaeaad0f33028.html" target="_blank" rel="external">Oracle数据块损坏知识</a></p>
+<h2 id="数据行格式解析"><a href="#数据行格式解析" class="headerlink" title="数据行格式解析"></a>数据行格式解析</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0329_oracle_dsi_01.png" alt=""><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># dump trace中数据行格式解析</span></span>
+<span class="line">tl: <span class="number">13</span> fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span></span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">6</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line">fb: --H-FL-- 即是开始F，又是结束L，但表只有一行记录</span>
+<span class="line">lb: <span class="number">0x1</span> <span class="number">1</span>号事务槽</span>
+<span class="line">cc: <span class="number">2</span> 有两列</span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span>: 第一列</span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">6</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span>：第二列</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># BBED中数据行解析</span></span>
+<span class="line"><span class="number">2</span>c <span class="number">010202</span>c1 <span class="number">02064141</span> <span class="number">41414141</span></span>
+<span class="line"><span class="number">2</span>c - 行的状态，行正常的话都是<span class="number">2</span>c，如果是<span class="number">3</span>c的话，表示该行被删除了</span>
+<span class="line"><span class="number">01</span> - lb，锁的字节标记，代表在哪个事务槽上面，<span class="number">01</span>代表在第一个事务槽</span>
+<span class="line"><span class="number">02</span> - 代表有<span class="number">2</span>列</span>
+<span class="line"><span class="number">02</span> - 第<span class="number">1</span>个列有<span class="number">2</span>个字节组成</span>
+<span class="line">c1 <span class="number">02</span> - 第<span class="number">1</span>列的<span class="number">2</span>个字节c1 <span class="number">02</span> 代表第<span class="number">1</span>列对应的数据为<span class="number">1</span></span>
+<span class="line"><span class="number">06</span> - 第<span class="number">2</span>个列有<span class="number">6</span>个字节组成</span>
+<span class="line"><span class="number">4141</span> <span class="number">41414141</span> - 第<span class="number">2</span>个列<span class="number">6</span>个字节<span class="number">4141</span> <span class="number">41414141</span> ，对应的数值为AAAAAA</span>
+</pre></td></tr></table></figure></p>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="insert一条记录，没有提交事务，会写入Datablock吗？"><a href="#insert一条记录，没有提交事务，会写入Datablock吗？" class="headerlink" title="insert一条记录，没有提交事务，会写入Datablock吗？"></a>insert一条记录，没有提交事务，会写入Datablock吗？</h3><p>会写入，验证步骤如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line">create table t2 (id number,name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t2 <span class="keyword">values</span> (<span class="number">1</span>, <span class="string">'AAAAAA'</span>);</span>
+<span class="line"><span class="keyword">select</span> ROWID,ID,NAME,DBMS_ROWID.ROWID_RELATIVE_FNO(ROWID) FILE<span class="comment">#,DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID) BLOCK# from t2;</span></span>
+<span class="line"></span>
+<span class="line">ROWID                      ID NAME            FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">------------------ ---------- ---------- ---------- ----------</span>
+<span class="line">AAAXCgAAGAAAACNAAA          <span class="number">1</span> AAAAAA              <span class="number">6</span>        <span class="number">141</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 打开另一个会话</span></span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">6</span> block <span class="number">141</span>;</span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">VALUE</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl/trace</span><span class="regexp">/orcl_ora_23817.trc</span>
+<span class="line"></span>
+<span class="line"># 打开trace文件</span>
+<span class="line">#--------------------------------------------------------------------------------</span>
+<span class="line">Block header dump:  0x0180008d</span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj</span>: <span class="number">0x170a0</span>  csc: <span class="number">0x00</span>.<span class="number">3</span>ddad2  itc: <span class="number">2</span>  flg: E  typ: <span class="number">1</span> - DATA</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1800088</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc，</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0002</span>.<span class="number">01</span>9.<span class="number">00000</span>a13  <span class="number">0x00c011b6</span>.<span class="number">034</span>d.<span class="number">14</span>  ----    <span class="number">1</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span>  <span class="comment"># 第一个事务槽，flag:---- 代表没有提交</span></span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  ----    <span class="number">0</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span></span>
+<span class="line">bdba: <span class="number">0x0180008d</span></span>
+<span class="line">data_block_dump,data header at <span class="number">0x7f4560e76a64</span></span>
+<span class="line">.......</span>
+<span class="line">block_row_dump:</span>
+<span class="line">tab <span class="number">0</span>, row <span class="number">0</span>, @0x1f8b</span>
+<span class="line">tl: <span class="number">13</span> fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span>  <span class="comment"># 0x1 查看上面第一个事务槽</span></span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span>                 <span class="comment"># 1</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">6</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span>     <span class="comment"># AAAAAA</span></span>
+<span class="line">end_of_block_dump</span>
+<span class="line">End <span class="keyword">dump</span> data blocks tsn: <span class="number">7</span> file<span class="comment">#: 6 minblk 141 maxblk 141</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">FLAG: C=Committed; U=Commit Upper Bound; T=Active as CSC</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">141</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">141</span>                                   Dba:<span class="number">0x0180008d</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Table/Cluster)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">72</span> bytes                     @20       <span class="comment"># 事务   </span></span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">2</span>], <span class="number">48</span> bytes            @44</span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line">BBED&gt; p ktbbh</span>
+<span class="line">struct ktbbh, <span class="number">72</span> bytes                      @20      </span>
+<span class="line">   ub1 ktbbhtyp                             @20       <span class="number">0x01</span> (KDDBTDATA)</span>
+<span class="line">   union ktbbhsid, <span class="number">4</span> bytes                  @24      </span>
+<span class="line">      ub4 ktbbhsg1                          @24       <span class="number">0x000170a0</span></span>
+<span class="line">      ub4 ktbbhod1                          @24       <span class="number">0x000170a0</span></span>
+<span class="line">   struct ktbbhcsc, <span class="number">8</span> bytes                 @28      </span>
+<span class="line">      ub4 kscnbas                           @28       <span class="number">0x003ddad2</span></span>
+<span class="line">      ub2 kscnwrp                           @32       <span class="number">0x0000</span></span>
+<span class="line">   sb2 ktbbhict                             @36       <span class="number">2</span></span>
+<span class="line">   ub1 ktbbhflg                             @38       <span class="number">0x32</span> (NONE)</span>
+<span class="line">   ub1 ktbbhfsl                             @39       <span class="number">0x00</span></span>
+<span class="line">   ub4 ktbbhfnx                             @40       <span class="number">0x01800088</span></span>
+<span class="line">   struct ktbbhitl[<span class="number">0</span>], <span class="number">24</span> bytes             @44                    <span class="comment"># 第一个事务槽</span></span>
+<span class="line">      struct ktbitxid, <span class="number">8</span> bytes              @44      </span>
+<span class="line">         ub2 kxidusn                        @44       <span class="number">0x0002</span></span>
+<span class="line">         ub2 kxidslt                        @46       <span class="number">0x0019</span></span>
+<span class="line">         ub4 kxidsqn                        @48       <span class="number">0x00000a13</span></span>
+<span class="line">      struct ktbituba, <span class="number">8</span> bytes              @52      </span>
+<span class="line">         ub4 kubadba                        @52       <span class="number">0x00c011b6</span></span>
+<span class="line">         ub2 kubaseq                        @56       <span class="number">0x034d</span></span>
+<span class="line">         ub1 kubarec                        @58       <span class="number">0x14</span></span>
+<span class="line">      ub2 ktbitflg                          @60       <span class="number">0x0001</span> (NONE)   <span class="comment"># 00代表没提交，01代表在偏移量60的地方锁了1行记录</span></span>
+<span class="line">                                                                      <span class="comment"># 前两位是80代表提交，20代表快速提交，</span></span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set offset <span class="number">0</span> count <span class="number">8192</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">141</span>              Offsets:    <span class="number">0</span> to <span class="number">8191</span>           Dba:<span class="number">0x0180008d</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">06</span>a2000<span class="number">0</span> <span class="number">8</span>d008001 d2da3d0<span class="number">0</span> <span class="number">00000304</span> cc44000<span class="number">0</span> <span class="number">01000000</span> a070010<span class="number">0</span> d2da3d0<span class="number">0</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">02003200</span> <span class="number">88008001</span> <span class="number">02001</span>90<span class="number">0</span> <span class="number">130</span>a000<span class="number">0</span> b611c00<span class="number">0</span> <span class="number">4</span>d03140<span class="number">0</span> <span class="number">01000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00010100</span> ffff140<span class="number">0</span> <span class="number">8</span>b1f771f <span class="number">771</span>f000<span class="number">0</span> <span class="number">0100</span>8b1f <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line">......</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">0000002</span>c <span class="number">010202</span>c1 <span class="number">02064141</span> <span class="number">41414141</span> <span class="number">0306</span>d2da   <span class="comment"># 2c 010202c1 02064141 41414141 这个就是没提交insert的值</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="使用BBED手工修复DELETE数据"><a href="#使用BBED手工修复DELETE数据" class="headerlink" title="使用BBED手工修复DELETE数据"></a>使用BBED手工修复DELETE数据</h3><h4 id="先看一下未删除前数据块内容"><a href="#先看一下未删除前数据块内容" class="headerlink" title="先看一下未删除前数据块内容"></a>先看一下未删除前数据块内容</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 提交上面insert的数据</span></span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 退出重新登陆BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">141</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">141</span>                                   Dba:<span class="number">0x0180008d</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Table/Cluster)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">72</span> bytes                     @20      </span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">2</span>], <span class="number">48</span> bytes            @44    <span class="comment">#</span></span>
+<span class="line">.....</span>
+<span class="line"></span>
+<span class="line">BBED&gt; p ktbbhitl</span>
+<span class="line">struct ktbbhitl[<span class="number">0</span>], <span class="number">24</span> bytes                @44      </span>
+<span class="line">   struct ktbitxid, <span class="number">8</span> bytes                 @44      </span>
+<span class="line">      ub2 kxidusn                           @44       <span class="number">0x0002</span></span>
+<span class="line">      ub2 kxidslt                           @46       <span class="number">0x0019</span></span>
+<span class="line">      ub4 kxidsqn                           @48       <span class="number">0x00000a13</span></span>
+<span class="line">   struct ktbituba, <span class="number">8</span> bytes                 @52      </span>
+<span class="line">      ub4 kubadba                           @52       <span class="number">0x00c011b6</span></span>
+<span class="line">      ub2 kubaseq                           @56       <span class="number">0x034d</span></span>
+<span class="line">      ub1 kubarec                           @58       <span class="number">0x14</span></span>
+<span class="line">   ub2 ktbitflg                             @60       <span class="number">0x8000</span> (KTBFCOM)  <span class="comment"># 80代表提交 00 没有锁行</span></span>
+<span class="line">   union _ktbitun, <span class="number">2</span> bytes                  @62      </span>
+<span class="line">      sb2 _ktbitfsc                         @62       <span class="number">0</span></span>
+<span class="line">      ub2 _ktbitwrp                         @62       <span class="number">0x0000</span></span>
+<span class="line">   ub4 ktbitbas                             @64       <span class="number">0x003de705</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbr</span>
+<span class="line">sb2 kdbr[<span class="number">0</span>]                                 @118      <span class="number">8075</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">0</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @8175     <span class="number">0x2c</span>   <span class="comment"># 绝对位置：上面相对位置+100 (ASSM)</span></span>
+<span class="line">                                                             <span class="comment"># ASSM +100   MSSM +92  详细算法见下面ASSM和MSSM下block结构的一点差异图</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span>/rnccccccc       <span class="comment"># r-读 n-数值型 c-字符型  </span></span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @8175    </span>
+<span class="line">----------</span>
+<span class="line">flag@8175: <span class="number">0x2c</span> (KDRHFL, KDRHFF, KDRHFH)  <span class="comment"># 2c 行的状态</span></span>
+<span class="line">lock@8176: <span class="number">0x00</span></span>
+<span class="line">cols@8177:    <span class="number">2</span></span>
+<span class="line"></span>
+<span class="line">col    <span class="number">0</span>[<span class="number">2</span>] @8178: <span class="number">1</span> </span>
+<span class="line">col    <span class="number">1</span>[<span class="number">6</span>] @8181: AAAAAA</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># dump trace</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0002</span>.<span class="number">01</span>9.<span class="number">00000</span>a13  <span class="number">0x00c011b6</span>.<span class="number">034</span>d.<span class="number">14</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">003</span>de705</span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  ----    <span class="number">0</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span></span>
+<span class="line">bdba: <span class="number">0x0180008d</span></span>
+<span class="line">data_block_dump,data header at <span class="number">0x7ff1f6bf9a64</span></span>
+<span class="line">......</span>
+<span class="line">block_row_dump:</span>
+<span class="line">tab <span class="number">0</span>, row <span class="number">0</span>, @0x1f8b</span>
+<span class="line">tl: <span class="number">13</span> fb: --H-FL-- lb: <span class="number">0x0</span>  cc: <span class="number">2</span></span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">6</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h4 id="ASSM和MSSM下block结构的一点差异"><a href="#ASSM和MSSM下block结构的一点差异" class="headerlink" title="ASSM和MSSM下block结构的一点差异"></a>ASSM和MSSM下block结构的一点差异</h4><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0330_oracle_dsi_01.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0330_oracle_dsi_02.png" alt=""></p>
+<h4 id="删除记录并使用BBED恢复"><a href="#删除记录并使用BBED恢复" class="headerlink" title="删除记录并使用BBED恢复"></a>删除记录并使用BBED恢复</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 删除记录，并确保写到文件中</span></span>
+<span class="line"><span class="keyword">delete</span> from t2 where id=<span class="number">1</span>;</span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重新登陆bbed查看file 6 block 141</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">141</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">0</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @8175     <span class="number">0x3c</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span>/rnccccccc</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @8175    </span>
+<span class="line">----------</span>
+<span class="line">flag@8175: <span class="number">0x3c</span> (KDRHFL, KDRHFF, KDRHFD, KDRHFH)    <span class="comment"># 3c 行状态为删除</span></span>
+<span class="line">lock@8176: <span class="number">0x02</span></span>
+<span class="line">cols@8177:    <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> offset <span class="number">8000</span> count <span class="number">200</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">141</span>              Offsets: <span class="number">8000</span> to <span class="number">8191</span>           Dba:<span class="number">0x0180008d</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">0000003</span>c <span class="number">020202</span>c1 <span class="number">02064141</span> <span class="number">41414141</span> <span class="number">0106</span>c071 </span>
+<span class="line"></span>
+<span class="line"><span class="number">3</span>c <span class="number">020202</span>c1 <span class="number">02064141</span> <span class="number">41414141</span></span>
+<span class="line"><span class="number">3</span>c - 删除</span>
+<span class="line"><span class="number">02</span> - 第<span class="number">2</span>个事务槽</span>
+<span class="line"><span class="number">02</span> - 代表有<span class="number">2</span>列</span>
+<span class="line"><span class="number">02</span> - 第<span class="number">1</span>个列有<span class="number">2</span>个字节组成</span>
+<span class="line">c1 <span class="number">02</span> - 第<span class="number">1</span>列的<span class="number">2</span>个字节c1 <span class="number">02</span> 代表第<span class="number">1</span>列对应的数据为<span class="number">1</span></span>
+<span class="line"><span class="number">06</span> - 第<span class="number">2</span>个列有<span class="number">6</span>个字节组成</span>
+<span class="line"><span class="number">4141</span> <span class="number">41414141</span> - 第<span class="number">2</span>个列<span class="number">6</span>个字节<span class="number">4141</span> <span class="number">41414141</span> ，对应的数值为AAAAAA</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用BBED恢复</span></span>
+<span class="line">modify /<span class="keyword">x</span> <span class="number">2</span>c offset <span class="number">8175</span></span>
+<span class="line">modify /<span class="keyword">x</span> <span class="number">01</span> offset <span class="number">8176</span></span>
+<span class="line">sum apply</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在SQLPLUS中已经能查到刚才被删除的数据</span></span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;  (可选)</span>
+<span class="line"><span class="keyword">select</span> * from t2;</span>
+<span class="line"></span>
+<span class="line">        ID NAME</span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAAA</span>
+</pre></td></tr></table></figure>
+<h3 id="使用BBED手工修复UPDATE数据"><a href="#使用BBED手工修复UPDATE数据" class="headerlink" title="使用BBED手工修复UPDATE数据"></a>使用BBED手工修复UPDATE数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line">create table t3 (id number,name varchar(<span class="number">10</span>));</span>
+<span class="line">insert into t3 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">insert into t3 <span class="keyword">values</span> (<span class="number">2</span>,<span class="string">'BBBBB'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"><span class="keyword">select</span> id,name,DBMS_ROWID.ROWID_RELATIVE_FNO(ROWID) FILE<span class="comment">#,DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID) BLOCK# from t3;</span></span>
+<span class="line"></span>
+<span class="line">        ID NAME            FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">---------- ---------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA               <span class="number">6</span>        <span class="number">148</span></span>
+<span class="line">         <span class="number">2</span> BBBBB               <span class="number">6</span>        <span class="number">148</span></span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用BBED dump块</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">148</span></span>
+<span class="line">        FILE<span class="comment">#           6</span></span>
+<span class="line">        BLOCK<span class="comment">#          148</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span>/v offset <span class="number">8000</span> count <span class="number">200</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8000</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">2</span>c010202 c1030542 <span class="number">42424242</span> l ....,......BBBBB</span>
+<span class="line"> <span class="number">2</span>c010202 c1020541 <span class="number">41414141</span> <span class="number">01065</span>e76 l ,......AAAAA..^v</span>
+<span class="line"> </span>
+<span class="line"><span class="number">2</span>c010202 c1020541 <span class="number">41414141</span></span>
+<span class="line"><span class="number">2</span>c - 正常状态</span>
+<span class="line"><span class="number">01</span> - 第<span class="number">1</span>个事务槽</span>
+<span class="line"><span class="number">02</span> - 代表有<span class="number">2</span>列</span>
+<span class="line"><span class="number">02</span> - 第<span class="number">1</span>个列有<span class="number">2</span>个字节组成</span>
+<span class="line">c1 <span class="number">02</span> - 第<span class="number">1</span>列的<span class="number">2</span>个字节c1 <span class="number">02</span> 代表第<span class="number">1</span>列对应的数据为<span class="number">1</span></span>
+<span class="line"><span class="number">05</span> - 第<span class="number">2</span>个列有<span class="number">5</span>个字节组成</span>
+<span class="line"><span class="number">41</span> <span class="number">41414141</span> - 第<span class="number">2</span>个列<span class="number">5</span>个字节<span class="number">41</span> <span class="number">41414141</span> ，对应的数值为AAAAA</span>
+<span class="line"></span>
+<span class="line"><span class="number">2</span>c010202 c1030542 <span class="number">42424242</span></span>
+<span class="line"><span class="number">2</span>c - 正常状态</span>
+<span class="line"><span class="number">01</span> - 第<span class="number">1</span>个事务槽</span>
+<span class="line"><span class="number">02</span> - 代表有<span class="number">2</span>列</span>
+<span class="line"><span class="number">02</span> - 第<span class="number">1</span>个列有<span class="number">2</span>个字节组成</span>
+<span class="line">c103 - 第<span class="number">1</span>列的<span class="number">2</span>个字节c1 <span class="number">03</span> 代表第<span class="number">1</span>列对应的数据为<span class="number">2</span></span>
+<span class="line"><span class="number">05</span> - 第<span class="number">2</span>个列有<span class="number">5</span>个字节组成</span>
+<span class="line"><span class="number">42</span> <span class="number">42424242</span> - 第<span class="number">2</span>个列<span class="number">5</span>个字节<span class="number">42</span> <span class="number">42424242</span> ，对应的数值为BBBBB</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># update字符等长时（直接替换）</span></span>
+<span class="line">update t3 set name=<span class="string">'CCCCC'</span> where name=<span class="string">'BBBBB'</span>;</span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重进BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">148</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span>/v offset <span class="number">8000</span> count <span class="number">200</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8000</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">2</span>c020202 c1030543 <span class="number">43434343</span> l ....,......CCCCC   <span class="comment"># update前的事务槽是01，update后事务槽是02</span></span>
+<span class="line"> <span class="number">2</span>c000202 c1020541 <span class="number">41414141</span> <span class="number">0206</span>8782 l ,......AAAAA....</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># update字符超过原有长时</span></span>
+<span class="line">update t3 set name=<span class="string">'DDDDDD'</span> where name=<span class="string">'CCCCC'</span>;</span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重进BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">148</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span>/v offset <span class="number">8000</span> count <span class="number">200</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8000</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">0000002</span>c <span class="number">010202</span>c1 <span class="number">03064444</span> l .......,......DD  <span class="comment"># DDDDDD是新写到文件中，并不直接修改</span></span>
+<span class="line"> <span class="number">44444444</span> <span class="number">2</span>c000202 c1030543 <span class="number">43434343</span> l DDDD,......CCCCC  <span class="comment"># 原有的CCCCC还在文件中，状态也是c2</span></span>
+<span class="line"> <span class="number">2</span>c000202 c1020541 <span class="number">41414141</span> <span class="number">02064</span>883 l ,......AAAAA..H.</span>
+</pre></td></tr></table></figure>
+<p>下面要使用BBED工具，手工将DDDDDD，改为CCCCC<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * from t3;</span>
+<span class="line"></span>
+<span class="line">        ID NAME</span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA</span>
+<span class="line">         <span class="number">2</span> DDDDDD</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">148</span></span>
+<span class="line">        FILE<span class="comment">#           6</span></span>
+<span class="line">        BLOCK<span class="comment">#          148</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbr</span>
+<span class="line">sb2 kdbr[<span class="number">0</span>]                                 @118      <span class="number">8076</span></span>
+<span class="line">sb2 kdbr[<span class="number">1</span>]                                 @120      <span class="number">8051</span>     <span class="comment"># offset 120 是第二行记录</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">1</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @8151     <span class="number">0x2c</span>     <span class="comment"># 8151-100=8051</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span> /rncccccc</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @8151    </span>
+<span class="line">----------</span>
+<span class="line">flag@8151: <span class="number">0x2c</span> (KDRHFL, KDRHFF, KDRHFH)</span>
+<span class="line">lock@8152: <span class="number">0x01</span></span>
+<span class="line">cols@8153:    <span class="number">2</span></span>
+<span class="line"></span>
+<span class="line">col    <span class="number">0</span>[<span class="number">2</span>] @8154: <span class="number">2</span> </span>
+<span class="line">col    <span class="number">1</span>[<span class="number">6</span>] @8157: DDDDDD</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 变更指向位置</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">8164</span> count <span class="number">100</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8164</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">2</span>c000202 c1030543 <span class="number">43434343</span> <span class="number">2</span>c000202 l ,......CCCCC,...  </span>
+<span class="line"> c1020541 <span class="number">41414141</span> <span class="number">02064</span>883          l ...AAAAA..H.</span>
+<span class="line"></span>
+<span class="line"><span class="number">8164</span> - <span class="number">100</span> = <span class="number">8064</span> </span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> to_char(<span class="number">8064</span>,<span class="string">'xxxxxxxxxx'</span>) c from dual;</span>
+<span class="line"></span>
+<span class="line">C</span>
+<span class="line">-----------</span>
+<span class="line">       <span class="number">1</span>f8<span class="number">0</span>         <span class="comment"># 801f</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">120</span> count <span class="number">16</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets:  <span class="number">120</span> to  <span class="number">135</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">731</span>f000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> l s...............     <span class="comment"># 1f73</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> to_number(<span class="string">'1f73'</span>,<span class="string">'xxxxxxxxxx'</span>) n from dual;</span>
+<span class="line"></span>
+<span class="line">         N</span>
+<span class="line">----------</span>
+<span class="line">      <span class="number">8051</span>   <span class="comment"># 8051+100  DDDDDD所在位置的绝对偏移量</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">80</span> offset <span class="number">120</span></span>
+<span class="line">Warning: contents of previous BIFILE will be lost. Proceed? (Y/N) <span class="keyword">y</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>              Offsets:  <span class="number">120</span> to  <span class="number">135</span>           Dba:<span class="number">0x01800094</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">801</span>f000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">148</span>:</span>
+<span class="line">current = <span class="number">0xae1b</span>, required = <span class="number">0xae1b</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 8152事务槽设置为00</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">8152</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8152</span> to <span class="number">8167</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">010202</span>c1 <span class="number">03064444</span> <span class="number">44444444</span> <span class="number">2</span>c000202 l ......DDDDDD,...</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">00</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>              Offsets: <span class="number">8152</span> to <span class="number">8167</span>           Dba:<span class="number">0x01800094</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">000202</span>c1 <span class="number">03064444</span> <span class="number">44444444</span> <span class="number">2</span>c000202 </span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 8165事务槽设置为02</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">8165</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>     Offsets: <span class="number">8165</span> to <span class="number">8180</span>  Dba:<span class="number">0x01800094</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">000202</span>c1 <span class="number">03054343</span> <span class="number">4343432</span>c <span class="number">000202</span>c1 l ......CCCCC,....</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">148</span>:</span>
+<span class="line">current = <span class="number">0xac1a</span>, required = <span class="number">0xac1a</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 有效空间设置</span></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">5</span>c offset <span class="number">110</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>              Offsets:  <span class="number">110</span> to  <span class="number">125</span>           Dba:<span class="number">0x01800094</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c1f691f <span class="number">00000200</span> <span class="number">8</span>c1f801f <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">5</span>c offset <span class="number">112</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">148</span>              Offsets:  <span class="number">112</span> to  <span class="number">127</span>           Dba:<span class="number">0x01800094</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c1f000<span class="number">0</span> <span class="number">0200</span>8c1f <span class="number">801</span>f000<span class="number">0</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">148</span>:</span>
+<span class="line">current = <span class="number">0xac1a</span>, required = <span class="number">0xac1a</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 校验</span></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">148</span></span>
+<span class="line"></span>
+<span class="line">Block Checking: DBA = <span class="number">25165972</span>, Block Type = KTB-managed data block</span>
+<span class="line">data header at <span class="number">0x21c4a64</span></span>
+<span class="line">kdbchk: row locked by non-existent transaction</span>
+<span class="line">        table=<span class="number">0</span>   slot=<span class="number">1</span></span>
+<span class="line">        lockid=<span class="number">2</span>   ktbbhitc=<span class="number">2</span></span>
+<span class="line">Block <span class="number">148</span> failed with check code <span class="number">6101</span></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 验证</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from t3;</span>
+<span class="line"></span>
+<span class="line">        ID NAME</span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA</span>
+<span class="line">         <span class="number">2</span> CCCCC</span>
+</pre></td></tr></table></figure></p>
+<h3 id="使用BBED恢复UPDATE的数据2"><a href="#使用BBED恢复UPDATE的数据2" class="headerlink" title="使用BBED恢复UPDATE的数据2"></a>使用BBED恢复UPDATE的数据2</h3><p>根据以下景场操作，使用BBED恢复UPDATE的数据，把BBBBBB恢复成AAAAA（即把6个B恢复5个A）。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">create table t1 (id <span class="keyword">int</span>,name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">commit;</span>
+<span class="line">update t1 set name=<span class="string">'BBBBBB'</span> where name=<span class="string">'AAAAA'</span>;    <span class="comment">#误操作</span></span>
+<span class="line">commit;</span>
+</pre></td></tr></table></figure></p>
+<p>恢复步骤<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"><span class="keyword">select</span> id,name,DBMS_ROWID.ROWID_RELATIVE_FNO(ROWID) FILE<span class="comment">#,DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID) BLOCK# from t1;</span></span>
+<span class="line"></span>
+<span class="line">        ID NAME            FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">---------- ---------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> BBBBBB              <span class="number">6</span>        <span class="number">135</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看dump trace (可选步骤)</span></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">6</span> block <span class="number">135</span>;</span>
+<span class="line"><span class="keyword">select</span> * from v$diag_info;</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x01800087</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x1723e</span>  csc: <span class="number">0x00</span>.<span class="number">40</span>b17<span class="number">0</span>  itc: <span class="number">2</span>  flg: E  typ: <span class="number">1</span> - DATA</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1800080</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x000a</span>.<span class="number">000</span>.<span class="number">00000</span>97d  <span class="number">0x00c00866</span>.<span class="number">0370</span>.<span class="number">22</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">0040</span>b16f</span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0x0005</span>.<span class="number">000</span>.<span class="number">00000</span>acd  <span class="number">0x00c00ee9</span>.<span class="number">03</span>f6.<span class="number">14</span>  --U-    <span class="number">1</span>  fsc <span class="number">0x0000</span>.<span class="number">0040</span>b173</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 登入BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">135</span></span>
+<span class="line">        FILE<span class="comment">#           6</span></span>
+<span class="line">        BLOCK<span class="comment">#          131</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">135</span>                                   Dba:<span class="number">0x01800087</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Table/Cluster)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">72</span> bytes                     @20      </span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">2</span>], <span class="number">48</span> bytes            @44      </span>
+<span class="line"></span>
+<span class="line"> struct kdbh, <span class="number">14</span> bytes                      @100     </span>
+<span class="line">    ub1 kdbhflag                            @100     </span>
+<span class="line">    sb1 kdbhntab                            @101     </span>
+<span class="line">    sb2 kdbhnrow                            @102     </span>
+<span class="line">    sb2 kdbhfrre                            @104     </span>
+<span class="line">    sb2 kdbhfsbo                            @106     </span>
+<span class="line">    sb2 kdbhfseo                            @108     </span>
+<span class="line">    sb2 kdbhavsp                            @110     </span>
+<span class="line">    sb2 kdbhtosp                            @112     </span>
+<span class="line"></span>
+<span class="line"> struct kdbt[<span class="number">1</span>], <span class="number">4</span> bytes                    @114     </span>
+<span class="line">    sb2 kdbtoffs                            @114     </span>
+<span class="line">    sb2 kdbtnrow                            @116     </span>
+<span class="line"></span>
+<span class="line"> sb2 kdbr[<span class="number">1</span>]                                @118     </span>
+<span class="line"></span>
+<span class="line"> ub1 freespace[<span class="number">8043</span>]                        @120     </span>
+<span class="line"></span>
+<span class="line"> ub1 rowdata[<span class="number">25</span>]                            @8163    </span>
+<span class="line"></span>
+<span class="line"> ub4 tailchk                                @8188    </span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbr</span>
+<span class="line">sb2 kdbr[<span class="number">0</span>]                                 @118      <span class="number">8063</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">0</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @8163     <span class="number">0x2c</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span>/rnccccccc</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @8163    </span>
+<span class="line">----------</span>
+<span class="line">flag@8163: <span class="number">0x2c</span> (KDRHFL, KDRHFF, KDRHFH)</span>
+<span class="line">lock@8164: <span class="number">0x02</span></span>
+<span class="line">cols@8165:    <span class="number">2</span></span>
+<span class="line"></span>
+<span class="line">col    <span class="number">0</span>[<span class="number">2</span>] @8166: <span class="number">1</span> </span>
+<span class="line">col    <span class="number">1</span>[<span class="number">6</span>] @8169: BBBBBB</span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">8163</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">135</span>     Offsets: <span class="number">8163</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800087</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">2</span>c020202 c1020642 <span class="number">42424242</span> <span class="number">422</span>c0002 l ,......BBBBBB,..</span>
+<span class="line"> <span class="number">02</span>c10205 <span class="number">41414141</span> <span class="number">41020673</span> b1       l ....AAAAA..s</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">8176</span>        <span class="comment"># 8163+13</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">131</span>     Offsets: <span class="number">8176</span> to <span class="number">8191</span>  Dba:<span class="number">0x01800083</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">2</span>c000202 c1020541 <span class="number">41414141</span> <span class="number">020655</span>93 l ,......AAAAA..U.</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> to_char(<span class="number">8076</span>,<span class="string">'xxxxxxxx'</span>) from dual;       <span class="comment"># 8176-100</span></span>
+<span class="line"></span>
+<span class="line">TO_CHAR(<span class="number">8</span></span>
+<span class="line">---------</span>
+<span class="line">     <span class="number">1</span>f8c        <span class="comment"># Little Endian：8c1f</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> offset <span class="number">118</span> count <span class="number">16</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">131</span>              Offsets:  <span class="number">118</span> to  <span class="number">133</span>           Dba:<span class="number">0x01800083</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">7</span>f1f000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改</span></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">8</span>c offset <span class="number">118</span></span>
+<span class="line">Warning: contents of previous BIFILE will be lost. Proceed? (Y/N) <span class="keyword">y</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">135</span>              Offsets:  <span class="number">118</span> to  <span class="number">133</span>           Dba:<span class="number">0x01800087</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">8</span>c1f000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改对应的事务槽</span></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">00</span> offset <span class="number">8164</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">135</span>              Offsets: <span class="number">8164</span> to <span class="number">8179</span>           Dba:<span class="number">0x01800087</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">000202</span>c1 <span class="number">02064242</span> <span class="number">42424242</span> <span class="number">2</span>c000202 </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">02</span> offset <span class="number">8177</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">135</span>              Offsets: <span class="number">8177</span> to <span class="number">8191</span>           Dba:<span class="number">0x01800087</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">020202</span>c1 <span class="number">02054141</span> <span class="number">41414102</span> <span class="number">0673</span>b1 </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">135</span>:</span>
+<span class="line">current = <span class="number">0xd252</span>, required = <span class="number">0xd252</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 有效空间设置</span></span>
+<span class="line"><span class="comment">## 检验</span></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">135</span></span>
+<span class="line"></span>
+<span class="line">Block Checking: DBA = <span class="number">25165959</span>, Block Type = KTB-managed data block</span>
+<span class="line">data header at <span class="number">0x7fcea7922264</span></span>
+<span class="line">kdbchk: the amount of space used is <span class="keyword">not</span> equal to block size <span class="comment"># 使用的空间大小不等于块大小</span></span>
+<span class="line">        used=<span class="number">32</span> fsc=<span class="number">0</span> avsp=<span class="number">8055</span> dtl=<span class="number">8088</span>   </span>
+<span class="line">        <span class="comment"># 提示数据块的空间使用不正确（dtl-used=kdbhavsp=kdbhtosp）</span></span>
+<span class="line">        <span class="comment"># 8088-32=8056 与 avsp=8055相差1,也就是说我要恢复到8056</span></span>
+<span class="line">Block <span class="number">135</span> failed with check code <span class="number">6110</span></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">1</span>    <span class="comment"># 有错误</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbh</span>
+<span class="line">struct kdbh, <span class="number">14</span> bytes                       @100     </span>
+<span class="line">   ub1 kdbhflag                             @100      <span class="number">0x00</span> (NONE)</span>
+<span class="line">   sb1 kdbhntab                             @101      <span class="number">1</span></span>
+<span class="line">   sb2 kdbhnrow                             @102      <span class="number">1</span></span>
+<span class="line">   sb2 kdbhfrre                             @104     -<span class="number">1</span></span>
+<span class="line">   sb2 kdbhfsbo                             @106      <span class="number">20</span></span>
+<span class="line">   sb2 kdbhfseo                             @108      <span class="number">8063</span></span>
+<span class="line">   sb2 kdbhavsp                             @110      <span class="number">8055</span></span>
+<span class="line">   sb2 kdbhtosp                             @112      <span class="number">8055</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改空间，把空间修改为781f,以dtl-used=kdbhavsp为主，恢复到8088-32=8086 （算法见上面注释）</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> to_char(<span class="number">8056</span>,<span class="string">'xxxxxxxx'</span>) from dual;</span>
+<span class="line"></span>
+<span class="line">TO_CHAR(<span class="number">8</span></span>
+<span class="line">---------</span>
+<span class="line">     <span class="number">1</span>f78        <span class="comment"># 781f</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">78</span> offset <span class="number">110</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">131</span>              Offsets:  <span class="number">110</span> to  <span class="number">125</span>           Dba:<span class="number">0x01800083</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c1f771f <span class="number">00000100</span> <span class="number">8</span>c1f000<span class="number">0</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">78</span> offset <span class="number">112</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">131</span>              Offsets:  <span class="number">112</span> to  <span class="number">127</span>           Dba:<span class="number">0x01800083</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c1f000<span class="number">0</span> <span class="number">0100</span>8c1f <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">135</span>:</span>
+<span class="line">current = <span class="number">0xd252</span>, required = <span class="number">0xd252</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 校验</span></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">135</span></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">0</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 恢复成功</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from t1;</span>
+<span class="line"></span>
+<span class="line">        ID NAME</span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA</span>
+</pre></td></tr></table></figure></p>
+<h3 id="使用BBED手工提交delete操作的事务"><a href="#使用BBED手工提交delete操作的事务" class="headerlink" title="使用BBED手工提交delete操作的事务"></a>使用BBED手工提交delete操作的事务</h3><p>根据以下景场操作，使用BBED手工提交delete操作的事务<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">sqlplus lyj/lyj</span>
+<span class="line">drop table t2 purge;</span>
+<span class="line">create table t2 (id <span class="keyword">int</span>,name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t2 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> id,name,DBMS_ROWID.ROWID_RELATIVE_FNO(ROWID) FILE<span class="comment">#,DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID) BLOCK# from t2;</span></span>
+<span class="line"></span>
+<span class="line">        ID NAME            FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">---------- ---------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA               <span class="number">6</span>        <span class="number">143</span></span>
+<span class="line"></span>
+<span class="line">会话一：</span>
+<span class="line"><span class="keyword">delete</span> from t2 where name=<span class="string">'AAAAA'</span>;  <span class="comment">#不允许用commit命令提交</span></span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line">会话二：</span>
+<span class="line"><span class="keyword">select</span> * from t2;                   <span class="comment">#如果查不到name='AAAAA'这条记录，说明BBED手工提交事务成功！</span></span>
+</pre></td></tr></table></figure></p>
+<p>操作步骤：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 可选查看dump数据块内容</span></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">6</span> block <span class="number">143</span>;</span>
+<span class="line"><span class="keyword">select</span> * from v$diag_info;</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x0180008f</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x17240</span>  csc: <span class="number">0x00</span>.<span class="number">40</span>bc99  itc: <span class="number">2</span>  flg: E  typ: <span class="number">1</span> - DATA</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1800088</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0002</span>.<span class="number">003</span>.<span class="number">00000</span>a73  <span class="number">0x00c00201</span>.<span class="number">037</span>a.<span class="number">02</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">0040</span>bc86</span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0x0006</span>.<span class="number">01</span>c.<span class="number">00000</span>ae5  <span class="number">0x00c00dee</span>.<span class="number">040</span>c.<span class="number">04</span>  ----    <span class="number">1</span>  fsc <span class="number">0x000a</span>.<span class="number">00000000</span></span>
+<span class="line">bdba: <span class="number">0x0180008f</span></span>
+<span class="line">data_block_dump,data header at <span class="number">0x7f7743224a64</span></span>
+<span class="line"></span>
+<span class="line">tsiz: <span class="number">0x1f98</span></span>
+<span class="line">hsiz: <span class="number">0x14</span></span>
+<span class="line">pbl: <span class="number">0x7f7743224a64</span></span>
+<span class="line">     <span class="number">76543210</span></span>
+<span class="line">flag=--------</span>
+<span class="line">ntab=<span class="number">1</span></span>
+<span class="line">nrow=<span class="number">1</span></span>
+<span class="line">frre=-<span class="number">1</span></span>
+<span class="line">fsbo=<span class="number">0x14</span></span>
+<span class="line">fseo=<span class="number">0x1f8c</span></span>
+<span class="line">avsp=<span class="number">0x1f78</span></span>
+<span class="line">tosp=<span class="number">0x1f84</span></span>
+<span class="line"><span class="number">0xe</span>:pti[<span class="number">0</span>]      nrow=<span class="number">1</span>  offs=<span class="number">0</span></span>
+<span class="line"><span class="number">0x12</span>:pri[<span class="number">0</span>]     offs=<span class="number">0x1f8c</span></span>
+<span class="line">block_row_dump:</span>
+<span class="line">tab <span class="number">0</span>, row <span class="number">0</span>, @0x1f8c</span>
+<span class="line">tl: <span class="number">2</span> fb: --HDFL-- lb: <span class="number">0x2</span></span>
+<span class="line">end_of_block_dump</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重新登陆BBED</span></span>
+<span class="line">BBED&gt; set file <span class="number">6</span> block <span class="number">143</span></span>
+<span class="line">        FILE<span class="comment">#           6</span></span>
+<span class="line">        BLOCK<span class="comment">#          143</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbr</span>
+<span class="line">sb2 kdbr[<span class="number">0</span>]                                 @118      <span class="number">8076</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">0</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @8176     <span class="number">0x3c</span>    <span class="comment"># 3c-数据已是删除状态</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span>/rncccc</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @8176    </span>
+<span class="line">----------</span>
+<span class="line">flag@8176: <span class="number">0x3c</span> (KDRHFL, KDRHFF, KDRHFD, KDRHFH)</span>
+<span class="line">lock@8177: <span class="number">0x02</span></span>
+<span class="line">cols@8178:    <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 更改更备槽状态为0</span></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">00</span> offset <span class="number">8177</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>              Offsets: <span class="number">8177</span> to <span class="number">8191</span>           Dba:<span class="number">0x0180008f</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">000202</span>c1 <span class="number">02054141</span> <span class="number">41414101</span> <span class="number">06</span>99bc </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">143</span>:</span>
+<span class="line">current = <span class="number">0x65d1</span>, required = <span class="number">0x65d1</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 更改提交状态</span></span>
+<span class="line">BBED&gt; p ktbbh</span>
+<span class="line">struct ktbbh, <span class="number">72</span> bytes                      @20      </span>
+<span class="line">   ub1 ktbbhtyp                             @20       <span class="number">0x01</span> (KDDBTDATA)</span>
+<span class="line">   union ktbbhsid, <span class="number">4</span> bytes                  @24      </span>
+<span class="line">      ub4 ktbbhsg1                          @24       <span class="number">0x00017240</span></span>
+<span class="line">      ub4 ktbbhod1                          @24       <span class="number">0x00017240</span></span>
+<span class="line">   struct ktbbhcsc, <span class="number">8</span> bytes                 @28      </span>
+<span class="line">      ub4 kscnbas                           @28       <span class="number">0x0040bc99</span></span>
+<span class="line">      ub2 kscnwrp                           @32       <span class="number">0x0000</span></span>
+<span class="line">   sb2 ktbbhict                             @36       <span class="number">2</span></span>
+<span class="line">   ub1 ktbbhflg                             @38       <span class="number">0x32</span> (NONE)</span>
+<span class="line">   ub1 ktbbhfsl                             @39       <span class="number">0x00</span></span>
+<span class="line">   ub4 ktbbhfnx                             @40       <span class="number">0x01800088</span></span>
+<span class="line">   struct ktbbhitl[<span class="number">0</span>], <span class="number">24</span> bytes             @44      </span>
+<span class="line">      struct ktbitxid, <span class="number">8</span> bytes              @44      </span>
+<span class="line">         ub2 kxidusn                        @44       <span class="number">0x0002</span></span>
+<span class="line">         ub2 kxidslt                        @46       <span class="number">0x0003</span></span>
+<span class="line">         ub4 kxidsqn                        @48       <span class="number">0x00000a73</span></span>
+<span class="line">      struct ktbituba, <span class="number">8</span> bytes              @52      </span>
+<span class="line">         ub4 kubadba                        @52       <span class="number">0x00c00201</span></span>
+<span class="line">         ub2 kubaseq                        @56       <span class="number">0x037a</span></span>
+<span class="line">         ub1 kubarec                        @58       <span class="number">0x02</span></span>
+<span class="line">      ub2 ktbitflg                          @60       <span class="number">0x8000</span> (KTBFCOM)</span>
+<span class="line">      union _ktbitun, <span class="number">2</span> bytes               @62      </span>
+<span class="line">         sb2 _ktbitfsc                      @62       <span class="number">0</span></span>
+<span class="line">         ub2 _ktbitwrp                      @62       <span class="number">0x0000</span></span>
+<span class="line">      ub4 ktbitbas                          @64       <span class="number">0x0040bc86</span></span>
+<span class="line">   struct ktbbhitl[<span class="number">1</span>], <span class="number">24</span> bytes             @68      </span>
+<span class="line">      struct ktbitxid, <span class="number">8</span> bytes              @68      </span>
+<span class="line">         ub2 kxidusn                        @68       <span class="number">0x0006</span></span>
+<span class="line">         ub2 kxidslt                        @70       <span class="number">0x001c</span></span>
+<span class="line">         ub4 kxidsqn                        @72       <span class="number">0x00000ae5</span></span>
+<span class="line">      struct ktbituba, <span class="number">8</span> bytes              @76      </span>
+<span class="line">         ub4 kubadba                        @76       <span class="number">0x00c00dee</span></span>
+<span class="line">         ub2 kubaseq                        @80       <span class="number">0x040c</span></span>
+<span class="line">         ub1 kubarec                        @82       <span class="number">0x04</span></span>
+<span class="line">      ub2 ktbitflg                          @84       <span class="number">0x0001</span> (NONE)     <span class="comment"># 状态是非提交，需要修改成8000 (0080)</span></span>
+<span class="line">      union _ktbitun, <span class="number">2</span> bytes               @86      </span>
+<span class="line">         sb2 _ktbitfsc                      @86       <span class="number">10</span>                <span class="comment"># 需要将这里修改为0</span></span>
+<span class="line">         ub2 _ktbitwrp                      @86       <span class="number">0x000a</span></span>
+<span class="line">      ub4 ktbitbas                          @88       <span class="number">0x00000000</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">00</span>8<span class="number">0</span> offset <span class="number">84</span></span>
+<span class="line">Warning: contents of previous BIFILE will be lost. Proceed? (Y/N) <span class="keyword">y</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>              Offsets:   <span class="number">84</span> to  <span class="number">595</span>           Dba:<span class="number">0x0180008f</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">00</span>800a0<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00010100</span> ffff140<span class="number">0</span> <span class="number">8</span>c1f781f <span class="number">841</span>f000<span class="number">0</span> </span>
+<span class="line"> <span class="number">0100</span>8c1f <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">00</span> offset <span class="number">86</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>              Offsets:   <span class="number">86</span> to  <span class="number">597</span>           Dba:<span class="number">0x0180008f</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000001</span> <span class="number">0100</span>ffff <span class="number">14008</span>c1f <span class="number">781</span>f841f <span class="number">00000100</span> </span>
+<span class="line"> <span class="number">8</span>c1f000<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">143</span>:</span>
+<span class="line">current = <span class="number">0x67db</span>, required = <span class="number">0x67db</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 校验</span></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">143</span></span>
+<span class="line"></span>
+<span class="line">Block Checking: DBA = <span class="number">25165967</span>, Block Type = KTB-managed data block</span>
+<span class="line">data header at <span class="number">0x1ac7864</span></span>
+<span class="line">kdbchk: the amount of space used is <span class="keyword">not</span> equal to block size</span>
+<span class="line">        used=<span class="number">22</span> fsc=<span class="number">0</span> avsp=<span class="number">8056</span> dtl=<span class="number">8088</span>   <span class="comment"># 8088-22=8066</span></span>
+<span class="line">Block <span class="number">143</span> failed with check code <span class="number">6110</span></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line">BBED&gt; p kdbh</span>
+<span class="line">struct kdbh, <span class="number">14</span> bytes                       @100     </span>
+<span class="line">   ub1 kdbhflag                             @100      <span class="number">0x00</span> (NONE)</span>
+<span class="line">   sb1 kdbhntab                             @101      <span class="number">1</span></span>
+<span class="line">   sb2 kdbhnrow                             @102      <span class="number">1</span></span>
+<span class="line">   sb2 kdbhfrre                             @104     -<span class="number">1</span></span>
+<span class="line">   sb2 kdbhfsbo                             @106      <span class="number">20</span></span>
+<span class="line">   sb2 kdbhfseo                             @108      <span class="number">8076</span></span>
+<span class="line">   sb2 kdbhavsp                             @110      <span class="number">8056</span>   <span class="comment"># 需要修改</span></span>
+<span class="line">   sb2 kdbhtosp                             @112      <span class="number">8068</span>   <span class="comment"># 需要修改（这个其实证明不用修改）</span></span>
+<span class="line"> </span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">110</span> count <span class="number">16</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>     Offsets:  <span class="number">110</span> to  <span class="number">125</span>  Dba:<span class="number">0x0180008f</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">781</span>f841f <span class="number">00000100</span> <span class="number">8</span>c1f000<span class="number">0</span> <span class="number">00000000</span> l x...............</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">112</span> count <span class="number">16</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>     Offsets:  <span class="number">112</span> to  <span class="number">127</span>  Dba:<span class="number">0x0180008f</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">841</span>f000<span class="number">0</span> <span class="number">0100</span>8c1f <span class="number">00000000</span> <span class="number">00000000</span> l ................</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> to_char(<span class="number">8066</span>,<span class="string">'xxxxxxxx'</span>) from dual;</span>
+<span class="line"></span>
+<span class="line">TO_CHAR(<span class="number">8</span></span>
+<span class="line">---------</span>
+<span class="line">     <span class="number">1</span>f82     <span class="comment"># 821f</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">82</span> offset <span class="number">110</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>              Offsets:  <span class="number">110</span> to  <span class="number">125</span>           Dba:<span class="number">0x0180008f</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">821</span>f841f <span class="number">00000100</span> <span class="number">8</span>c1f000<span class="number">0</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">82</span> offset <span class="number">112</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf (<span class="number">6</span>)</span>
+<span class="line"> Block: <span class="number">143</span>              Offsets:  <span class="number">112</span> to  <span class="number">127</span>           Dba:<span class="number">0x0180008f</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">821</span>f000<span class="number">0</span> <span class="number">0100</span>8c1f <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">143</span>:</span>
+<span class="line">current = <span class="number">0x652d</span>, required = <span class="number">0x652d</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">143</span></span>
+<span class="line"></span>
+<span class="line">Block Checking: DBA = <span class="number">25165967</span>, Block Type = KTB-managed data block</span>
+<span class="line">data header at <span class="number">0x1dafa64</span></span>
+<span class="line">kdbchk: space available on commit is incorrect</span>
+<span class="line">        tosp=<span class="number">8066</span> fsc=<span class="number">0</span> stb=<span class="number">2</span> avsp=<span class="number">8066</span>   <span class="comment"># 这里提示stb=2，那说明这个avsp 实际上应该是8066+2=8068才对</span></span>
+<span class="line">Block <span class="number">143</span> failed with check code <span class="number">6111</span></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">1</span>    <span class="comment"># 仍有问题</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> to_char(<span class="number">8068</span>,<span class="string">'xxxxxxxx'</span>) from dual;</span>
+<span class="line"></span>
+<span class="line">TO_CHAR(<span class="number">8</span></span>
+<span class="line">---------</span>
+<span class="line">     <span class="number">1</span>f84</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">6</span>, Block <span class="number">143</span>:</span>
+<span class="line">current = <span class="number">0x652b</span>, required = <span class="number">0x652b</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 检验 - 终于对了</span></span>
+<span class="line">BBED&gt; verify</span>
+<span class="line">DBVERIFY - Verification starting</span>
+<span class="line">FILE = <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/skip</span>_arch01.dbf</span>
+<span class="line">BLOCK = <span class="number">143</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">DBVERIFY - Verification complete</span>
+<span class="line"></span>
+<span class="line">Total Blocks Examined         : <span class="number">1</span></span>
+<span class="line">Total Blocks Processed (Data) : <span class="number">1</span></span>
+<span class="line">Total Blocks Failing   (Data) : <span class="number">0</span></span>
+<span class="line">Total Blocks Processed (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Failing   (Index): <span class="number">0</span></span>
+<span class="line">Total Blocks Empty            : <span class="number">0</span></span>
+<span class="line">Total Blocks Marked Corrupt   : <span class="number">0</span></span>
+<span class="line">Total Blocks Influx           : <span class="number">0</span></span>
+<span class="line">Message <span class="number">531</span> <span class="keyword">not</span> found;  product=RDBMS; facility=BBED</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">会话二：</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from t2; </span>
+<span class="line"></span>
+<span class="line">        ID NAME</span>
+<span class="line">---------- ----------</span>
+<span class="line">         <span class="number">1</span> AAAAA</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line">System altered.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from t2; </span>
+<span class="line"></span>
+<span class="line"><span class="keyword">no</span> rows selected</span>
+</pre></td></tr></table></figure></p>
+<h3 id="为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明"><a href="#为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明" class="headerlink" title="为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明"></a>为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明</h3><p>因为在ASSM下，ORACLE改变了block内部table directory和row directory的位置，oracle把它们顺延了8个字节<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> * from v$type_size where component in (<span class="string">'KCB'</span>,<span class="string">'KTB'</span>);</span>
+<span class="line"></span>
+<span class="line">COMPONEN TYPE     DESCRIPTION                       TYPE_SIZE</span>
+<span class="line">-------- -------- -------------------------------- ----------</span>
+<span class="line">KCB      KCBH     BLOCK COMMON HEADER                      <span class="number">20</span></span>
+<span class="line">KTB      KTBIT    TRANSACTION VARIABLE HEADER              <span class="number">24</span></span>
+<span class="line">KTB      KTBBH    TRANSACTION FIXED HEADER                 <span class="number">48</span></span>
+<span class="line">KTB      KTBBH_BS TRANSACTION BLOCK BITMAP SEGMENT          <span class="number">8</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 创建MSSM表空间</span></span>
+<span class="line">create tablespace mssm </span>
+<span class="line">  datafile <span class="string">'/u01/app/oracle/oradata/orcl/mssm01.dbf'</span> size <span class="number">10</span><span class="keyword">m</span></span>
+<span class="line">  autoextend on <span class="keyword">next</span> <span class="number">1</span><span class="keyword">m</span> segment space management manual;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> TABLESPACE_NAME,SEGMENT_SPACE_MANAGEMENT from dba_tablespaces;</span>
+<span class="line"></span>
+<span class="line">TABLESPACE_NAME                SEGMEN</span>
+<span class="line">------------------------------ ------</span>
+<span class="line">SYSTEM                         MANUAL</span>
+<span class="line">SYSAUX                         AUTO</span>
+<span class="line">UNDOTBS1                       MANUAL</span>
+<span class="line">TEMP                           MANUAL</span>
+<span class="line">USERS                          AUTO</span>
+<span class="line">DSI                            AUTO</span>
+<span class="line">SKIP_ARCH                      AUTO</span>
+<span class="line">TS_16                          AUTO</span>
+<span class="line">MSSM                           MANUAL</span>
+<span class="line"></span>
+<span class="line">create table lyj.t4(id number,name varchar2(<span class="number">10</span>)) tablespace mssm;</span>
+<span class="line">insert into lyj.t4 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'TTTTT'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> id,name,DBMS_ROWID.ROWID_RELATIVE_FNO(ROWID) FILE<span class="comment">#,DBMS_ROWID.ROWID_BLOCK_NUMBER(ROWID) BLOCK# from lyj.t4;</span></span>
+<span class="line"></span>
+<span class="line">        ID NAME            FILE<span class="comment">#     BLOCK#</span></span>
+<span class="line">---------- ---------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> TTTTT               <span class="number">8</span>        <span class="number">129</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 登入BBED</span></span>
+<span class="line">echo <span class="string">"8 /u01/app/oracle/oradata/orcl/mssm01.dbf 10485760"</span> &gt;&gt; filelist.txt</span>
+<span class="line">bbed</span>
+<span class="line"></span>
+<span class="line">BBED&gt; info</span>
+<span class="line"> File<span class="comment">#  Name                                                        Size(blks)</span></span>
+<span class="line"> -----  ----                                                        ----------</span>
+<span class="line">     <span class="number">1</span>  /u01/app/oracle/oradata/orcl/system01.dbf                        <span class="number">97281</span></span>
+<span class="line">     <span class="number">2</span>  /u01/app/oracle/oradata/orcl/sysaux01.dbf                        <span class="number">96001</span></span>
+<span class="line">     <span class="number">3</span>  /u01/app/oracle/oradata/orcl/undotbs01.dbf                       <span class="number">21121</span></span>
+<span class="line">     <span class="number">4</span>  /u01/app/oracle/oradata/orcl/users01.dbf                           <span class="number">641</span></span>
+<span class="line">     <span class="number">5</span>  /u01/app/oracle/oradata/orcl/dsi01.dbf                           <span class="number">64001</span></span>
+<span class="line">     <span class="number">6</span>  /u01/app/oracle/oradata/orcl/skip_arch01.dbf                      <span class="number">6400</span></span>
+<span class="line">     <span class="number">7</span>  /u01/app/oracle/oradata/orcl/ts16_01.dbf                          <span class="number">6400</span></span>
+<span class="line">     <span class="number">8</span>  /u01/app/oracle/oradata/orcl/mssm01.dbf                           <span class="number">1280</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; set file <span class="number">8</span> block <span class="number">129</span></span>
+<span class="line">        FILE<span class="comment">#           8</span></span>
+<span class="line">        BLOCK<span class="comment">#          129</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/mssm</span>01.dbf (<span class="number">8</span>)</span>
+<span class="line"> Block: <span class="number">129</span>                                   Dba:<span class="number">0x02000081</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Table/Cluster)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">72</span> bytes                     @20      </span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">2</span>], <span class="number">48</span> bytes            @44      </span>
+<span class="line"></span>
+<span class="line"> struct kdbh, <span class="number">14</span> bytes                      @92      <span class="comment"># 从上面的例子可以看出，ASSM kdbh是100，比MSSM多了8个偏移量</span></span>
+<span class="line">    ub1 kdbhflag                            @92      </span>
+<span class="line">    sb1 kdbhntab                            @93      </span>
+<span class="line">    sb2 kdbhnrow                            @94      </span>
+<span class="line">    sb2 kdbhfrre                            @96      </span>
+<span class="line">    sb2 kdbhfsbo                            @98      </span>
+<span class="line">    sb2 kdbhfseo                            @100     </span>
+<span class="line">    sb2 kdbhavsp                            @102     </span>
+<span class="line">    sb2 kdbhtosp                            @104     </span>
+<span class="line"></span>
+<span class="line"> struct kdbt[<span class="number">1</span>], <span class="number">4</span> bytes                    @106     </span>
+<span class="line">    sb2 kdbtoffs                            @106     </span>
+<span class="line">    sb2 kdbtnrow                            @108     </span>
+<span class="line"></span>
+<span class="line"> sb2 kdbr[<span class="number">1</span>]                                @110     </span>
+<span class="line"></span>
+<span class="line"> ub1 freespace[<span class="number">8064</span>]                        @112     </span>
+<span class="line"></span>
+<span class="line"> ub1 rowdata[<span class="number">12</span>]                            @8176    </span>
+<span class="line"></span>
+<span class="line"> ub4 tailchk                                @8188</span>
+</pre></td></tr></table></figure></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://wenku.baidu.com/view/0624178076eeaeaad0f33028.html" target="_blank" rel="external">Oracle数据块损坏知识</a></li>
+<li><a href="http://www.cnblogs.com/renyuan/archive/2013/05/26/3099766.html" target="_blank" rel="external">数据在内存中的存储方式(Big Endian和Little Endian的区别)</a></li>
+<li><a href="https://blog.csdn.net/guoyjoe/article/details/30615151" target="_blank" rel="external">利用BBED恢复UPDATE修改前的值</a></li>
+<li><a href="http://www.killdb.com/2014/10/13/how-to-use-bbed-to-drop-a-index.html" target="_blank" rel="external">How to drop a Index with bbed?</a></li>
+</ul>
 
       
     </div>
@@ -584,7 +1821,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle-11g-Data-Block-Layout"><span class="toc-number">1.</span> <span class="toc-text">Oracle 11g Data Block Layout</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#KCBH"><span class="toc-number">1.1.</span> <span class="toc-text">KCBH</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rdba转换成文件号块号的方法"><span class="toc-number">1.1.1.</span> <span class="toc-text">rdba转换成文件号块号的方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RDBA转换函数"><span class="toc-number">1.1.2.</span> <span class="toc-text">RDBA转换函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scn-wrap和scn"><span class="toc-number">1.1.3.</span> <span class="toc-text">scn wrap和scn</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KTBBH-Transaction-Layer"><span class="toc-number">1.2.</span> <span class="toc-text">KTBBH: Transaction Layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KDBH"><span class="toc-number">1.3.</span> <span class="toc-text">KDBH</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle-ROWID格式解析"><span class="toc-number">2.</span> <span class="toc-text">Oracle ROWID格式解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">3.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#insert一条记录，没有提交事务，会写入Datablock吗？"><span class="toc-number">3.1.</span> <span class="toc-text">insert一条记录，没有提交事务，会写入Datablock吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle-11g-Data-Block-Layout"><span class="toc-number">1.</span> <span class="toc-text">Oracle 11g Data Block Layout</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#KCBH"><span class="toc-number">1.1.</span> <span class="toc-text">KCBH</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rdba转换成文件号块号的方法"><span class="toc-number">1.1.1.</span> <span class="toc-text">rdba转换成文件号块号的方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RDBA转换函数"><span class="toc-number">1.1.2.</span> <span class="toc-text">RDBA转换函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scn-wrap和scn"><span class="toc-number">1.1.3.</span> <span class="toc-text">scn wrap和scn</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KTBBH-Transaction-Layer"><span class="toc-number">1.2.</span> <span class="toc-text">KTBBH: Transaction Layer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#KDBH"><span class="toc-number">1.3.</span> <span class="toc-text">KDBH</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle-ROWID格式解析"><span class="toc-number">2.</span> <span class="toc-text">Oracle ROWID格式解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据行格式解析"><span class="toc-number">3.</span> <span class="toc-text">数据行格式解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">4.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#insert一条记录，没有提交事务，会写入Datablock吗？"><span class="toc-number">4.1.</span> <span class="toc-text">insert一条记录，没有提交事务，会写入Datablock吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用BBED手工修复DELETE数据"><span class="toc-number">4.2.</span> <span class="toc-text">使用BBED手工修复DELETE数据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#先看一下未删除前数据块内容"><span class="toc-number">4.2.1.</span> <span class="toc-text">先看一下未删除前数据块内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ASSM和MSSM下block结构的一点差异"><span class="toc-number">4.2.2.</span> <span class="toc-text">ASSM和MSSM下block结构的一点差异</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#删除记录并使用BBED恢复"><span class="toc-number">4.2.3.</span> <span class="toc-text">删除记录并使用BBED恢复</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用BBED手工修复UPDATE数据"><span class="toc-number">4.3.</span> <span class="toc-text">使用BBED手工修复UPDATE数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用BBED恢复UPDATE的数据2"><span class="toc-number">4.4.</span> <span class="toc-text">使用BBED恢复UPDATE的数据2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用BBED手工提交delete操作的事务"><span class="toc-number">4.5.</span> <span class="toc-text">使用BBED手工提交delete操作的事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明"><span class="toc-number">4.6.</span> <span class="toc-text">为什么ASSM要比MSSM多了8个byte？请给出实验步骤证明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
         
     </div>
     <style>
@@ -629,7 +1866,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
 
 
 
