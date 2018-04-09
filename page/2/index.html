@@ -924,10 +924,10 @@
 
 
   
-    <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/" class="article-date">
+      <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/" class="article-date">
       <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
 </a>
 
@@ -943,7 +943,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a>
+      <a class="article-title" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a>
     </h1>
   
 
@@ -953,54 +953,19 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="初始化环境"><a href="#初始化环境" class="headerlink" title="初始化环境"></a>初始化环境</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/redhat-release </span>
-<span class="line">Red Hat Enterprise Linux Server release <span class="number">7.4</span> (Maipo)</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置主机名</span></span>
-<span class="line">hostnamectl --static set-hostname NAME</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置IP地址</span></span>
-<span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens16<span class="number">0</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">TYPE=Ethernet</span>
-<span class="line">PROXY_METHOD=none</span>
-<span class="line">BROWSER_ONLY=<span class="keyword">no</span></span>
-<span class="line">BOOTPROTO=static</span>
-<span class="line">DEFROUTE=yes</span>
-<span class="line">IPV4_FAILURE_FATAL=<span class="keyword">no</span></span>
-<span class="line">IPV6INIT=<span class="keyword">no</span></span>
-<span class="line">NAME=ens16<span class="number">0</span></span>
-<span class="line">UUID=<span class="number">67869621</span>-df21-<span class="number">4</span>ad4-<span class="number">9369</span>-b58078ca74ea</span>
-<span class="line">DEVICE=ens16<span class="number">0</span></span>
-<span class="line">ONBOOT=yes</span>
-<span class="line">IPADDR=<span class="number">10.240</span>.<span class="number">4.179</span></span>
-<span class="line">PREFIX=<span class="number">24</span></span>
-<span class="line">GATEWAY=<span class="number">10.240</span>.<span class="number">4.254</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用firewall</span></span>
-<span class="line">systemctl stop firewalld</span>
-<span class="line">systemctl disable firewalld</span>
-<span class="line">systemctl status firewalld</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用SELINUX</span></span>
-<span class="line">setenforce <span class="number">0</span></span>
-<span class="line">sed -i <span class="string">"s/SELINUX=enforcing/SELINUX=disabled/g"</span> /etc/selinux/config</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置配认yum源为光盘</span></span>
-<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
-<span class="line">mount /dev/cdrom /media/disk</span>
-<span class="line">cd /etc/yum.repos.d/</span>
-<span class="line">mv CentOS-Base.repo CentOS-Base.repo_bak</span>
-<span class="line">vi CentOS-Base.repo</span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">[centos7]</span>
-<span class="line">name=CentOS-$releasever</span>
-<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span></span>
-<span class="line">gpgcheck=<span class="number">0</span></span>
-<span class="line">enabled=<span class="number">1</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-</pre></td></tr></table></figure>
+              <p>本章有部分内容与《<a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a>》互为补充。</p>
+<h2 id="从程序员的角度优化"><a href="#从程序员的角度优化" class="headerlink" title="从程序员的角度优化"></a>从程序员的角度优化</h2><ul>
+<li>数据库的操作越来越成为整个应的的性能瓶颈，这点对于WEB应用尤其明显。</li>
+<li>关于数据库性能，这不只是DBA才需要担心的事，更是程序员需要去关注的事情。</li>
+<li>当设计表结构和操作数据库（DML操作）时，需要注意数据操作的性能。</li>
+</ul>
+<h3 id="为查询缓存优化你的查询"><a href="#为查询缓存优化你的查询" class="headerlink" title="为查询缓存优化你的查询"></a>为查询缓存优化你的查询</h3><p>大多数的MySQL服务器都开启了查询缓存</p>
+<h3 id="EXPLAIN-你的SELECT-查询"><a href="#EXPLAIN-你的SELECT-查询" class="headerlink" title="EXPLAIN 你的SELECT 查询"></a>EXPLAIN 你的SELECT 查询</h3><ul>
+<li>使用EXPLAIN 关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。</li>
+<li>EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你的数据表是如何被搜索和排序的等等。</li>
+<li>挑一个你的SELECT语句（推荐挑选那个最复杂的，有多表联接的），把关键字EXPLAIN加到前面。你可以使用phpmyadmin来做这个事。然后，你会看到一张表格。下面的这个示例中，我们忘记加上了group_id索引，并且有表联接。</li>
+<li>当我们为group_id字段加上索引后：我们可以看到，前一个结果显示搜索了7883 行，而后一个只是搜索了两个表的9 和16 行。查看rows列可以让我们找到潜在的性能问题。</li>
+</ul>
           
       
     </div>
@@ -1008,6 +973,10 @@
     <div class="article-info article-info-index">
       
       
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
 
       
     <div class="article-tag tagcloud">
@@ -1016,7 +985,7 @@
 
       
         <p class="article-more-link">
-          <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/#more">阅读全文 >></a>
+          <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

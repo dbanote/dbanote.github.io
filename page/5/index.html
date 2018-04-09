@@ -330,6 +330,75 @@
 
 
   
+    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
+<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
+<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
+<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
+<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -395,75 +464,6 @@
       
         <p class="article-more-link">
           <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
-      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
-<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
-<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
-<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
-<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
