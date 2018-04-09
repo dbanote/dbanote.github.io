@@ -266,6 +266,96 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-01T16:00:00.000Z" itemprop="datePublished">2017-06-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="本地克隆创建PDB"><a href="#本地克隆创建PDB" class="headerlink" title="本地克隆创建PDB"></a>本地克隆创建PDB</h2><h3 id="创建一个新的PDB-from-SEED"><a href="#创建一个新的PDB-from-SEED" class="headerlink" title="创建一个新的PDB from SEED"></a>创建一个新的PDB from SEED</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter session set container=PDB$SEED;</span>
+<span class="line"><span class="keyword">select</span> file_name from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">FILE_NAME</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl1/pdbseed</span><span class="regexp">/system01.dbf</span>
+<span class="line">/u</span>01/app/oracle/oradata/orcl1/pdbseed/sysaux01.dbf</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdbseed/undotbs01.dbf</span>
+<span class="line"></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">create pluggable database pdb2</span>
+<span class="line">  admin user pdb_mgr identified by oracle</span>
+<span class="line">  file_name_convert=(<span class="string">'/u01/app/oracle/oradata/orcl1/pdbseed'</span>,<span class="string">'/u01/app/oracle/oradata/orcl1/pdb2'</span>);</span>
+<span class="line"></span>
+<span class="line">alter pluggable database pdb2 <span class="keyword">open</span>;</span>
+<span class="line">show pdbs</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line">         <span class="number">4</span> PDB2                           READ WRITE NO</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -327,6 +417,70 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" class="article-date">
+      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -863,162 +1017,6 @@
         <p class="article-more-link">
           <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-04-20T16:00:00.000Z" itemprop="datePublished">2017-04-21</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="用oak对表sbtest1做添加字段和增加索引的Online-DDL"><a href="#用oak对表sbtest1做添加字段和增加索引的Online-DDL" class="headerlink" title="用oak对表sbtest1做添加字段和增加索引的Online DDL"></a>用oak对表sbtest1做添加字段和增加索引的Online DDL</h2><h3 id="用sysbench工具准备测试环境"><a href="#用sysbench工具准备测试环境" class="headerlink" title="用sysbench工具准备测试环境"></a>用sysbench工具准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据库</span></span>
-<span class="line">mysql&gt; create database lyj;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 用sysbench工具准备测试环境</span></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
-<span class="line"></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/那些12c中惹祸的特性关闭列表" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/" class="article-date">
-      <time datetime="2017-04-17T16:00:00.000Z" itemprop="datePublished">2017-04-18</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>12cR2已经发布一段时间，这里给出一张12c下新出现的可能惹祸特性的列表，可以结合<a href="http://ol3rzmg8c.bkt.clouddn.com/%E9%82%A3%E4%BA%9B11gR2%E4%B8%AD%E6%83%B9%E7%A5%B8%E7%9A%84%E7%89%B9%E6%80%A7%E5%85%B3%E9%97%AD%E5%88%97%E8%A1%A8.pdf" target="_blank" rel="external">11g的列表</a>一起使用。<br>我们的宗旨不是要废掉所有新特性，只是把那些还不太成熟的又默认自动生效的积极特性关起来。<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_aggr_groupby_elim"</span>=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_drop_stat_segment"</span>=<span class="number">1</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_common_data_view_enabled"</span>=<span class="literal">false</span>; </span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_dsdir_usage_control"</span>=<span class="number">0</span>;    // disable SQL Plan Directive</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> optimizer_adaptive_features=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_adaptive_plans"</span>=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_gather_feedback"</span>=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_enable_extended_stats"</span>=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_optimizer_ads_use_result_cache"</span>=<span class="literal">false</span>;</span>
-<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> <span class="string">"_use_single_log_writer"</span>=<span class="literal">true</span> <span class="keyword">scope</span>=<span class="keyword">spfile</span>; //Multiple log writers feature in Oracle Database 12c can cause instance recovery fails and unexpected</span>
-</pre></td></tr></table></figure></p>
-<blockquote>
-<p>转载自：<a href="http://www.askmaclean.com/" target="_blank" rel="external">AskMaclean</a></p>
-</blockquote>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
       
       <div class="clearfix"></div>
     </div>

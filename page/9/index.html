@@ -266,6 +266,161 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/那些在11gR2中可能惹祸的新特性" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/" class="article-date">
+      <time datetime="2017-02-15T16:00:00.000Z" itemprop="datePublished">2017-02-16</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>有很多朋友因为11gR2那些潜在的特性可能给升级后系统稳定运行带来麻烦而无法鼓足升级到11gR2的勇气，实际Oracle在开发新版本RDBMS软件时引入的一些特性有很好的理念的，但是往往这些理念会给已稳定的应用环境带来变数，最显著的就是10g/9i升级到11gR2时的执行计划稳定性，此外adaptive cursor sharing 自适应游标、automatic serial direct path自动判断串行直接路径读、deferred segment creation、GC read mostly DRM…….等等的一系列特性已经在大量的案例中被证明是不适合于大量国产Application的。</p>
+<p>这篇文章里想做的是给出一张列表，能够将11gR2的优化器optimizer特性、和其他的如上列的这些可能引起问题的特性通过参数的方式给出一张列表，你可以选择性的禁用这些特性，前提是你的Applicaiton就该特性经过充分的测试，如果没有时间或者环境来测试这些新特性，那么还不如禁用这些特性，禁用新特性的结果也仅仅是回到老版本(一般是10gR2 10.2.0.4)的默认表现上来。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/11g/">11g</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/hexo更换主题并个性化定制" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/10/tools/hexo更换主题并个性化定制/" class="article-date">
+      <time datetime="2017-02-10T06:39:26.667Z" itemprop="datePublished">2017-02-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p>hexo系统默认的主题虽然也不错，但我更喜欢<a href="http://moxfive.xyz/yelee">yelee</a>和<a href="https://github.com/litten/hexo-theme-yilia">yilia</a>这两款主题</p>
+</blockquote>
+<h2 id="安装yelee主题"><a href="#安装yelee主题" class="headerlink" title="安装yelee主题"></a>安装yelee主题</h2><ol>
+<li><p>主题说明文档：<a href="http://moxfive.coding.me/yelee"><code>http://moxfive.coding.me/yelee/</code></a></p>
+</li>
+<li><p>在博客根目录下执行以下命令</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 克隆最新一次提交（git clone速度很慢，可只克隆最新一次提交）</span></span>
+<span class="line">git clone --depth <span class="number">1</span> https:<span class="regexp">//github</span>.com/MOxFIVE/hexo-theme-yelee.git themes/yelee</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>编辑修改根目录下的<code>_config.yml</code>文件</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># theme: landscape</span></span>
+<span class="line">theme: yelee</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>更换主题后需要清理并重新生成静态页</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>安装搜索插件</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cnpm install hexo-generator-search --save</span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>参照文档修改<code>themes\yelee</code>目录下的<code>_config.yml</code>文件</p>
+</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/02/10/tools/hexo更换主题并个性化定制/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-tools/hexo博客添加常用插件" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -792,170 +947,6 @@
       
         <p class="article-more-link">
           <a href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/" class="article-date">
-      <time datetime="2015-04-07T16:00:00.000Z" itemprop="datePublished">2015-04-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="Oracle的重做日志"><a href="#Oracle的重做日志" class="headerlink" title="Oracle的重做日志"></a>Oracle的重做日志</h2><h3 id="为什么需要redo-log"><a href="#为什么需要redo-log" class="headerlink" title="为什么需要redo log"></a>为什么需要redo log</h3><ul>
-<li>内存中数据修改后，不必立即更新到磁盘  —效率</li>
-<li>由日志完成数据的保护目的  —效率</li>
-<li>其它副产品<ul>
-<li>数据恢复（备份集+归档日志）</li>
-<li>数据同步（DG ，streams，gg）</li>
-<li>日志挖掘</li>
-</ul>
-</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logminer/">logminer</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/" class="article-date">
-      <time datetime="2015-03-29T16:00:00.000Z" itemprop="datePublished">2015-03-30</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="Oracle实例"><a href="#Oracle实例" class="headerlink" title="Oracle实例"></a>Oracle实例</h2><h3 id="SGA-System-Global-Area"><a href="#SGA-System-Global-Area" class="headerlink" title="SGA(System Global Area)"></a>SGA(System Global Area)</h3><ul>
-<li>SGA区包括Oracle实例需要的一系列内存组件，用于存放共享的数据信息和数据控制信息<ul>
-<li>Database Buffer Cache</li>
-<li>Redo Log Buffer</li>
-<li>Shared Pool  Library Cache、Data dictionary Cache</li>
-<li>Large Pool</li>
-<li>Streams Pool</li>
-<li>Fixed SGA</li>
-</ul>
-</li>
-<li>这些内存信息被所有进程所共享(server process,background process)</li>
-</ul>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; show sga</span>
-<span class="line"></span>
-<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
-<span class="line">Fixed Size- - - <span class="number">2260328</span> bytes</span>
-<span class="line">Variable Size- -  <span class="number">838861464</span> bytes    <span class="comment"># shared pool</span></span>
-<span class="line">Database Buffers-    <span class="number">3523215360</span> bytes</span>
-<span class="line">Redo Buffers- -    <span class="number">11661312</span> bytes</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -266,6 +266,80 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-04-02T16:00:00.000Z" itemprop="datePublished">2018-04-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="Inactive-redo-log丢失或损坏的恢复"><a href="#Inactive-redo-log丢失或损坏的恢复" class="headerlink" title="Inactive redo log丢失或损坏的恢复"></a>Inactive redo log丢失或损坏的恢复</h2><p>将数据库置于非归档模式<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              No Archive Mode</span>
+<span class="line">Automatic archival             Disabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">90</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">91</span></span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/oracle 11g修改自动收集统计信息计划任务的执行时间" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -490,6 +564,104 @@
       
         <p class="article-more-link">
           <a href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-03-15T16:00:00.000Z" itemprop="datePublished">2018-03-16</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="10046跟踪数据库OPEN的过程"><a href="#10046跟踪数据库OPEN的过程" class="headerlink" title="10046跟踪数据库OPEN的过程"></a>10046跟踪数据库OPEN的过程</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup mount</span>
+<span class="line">alter session set events <span class="string">'10046 trace name context forever,level 8'</span>;</span>
+<span class="line">alter database <span class="keyword">open</span>;</span>
+<span class="line">col FILE_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> FILE_ID,FILE_NAME from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">   FILE_ID FILE_NAME</span>
+<span class="line">---------- --------------------------------------------------</span>
+<span class="line">         <span class="number">1</span> /u01/app/oracle/oradata/orcl/system01.dbf</span>
+<span class="line">         <span class="number">2</span> /u01/app/oracle/oradata/orcl/sysaux01.dbf</span>
+<span class="line">         <span class="number">3</span> /u01/app/oracle/oradata/orcl/undotbs01.dbf</span>
+<span class="line">         <span class="number">4</span> /u01/app/oracle/oradata/orcl/users01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> value from v$diag_info where name=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">VALUE</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl/trace</span><span class="regexp">/orcl_ora_10932.trc</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">从trace中能看到和分析数据库OPEN读取数据文件头的过程</span>
+<span class="line">#--------------------------------------------------------------------------------------------------------------------------</span>
+<span class="line">WAIT #139880206935832: nam='control file sequential read' ela= 11 file#=0 block#=23 blocks=1 obj#=-1 tim=1523176482644848</span>
+<span class="line">WAIT #139880206935832: nam='db file sequential read' ela= 20 file#=1 block#=1 blocks=1 obj#=-1 tim=1523176482644960</span>
+<span class="line">WAIT #139880206935832: nam='control file sequential read' ela= 12 file#=0 block#=179 blocks=1 obj#=-1 tim=1523176482645079</span>
+<span class="line">WAIT #139880206935832: nam='db file sequential read' ela= 11 file#=2 block#=1 blocks=1 obj#=-1 tim=1523176482645169</span>
+<span class="line">WAIT #139880206935832: nam='db file sequential read' ela= 10 file#=3 block#=1 blocks=1 obj#=-1 tim=1523176482645258</span>
+<span class="line">WAIT #139880206935832: nam='db file sequential read' ela= 26 file#=4 block#=1 blocks=1 obj#=-1 tim=1523176482645328</span>
+<span class="line">#--------------------------------------------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -897,185 +1069,6 @@
       
         <p class="article-more-link">
           <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-02-24T16:00:00.000Z" itemprop="datePublished">2018-02-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <blockquote>
-<p><strong>本课程就是基于Oracle DSI403e学习Oracle特殊恢复</strong></p>
-</blockquote>
-<h2 id="DSI介绍"><a href="#DSI介绍" class="headerlink" title="DSI介绍"></a>DSI介绍</h2><p>DSI是Data Server Internals的缩写，是Oracle公司内部用来培训Oracle售后工程师使用的教材<br>DSI课程系统包括：</p>
-<ul>
-<li>DSI303  Advanced Backup, Restore and recovery Techniques</li>
-<li>DSI401  Dumps Crashes and Corruptions</li>
-<li>DSI402  Space and Transaction Management</li>
-<li>DSI402e Data types and block structures</li>
-<li>DSI403e Recovery Architecture Components</li>
-<li>DSI404e Query Optimizer</li>
-<li>DSI405  Performance TUning</li>
-<li>DSI408  Real Application clusters Internals</li>
-</ul>
-<h2 id="BBED工具介绍"><a href="#BBED工具介绍" class="headerlink" title="BBED工具介绍"></a>BBED工具介绍</h2><ul>
-<li>BBED stands for <strong><font color=red>B</font></strong>lock <strong><font color=red>B</font></strong>rower and <strong><font color=red>ED</font></strong>itor</li>
-<li>BBED只是一款工具，类似于ultraEdit，单纯的会用BBED来修改数据没有任何意义！关键是要知道为什么要这么改！</li>
-<li>在充分了解Block格式和Oracle的各种机制的基础上广泛使用BBED，用它来帮你构造测试案例，用它来验证测试结果，<strong><font color=red>用它来帮你深入理解Oracle！</font></strong></li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/07_搭建harbor企业级register" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/30/docker/07_搭建harbor企业级register/" class="article-date">
-      <time datetime="2018-01-29T16:00:00.000Z" itemprop="datePublished">2018-01-30</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="主机环境要求"><a href="#主机环境要求" class="headerlink" title="主机环境要求"></a>主机环境要求</h2><h3 id="硬件Hardware"><a href="#硬件Hardware" class="headerlink" title="硬件Hardware"></a>硬件Hardware</h3><table>
-<thead>
-<tr>
-<th>Resource</th>
-<th>Capacity</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>CPU</td>
-<td>minimal 2 CPU</td>
-<td>4 CPU is prefered</td>
-</tr>
-<tr>
-<td>Mem</td>
-<td>minimal 4GB</td>
-<td>8GB is prefered</td>
-</tr>
-<tr>
-<td>Disk</td>
-<td>minimal 40GB</td>
-<td>160GB is prefered</td>
-</tr>
-</tbody>
-</table>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/harbor/">harbor</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/01/30/docker/07_搭建harbor企业级register/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

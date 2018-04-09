@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="Inactive redo log丢失或损坏的恢复将数据库置于非归档模式SQL&amp;gt; archive log list;
+Database log mode              No Archive Mode
+Automatic archival             Disabled
+Archive destination            USE_DB_RECOVERY_FILE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复">
+<meta property="og:url" content="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="Inactive redo log丢失或损坏的恢复将数据库置于非归档模式SQL&amp;gt; archive log list;
+Database log mode              No Archive Mode
+Automatic archival             Disabled
+Archive destination            USE_DB_RECOVERY_FILE">
+<meta property="og:updated_time" content="2018-04-08T08:24:41.632Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复">
+<meta name="twitter:description" content="Inactive redo log丢失或损坏的恢复将数据库置于非归档模式SQL&amp;gt; archive log list;
+Database log mode              No Archive Mode
+Automatic archival             Disabled
+Archive destination            USE_DB_RECOVERY_FILE">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-04-02T16:00:00.000Z" itemprop="datePublished">2018-04-03</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="Inactive-redo-log丢失或损坏的恢复"><a href="#Inactive-redo-log丢失或损坏的恢复" class="headerlink" title="Inactive redo log丢失或损坏的恢复"></a>Inactive redo log丢失或损坏的恢复</h2><p>将数据库置于非归档模式<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              No Archive Mode</span>
+<span class="line">Automatic archival             Disabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">90</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">91</span></span>
+</pre></td></tr></table></figure></p>
+<a id="more"></a>
+<p>INACTIVE STATUS：redo log里面的日志所对应的buffer cache里的脏块都写到datafile中了<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 模拟出丢失或损坏的INACTIVE redo log，如第2组</span></span>
+<span class="line"><span class="keyword">select</span> * from v$log;</span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment">#    THREAD#  SEQUENCE#      BYTES  BLOCKSIZE    MEMBERS ARC STATUS           FIRST_CHANGE# FIRST_TIME          NEXT_CHANGE# NEXT_TIME</span></span>
+<span class="line">---------- ---------- ---------- ---------- ---------- ---------- --- ---------------- ------------- ------------------- ------------ -------------------</span>
+<span class="line">         <span class="number">1</span>          <span class="number">1</span>         <span class="number">91</span>   <span class="number">52428800</span>        <span class="number">512</span>          <span class="number">1</span> NO  CURRENT                <span class="number">4256107</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">02</span> <span class="number">22</span>:<span class="number">06</span>:<span class="number">01</span>   <span class="number">2.8147</span>E+<span class="number">14</span></span>
+<span class="line">         <span class="number">2</span>          <span class="number">1</span>         <span class="number">89</span>   <span class="number">52428800</span>        <span class="number">512</span>          <span class="number">1</span> YES INACTIVE               <span class="number">4227420</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">02</span> <span class="number">07</span>:<span class="number">00</span>:<span class="number">17</span>      <span class="number">4254495</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">02</span> <span class="number">22</span>:<span class="number">00</span>:<span class="number">17</span></span>
+<span class="line">         <span class="number">3</span>          <span class="number">1</span>         <span class="number">90</span>   <span class="number">52428800</span>        <span class="number">512</span>          <span class="number">1</span> YES INACTIVE               <span class="number">4254495</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">02</span> <span class="number">22</span>:<span class="number">00</span>:<span class="number">17</span>      <span class="number">4256107</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">02</span> <span class="number">22</span>:<span class="number">06</span>:<span class="number">01</span></span>
+<span class="line"></span>
+<span class="line">col MEMBER <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> * from v$logfile;</span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS  TYPE    MEMBER                                             IS_</span></span>
+<span class="line">---------- ------- ------- -------------------------------------------------- ---</span>
+<span class="line">         <span class="number">3</span>         ONLINE  /u01/app/oracle/oradata/orcl/redo03.log            NO</span>
+<span class="line">         <span class="number">2</span>         ONLINE  /u01/app/oracle/oradata/orcl/redo02.log            NO     <span class="comment"># 下面模拟2损坏</span></span>
+<span class="line">         <span class="number">1</span>         ONLINE  /u01/app/oracle/oradata/orcl/redo01.log            NO</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">dd <span class="keyword">if</span>=<span class="regexp">/dev/null</span> of=<span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/redo</span>02.log bs=<span class="number">512</span> count=<span class="number">20</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 改后可以直接正常关闭数据库</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 但打开数据库时报错</span></span>
+<span class="line">startup</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">889193112</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3472883712</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">ORA-<span class="number">03113</span>: end-of-file on communication channel</span>
+<span class="line">Process ID: <span class="number">18001</span></span>
+<span class="line">Session ID: <span class="number">191</span> Serial number: <span class="number">3</span></span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># alert日志中有如下错误信息</span></span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line">Tue Apr <span class="number">03</span> <span class="number">16</span>:08:<span class="number">12</span> <span class="number">2018</span></span>
+<span class="line">ARC<span class="number">0</span> started with pid=<span class="number">20</span>, OS id=<span class="number">18003</span></span>
+<span class="line">ARC<span class="number">0</span>: Archival started</span>
+<span class="line">LGWR: STARTING ARCH PROCESSES COMPLETE</span>
+<span class="line">ARC<span class="number">0</span>: STARTING ARCH PROCESSES</span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_lgwr_17981.trc:</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">2</span> of thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">2</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>     <span class="comment"># 提示打开 log group 2 失败</span></span>
+<span class="line">ORA-<span class="number">27047</span>: unable to <span class="keyword">read</span> the header block of file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">25</span>: Inappropriate ioctl <span class="keyword">for</span> device</span>
+<span class="line">Additional information: <span class="number">1</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_lgwr_17981.trc:</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">2</span> of thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">2</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span></span>
+<span class="line">ORA-<span class="number">27047</span>: unable to <span class="keyword">read</span> the header block of file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">25</span>: Inappropriate ioctl <span class="keyword">for</span> device</span>
+<span class="line">Additional information: <span class="number">1</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_18001.trc:</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">1</span> of thread</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">2</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span></span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时，先正常打开数据库到mount状态</span></span>
+<span class="line">startup mount</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看log group 2状态</span></span>
+<span class="line">col MEMBER <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> l.STATUS,f.member,BYTES/<span class="number">1024</span>/<span class="number">1024</span> size_m from v$log l, v$logfile f where l.GROUP<span class="comment">#=2 and l.GROUP#=f.GROUP#;</span></span>
+<span class="line"></span>
+<span class="line">STATUS           MEMBER                                                 SIZE_M</span>
+<span class="line">---------------- -------------------------------------------------- ----------</span>
+<span class="line">INACTIVE         /u01/app/oracle/oradata/orcl/redo02.log                    <span class="number">50</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在控制文件中清除logfile group 2</span></span>
+<span class="line">alter database clear logfile group <span class="number">2</span>;</span>
+<span class="line">alter database drop logfile group <span class="number">2</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除logfile group 2对应的文件</span></span>
+<span class="line">! rm -rf /u01/app/oracle/oradata/orcl/redo02.log</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 增加logfile group 2</span></span>
+<span class="line">alter database add logfile group <span class="number">2</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>) size <span class="number">50</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 能正常打开数据库了</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+</pre></td></tr></table></figure></p>
+<h2 id="Active-redo-log丢失或损坏的恢复"><a href="#Active-redo-log丢失或损坏的恢复" class="headerlink" title="Active redo log丢失或损坏的恢复"></a>Active redo log丢失或损坏的恢复</h2><p>ACTIVE STATUS：redo log里面的日志所对应的buffer cache里的脏块还没有刷新到datafile中<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 准备环境</span></span>
+<span class="line">create tablespace lyj datafile <span class="string">'/u01/app/oracle/oradata/orcl/lyj_01.dbf'</span> size <span class="number">1</span>g autoextend on <span class="keyword">next</span> <span class="number">500</span><span class="keyword">m</span> maxsize unlimited;</span>
+<span class="line">drop user lyj cascade;</span>
+<span class="line">create user lyj identified by lyj default tablespace lyj;</span>
+<span class="line">grant dba to lyj;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 增加并扩大logfile group</span></span>
+<span class="line">alter database add logfile group <span class="number">4</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo04.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add logfile group <span class="number">5</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add logfile group <span class="number">6</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo06.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> group<span class="comment">#,status from v$log; </span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS</span></span>
+<span class="line">---------- ----------------</span>
+<span class="line">         <span class="number">1</span> CURRENT</span>
+<span class="line">         <span class="number">2</span> INACTIVE</span>
+<span class="line">         <span class="number">3</span> INACTIVE</span>
+<span class="line">         <span class="number">4</span> UNUSED</span>
+<span class="line">         <span class="number">5</span> UNUSED</span>
+<span class="line">         <span class="number">6</span> UNUSED</span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line">alter <span class="keyword">system</span> checkpoint;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> group<span class="comment">#,status from v$log; </span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS</span></span>
+<span class="line">---------- ----------------</span>
+<span class="line">         <span class="number">1</span> INACTIVE</span>
+<span class="line">         <span class="number">2</span> INACTIVE</span>
+<span class="line">         <span class="number">3</span> INACTIVE</span>
+<span class="line">         <span class="number">4</span> INACTIVE</span>
+<span class="line">         <span class="number">5</span> CURRENT</span>
+<span class="line">         <span class="number">6</span> INACTIVE</span>
+<span class="line"></span>
+<span class="line">alter database drop logfile group <span class="number">1</span>;</span>
+<span class="line">alter database drop logfile group <span class="number">2</span>;</span>
+<span class="line">alter database drop logfile group <span class="number">3</span>;</span>
+<span class="line">! rm -rf /u01/app/oracle/oradata/orcl/redo01.log</span>
+<span class="line">! rm -rf /u01/app/oracle/oradata/orcl/redo02.log</span>
+<span class="line">! rm -rf /u01/app/oracle/oradata/orcl/redo03.log</span>
+<span class="line"></span>
+<span class="line">alter database add logfile group <span class="number">1</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo01.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add logfile group <span class="number">2</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line">alter database add logfile group <span class="number">3</span> (<span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span>) size <span class="number">200</span><span class="keyword">m</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 模拟一个大事务</span></span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">drop table t1 purge;</span>
+<span class="line">create table t1(id <span class="keyword">int</span>,name varchar(<span class="number">100</span>));</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">5000000</span></span>
+<span class="line">  loop</span>
+<span class="line">    insert into t1 <span class="keyword">values</span>(i,<span class="string">'AAAAAA'</span>);</span>
+<span class="line">  end loop;</span>
+<span class="line">  commit;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line"># 新打开一个窗口</span>
+<span class="line">set line 150</span>
+<span class="line">col member for a50</span>
+<span class="line">select l.group#,l.STATUS,f.member,BYTES/</span><span class="number">1024</span>/<span class="number">1024</span> size_m </span>
+<span class="line">  from v$log l, v$logfile f </span>
+<span class="line">  where l.GROUP<span class="comment">#=f.GROUP# order by 1;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER                                                 SIZE_M</span></span>
+<span class="line">---------- ---------------- -------------------------------------------------- ----------</span>
+<span class="line">         <span class="number">1</span> CURRENT          /u01/app/oracle/oradata/orcl/redo01.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">2</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo02.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">3</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo03.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">4</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo04.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">5</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo05.log                   <span class="number">200</span> </span>
+<span class="line">         <span class="number">6</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo06.log                   <span class="number">200</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 为了保障状态是active，直接shutdown abort数据库</span></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> abort</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 启动到mount状态后再查看日志组状态</span></span>
+<span class="line">startup mount</span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">col member <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> l.group<span class="comment">#,l.STATUS,f.member,BYTES/1024/1024 size_m </span></span>
+<span class="line">  from v$log l, v$logfile f </span>
+<span class="line">  where l.GROUP<span class="comment">#=f.GROUP# order by 1;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER                                                 SIZE_M</span></span>
+<span class="line">---------- ---------------- -------------------------------------------------- ----------</span>
+<span class="line">         <span class="number">1</span> CURRENT          /u01/app/oracle/oradata/orcl/redo01.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">2</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo02.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">3</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo03.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">4</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo04.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">5</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo05.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">6</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo06.log                   <span class="number">200</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 模拟状态为ACTIVE的log group 5损坏</span></span>
+<span class="line">dd <span class="keyword">if</span>=<span class="regexp">/dev/null</span> of=<span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/redo</span>05.log bs=<span class="number">512</span> count=<span class="number">20</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 正常打开数据库时报以下错误</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line">alter database <span class="keyword">open</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">5</span> of thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span></span>
+<span class="line">ORA-<span class="number">27047</span>: unable to <span class="keyword">read</span> the header block of file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">25</span>: Inappropriate ioctl <span class="keyword">for</span> device</span>
+<span class="line">Additional information: <span class="number">1</span></span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># alert日志中有如下错误信息</span></span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_22346.trc:</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">5</span> of thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span></span>
+<span class="line">ORA-<span class="number">27047</span>: unable to <span class="keyword">read</span> the header block of file</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 因为logfile group 5状态是active，clear和drop都不行</span></span>
+<span class="line">SQL&gt; alter database clear logfile group <span class="number">5</span>;</span>
+<span class="line">alter database clear logfile group <span class="number">5</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01624</span>: <span class="keyword">log</span> <span class="number">5</span> needed <span class="keyword">for</span> crash recovery of instance orcl (thread <span class="number">1</span>)</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database drop logfile group <span class="number">5</span>;</span>
+<span class="line">alter database drop logfile group <span class="number">5</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01624</span>: <span class="keyword">log</span> <span class="number">5</span> needed <span class="keyword">for</span> crash recovery of instance orcl (thread <span class="number">1</span>)</span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用resetlog打开数据库时报以下错误</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">0113</span>9: RESETLOGS option only valid after an incomplete database recovery</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 介质恢复</span></span>
+<span class="line">SQL&gt; recover database <span class="keyword">until</span> cancel;</span>
+<span class="line">ORA-<span class="number">0027</span>9: change <span class="number">4326696</span> generated at <span class="number">04</span>/<span class="number">04</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">58</span>:<span class="number">56</span> needed <span class="keyword">for</span> thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">002</span>89: suggestion :</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/ORCL/archivelog/<span class="number">2018_04_04</span>/o1_mf_1_162<span class="number">_</span>%u_.arc</span>
+<span class="line">ORA-<span class="number">002</span>8<span class="number">0</span>: change <span class="number">4326696</span> <span class="keyword">for</span> thread <span class="number">1</span> is in sequence <span class="comment">#162</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Specify <span class="keyword">log</span>: &#123;&lt;RET&gt;=suggested | filename | AUTO | CANCEL&#125;</span>
+<span class="line"></span>
+<span class="line">ORA-<span class="number">0030</span>8: cannot <span class="keyword">open</span> archived <span class="keyword">log</span></span>
+<span class="line"><span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_04_04/o1_mf_1_162_%u_.arc'</span></span>
+<span class="line">ORA-<span class="number">27037</span>: unable to obtain file status</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line">ORA-<span class="number">01547</span>: warning: RECOVER succeeded but OPEN RESETLOGS would get error below</span>
+<span class="line">ORA-<span class="number">011</span>94: file <span class="number">1</span> needs more recovery to be consistent</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 再次resetlogs打开数据库</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">011</span>94: file <span class="number">1</span> needs more recovery to be consistent</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改数据库pfile添加隐含参数</span></span>
+<span class="line">create pfile from spfile;</span>
+<span class="line"></span>
+<span class="line">echo <span class="string">"*._allow_resetlogs_corruption=true"</span> &gt;&gt; $ORACLE_HOME/dbs/init<span class="string">"$ORACLE_SID"</span>.ora</span>
+<span class="line">echo <span class="string">"*._allow_error_simulation=true"</span> &gt;&gt; $ORACLE_HOME/dbs/init<span class="string">"$ORACLE_SID"</span>.ora</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 数据库使用pfile mount</span></span>
+<span class="line"><span class="keyword">shutdown</span> abort</span>
+<span class="line">startup pfile=<span class="string">"/u01/app/oracle/11.2.0.4/db_1/dbs/initorcl.ora"</span> mount</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用resetlogs方式可以打开数据库</span></span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看redo log group状态，SEQUENCE#已从0开始</span></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">col member <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> l.group<span class="comment">#,l.STATUS,f.member,BYTES/1024/1024 size_m,sequence#</span></span>
+<span class="line">  from v$log l, v$logfile f </span>
+<span class="line">  where l.GROUP<span class="comment">#=f.GROUP# order by 1;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER                                                 SIZE_M  SEQUENCE#</span></span>
+<span class="line">---------- ---------------- -------------------------------------------------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> CURRENT          /u01/app/oracle/oradata/orcl/redo01.log                   <span class="number">200</span>          <span class="number">1</span></span>
+<span class="line">         <span class="number">2</span> UNUSED           /u01/app/oracle/oradata/orcl/redo02.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">3</span> UNUSED           /u01/app/oracle/oradata/orcl/redo03.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">4</span> UNUSED           /u01/app/oracle/oradata/orcl/redo04.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">5</span> UNUSED           /u01/app/oracle/oradata/orcl/redo05.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">6</span> UNUSED           /u01/app/oracle/oradata/orcl/redo06.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 切换日志，在alert日志中查看是否有报错。</span></span>
+<span class="line">alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line"></span>
+<span class="line">注意：这种修改隐含参数后使用resetlogs方式打开的数据库，生产环境中有可能的话（数量不太大），尽量将数据导出后重建库恢复。</span>
+</pre></td></tr></table></figure></p>
+<h2 id="Current-redo-log丢失或损坏的恢复"><a href="#Current-redo-log丢失或损坏的恢复" class="headerlink" title="Current redo log丢失或损坏的恢复"></a>Current redo log丢失或损坏的恢复</h2><p>CURRENT STATUS：实例正在使用的日志文件，并且redo log里面的日志可能还没有刷新到datafile中<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 模拟一个大事务</span></span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">drop table t1 purge;</span>
+<span class="line">create table t1(id <span class="keyword">int</span>,name varchar(<span class="number">100</span>));</span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">5000000</span></span>
+<span class="line">  loop</span>
+<span class="line">    insert into t1 <span class="keyword">values</span>(i,<span class="string">'AAAAAA'</span>);</span>
+<span class="line">    commit;</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line"># 新打开一个窗口</span>
+<span class="line">set line 150</span>
+<span class="line">col member for a50</span>
+<span class="line">select l.group#,l.STATUS,f.member,BYTES/</span><span class="number">1024</span>/<span class="number">1024</span> size_m </span>
+<span class="line">  from v$log l, v$logfile f </span>
+<span class="line">  where l.GROUP<span class="comment">#=f.GROUP# order by 1;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER                                                 SIZE_M</span></span>
+<span class="line">---------- ---------------- -------------------------------------------------- ----------</span>
+<span class="line">         <span class="number">1</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo01.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">2</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo02.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">3</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo03.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">4</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo04.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">5</span> CURRENT          /u01/app/oracle/oradata/orcl/redo05.log                   <span class="number">200</span></span>
+<span class="line">         <span class="number">6</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo06.log                   <span class="number">200</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 新开一个窗口，将状态为CURRENT的log group 5损坏</span></span>
+<span class="line">dd <span class="keyword">if</span>=<span class="regexp">/dev/null</span> of=<span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/redo</span>05.log bs=<span class="number">512</span> count=<span class="number">20</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 稍过一会，执行大事务的会话中断，实例shutdown</span></span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">03113</span>: end-of-file on communication channel</span>
+<span class="line">Process ID: <span class="number">25677</span></span>
+<span class="line">Session ID: <span class="number">122</span> Serial number: <span class="number">5</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 启动数据库实例报错</span></span>
+<span class="line">SQL&gt; startup</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4359294976</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260288</span> bytes</span>
+<span class="line">Variable Size             <span class="number">855638720</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3489660928</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11735040</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line">ORA-<span class="number">00313</span>: <span class="keyword">open</span> failed <span class="keyword">for</span> members of <span class="keyword">log</span> group <span class="number">5</span> of thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">00312</span>: online <span class="keyword">log</span> <span class="number">5</span> thread <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/redo05.log'</span></span>
+<span class="line">ORA-<span class="number">27048</span>: skgfifi: file header information is invalid</span>
+<span class="line">Additional information: <span class="number">13</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 尝试open resetlogs报需要恢复</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">0113</span>9: RESETLOGS option only valid after an incomplete database recovery</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 介质恢复</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; recover database <span class="keyword">until</span> cancel;</span>
+<span class="line">ORA-<span class="number">0027</span>9: change <span class="number">208852</span> generated at <span class="number">04</span>/<span class="number">04</span>/<span class="number">2018</span> <span class="number">21</span>:<span class="number">26</span>:<span class="number">30</span> needed <span class="keyword">for</span> thread <span class="number">1</span></span>
+<span class="line">ORA-<span class="number">002</span>89: suggestion :</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/fast</span>_recovery_area/ORCL/archivelog/<span class="number">2018_04_04</span>/o1_mf_1_23<span class="number">_</span>%u_.arc</span>
+<span class="line">ORA-<span class="number">002</span>8<span class="number">0</span>: change <span class="number">208852</span> <span class="keyword">for</span> thread <span class="number">1</span> is in sequence <span class="comment">#23</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">Specify <span class="keyword">log</span>: &#123;&lt;RET&gt;=suggested | filename | AUTO | CANCEL&#125;</span>
+<span class="line"></span>
+<span class="line">ORA-<span class="number">0030</span>8: cannot <span class="keyword">open</span> archived <span class="keyword">log</span></span>
+<span class="line"><span class="string">'/u01/app/oracle/fast_recovery_area/ORCL/archivelog/2018_04_04/o1_mf_1_23_%u_.arc'</span></span>
+<span class="line">ORA-<span class="number">27037</span>: unable to obtain file status</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">ORA-<span class="number">01547</span>: warning: RECOVER succeeded but OPEN RESETLOGS would get error below</span>
+<span class="line">ORA-<span class="number">011</span>94: file <span class="number">1</span> needs more recovery to be consistent</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 再次open resetlogs</span></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">011</span>94: file <span class="number">1</span> needs more recovery to be consistent</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">1</span>: <span class="string">'/u01/app/oracle/oradata/orcl/system01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改数据库pfile添加隐含参数</span></span>
+<span class="line">create pfile from spfile;</span>
+<span class="line"></span>
+<span class="line">echo <span class="string">"*._allow_resetlogs_corruption=true"</span> &gt;&gt; $ORACLE_HOME/dbs/init<span class="string">"$ORACLE_SID"</span>.ora</span>
+<span class="line">echo <span class="string">"*._allow_error_simulation=true"</span> &gt;&gt; $ORACLE_HOME/dbs/init<span class="string">"$ORACLE_SID"</span>.ora</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用pfile open resetlog </span></span>
+<span class="line">SQL&gt; <span class="keyword">shutdown</span> abort</span>
+<span class="line">ORACLE instance shut down.</span>
+<span class="line">SQL&gt; startup pfile=<span class="string">"/u01/app/oracle/11.2.0.4/db_1/dbs/initorcl.ora"</span> mount</span>
+<span class="line">ORACLE instance started.</span>
+<span class="line"></span>
+<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
+<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
+<span class="line">Variable Size             <span class="number">889193112</span> bytes</span>
+<span class="line">Database Buffers         <span class="number">3472883712</span> bytes</span>
+<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
+<span class="line">Database mounted.</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">010</span>92: ORACLE instance terminated. Disconnection forced</span>
+<span class="line">ORA-<span class="number">00600</span>: internal error code, arguments: [<span class="number">2663</span>], [<span class="number">0</span>], [<span class="number">210131</span>], [<span class="number">0</span>],</span>
+<span class="line">[<span class="number">217516</span>], [], [], [], [], [], [], []</span>
+<span class="line">Process ID: <span class="number">25824</span></span>
+<span class="line">Session ID: <span class="number">122</span> Serial number: <span class="number">3</span></span>
+</pre></td></tr></table></figure></p>
+<blockquote>
+<p>使用隐含参数_ALLOW_RESETLOGS_CORRUPTION后resetlogs打开数据库后,我们说很多时候你会遇到ORA-00600 2662号错误，这个错误的含义是:<br>A data block SCN is ahead of the current SCN.<br>The ORA-600 [2662] occurs when an SCN is compared to the dependent SCN<br>stored in a UGA variable.<br>If the SCN is less than the dependent SCN then we signal the ORA-600 [2662] internal error.<br>ORA-600 [2662] [a] [b] [c] [d] [e]<br>  Arg [a] Current SCN WRAP<br>  Arg [b] Current SCN BASE<br>  Arg [c] dependent SCN WRAP<br>  Arg [d] dependent SCN BASE<br>  Arg [e] Where present this is the DBA where the dependent SCN came from.<br>算法计算规则如下：Arg [c]*4得出一个数值，假设为V_Wrap,<br>如果Arg [d]=0，则V_Wrap值为需要的level<br>Arg [d] &lt; 1073741824，V_Wrap+1为需要的level<br>Arg [d] &lt; 2147483648，V_Wrap+2为需要的level<br>Arg [d] &lt; 3221225472，V_Wrap+3为需要的level</p>
+</blockquote>
+<p>使用10015 event手工推进scn<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">startup pfile=<span class="string">"/u01/app/oracle/11.2.0.4/db_1/dbs/initorcl.ora"</span> mount</span>
+<span class="line">alter session set events <span class="string">'10015 trace name adjust_scn level 1'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; alter database <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line">Database altered.</span>
+<span class="line"></span>
+<span class="line">这时数据库虽然能<span class="keyword">open</span>，但alert中会有类似以下的报错，强烈建议将数据导出重建一个库</span>
+<span class="line">ORA-<span class="number">015</span>95: error freeing extent (<span class="number">2</span>) of rollback segment (<span class="number">2</span>))</span>
+<span class="line">ORA-<span class="number">00600</span>: internal error code, arguments: [<span class="number">4193</span>], [<span class="number">31</span>], [<span class="number">1</span>], [], [], [], [], [], [], [], [], []</span>
+<span class="line">Dumping diagnostic data in directory=[cdmp_2018040421492<span class="number">0</span>], requested by (instance=<span class="number">1</span>, osid=<span class="number">26128</span> (SMON)), summary=[incident=<span class="number">21732</span>].</span>
+</pre></td></tr></table></figure></p>
+<h2 id="增进SCN有两种常用方法"><a href="#增进SCN有两种常用方法" class="headerlink" title="增进SCN有两种常用方法"></a>增进SCN有两种常用方法</h2><p>1.通过immediate trace name方式(在数据库Open状态下)<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">alter session set events &apos;IMMEDIATE trace name ADJUST_SCN level x&apos;;</span>
+</pre></td></tr></table></figure></p>
+<p>2.通过10015事件(在数据库无法打开，mount状态下)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter session set events <span class="string">'10015 trace name adjust_scn level x'</span>;</span>
+</pre></td></tr></table></figure></p>
+<p>注:level 1为增进SCN 10亿(1 billion) (1024<em>1024</em>1024),通常Level 1已经足够。也可以根据实际情况适当调整。</p>
+<h2 id="Dump-logfile解析一个事务的日志格式"><a href="#Dump-logfile解析一个事务的日志格式" class="headerlink" title="Dump logfile解析一个事务的日志格式"></a>Dump logfile解析一个事务的日志格式</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line">create table t2 (id <span class="keyword">int</span>, name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t2 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">commit;</span>
+<span class="line">alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line">update t2 set name=<span class="string">'BBBBB'</span> where name=<span class="string">'AAAAA'</span>;</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">col member <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> l.group<span class="comment">#,l.STATUS,f.member,BYTES/1024/1024 size_m,sequence#</span></span>
+<span class="line">  from v$log l, v$logfile f </span>
+<span class="line">  where l.GROUP<span class="comment">#=f.GROUP# order by 1;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER                                                 SIZE_M  SEQUENCE#</span></span>
+<span class="line">---------- ---------------- -------------------------------------------------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span> ACTIVE           /u01/app/oracle/oradata/orcl/redo01.log                   <span class="number">200</span>          <span class="number">1</span></span>
+<span class="line">         <span class="number">2</span> CURRENT          /u01/app/oracle/oradata/orcl/redo02.log                   <span class="number">200</span>          <span class="number">2</span></span>
+<span class="line">         <span class="number">3</span> UNUSED           /u01/app/oracle/oradata/orcl/redo03.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">4</span> UNUSED           /u01/app/oracle/oradata/orcl/redo04.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">5</span> UNUSED           /u01/app/oracle/oradata/orcl/redo05.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line">         <span class="number">6</span> UNUSED           /u01/app/oracle/oradata/orcl/redo06.log                   <span class="number">200</span>          <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出当前的log file group</span></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> logfile <span class="string">'/u01/app/oracle/oradata/orcl/redo02.log'</span>;</span>
+<span class="line"></span>
+<span class="line">col VALUE <span class="keyword">for</span> a8<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">VALUE</span>
+<span class="line">--------------------------------------------------------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl/trace</span><span class="regexp">/orcl_ora_22978.trc</span></span>
+</pre></td></tr></table></figure>
+<p>dump的trace信息如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">......</span>
+<span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000002</span>.<span class="number">00000004</span>.<span class="number">0010</span> LEN: <span class="number">0x024c</span> VLD: <span class="number">0x0d</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">00420</span>e9e SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">04</span>/<span class="number">2018</span> <span class="number">15</span>:<span class="number">10</span>:<span class="number">43</span></span>
+<span class="line">(LWN RBA: <span class="number">0x000002</span>.<span class="number">00000004</span>.<span class="number">0010</span> LEN: <span class="number">0002</span> NST: <span class="number">0001</span> SCN: <span class="number">0x0000</span>.<span class="number">00420</span>e9d)</span>
+<span class="line">CHANGE <span class="comment">#1 TYP:2 CLS:1 AFN:9 DBA:0x02400e87 OBJ:94895 SCN:0x0000.00420e97 SEQ:1 OP:11.19 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo</span>
+<span class="line">op: <span class="number">0x11</span>  ver: <span class="number">0x01</span></span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: F  xid:  <span class="number">0x0002</span>.<span class="number">017</span>.<span class="number">00000</span>a72    uba: <span class="number">0x00c0011a</span>.<span class="number">03</span>e7.<span class="number">29</span></span>
+<span class="line">Block cleanout record, scn:  <span class="number">0x0000</span>.<span class="number">00420</span>e9d ver: <span class="number">0x01</span> opt: <span class="number">0x02</span>, entries follow...</span>
+<span class="line">  itli: <span class="number">1</span>  flg: <span class="number">2</span>  scn: <span class="number">0x0000</span>.<span class="number">00420</span>e97</span>
+<span class="line">Array Update of <span class="number">1</span> rows:</span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">2</span> ckix: <span class="number">204</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x02400e87</span>  hdba: <span class="number">0x02400e82</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e51 SEQ:2 OP:5.2 ENC:0 RBL:0</span></span>
+<span class="line">ktudh <span class="keyword">redo</span>: slt: <span class="number">0x0017</span> sqn: <span class="number">0x00000a72</span> flg: <span class="number">0x0012</span> siz: <span class="number">168</span> fbi: <span class="number">0</span></span>
+<span class="line">            uba: <span class="number">0x00c0011a</span>.<span class="number">03</span>e7.<span class="number">29</span>    pxid:  <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span></span>
+<span class="line">CHANGE <span class="comment">#3 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e9e SEQ:1 OP:5.4 ENC:0 RBL:0</span></span>
+<span class="line">ktucm <span class="keyword">redo</span>: slt: <span class="number">0x0017</span> sqn: <span class="number">0x00000a72</span> srt: <span class="number">0</span> sta: <span class="number">9</span> flg: <span class="number">0x2</span> ktucf <span class="keyword">redo</span>: uba: <span class="number">0x00c0011a</span>.<span class="number">03</span>e7.<span class="number">29</span> ext: <span class="number">1</span> spc: <span class="number">2252</span> fbi: <span class="number">0</span></span>
+<span class="line">CHANGE <span class="comment">#4 TYP:0 CLS:20 AFN:3 DBA:0x00c0011a OBJ:4294967295 SCN:0x0000.00420e51 SEQ:3 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">168</span> spc: <span class="number">2422</span> flg: <span class="number">0x0012</span> seq: <span class="number">0x03e7</span> rec: <span class="number">0x29</span></span>
+<span class="line">            xid:  <span class="number">0x0002</span>.<span class="number">017</span>.<span class="number">00000</span>a72</span>
+<span class="line">ktubl <span class="keyword">redo</span>: slt: <span class="number">23</span> rci: <span class="number">0</span> opc: <span class="number">11.1</span> [objn: <span class="number">94895</span> objd: <span class="number">94895</span> tsn: <span class="number">10</span>]</span>
+<span class="line">Undo type:  Regular undo        Begin trans    Last buffer <span class="keyword">split</span>:  No</span>
+<span class="line">Temp Object:  No</span>
+<span class="line">Tablespace Undo:  No</span>
+<span class="line">             <span class="number">0x00000000</span>  prev ctl uba: <span class="number">0x00c0011a</span>.<span class="number">03</span>e7.<span class="number">26</span></span>
+<span class="line">prev ctl max cmt scn:  <span class="number">0x0000</span>.<span class="number">00420</span>94a  prev tx cmt scn:  <span class="number">0x0000</span>.<span class="number">00420</span>95c</span>
+<span class="line">txn start scn:  <span class="number">0x0000</span>.<span class="number">00420</span>e9c  logon user: <span class="number">85</span>  prev brb: <span class="number">12583193</span>  prev bcl: <span class="number">0</span> BuExt idx: <span class="number">0</span> flg2: <span class="number">0</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo</span>
+<span class="line">op: <span class="number">0x03</span>  ver: <span class="number">0x01</span></span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: Z</span>
+<span class="line">Array Update of <span class="number">1</span> rows:</span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">0</span> ckix: <span class="number">204</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x02400e87</span>  hdba: <span class="number">0x02400e82</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line">......</span>
+</pre></td></tr></table></figure></p>
+<p>RBA: 0x000002.00000004.0010  - redo log地址：sequence#是2的redolog file的第4个块的偏移量第10个节字开始<br>LEN: 0x024c - 长度<br>VLD: 0x0d - 类型<br>SCN: 0x0000.00420e9e - 对应日志所产生的SCN<br>SUBSCN:  1 04/04/2018 15:10:43 - 同一时间产生的日志量大时，通过SUBSCN来区别</p>
+<p>OP:11.19 - OP是操作代码 11.19代表update<br>  OP:5.2 - 启动一个事务<br>  OP:5.4 - 提交<br>  OP:5.1 - 修改前的值</p>
+<p>CHANGE #1 - TYP:2 CLS:1 AFN:9 DBA:0x02400e87 OBJ:94895 SCN:0x0000.00420e97 SEQ:1 OP:11.19 ENC:0 RBL:0<br>  OP:11.19-update修改的值  TYP:2-类型2是普通文件  CLS:1-数据类型  AFN:9-绝对文件号  DBA:0x02400e87-数据文件地址 OBJ:94895-对象编号<br>CHANGE #2 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e51 SEQ:2 OP:5.2 ENC:0 RBL:0<br>  OP:5.2-启动一个事务(undo) AFN:3-绝对文件号(这个文件对应的是undo file)<br>CHANGE #3 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e9e SEQ:1 OP:5.4 ENC:0 RBL:0<br>  OP:5.4-提交  AFN:3-绝对文件号(这个文件对应的是undo file)<br>CHANGE #4 TYP:0 CLS:20 AFN:3 DBA:0x00c0011a OBJ:4294967295 SCN:0x0000.00420e51 SEQ:3 OP:5.1 ENC:0 RBL:0<br>  OP:5.1-update修改前的值  AFN:3-绝对文件号(这个文件对应的是undo file)</p>
+<h2 id="查询隐含参数脚本"><a href="#查询隐含参数脚本" class="headerlink" title="查询隐含参数脚本"></a>查询隐含参数脚本</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi $ORACLE_HOME/rdbms/admin/show_para.sql</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line">col p_name <span class="keyword">for</span> a4<span class="number">0</span></span>
+<span class="line">col p_DESCRIPTION <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">col p_value <span class="keyword">for</span> a3<span class="number">0</span></span>
+<span class="line">set linesize <span class="number">10000</span></span>
+<span class="line">SELECT  i.ksppinm p_name,</span>
+<span class="line">    i.ksppdesc p_description,</span>
+<span class="line">    CV.ksppstvl p_VALUE,</span>
+<span class="line">    CV.ksppstdf isdefault,</span>
+<span class="line">    DECODE (BITAND (CV.ksppstvf, <span class="number">7</span>),<span class="number">1</span>, <span class="string">'MODIFIED'</span>,<span class="number">4</span>, <span class="string">'SYSTEM_MOD'</span>, <span class="string">'FALSE'</span>)</span>
+<span class="line">    ismodified,</span>
+<span class="line">    DECODE (BITAND (CV.ksppstvf, <span class="number">2</span>), <span class="number">2</span>, <span class="string">'TRUE'</span>, <span class="string">'FALSE'</span>) isadjusted</span>
+<span class="line">    FROM sys.x$ksppi i, sys.x$ksppcv CV</span>
+<span class="line">    WHERE i.inst_id = USERENV (<span class="string">'Instance'</span>)</span>
+<span class="line">    AND CV.inst_id = USERENV (<span class="string">'Instance'</span>)</span>
+<span class="line">    AND i.indx = CV.indx</span>
+<span class="line">    AND upper(i.ksppinm) LIKE upper(<span class="string">'%&amp;p%'</span>)</span>
+<span class="line">    ORDER BY REPLACE (i.ksppinm, <span class="string">'_'</span>, <span class="string">''</span>);</span>
+<span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 在sqlplus中执行</span></span>
+<span class="line">@?/rdbms/admin/show_para</span>
+</pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">
+                    oracle 11g修改自动收集统计信息计划任务的执行时间
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Inactive-redo-log丢失或损坏的恢复"><span class="toc-number">1.</span> <span class="toc-text">Inactive redo log丢失或损坏的恢复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Active-redo-log丢失或损坏的恢复"><span class="toc-number">2.</span> <span class="toc-text">Active redo log丢失或损坏的恢复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Current-redo-log丢失或损坏的恢复"><span class="toc-number">3.</span> <span class="toc-text">Current redo log丢失或损坏的恢复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#增进SCN有两种常用方法"><span class="toc-number">4.</span> <span class="toc-text">增进SCN有两种常用方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dump-logfile解析一个事务的日志格式"><span class="toc-number">5.</span> <span class="toc-text">Dump logfile解析一个事务的日志格式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查询隐含参数脚本"><span class="toc-number">6.</span> <span class="toc-text">查询隐含参数脚本</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/" title="下一篇: oracle 11g修改自动收集统计信息计划任务的执行时间">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

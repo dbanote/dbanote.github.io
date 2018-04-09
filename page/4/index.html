@@ -266,6 +266,159 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/oracle审计" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/09/13/oracle/oracle审计/" class="article-date">
+      <time datetime="2017-09-12T16:00:00.000Z" itemprop="datePublished">2017-09-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。<br>默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。<br>在一些安全性要求比较高的环境是需要做一些审计的配置的。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/audit/">audit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/09/13/oracle/oracle审计/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-09-10T16:00:00.000Z" itemprop="datePublished">2017-09-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="表结构设计的核心思想是什么？"><a href="#表结构设计的核心思想是什么？" class="headerlink" title="表结构设计的核心思想是什么？"></a>表结构设计的核心思想是什么？</h2><ol>
+<li>表及表字段只增不减，即不删除表，不删除字段，只做增加。</li>
+<li>使用<code>innodb</code>存储引擎，支持事务，MVCC，行级锁，更好的恢复性，更高效的IO，更先进的缓存，更先进的写策略。高并发下性能更好，对多核，大内存，SSD等硬件支持更好。</li>
+<li>自增主键，推荐用独立于业务的<code>AUTO_INCREMENT</code>列或全局ID生成器做代理主键。</li>
+<li>拆开宽表，便于运维，加快变更速度，提高查询性能，节省IO和内存。</li>
+<li>控制单表数据量，纯INT不超过1000W，含VARCHAR不超过500w。建议单库不超过300-400个表。</li>
+<li>控制列数据，越短越好，单表不超50个纯INT字段，VARCHAR(10)不超20个字段，单表字段数上限控制在20-50个。</li>
+<li>表和字段加注释。</li>
+<li>使用推荐的字段类型：<ul>
+<li>时间 <code>timestamp</code></li>
+<li>日期 <code>date</code></li>
+<li>IP   <code>int unsigned</code>  <code>INET_ATON(&#39;127.0.0.1&#39;)</code>  <code>INET_NTOA(ip)</code></li>
+<li>小数 <code>decimal</code></li>
+<li>尽量不用<code>text/blob/char</code>，用<code>varchar</code></li>
+<li>字段只有<code>true or false</code>，用<code>tinyint</code></li>
+<li>非负数值，用<code>unsigned</code></li>
+<li>默认值不能用<code>null</code>，数字类型用<code>default 0</code>，字符类型用<code>defalut &#39;&#39;</code></li>
+</ul>
+</li>
+<li>不在数据库里存图片</li>
+<li>禁用外键</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -903,153 +1056,6 @@
       
         <p class="article-more-link">
           <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Scripts/一键获取数据库整体信息脚本" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/" class="article-date">
-      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>一键获取数据库整体信息脚本<br>将脚本内容放<code>spooldb.sql</code>中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/" class="article-date">
-      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="SQL优化不同场景对应工具"><a href="#SQL优化不同场景对应工具" class="headerlink" title="SQL优化不同场景对应工具"></a>SQL优化不同场景对应工具</h2><h3 id="数据库的整体分析调优工具"><a href="#数据库的整体分析调优工具" class="headerlink" title="数据库的整体分析调优工具"></a>数据库的整体分析调优工具</h3><ol>
-<li><strong>AWR</strong>：关注数据库的整体性能报告，主要关注点<ul>
-<li>DB Time：这个指标主要用来判断当前系统有没有遇到相关瓶颈，是否较为繁忙导致等待时长很长</li>
-<li>load profile：这个指标主要用来展现当前系统的一些指示性能的总体参数</li>
-<li>efficiency percentages：是一些命中率指标，其中Buffer Hit、Library Hit等都表示SGA(System global area)的命中率</li>
-<li>Top 10 Foreground Events by Total Wait Time：等待事件是衡量数据库整体优化情况的重要指标</li>
-<li>SQL Statistics：分别从几个维度来罗列出TOP的SQL</li>
-<li>Segment Statistics</li>
-</ul>
-</li>
-<li><strong>ASH</strong>：数据库中的等待事件与哪些SQL具体对应的报告，时间更精准</li>
-<li><strong>ADDM</strong>：Oracle给出的一些建议</li>
-<li><strong>AWRDD</strong>：不同时段的性能对比报告<ul>
-<li>不同时期load profile的比较</li>
-<li>不同时期等待事件的比较</li>
-<li>不同时期TOP SQL的比较</li>
-</ul>
-</li>
-<li><strong>AWRSQRPT</strong>：sql在某两个快照间隔内，SQL的统计信息（总消耗的cpu时间，执行次数，逻辑读，物理读等）与执行计划的报告</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -266,6 +266,201 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/" class="article-date">
+      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="初始化环境"><a href="#初始化环境" class="headerlink" title="初始化环境"></a>初始化环境</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/redhat-release </span>
+<span class="line">Red Hat Enterprise Linux Server release <span class="number">7.4</span> (Maipo)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置主机名</span></span>
+<span class="line">hostnamectl --static set-hostname NAME</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置IP地址</span></span>
+<span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens16<span class="number">0</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line">TYPE=Ethernet</span>
+<span class="line">PROXY_METHOD=none</span>
+<span class="line">BROWSER_ONLY=<span class="keyword">no</span></span>
+<span class="line">BOOTPROTO=static</span>
+<span class="line">DEFROUTE=yes</span>
+<span class="line">IPV4_FAILURE_FATAL=<span class="keyword">no</span></span>
+<span class="line">IPV6INIT=<span class="keyword">no</span></span>
+<span class="line">NAME=ens16<span class="number">0</span></span>
+<span class="line">UUID=<span class="number">67869621</span>-df21-<span class="number">4</span>ad4-<span class="number">9369</span>-b58078ca74ea</span>
+<span class="line">DEVICE=ens16<span class="number">0</span></span>
+<span class="line">ONBOOT=yes</span>
+<span class="line">IPADDR=<span class="number">10.240</span>.<span class="number">4.179</span></span>
+<span class="line">PREFIX=<span class="number">24</span></span>
+<span class="line">GATEWAY=<span class="number">10.240</span>.<span class="number">4.254</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 禁用firewall</span></span>
+<span class="line">systemctl stop firewalld</span>
+<span class="line">systemctl disable firewalld</span>
+<span class="line">systemctl status firewalld</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 禁用SELINUX</span></span>
+<span class="line">setenforce <span class="number">0</span></span>
+<span class="line">sed -i <span class="string">"s/SELINUX=enforcing/SELINUX=disabled/g"</span> /etc/selinux/config</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置配认yum源为光盘</span></span>
+<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
+<span class="line">mount /dev/cdrom /media/disk</span>
+<span class="line">cd /etc/yum.repos.d/</span>
+<span class="line">mv CentOS-Base.repo CentOS-Base.repo_bak</span>
+<span class="line">vi CentOS-Base.repo</span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line">[centos7]</span>
+<span class="line">name=CentOS-$releasever</span>
+<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span></span>
+<span class="line">gpgcheck=<span class="number">0</span></span>
+<span class="line">enabled=<span class="number">1</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/ORA/ORA-603" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/11/24/oracle/ORA/ORA-603/" class="article-date">
+      <time datetime="2017-11-23T16:00:00.000Z" itemprop="datePublished">2017-11-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>环境：OEL6.8，ORACLE 11.2.0.4 双节点RAC<br>节点2 alert日志报错信息如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">Fri Nov <span class="number">24</span> 09:<span class="number">11</span>:<span class="number">42</span> <span class="number">2017</span></span>
+<span class="line">skgxpvfynet: mtype: <span class="number">61</span> process <span class="number">11799</span> failed because of a resource problem in the OS. The OS has most likely run out of buffers (rval: <span class="number">4</span>)</span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl2/trace/orcl2_ora_11799.trc  (incident=<span class="number">123381</span>):</span>
+<span class="line">ORA-<span class="number">00603</span>: ORACLE server session terminated by fatal error</span>
+<span class="line">ORA-<span class="number">27504</span>: IPC error creating OSD context</span>
+<span class="line">ORA-<span class="number">27300</span>: OS <span class="keyword">system</span> dependent operation:sendmsg failed with status: <span class="number">105</span></span>
+<span class="line">ORA-<span class="number">27301</span>: OS failure message: No buffer space available</span>
+<span class="line">ORA-<span class="number">27302</span>: failure occurred at: sskgxpsnd2</span>
+<span class="line">Incident details in: <span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl2/incident</span><span class="regexp">/incdir_123381/orcl</span>2_ora_11799_i123381.trc</span>
+<span class="line">Fri Nov <span class="number">24</span> 09:<span class="number">11</span>:<span class="number">42</span> <span class="number">2017</span></span>
+<span class="line">skgxpvfynet: mtype: <span class="number">61</span> process <span class="number">11801</span> failed because of a resource problem in the OS. The OS has most likely run out of buffers (rval: <span class="number">4</span>)</span>
+<span class="line">opiodr aborting process unknown ospid (<span class="number">11743</span>) as a result of ORA-<span class="number">603</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl2/trace/orcl2_ora_11801.trc  (incident=<span class="number">123382</span>):</span>
+<span class="line">ORA-<span class="number">00603</span>: ORACLE server session terminated by fatal error</span>
+<span class="line">ORA-<span class="number">27504</span>: IPC error creating OSD context</span>
+<span class="line">ORA-<span class="number">27300</span>: OS <span class="keyword">system</span> dependent operation:sendmsg failed with status: <span class="number">105</span></span>
+<span class="line">ORA-<span class="number">27301</span>: OS failure message: No buffer space available</span>
+<span class="line">ORA-<span class="number">27302</span>: failure occurred at: sskgxpsnd2</span>
+<span class="line">Incident details in: <span class="regexp">/u01/app</span><span class="regexp">/oracle/diag</span><span class="regexp">/rdbms/orcl</span><span class="regexp">/orcl2/incident</span><span class="regexp">/incdir_123382/orcl</span>2_ora_11801_i123382.trc</span>
+<span class="line">Dumping diagnostic data in directory=[cdmp_20171124091142], requested by (instance=<span class="number">2</span>, osid=<span class="number">11743</span>), summary=[incident=<span class="number">123380</span>].</span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/11/24/oracle/ORA/ORA-603/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -505,74 +700,6 @@
 
 
   
-    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
-      <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-oracle/flashback常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -653,6 +780,74 @@
       
         <p class="article-more-link">
           <a href="/2017/10/19/oracle/flashback常用命令整理/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
+      <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -885,159 +1080,6 @@
       
         <p class="article-more-link">
           <a href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/oracle审计" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/09/13/oracle/oracle审计/" class="article-date">
-      <time datetime="2017-09-12T16:00:00.000Z" itemprop="datePublished">2017-09-13</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。<br>默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。<br>在一些安全性要求比较高的环境是需要做一些审计的配置的。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/audit/">audit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/09/13/oracle/oracle审计/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-09-10T16:00:00.000Z" itemprop="datePublished">2017-09-11</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="表结构设计的核心思想是什么？"><a href="#表结构设计的核心思想是什么？" class="headerlink" title="表结构设计的核心思想是什么？"></a>表结构设计的核心思想是什么？</h2><ol>
-<li>表及表字段只增不减，即不删除表，不删除字段，只做增加。</li>
-<li>使用<code>innodb</code>存储引擎，支持事务，MVCC，行级锁，更好的恢复性，更高效的IO，更先进的缓存，更先进的写策略。高并发下性能更好，对多核，大内存，SSD等硬件支持更好。</li>
-<li>自增主键，推荐用独立于业务的<code>AUTO_INCREMENT</code>列或全局ID生成器做代理主键。</li>
-<li>拆开宽表，便于运维，加快变更速度，提高查询性能，节省IO和内存。</li>
-<li>控制单表数据量，纯INT不超过1000W，含VARCHAR不超过500w。建议单库不超过300-400个表。</li>
-<li>控制列数据，越短越好，单表不超50个纯INT字段，VARCHAR(10)不超20个字段，单表字段数上限控制在20-50个。</li>
-<li>表和字段加注释。</li>
-<li>使用推荐的字段类型：<ul>
-<li>时间 <code>timestamp</code></li>
-<li>日期 <code>date</code></li>
-<li>IP   <code>int unsigned</code>  <code>INET_ATON(&#39;127.0.0.1&#39;)</code>  <code>INET_NTOA(ip)</code></li>
-<li>小数 <code>decimal</code></li>
-<li>尽量不用<code>text/blob/char</code>，用<code>varchar</code></li>
-<li>字段只有<code>true or false</code>，用<code>tinyint</code></li>
-<li>非负数值，用<code>unsigned</code></li>
-<li>默认值不能用<code>null</code>，数字类型用<code>default 0</code>，字符类型用<code>defalut &#39;&#39;</code></li>
-</ul>
-</li>
-<li>不在数据库里存图片</li>
-<li>禁用外键</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
