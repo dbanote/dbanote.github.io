@@ -994,10 +994,10 @@
 
 
   
-    <article id="post-oracle/Scripts/一键获取数据库整体信息脚本" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/" class="article-date">
+      <a href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
       <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
 </a>
 
@@ -1013,7 +1013,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a>
+      <a class="article-title" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
     </h1>
   
 
@@ -1023,8 +1023,28 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>一键获取数据库整体信息脚本<br>将脚本内容放<code>spooldb.sql</code>中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。<br>
-          
+        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
       
     </div>
     
@@ -1034,13 +1054,9 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>
