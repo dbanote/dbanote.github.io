@@ -3204,7 +3204,8 @@
 <span class="line">         <span class="number">3</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">04</span> <span class="number">22</span>:<span class="number">37</span>:<span class="number">57</span>         <span class="number">972599877</span></span>
 <span class="line">         <span class="number">4</span> <span class="number">2018</span>-<span class="number">04</span>-<span class="number">04</span> <span class="number">22</span>:<span class="number">38</span>:08         <span class="number">972599888</span></span>
 <span class="line"></span>
-<span class="line"><span class="comment"># 说明：ORACLE 数据库是从1988/01/01 00:00:00 开始记录SCN,也就是说我们的数据库的使用最早时间只能是从1988 年元旦凌晨开始，那么也就是说数据库记录的创建时间可以采用这个时间点为起点,然后每增加一秒,数据库的kcvfhcrt 就增加1,但是ORACLE 为了计算简便,每个月按照31 天计算</span></span>
+<span class="line"><span class="comment"># 说明：ORACLE 数据库是从1988/01/01 00:00:00 开始记录SCN,也就是说我们的数据库的使用最早时间只能是从1988 年元旦凌晨开始，</span></span>
+<span class="line"><span class="comment"># 那么也就是说数据库记录的创建时间可以采用这个时间点为起点,然后每增加一秒,数据库的kcvfhcrt 就增加1,但是ORACLE 为了计算简便,每个月按照31 天计算</span></span>
 <span class="line"></span>
 <span class="line"><span class="keyword">select</span> to_char(<span class="number">972599860</span>,<span class="string">'xxxxxxxx'</span>) from dual;</span>
 <span class="line"></span>
@@ -4209,73 +4210,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[一台电脑同时使用GitHub和GitLab仓库]]></title>
-      <url>/2018/02/27/tools/github%E4%B8%8Egitlab%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8/</url>
-      <content type="html"><![CDATA[<p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
-<a id="more"></a>
-<p>进入git bash生成gitlab钥匙<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/.ssh</span>
-<span class="line">$ ssh-keygen -t rsa -C &quot;liuyajun@ydgw.cn&quot;</span>
-<span class="line">Generating public/private rsa key pair.</span>
-<span class="line">Enter file in which to save the key (/c/Users/liuyajun/.ssh/id_rsa): /c/Users/liuyajun/.ssh/gitlab_id_rsa</span>
-<span class="line">Enter passphrase (empty for no passphrase):</span>
-<span class="line">Enter same passphrase again:</span>
-<span class="line">Your identification has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.</span>
-<span class="line">Your public key has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.pub.</span>
-<span class="line">The key fingerprint is:</span>
-<span class="line">SHA256:IBKC+H7rm/4f19CViQ3qtbDXHGNGufG4GCx33ykCJdQ liuyajun@ydgw.cn</span>
-<span class="line">The keys randomart image is:</span>
-<span class="line">+---[RSA 2048]----+</span>
-<span class="line">|+ .     ... . .. |</span>
-<span class="line">|o. .     . E =oo |</span>
-<span class="line">| .. . .   =.o X= |</span>
-<span class="line">|  .. . . o.=+B+o.|</span>
-<span class="line">| .      S =o++ooo|</span>
-<span class="line">|  . .      =....o|</span>
-<span class="line">|   . .  . . o .  |</span>
-<span class="line">|    ..   o       |</span>
-<span class="line">|   o=o...        |</span>
-<span class="line">+----[SHA256]-----+</span>
-<span class="line"></span>
-<span class="line">$ ll</span>
-<span class="line">total 17</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 1679 二月 27 11:50 gitlab_id_rsa</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121  398 二月 27 11:50 gitlab_id_rsa.pub</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 1675 一月 22  2017 id_rsa</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121  401 一月 22  2017 id_rsa.pub</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 2351 二月 27 11:34 known_hosts</span>
-<span class="line"></span>
-<span class="line">eval $(ssh-agent -s)</span>
-<span class="line">ssh-add ~/.ssh/gitlab_id_rsa</span>
-</pre></td></tr></table></figure></p>
-<p>用gitlab_id_rsa.pub里的内容配置gitlab帐号SSH KEY<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/gitlab_id_rsa.pub</span>
-</pre></td></tr></table></figure></p>
-<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_02.png" alt=""></p>
-<p>配置config<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/config</span>
-<span class="line"># GitLab.com server</span>
-<span class="line">Host gitlab.com</span>
-<span class="line">IdentityFile ~/.ssh/id_rsa</span>
-<span class="line"></span>
-<span class="line"># Private GitLab server</span>
-<span class="line">Host 10.240.4.160</span>
-<span class="line">IdentityFile ~/.ssh/gitlab_id_rsa</span>
-</pre></td></tr></table></figure></p>
-<p>测试<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span>
-<span class="line">ssh -T git@10.240.4.160</span>
-</pre></td></tr></table></figure></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> gitlab </tag>
-            
-            <tag> gitlub </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD]]></title>
       <url>/2018/02/27/docker/08_%E4%BD%BF%E7%94%A8Rancher-pipeline%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E5%AE%B9%E5%99%A8%E7%9A%84CICD/</url>
       <content type="html"><![CDATA[<h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
@@ -4376,6 +4310,73 @@
             <tag> docker </tag>
             
             <tag> rancher </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[一台电脑同时使用GitHub和GitLab仓库]]></title>
+      <url>/2018/02/27/tools/github%E4%B8%8Egitlab%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8/</url>
+      <content type="html"><![CDATA[<p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+<a id="more"></a>
+<p>进入git bash生成gitlab钥匙<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/.ssh</span>
+<span class="line">$ ssh-keygen -t rsa -C &quot;liuyajun@ydgw.cn&quot;</span>
+<span class="line">Generating public/private rsa key pair.</span>
+<span class="line">Enter file in which to save the key (/c/Users/liuyajun/.ssh/id_rsa): /c/Users/liuyajun/.ssh/gitlab_id_rsa</span>
+<span class="line">Enter passphrase (empty for no passphrase):</span>
+<span class="line">Enter same passphrase again:</span>
+<span class="line">Your identification has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.</span>
+<span class="line">Your public key has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.pub.</span>
+<span class="line">The key fingerprint is:</span>
+<span class="line">SHA256:IBKC+H7rm/4f19CViQ3qtbDXHGNGufG4GCx33ykCJdQ liuyajun@ydgw.cn</span>
+<span class="line">The keys randomart image is:</span>
+<span class="line">+---[RSA 2048]----+</span>
+<span class="line">|+ .     ... . .. |</span>
+<span class="line">|o. .     . E =oo |</span>
+<span class="line">| .. . .   =.o X= |</span>
+<span class="line">|  .. . . o.=+B+o.|</span>
+<span class="line">| .      S =o++ooo|</span>
+<span class="line">|  . .      =....o|</span>
+<span class="line">|   . .  . . o .  |</span>
+<span class="line">|    ..   o       |</span>
+<span class="line">|   o=o...        |</span>
+<span class="line">+----[SHA256]-----+</span>
+<span class="line"></span>
+<span class="line">$ ll</span>
+<span class="line">total 17</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 1679 二月 27 11:50 gitlab_id_rsa</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121  398 二月 27 11:50 gitlab_id_rsa.pub</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 1675 一月 22  2017 id_rsa</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121  401 一月 22  2017 id_rsa.pub</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 2351 二月 27 11:34 known_hosts</span>
+<span class="line"></span>
+<span class="line">eval $(ssh-agent -s)</span>
+<span class="line">ssh-add ~/.ssh/gitlab_id_rsa</span>
+</pre></td></tr></table></figure></p>
+<p>用gitlab_id_rsa.pub里的内容配置gitlab帐号SSH KEY<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/gitlab_id_rsa.pub</span>
+</pre></td></tr></table></figure></p>
+<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_02.png" alt=""></p>
+<p>配置config<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/config</span>
+<span class="line"># GitLab.com server</span>
+<span class="line">Host gitlab.com</span>
+<span class="line">IdentityFile ~/.ssh/id_rsa</span>
+<span class="line"></span>
+<span class="line"># Private GitLab server</span>
+<span class="line">Host 10.240.4.160</span>
+<span class="line">IdentityFile ~/.ssh/gitlab_id_rsa</span>
+</pre></td></tr></table></figure></p>
+<p>测试<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span>
+<span class="line">ssh -T git@10.240.4.160</span>
+</pre></td></tr></table></figure></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> gitlab </tag>
+            
+            <tag> gitlub </tag>
             
         </tags>
         
@@ -6977,6 +6978,187 @@
     </entry>
     
     <entry>
+      <title><![CDATA[MySQL性能优化最佳实践 - 10 MySQL写出高效SQL]]></title>
+      <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/10-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+      <content type="html"><![CDATA[<h2 id="MySQL设计标准"><a href="#MySQL设计标准" class="headerlink" title="MySQL设计标准"></a>MySQL设计标准</h2><ol>
+<li>数据库命名规范、统一，如vip_xxxx</li>
+<li><strong><font color="red">表一旦设计好，字段只允许增加，不允许减少(drop column)</font></strong></li>
+<li>统一使用INNODB存储引擎，UTF8编码（整个数据库的编码统一为<code>utf8_general_ci</code>，为此不需要建立表的DDL上加上<code>CHARACTER SET COLLATE utf8_general_ci）</code></li>
+<li>需在设计阶段考虑如果访问量非常大，且不做<code>scale out(横向扩展)</code>表拆分的话，需读写分离，但读写分离注意主从复制有延迟的可能性</li>
+<li><strong><font color="red">禁用</font></strong>stored procedure(包括存储过程，函数，触发器)，容易将业务逻辑和DB耦合在一起，并且MySQL的存储过程、触发器、函数中存在一定的bug</li>
+<li><strong><font color="red">禁止使用</font></strong><code>UUID()</code>，<code>USER()</code>这样的<code>MYSQL INSIDE</code>函数，对于复制来说是很危险的，会导致主备数据不一致，重要的是会严重影响mysql性能</li>
+<li>表必须有主键，建议统一由<code>auto_increment</code>字段生成整型，不建议使用组合主键， <strong><font color="red">另外<code>auto_increment</code>主键字段只作为虚拟主键，不建议与业务数据处理有关联关系，如果把控不好，会有问题</font></strong></li>
+<li>库名、表名、字段名、索引名必须使用小写字母</li>
+<li>多表join写SQL的时候，一定要给每个字段指定表名做前缀</li>
+<li>如果应用使用的是长连接，应用必须具有自动重连的机制。但需避免每执行一个SQL去检查一次DB可用性<a id="more"></a></li>
+<li>如果应用使用的是长连接，应用应该具有连接的TIMEOUT检查机制，及时回收长时间没有使用的连接，TIMEOUNT时间一般建议为20min</li>
+<li>存储精确浮点数必须使用DECIMAL替代FLOAT和DOUBLE，DECIMAL类型具有更高的精度和更小的范围，它适合于财务和货币计算，如金额等</li>
+<li>表名、列名必须有注释（必须加上<code>COMMENT &#39;&lt;字段扼要解说&gt;&#39;</code>），表结构变更须由库表OWNER所在团队发起</li>
+<li>SQL语句必须采用<code>PreparedStatement</code>技术，可以提升性能并且避免SQL注入，如果编程语言不支持<code>PreparedStatement</code>技术，需要做好特殊字符过滤，如不要前后有空串等</li>
+<li>尽可能不要使用TEXT、BLOB、CHAR字段类型，请使用<code>VARCHAR(N)</code>，N表示的是字符数不是字节数，比如<code>VARCHAR(255)</code>，可以最大存储255个汉字，需要根据实际宽度来设置N，<strong><font color="red">请注意同一表中，所有VARCHAR字段的长度加起来，不能大于65535</font></strong></li>
+<li>每张表数据量建议控制在千万级别行以下，为此设计阶段需要考虑数据的归档</li>
+<li>如果字段只有<code>ture or false</code>，请使用tinyint(数值范围-128～127)，如果模块分类：1订单/2商品；删除标示：0正常/1删除</li>
+<li>存储时间（精确到秒）建议使用TIMESTAMP类型，因为TIMESTAMP使用4个字节，DATETIME使用8个字节，同时TIMESTAMP具有自动赋值以及自动更新的特性</li>
+<li>每个字段的默认值不能用NULL，禁止<code>default NULL</code>，数据类型用<code>default 0</code>，字符类型用<code>default &#39;&#39;</code></li>
+<li><strong><font color="red">关键业务数据表，建议用<code>create_time</code>和<code>last_update_time</code>，方便后期数据分析，如订单表，库存表</font></strong></li>
+<li><strong><font color="red">关键业务数据表，如订单表、用户信息表，钱包支付信息等，禁止硬删除，必须软删除，加上<code>is_deleted</code>字段，标注这条记录的状态</font></strong></li>
+<li><strong><font color="red">避免使用</font></strong><code>select col1,col2 from table where id in (select col from table) 这样的子查询</code></li>
+<li>需要多表join的字段(<strong><font color="red">尽量避免多于两表join</font></strong>)，数据类型保持一致</li>
+<li><strong><font color="red">加字段禁止使用after，因为不能确定全局代码里面是否都采用了类似<code>insert into table(col,col,col...) values ....</code>，若中间插一个字段，就会导致数据偏移的问题，影响可大可小，同样<code>select *</code>的也可能会影响数值的偏移</font></strong></li>
+<li><strong><font color="red">生产环境中，MySQL忽略大小写，配置了<code>lower_case_table_names=1</code></font></strong></li>
+<li>select语句只获取需要的字段，禁止使用select * from语句，这是有效防止新增字段对应用逻辑的影响，还能减少对性能的影响</li>
+<li>INSERT语句必须显式的指明字段名称，不使用INSERT INTO table values()</li>
+<li>禁止在where子句中对字段施加函数，如to_date(add_time)&gt;xxxxx，应改为add_time&gt;=unix_timestamp(date_add(str_to_date(‘20171109’,’%Y%m%d’),interval-29 day))</li>
+<li>where条件中必须使用合适的类型，避免MySOL进行隐式类型转化，如ISENDED=1，字段类型是tinyint，则不能写成ISENDED=’1’</li>
+<li>应用程序里的SQL语句，禁止一切DDL操作，如有特殊需要需与DBA协商，同意后方可使用</li>
+<li>避免在SQL语句进行数学运算或函数运算，容易将业务逻辑和DB耦合在一起</li>
+<li>INSERT语句使用batch提交</li>
+<li>INNODB表避免使用count(*)操作，计数统计实时要求较强可以使用memcache或redis，非实时统计可以使用单独统计表，定时更新</li>
+<li>使用%前缀模糊查询将不走索引，例如LIKE ‘%weibo’，不建议使用</li>
+<li>避免多余的排序，使用group by时，默认会进行排序，当不需要排序时，可以使用order by null</li>
+<li>不鼓励在数据库里排序，行数小的，建议放在应用服务上排序</li>
+</ol>
+<h2 id="事务的处理标准"><a href="#事务的处理标准" class="headerlink" title="事务的处理标准"></a>事务的处理标准</h2><ol>
+<li>一个事务，处理的行数不能超过1000 rows/s，超出会导致主从复制延迟的问题</li>
+<li>禁止一些框架或定制化的底层类等使用<code>set autocommit=0;</code>、<code>set autocommit=1;</code>这样控制事务，应该由程序把控，需要时<code>begin;</code>，操作完后及时<code>commit;</code></li>
+</ol>
+<h2 id="索引使用标准"><a href="#索引使用标准" class="headerlink" title="索引使用标准"></a>索引使用标准</h2><ol>
+<li>非唯一索引建议使用<code>idx_表缩写名称_字段缩写名称</code>进行命名</li>
+<li>唯一索引建议使用<code>uniq_表缩写名称_字段缩写名称</code>进行命名</li>
+<li>索引名称必须使用小写</li>
+<li>唯一键不和主键重复</li>
+<li>索引字段的顺序需要考虑字段去重之后的个数，个数多的放在前面，就是数据分布</li>
+<li>使用EXPLAIN判断SQL语句是否合理的使用索引，尽量避免extra列出现：<code>Using File Sort</code>，<code>Using Temporary</code></li>
+<li>UPDATE、DELETE语句需要根据WHERE条件添加索引</li>
+<li>合理创建联合索引（避免冗余），<code>(a,b,c)</code>相当于<code>(a)</code>、<code>(a,b)</code>、<code>(a,b,c)</code></li>
+<li>合理利用覆盖索引（三星索引），如<code>select emain,uid from user_email where uid=xx</code>，如果uid不是主键，适当时候可以添加<code>(uid,email)</code>覆盖索引，以获得性能提升</li>
+</ol>
+<h2 id="约束设计"><a href="#约束设计" class="headerlink" title="约束设计"></a>约束设计</h2><ol>
+<li>主键的内容不能被修改</li>
+<li>禁用外键约束，外键约束一般不在数据库上创建，只表达一个逻辑的概念，由程序控制</li>
+<li>unique约束命名<code>UK_列名</code>，check约束命名<code>CK_列名</code></li>
+</ol>
+<h2 id="怎么写出高效SQL"><a href="#怎么写出高效SQL" class="headerlink" title="怎么写出高效SQL"></a>怎么写出高效SQL</h2><ol>
+<li>清晰无误的了知业务需求</li>
+<li>满足业务需求，不做无用功</li>
+<li>知道表数据量和索引基本情况</li>
+<li>知道完成SQL需要扫描的数据量级</li>
+<li>SQL执行计划OK？SQL性能达到要求？</li>
+<li>调整索引和SQL，优化SQL</li>
+</ol>
+<h2 id="关于IN子查询"><a href="#关于IN子查询" class="headerlink" title="关于IN子查询"></a>关于IN子查询</h2><p>IN子查询容易导致问题，禁止使用，需改成join</p>
+<ol>
+<li>in子查询包含group by，外部查询的值传不到in子查询中，会导致in子查询效率低下</li>
+<li>外部查询传入到in子查询中的值没法利用索引时，会导致in子查询效率低下</li>
+<li>in子查询总是返回单个值时，用=，=和in处理机制不同</li>
+<li>多个filter类子查询，一般在SQL后面的先执行</li>
+</ol>
+<h2 id="选择正确的驱动表"><a href="#选择正确的驱动表" class="headerlink" title="选择正确的驱动表"></a>选择正确的驱动表</h2><ol>
+<li>多表关联查询，选择正确驱动表是最重要一步,好的开始是成功的一半</li>
+<li>驱动表不一定是小表；表大，但过滤条件很强，能快速减少关联中间结果也可以选为驱动表</li>
+<li>access vs filter</li>
+<li>关联字段需建索引</li>
+</ol>
+<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="为什么使用prepared-statement能提高性能？"><a href="#为什么使用prepared-statement能提高性能？" class="headerlink" title="为什么使用prepared statement能提高性能？"></a>为什么使用prepared statement能提高性能？</h3><p>Statement主要用于执行静态SQL语句，即内容固定不变的SQL语句。Statement每执行一次都要对传入的SQL语句编译一次，效率较差。</p>
+<p>PreparedStatement是Statement的子类，表示预编译的SQL语句的对象。在使用PreparedStatement对象执行SQL命令时，命令被数据库编译和解析，并放入命令缓冲区。缓冲区中的预编译SQL命令可以重复使用。</p>
+<p>使用PreparedStatement时，SQL语句已提前编译，三种常用方法<code>execute</code>、<code>executeQuery</code>和<code>executeUpdate</code>已被更改，以使之不再需要参数。PreparedStatement 实例包含已事先编译的SQL语句，SQL语句可有一个或多个IN参数，IN参数的值在SQL语句创建时未被指定。该语句为每个IN留一个问号（“？”）作为占位符。 每个问号的值必须在该语句执行之前，通过适当的setInt或者setString 等方法提供。由于 PreparedStatement 对象已预编译过，所以其执行速度要快于Statement 对象。因此，多次执行的 SQL 语句经常创建为PreparedStatement 对象，以提高效率。</p>
+<p>PreparedStatement的另外一个好处就是预防sql注入攻击。对JDBC而言，SQL注入攻击对PreparedStatement无效，因为PreparedStatement不允许在插入参数时改变SQL语句的逻辑结构。</p>
+<h3 id="MySql优化的一般步骤是什么？举个例子详细说明。"><a href="#MySql优化的一般步骤是什么？举个例子详细说明。" class="headerlink" title="MySql优化的一般步骤是什么？举个例子详细说明。"></a>MySql优化的一般步骤是什么？举个例子详细说明。</h3><h4 id="通过show-status命令了解各种sql的执行效率"><a href="#通过show-status命令了解各种sql的执行效率" class="headerlink" title="通过show status命令了解各种sql的执行效率"></a>通过<code>show status</code>命令了解各种sql的执行效率</h4><p>通过SHOW STATUS可以提供服务器状态信息，也可以使用mysqladmin extended-status命令获得。SHOW STATUS可以根据需要显示session级别的统计结果和global级别的统计结果。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下几个参数对Myisam和Innodb存储引擎都计数</span></span>
+<span class="line">Com_select  执行<span class="keyword">select</span>操作的次数，一次查询只累加<span class="number">1</span></span>
+<span class="line">Com_insert  执行insert操作的次数，对于批量插入的insert操作，只累加一次</span>
+<span class="line">Com_update  执行update操作的次数</span>
+<span class="line">Com_delete　执行<span class="keyword">delete</span>操作的次数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 以下几个参数是针对Innodb存储引擎计数的，累加的算法也略有不同</span></span>
+<span class="line">Innodb_rows_read　   <span class="keyword">select</span>查询返回的行数</span>
+<span class="line">Innodb_rows_inserted 执行insert操作插入的行数</span>
+<span class="line">Innodb_rows_updated  执行update操作更新的行数</span>
+<span class="line">Innodb_rows_deleted　执行<span class="keyword">delete</span>操作删除的行数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 以下几个参数便于了解数据库的基本情况</span></span>
+<span class="line">Connections  试图连接Mysql服务器的次数</span>
+<span class="line">Uptime　     服务器工作时间</span>
+<span class="line">Slow_queries 慢查询的次数</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 对于事务型的应用，通过Com_commit和Com_rollback可以了解事务提交和回滚的情况</span></span>
+<span class="line"><span class="comment"># 对于回滚操作非常频繁的数据库，可能意味着应用编写存在问题</span></span>
+</pre></td></tr></table></figure></p>
+<h4 id="定位执行效率较低的SQL语句"><a href="#定位执行效率较低的SQL语句" class="headerlink" title="定位执行效率较低的SQL语句"></a>定位执行效率较低的SQL语句</h4><p>可以通过以下两种方式定位执行效率较低的SQL语句：</p>
+<ol>
+<li>可以通过慢查询日志定位那些执行效率较低的sql语句，用<code>--log-slow-queries[=file_name]</code>选项启动时，mysqld写一个包含所有执行时间超过<code>long_query_time</code>秒的SQL语句的日志文件。可以链接到管理维护中的相关章节。</li>
+<li>慢查询日志在查询结束以后才纪录，所以在应用反映执行效率出现问题的时候查询慢查询日志并不能定位问题，可以使用<code>show processlist</code>命令查看当前MySQL在进行的线程，包括线程的状态，是否锁表等等，可以实时的查看SQL执行情况，同时对一些锁表操作进行优化</li>
+</ol>
+<h4 id="通过explain分析低效率的SQL语句的执行情况"><a href="#通过explain分析低效率的SQL语句的执行情况" class="headerlink" title="通过explain分析低效率的SQL语句的执行情况"></a>通过explain分析低效率的SQL语句的执行情况</h4><p>通过以上步骤查询到效率低的SQL后，可以通过explain或者desc获取MySQL如何执行SELECT语句的信息，包括select语句执行过程表如何连接和连接的次序。<br>执行计划说明：</p>
+<blockquote>
+<p>select_type：select类型<br>table：输出结果集的表<br>type：表示表的连接类型<br>　　1. 当表中仅有一行是type的值为system是最佳的连接类型；<br>　　2. 当select操作中使用索引进行表连接时type的值为ref；<br>　　3. 当select的表连接没有使用索引时，经常会看到type的值为ALL，表示对该表进行了全表扫描，这时需要考虑通过创建索引来提高表连接的效率。<br>possible_keys：表示查询时,可以使用的索引列.<br>key：表示使用的索引<br>key_len：索引长度<br>rows：扫描范围<br>Extra：执行情况的说明和描述</p>
+</blockquote>
+<h4 id="确定问题，并采取相应的优化措施"><a href="#确定问题，并采取相应的优化措施" class="headerlink" title="确定问题，并采取相应的优化措施"></a>确定问题，并采取相应的优化措施</h4><p>确认问题出现的原因后，可以根据情况采取相应的措施，进行优化提高执行的效率。 示例如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
+<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | <span class="keyword">ref</span>                | rows   | Extra       |</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | ALL    | NULL          | NULL    | NULL    | NULL               | <span class="number">331290</span> | Using where |</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY       | PRIMARY | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL        |</span>
+<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这个例子，对表dept_emp全表扫描，效果不理想，对d表的dept_no字段创建了索引，查询需要扫描的行数明显较少</span></span>
+<span class="line">create <span class="keyword">index</span> idx_dept_emp_dn on dept_emp(dept_no);</span>
+<span class="line"></span>
+<span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
+<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+<span class="line">| id | select_type | table | type   | possible_keys   | key             | key_len | <span class="keyword">ref</span>                | rows   | Extra                 |</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | <span class="keyword">ref</span>    | idx_dept_emp_dn | idx_dept_emp_dn | <span class="number">12</span>      | const              | <span class="number">164256</span> | Using <span class="keyword">index</span> condition |</span>
+<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY         | PRIMARY         | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL                  |</span>
+<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
+</pre></td></tr></table></figure></p>
+<h3 id="MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？"><a href="#MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？" class="headerlink" title="MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？"></a>MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优化前</span></span>
+<span class="line">SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2 WHERE id = <span class="number">1</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 优化后</span></span>
+<span class="line">SELECT s1 from t1 a,(SELECT s1 FROM t2 WHERE id = <span class="number">1</span>) b where a.s1=b.s1;</span>
+</pre></td></tr></table></figure>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这是一个简单的示例，每1000个语句为一批插入提交，它避免了SQL注入和内存不足的问题</span></span>
+<span class="line"><span class="comment"># 插入到数据库使用批处理上万条记录，有可能产生的OutOfMemoryError</span></span>
+<span class="line">import java.sql.Connection;</span>
+<span class="line">import java.sql.PreparedStatement;</span>
+<span class="line">...</span>
+<span class="line">String sql = <span class="string">"insert into employee (name, city, phone) values (?, ?, ?)"</span>;</span>
+<span class="line">Connection connection = new getConnection();</span>
+<span class="line">PreparedStatement ps = connection.prepareStatement(sql);</span>
+<span class="line">final <span class="keyword">int</span> batchSize = <span class="number">1000</span>;</span>
+<span class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</span>
+<span class="line"><span class="keyword">for</span> (Employee employee: employees) &#123;</span>
+<span class="line">    ps.setString(<span class="number">1</span>, employee.getName());</span>
+<span class="line">    ps.setString(<span class="number">2</span>, employee.getCity());</span>
+<span class="line">    ps.setString(<span class="number">3</span>, employee.getPhone());</span>
+<span class="line">    ps.addBatch();</span>
+<span class="line">    <span class="keyword">if</span>(++count % batchSize == <span class="number">0</span>) &#123;</span>
+<span class="line">        ps.executeBatch();</span>
+<span class="line">    &#125;</span>
+<span class="line">&#125;</span>
+<span class="line">ps.executeBatch(); <span class="regexp">//</span> insert remaining records</span>
+<span class="line">ps.close();</span>
+<span class="line">connection.close();</span>
+</pre></td></tr></table></figure>]]></content>
+      
+        <categories>
+            
+            <category> MySQL性能优化最佳实践 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> mysql </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[MySQL性能优化最佳实践 - 11 MySQL锁优化分析]]></title>
       <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/11-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
       <content type="html"><![CDATA[<h2 id="不同索引加锁顺序的问题，模拟重现死锁"><a href="#不同索引加锁顺序的问题，模拟重现死锁" class="headerlink" title="不同索引加锁顺序的问题，模拟重现死锁"></a>不同索引加锁顺序的问题，模拟重现死锁</h2><p>走索引的SQL语句，会涉及两把锁，在特定场景下就会产生交差锁等待</p>
@@ -7192,187 +7374,6 @@
 </ol>
 <p>死锁是数据库对事务的保护机制，一旦发生死锁，mysql会选择相对小的事务(undo较少的)进行回滚。死锁的发生与否，并不在于事务中有多少条SQL语句，死锁的关键在于：两个或两个以上的session加锁的顺序不一致。分析MySQ每条SQL的加锁规则、顺序，检查多个并发SQL间是否存在相反的顺序加锁的情况，就可以分析出各种潜在的死锁情况，也可以分析出线上死锁发生的原因。</p>
 ]]></content>
-      
-        <categories>
-            
-            <category> MySQL性能优化最佳实践 </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> mysql </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[MySQL性能优化最佳实践 - 10 MySQL写出高效SQL]]></title>
-      <url>/2017/11/09/mysql/MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/10-MySQL-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
-      <content type="html"><![CDATA[<h2 id="MySQL设计标准"><a href="#MySQL设计标准" class="headerlink" title="MySQL设计标准"></a>MySQL设计标准</h2><ol>
-<li>数据库命名规范、统一，如vip_xxxx</li>
-<li><strong><font color="red">表一旦设计好，字段只允许增加，不允许减少(drop column)</font></strong></li>
-<li>统一使用INNODB存储引擎，UTF8编码（整个数据库的编码统一为<code>utf8_general_ci</code>，为此不需要建立表的DDL上加上<code>CHARACTER SET COLLATE utf8_general_ci）</code></li>
-<li>需在设计阶段考虑如果访问量非常大，且不做<code>scale out(横向扩展)</code>表拆分的话，需读写分离，但读写分离注意主从复制有延迟的可能性</li>
-<li><strong><font color="red">禁用</font></strong>stored procedure(包括存储过程，函数，触发器)，容易将业务逻辑和DB耦合在一起，并且MySQL的存储过程、触发器、函数中存在一定的bug</li>
-<li><strong><font color="red">禁止使用</font></strong><code>UUID()</code>，<code>USER()</code>这样的<code>MYSQL INSIDE</code>函数，对于复制来说是很危险的，会导致主备数据不一致，重要的是会严重影响mysql性能</li>
-<li>表必须有主键，建议统一由<code>auto_increment</code>字段生成整型，不建议使用组合主键， <strong><font color="red">另外<code>auto_increment</code>主键字段只作为虚拟主键，不建议与业务数据处理有关联关系，如果把控不好，会有问题</font></strong></li>
-<li>库名、表名、字段名、索引名必须使用小写字母</li>
-<li>多表join写SQL的时候，一定要给每个字段指定表名做前缀</li>
-<li>如果应用使用的是长连接，应用必须具有自动重连的机制。但需避免每执行一个SQL去检查一次DB可用性<a id="more"></a></li>
-<li>如果应用使用的是长连接，应用应该具有连接的TIMEOUT检查机制，及时回收长时间没有使用的连接，TIMEOUNT时间一般建议为20min</li>
-<li>存储精确浮点数必须使用DECIMAL替代FLOAT和DOUBLE，DECIMAL类型具有更高的精度和更小的范围，它适合于财务和货币计算，如金额等</li>
-<li>表名、列名必须有注释（必须加上<code>COMMENT &#39;&lt;字段扼要解说&gt;&#39;</code>），表结构变更须由库表OWNER所在团队发起</li>
-<li>SQL语句必须采用<code>PreparedStatement</code>技术，可以提升性能并且避免SQL注入，如果编程语言不支持<code>PreparedStatement</code>技术，需要做好特殊字符过滤，如不要前后有空串等</li>
-<li>尽可能不要使用TEXT、BLOB、CHAR字段类型，请使用<code>VARCHAR(N)</code>，N表示的是字符数不是字节数，比如<code>VARCHAR(255)</code>，可以最大存储255个汉字，需要根据实际宽度来设置N，<strong><font color="red">请注意同一表中，所有VARCHAR字段的长度加起来，不能大于65535</font></strong></li>
-<li>每张表数据量建议控制在千万级别行以下，为此设计阶段需要考虑数据的归档</li>
-<li>如果字段只有<code>ture or false</code>，请使用tinyint(数值范围-128～127)，如果模块分类：1订单/2商品；删除标示：0正常/1删除</li>
-<li>存储时间（精确到秒）建议使用TIMESTAMP类型，因为TIMESTAMP使用4个字节，DATETIME使用8个字节，同时TIMESTAMP具有自动赋值以及自动更新的特性</li>
-<li>每个字段的默认值不能用NULL，禁止<code>default NULL</code>，数据类型用<code>default 0</code>，字符类型用<code>default &#39;&#39;</code></li>
-<li><strong><font color="red">关键业务数据表，建议用<code>create_time</code>和<code>last_update_time</code>，方便后期数据分析，如订单表，库存表</font></strong></li>
-<li><strong><font color="red">关键业务数据表，如订单表、用户信息表，钱包支付信息等，禁止硬删除，必须软删除，加上<code>is_deleted</code>字段，标注这条记录的状态</font></strong></li>
-<li><strong><font color="red">避免使用</font></strong><code>select col1,col2 from table where id in (select col from table) 这样的子查询</code></li>
-<li>需要多表join的字段(<strong><font color="red">尽量避免多于两表join</font></strong>)，数据类型保持一致</li>
-<li><strong><font color="red">加字段禁止使用after，因为不能确定全局代码里面是否都采用了类似<code>insert into table(col,col,col...) values ....</code>，若中间插一个字段，就会导致数据偏移的问题，影响可大可小，同样<code>select *</code>的也可能会影响数值的偏移</font></strong></li>
-<li><strong><font color="red">生产环境中，MySQL忽略大小写，配置了<code>lower_case_table_names=1</code></font></strong></li>
-<li>select语句只获取需要的字段，禁止使用select * from语句，这是有效防止新增字段对应用逻辑的影响，还能减少对性能的影响</li>
-<li>INSERT语句必须显式的指明字段名称，不使用INSERT INTO table values()</li>
-<li>禁止在where子句中对字段施加函数，如to_date(add_time)&gt;xxxxx，应改为add_time&gt;=unix_timestamp(date_add(str_to_date(‘20171109’,’%Y%m%d’),interval-29 day))</li>
-<li>where条件中必须使用合适的类型，避免MySOL进行隐式类型转化，如ISENDED=1，字段类型是tinyint，则不能写成ISENDED=’1’</li>
-<li>应用程序里的SQL语句，禁止一切DDL操作，如有特殊需要需与DBA协商，同意后方可使用</li>
-<li>避免在SQL语句进行数学运算或函数运算，容易将业务逻辑和DB耦合在一起</li>
-<li>INSERT语句使用batch提交</li>
-<li>INNODB表避免使用count(*)操作，计数统计实时要求较强可以使用memcache或redis，非实时统计可以使用单独统计表，定时更新</li>
-<li>使用%前缀模糊查询将不走索引，例如LIKE ‘%weibo’，不建议使用</li>
-<li>避免多余的排序，使用group by时，默认会进行排序，当不需要排序时，可以使用order by null</li>
-<li>不鼓励在数据库里排序，行数小的，建议放在应用服务上排序</li>
-</ol>
-<h2 id="事务的处理标准"><a href="#事务的处理标准" class="headerlink" title="事务的处理标准"></a>事务的处理标准</h2><ol>
-<li>一个事务，处理的行数不能超过1000 rows/s，超出会导致主从复制延迟的问题</li>
-<li>禁止一些框架或定制化的底层类等使用<code>set autocommit=0;</code>、<code>set autocommit=1;</code>这样控制事务，应该由程序把控，需要时<code>begin;</code>，操作完后及时<code>commit;</code></li>
-</ol>
-<h2 id="索引使用标准"><a href="#索引使用标准" class="headerlink" title="索引使用标准"></a>索引使用标准</h2><ol>
-<li>非唯一索引建议使用<code>idx_表缩写名称_字段缩写名称</code>进行命名</li>
-<li>唯一索引建议使用<code>uniq_表缩写名称_字段缩写名称</code>进行命名</li>
-<li>索引名称必须使用小写</li>
-<li>唯一键不和主键重复</li>
-<li>索引字段的顺序需要考虑字段去重之后的个数，个数多的放在前面，就是数据分布</li>
-<li>使用EXPLAIN判断SQL语句是否合理的使用索引，尽量避免extra列出现：<code>Using File Sort</code>，<code>Using Temporary</code></li>
-<li>UPDATE、DELETE语句需要根据WHERE条件添加索引</li>
-<li>合理创建联合索引（避免冗余），<code>(a,b,c)</code>相当于<code>(a)</code>、<code>(a,b)</code>、<code>(a,b,c)</code></li>
-<li>合理利用覆盖索引（三星索引），如<code>select emain,uid from user_email where uid=xx</code>，如果uid不是主键，适当时候可以添加<code>(uid,email)</code>覆盖索引，以获得性能提升</li>
-</ol>
-<h2 id="约束设计"><a href="#约束设计" class="headerlink" title="约束设计"></a>约束设计</h2><ol>
-<li>主键的内容不能被修改</li>
-<li>禁用外键约束，外键约束一般不在数据库上创建，只表达一个逻辑的概念，由程序控制</li>
-<li>unique约束命名<code>UK_列名</code>，check约束命名<code>CK_列名</code></li>
-</ol>
-<h2 id="怎么写出高效SQL"><a href="#怎么写出高效SQL" class="headerlink" title="怎么写出高效SQL"></a>怎么写出高效SQL</h2><ol>
-<li>清晰无误的了知业务需求</li>
-<li>满足业务需求，不做无用功</li>
-<li>知道表数据量和索引基本情况</li>
-<li>知道完成SQL需要扫描的数据量级</li>
-<li>SQL执行计划OK？SQL性能达到要求？</li>
-<li>调整索引和SQL，优化SQL</li>
-</ol>
-<h2 id="关于IN子查询"><a href="#关于IN子查询" class="headerlink" title="关于IN子查询"></a>关于IN子查询</h2><p>IN子查询容易导致问题，禁止使用，需改成join</p>
-<ol>
-<li>in子查询包含group by，外部查询的值传不到in子查询中，会导致in子查询效率低下</li>
-<li>外部查询传入到in子查询中的值没法利用索引时，会导致in子查询效率低下</li>
-<li>in子查询总是返回单个值时，用=，=和in处理机制不同</li>
-<li>多个filter类子查询，一般在SQL后面的先执行</li>
-</ol>
-<h2 id="选择正确的驱动表"><a href="#选择正确的驱动表" class="headerlink" title="选择正确的驱动表"></a>选择正确的驱动表</h2><ol>
-<li>多表关联查询，选择正确驱动表是最重要一步,好的开始是成功的一半</li>
-<li>驱动表不一定是小表；表大，但过滤条件很强，能快速减少关联中间结果也可以选为驱动表</li>
-<li>access vs filter</li>
-<li>关联字段需建索引</li>
-</ol>
-<h2 id="作业"><a href="#作业" class="headerlink" title="作业"></a>作业</h2><h3 id="为什么使用prepared-statement能提高性能？"><a href="#为什么使用prepared-statement能提高性能？" class="headerlink" title="为什么使用prepared statement能提高性能？"></a>为什么使用prepared statement能提高性能？</h3><p>Statement主要用于执行静态SQL语句，即内容固定不变的SQL语句。Statement每执行一次都要对传入的SQL语句编译一次，效率较差。</p>
-<p>PreparedStatement是Statement的子类，表示预编译的SQL语句的对象。在使用PreparedStatement对象执行SQL命令时，命令被数据库编译和解析，并放入命令缓冲区。缓冲区中的预编译SQL命令可以重复使用。</p>
-<p>使用PreparedStatement时，SQL语句已提前编译，三种常用方法<code>execute</code>、<code>executeQuery</code>和<code>executeUpdate</code>已被更改，以使之不再需要参数。PreparedStatement 实例包含已事先编译的SQL语句，SQL语句可有一个或多个IN参数，IN参数的值在SQL语句创建时未被指定。该语句为每个IN留一个问号（“？”）作为占位符。 每个问号的值必须在该语句执行之前，通过适当的setInt或者setString 等方法提供。由于 PreparedStatement 对象已预编译过，所以其执行速度要快于Statement 对象。因此，多次执行的 SQL 语句经常创建为PreparedStatement 对象，以提高效率。</p>
-<p>PreparedStatement的另外一个好处就是预防sql注入攻击。对JDBC而言，SQL注入攻击对PreparedStatement无效，因为PreparedStatement不允许在插入参数时改变SQL语句的逻辑结构。</p>
-<h3 id="MySql优化的一般步骤是什么？举个例子详细说明。"><a href="#MySql优化的一般步骤是什么？举个例子详细说明。" class="headerlink" title="MySql优化的一般步骤是什么？举个例子详细说明。"></a>MySql优化的一般步骤是什么？举个例子详细说明。</h3><h4 id="通过show-status命令了解各种sql的执行效率"><a href="#通过show-status命令了解各种sql的执行效率" class="headerlink" title="通过show status命令了解各种sql的执行效率"></a>通过<code>show status</code>命令了解各种sql的执行效率</h4><p>通过SHOW STATUS可以提供服务器状态信息，也可以使用mysqladmin extended-status命令获得。SHOW STATUS可以根据需要显示session级别的统计结果和global级别的统计结果。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 以下几个参数对Myisam和Innodb存储引擎都计数</span></span>
-<span class="line">Com_select  执行<span class="keyword">select</span>操作的次数，一次查询只累加<span class="number">1</span></span>
-<span class="line">Com_insert  执行insert操作的次数，对于批量插入的insert操作，只累加一次</span>
-<span class="line">Com_update  执行update操作的次数</span>
-<span class="line">Com_delete　执行<span class="keyword">delete</span>操作的次数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 以下几个参数是针对Innodb存储引擎计数的，累加的算法也略有不同</span></span>
-<span class="line">Innodb_rows_read　   <span class="keyword">select</span>查询返回的行数</span>
-<span class="line">Innodb_rows_inserted 执行insert操作插入的行数</span>
-<span class="line">Innodb_rows_updated  执行update操作更新的行数</span>
-<span class="line">Innodb_rows_deleted　执行<span class="keyword">delete</span>操作删除的行数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 以下几个参数便于了解数据库的基本情况</span></span>
-<span class="line">Connections  试图连接Mysql服务器的次数</span>
-<span class="line">Uptime　     服务器工作时间</span>
-<span class="line">Slow_queries 慢查询的次数</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 对于事务型的应用，通过Com_commit和Com_rollback可以了解事务提交和回滚的情况</span></span>
-<span class="line"><span class="comment"># 对于回滚操作非常频繁的数据库，可能意味着应用编写存在问题</span></span>
-</pre></td></tr></table></figure></p>
-<h4 id="定位执行效率较低的SQL语句"><a href="#定位执行效率较低的SQL语句" class="headerlink" title="定位执行效率较低的SQL语句"></a>定位执行效率较低的SQL语句</h4><p>可以通过以下两种方式定位执行效率较低的SQL语句：</p>
-<ol>
-<li>可以通过慢查询日志定位那些执行效率较低的sql语句，用<code>--log-slow-queries[=file_name]</code>选项启动时，mysqld写一个包含所有执行时间超过<code>long_query_time</code>秒的SQL语句的日志文件。可以链接到管理维护中的相关章节。</li>
-<li>慢查询日志在查询结束以后才纪录，所以在应用反映执行效率出现问题的时候查询慢查询日志并不能定位问题，可以使用<code>show processlist</code>命令查看当前MySQL在进行的线程，包括线程的状态，是否锁表等等，可以实时的查看SQL执行情况，同时对一些锁表操作进行优化</li>
-</ol>
-<h4 id="通过explain分析低效率的SQL语句的执行情况"><a href="#通过explain分析低效率的SQL语句的执行情况" class="headerlink" title="通过explain分析低效率的SQL语句的执行情况"></a>通过explain分析低效率的SQL语句的执行情况</h4><p>通过以上步骤查询到效率低的SQL后，可以通过explain或者desc获取MySQL如何执行SELECT语句的信息，包括select语句执行过程表如何连接和连接的次序。<br>执行计划说明：</p>
-<blockquote>
-<p>select_type：select类型<br>table：输出结果集的表<br>type：表示表的连接类型<br>　　1. 当表中仅有一行是type的值为system是最佳的连接类型；<br>　　2. 当select操作中使用索引进行表连接时type的值为ref；<br>　　3. 当select的表连接没有使用索引时，经常会看到type的值为ALL，表示对该表进行了全表扫描，这时需要考虑通过创建索引来提高表连接的效率。<br>possible_keys：表示查询时,可以使用的索引列.<br>key：表示使用的索引<br>key_len：索引长度<br>rows：扫描范围<br>Extra：执行情况的说明和描述</p>
-</blockquote>
-<h4 id="确定问题，并采取相应的优化措施"><a href="#确定问题，并采取相应的优化措施" class="headerlink" title="确定问题，并采取相应的优化措施"></a>确定问题，并采取相应的优化措施</h4><p>确认问题出现的原因后，可以根据情况采取相应的措施，进行优化提高执行的效率。 示例如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
-<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | <span class="keyword">ref</span>                | rows   | Extra       |</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | ALL    | NULL          | NULL    | NULL    | NULL               | <span class="number">331290</span> | Using where |</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY       | PRIMARY | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL        |</span>
-<span class="line">+----+-------------+-------+--------+---------------+---------+---------+--------------------+--------+-------------+</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 这个例子，对表dept_emp全表扫描，效果不理想，对d表的dept_no字段创建了索引，查询需要扫描的行数明显较少</span></span>
-<span class="line">create <span class="keyword">index</span> idx_dept_emp_dn on dept_emp(dept_no);</span>
-<span class="line"></span>
-<span class="line">mysql&gt; explain <span class="keyword">select</span> e.emp_no,e.first_name,e.last_name,e.hire_date,d.dept_no from employees e,dept_emp d </span>
-<span class="line">       where d.emp_no=e.emp_no <span class="keyword">and</span> d.dept_no=<span class="string">'d005'</span>;</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-<span class="line">| id | select_type | table | type   | possible_keys   | key             | key_len | <span class="keyword">ref</span>                | rows   | Extra                 |</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | d     | <span class="keyword">ref</span>    | idx_dept_emp_dn | idx_dept_emp_dn | <span class="number">12</span>      | const              | <span class="number">164256</span> | Using <span class="keyword">index</span> condition |</span>
-<span class="line">|  <span class="number">1</span> | SIMPLE      | e     | eq_ref | PRIMARY         | PRIMARY         | <span class="number">4</span>       | employees.d.emp_no |      <span class="number">1</span> | NULL                  |</span>
-<span class="line">+----+-------------+-------+--------+-----------------+-----------------+---------+--------------------+--------+-----------------------+</span>
-</pre></td></tr></table></figure></p>
-<h3 id="MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？"><a href="#MySQL-这该死的-“IN-子查询-”，如下SQL怎么优化-“in-子查询-”？" class="headerlink" title="MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？"></a>MySQL 这该死的 “IN (子查询)”，如下SQL怎么优化 “in(子查询)”？</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 优化前</span></span>
-<span class="line">SELECT s1 FROM t1 WHERE s1 IN (SELECT s1 FROM t2 WHERE id = <span class="number">1</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 优化后</span></span>
-<span class="line">SELECT s1 from t1 a,(SELECT s1 FROM t2 WHERE id = <span class="number">1</span>) b where a.s1=b.s1;</span>
-</pre></td></tr></table></figure>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这是一个简单的示例，每1000个语句为一批插入提交，它避免了SQL注入和内存不足的问题</span></span>
-<span class="line"><span class="comment"># 插入到数据库使用批处理上万条记录，有可能产生的OutOfMemoryError</span></span>
-<span class="line">import java.sql.Connection;</span>
-<span class="line">import java.sql.PreparedStatement;</span>
-<span class="line">...</span>
-<span class="line">String sql = <span class="string">"insert into employee (name, city, phone) values (?, ?, ?)"</span>;</span>
-<span class="line">Connection connection = new getConnection();</span>
-<span class="line">PreparedStatement ps = connection.prepareStatement(sql);</span>
-<span class="line">final <span class="keyword">int</span> batchSize = <span class="number">1000</span>;</span>
-<span class="line"><span class="keyword">int</span> count = <span class="number">0</span>;</span>
-<span class="line"><span class="keyword">for</span> (Employee employee: employees) &#123;</span>
-<span class="line">    ps.setString(<span class="number">1</span>, employee.getName());</span>
-<span class="line">    ps.setString(<span class="number">2</span>, employee.getCity());</span>
-<span class="line">    ps.setString(<span class="number">3</span>, employee.getPhone());</span>
-<span class="line">    ps.addBatch();</span>
-<span class="line">    <span class="keyword">if</span>(++count % batchSize == <span class="number">0</span>) &#123;</span>
-<span class="line">        ps.executeBatch();</span>
-<span class="line">    &#125;</span>
-<span class="line">&#125;</span>
-<span class="line">ps.executeBatch(); <span class="regexp">//</span> insert remaining records</span>
-<span class="line">ps.close();</span>
-<span class="line">connection.close();</span>
-</pre></td></tr></table></figure>]]></content>
       
         <categories>
             
@@ -9619,43 +9620,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划]]></title>
-      <url>/2017/07/28/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/03_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
-      <content type="html"><![CDATA[<h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
-<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-</pre></td></tr></table></figure>
-<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-</pre></td></tr></table></figure>
-<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> sql优化 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[按SQLID一键获取执行计划索引分区等信息的脚本]]></title>
       <url>/2017/07/28/oracle/Scripts/%E6%8C%89SQLID%E4%B8%80%E9%94%AE%E8%8E%B7%E5%8F%96%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E7%B4%A2%E5%BC%95%E5%88%86%E5%8C%BA%E7%AD%89%E4%BF%A1%E6%81%AF%E7%9A%84%E8%84%9A%E6%9C%AC/</url>
       <content type="html"><![CDATA[<p>按SQLID一键获取执行计划索引分区等信息的脚本<br><a id="more"></a><br>以下内容放<code>spoolsql.sql</code>中，在sqlplus中执行，相关信息会自动生成html文件<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set term off</span>
@@ -11578,6 +11542,43 @@
         <tags>
             
             <tag> scripts </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划]]></title>
+      <url>/2017/07/28/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/03_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> sql优化 </tag>
             
         </tags>
         
@@ -14617,6 +14618,23 @@
     </entry>
     
     <entry>
+      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
+      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
+      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
+<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
+<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理]]></title>
       <url>/2017/05/24/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/04_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
@@ -14825,23 +14843,6 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
-      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
-      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
-<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
-<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> Linux </tag>
             
         </tags>
         
@@ -16839,40 +16840,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
-      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
-      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
-<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
-<span class="line">......</span>
-<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
-<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
-<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
-<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
-<span class="line">Additional information: <span class="number">10</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
-<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
-<span class="line"></span>
-<span class="line">vi /etc</span><span class="regexp">/fstab</span>
-<span class="line">#------------------------------------------------------------------------</span>
-<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
-<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> ORA- </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划]]></title>
       <url>/2017/04/13/mysql/MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/12-MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98/</url>
       <content type="html"><![CDATA[<h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
@@ -17080,6 +17047,40 @@
             <tag> mysql </tag>
             
             <tag> sysbench </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
+      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
+      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
+<span class="line"></span>
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> ORA- </tag>
             
         </tags>
         
@@ -17923,24 +17924,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
-      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
-      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> goldengate </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)]]></title>
       <url>/2017/03/31/oracle/Oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A5%E4%B8%81%E5%8F%B7%E7%A0%81%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83%20(%E6%96%87%E6%A1%A3%20ID%201922396.1)/</url>
       <content type="html"><![CDATA[<p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1" target="_blank" rel="external">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
@@ -18026,26 +18009,10 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
-      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
-      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
+      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
+      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
+      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
 ]]></content>
       
         
@@ -18053,7 +18020,7 @@
             
             <tag> oracle </tag>
             
-            <tag> expdp </tag>
+            <tag> goldengate </tag>
             
         </tags>
         
@@ -18207,6 +18174,40 @@
             <tag> oracle </tag>
             
             <tag> scripts </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
+      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
+      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
+<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
+<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
+<span class="line">...</span>
+<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
+<span class="line"></span>
+<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
+</pre></td></tr></table></figure></p>
+<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
+<span class="line">...</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
+<span class="line">COMMIT;</span>
+<span class="line"></span>
+<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
+<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
+</pre></td></tr></table></figure></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> expdp </tag>
             
         </tags>
         
@@ -20323,9 +20324,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -21796,9 +21797,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -21960,9 +21961,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -22138,9 +22139,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
