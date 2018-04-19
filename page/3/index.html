@@ -266,6 +266,117 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/" class="article-date">
+      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="初始化环境"><a href="#初始化环境" class="headerlink" title="初始化环境"></a>初始化环境</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/redhat-release </span>
+<span class="line">Red Hat Enterprise Linux Server release <span class="number">7.4</span> (Maipo)</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置主机名</span></span>
+<span class="line">hostnamectl --static set-hostname NAME</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置IP地址</span></span>
+<span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens16<span class="number">0</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line">TYPE=Ethernet</span>
+<span class="line">PROXY_METHOD=none</span>
+<span class="line">BROWSER_ONLY=<span class="keyword">no</span></span>
+<span class="line">BOOTPROTO=static</span>
+<span class="line">DEFROUTE=yes</span>
+<span class="line">IPV4_FAILURE_FATAL=<span class="keyword">no</span></span>
+<span class="line">IPV6INIT=<span class="keyword">no</span></span>
+<span class="line">NAME=ens16<span class="number">0</span></span>
+<span class="line">UUID=<span class="number">67869621</span>-df21-<span class="number">4</span>ad4-<span class="number">9369</span>-b58078ca74ea</span>
+<span class="line">DEVICE=ens16<span class="number">0</span></span>
+<span class="line">ONBOOT=yes</span>
+<span class="line">IPADDR=<span class="number">10.240</span>.<span class="number">4.179</span></span>
+<span class="line">PREFIX=<span class="number">24</span></span>
+<span class="line">GATEWAY=<span class="number">10.240</span>.<span class="number">4.254</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 禁用firewall</span></span>
+<span class="line">systemctl stop firewalld</span>
+<span class="line">systemctl disable firewalld</span>
+<span class="line">systemctl status firewalld</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 禁用SELINUX</span></span>
+<span class="line">setenforce <span class="number">0</span></span>
+<span class="line">sed -i <span class="string">"s/SELINUX=enforcing/SELINUX=disabled/g"</span> /etc/selinux/config</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 配置配认yum源为光盘</span></span>
+<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
+<span class="line">mount /dev/cdrom /media/disk</span>
+<span class="line">cd /etc/yum.repos.d/</span>
+<span class="line">mv CentOS-Base.repo CentOS-Base.repo_bak</span>
+<span class="line">vi CentOS-Base.repo</span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+<span class="line">[centos7]</span>
+<span class="line">name=CentOS-$releasever</span>
+<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span></span>
+<span class="line">gpgcheck=<span class="number">0</span></span>
+<span class="line">enabled=<span class="number">1</span></span>
+<span class="line"><span class="comment">#-----------------------------------------</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -669,6 +780,74 @@
 
 
   
+    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
+      <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/flashback常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -749,74 +928,6 @@
       
         <p class="article-more-link">
           <a href="/2017/10/19/oracle/flashback常用命令整理/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
-      <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -968,87 +1079,6 @@
       
         <p class="article-more-link">
           <a href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-09-20T16:00:00.000Z" itemprop="datePublished">2017-09-21</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="B树与B-树的区别？"><a href="#B树与B-树的区别？" class="headerlink" title="B树与B+树的区别？"></a>B树与B+树的区别？</h2><ul>
-<li>B树<ul>
-<li>所有关键字在整颗树中出现，任何一个关键字出现且只出现在一个结点中</li>
-<li>搜索在非叶子结点也可以命中</li>
-<li>叶子节点间没有链表</li>
-</ul>
-</li>
-<li>B+树<ul>
-<li>所有关键字都在叶子结点出现</li>
-<li>搜索不可能在非叶子结点命中</li>
-<li>叶子节点间有链表</li>
-</ul>
-</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

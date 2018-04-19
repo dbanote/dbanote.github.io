@@ -330,11 +330,11 @@
 
 
   
-    <article id="post-oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/" class="article-date">
-      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
+      <a href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
 </a>
 
 
@@ -349,7 +349,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a>
+      <a class="article-title" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
     </h1>
   
 
@@ -359,27 +359,28 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="SQL优化不同场景对应工具"><a href="#SQL优化不同场景对应工具" class="headerlink" title="SQL优化不同场景对应工具"></a>SQL优化不同场景对应工具</h2><h3 id="数据库的整体分析调优工具"><a href="#数据库的整体分析调优工具" class="headerlink" title="数据库的整体分析调优工具"></a>数据库的整体分析调优工具</h3><ol>
-<li><strong>AWR</strong>：关注数据库的整体性能报告，主要关注点<ul>
-<li>DB Time：这个指标主要用来判断当前系统有没有遇到相关瓶颈，是否较为繁忙导致等待时长很长</li>
-<li>load profile：这个指标主要用来展现当前系统的一些指示性能的总体参数</li>
-<li>efficiency percentages：是一些命中率指标，其中Buffer Hit、Library Hit等都表示SGA(System global area)的命中率</li>
-<li>Top 10 Foreground Events by Total Wait Time：等待事件是衡量数据库整体优化情况的重要指标</li>
-<li>SQL Statistics：分别从几个维度来罗列出TOP的SQL</li>
-<li>Segment Statistics</li>
-</ul>
-</li>
-<li><strong>ASH</strong>：数据库中的等待事件与哪些SQL具体对应的报告，时间更精准</li>
-<li><strong>ADDM</strong>：Oracle给出的一些建议</li>
-<li><strong>AWRDD</strong>：不同时段的性能对比报告<ul>
-<li>不同时期load profile的比较</li>
-<li>不同时期等待事件的比较</li>
-<li>不同时期TOP SQL的比较</li>
-</ul>
-</li>
-<li><strong>AWRSQRPT</strong>：sql在某两个快照间隔内，SQL的统计信息（总消耗的cpu时间，执行次数，逻辑读，物理读等）与执行计划的报告</li>
-</ol>
-          
+        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
       
     </div>
     
@@ -392,10 +393,6 @@
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -464,6 +461,89 @@
       
         <p class="article-more-link">
           <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="SQL优化不同场景对应工具"><a href="#SQL优化不同场景对应工具" class="headerlink" title="SQL优化不同场景对应工具"></a>SQL优化不同场景对应工具</h2><h3 id="数据库的整体分析调优工具"><a href="#数据库的整体分析调优工具" class="headerlink" title="数据库的整体分析调优工具"></a>数据库的整体分析调优工具</h3><ol>
+<li><strong>AWR</strong>：关注数据库的整体性能报告，主要关注点<ul>
+<li>DB Time：这个指标主要用来判断当前系统有没有遇到相关瓶颈，是否较为繁忙导致等待时长很长</li>
+<li>load profile：这个指标主要用来展现当前系统的一些指示性能的总体参数</li>
+<li>efficiency percentages：是一些命中率指标，其中Buffer Hit、Library Hit等都表示SGA(System global area)的命中率</li>
+<li>Top 10 Foreground Events by Total Wait Time：等待事件是衡量数据库整体优化情况的重要指标</li>
+<li>SQL Statistics：分别从几个维度来罗列出TOP的SQL</li>
+<li>Segment Statistics</li>
+</ul>
+</li>
+<li><strong>ASH</strong>：数据库中的等待事件与哪些SQL具体对应的报告，时间更精准</li>
+<li><strong>ADDM</strong>：Oracle给出的一些建议</li>
+<li><strong>AWRDD</strong>：不同时段的性能对比报告<ul>
+<li>不同时期load profile的比较</li>
+<li>不同时期等待事件的比较</li>
+<li>不同时期TOP SQL的比较</li>
+</ul>
+</li>
+<li><strong>AWRSQRPT</strong>：sql在某两个快照间隔内，SQL的统计信息（总消耗的cpu时间，执行次数，逻辑读，物理读等）与执行计划的报告</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -1032,164 +1112,6 @@
       
         <p class="article-more-link">
           <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-06-09T16:00:00.000Z" itemprop="datePublished">2017-06-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="模拟4种完全恢复场景"><a href="#模拟4种完全恢复场景" class="headerlink" title="模拟4种完全恢复场景"></a>模拟4种完全恢复场景</h2><h3 id="数据库open状态，普通表空间损坏"><a href="#数据库open状态，普通表空间损坏" class="headerlink" title="数据库open状态，普通表空间损坏"></a>数据库open状态，普通表空间损坏</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备份整个数据库</span></span>
-<span class="line">rman target /</span>
-<span class="line">RMAN&gt; backup database </span>
-<span class="line"><span class="keyword">format</span> <span class="string">'/u01/app/rmanbackup/bak_%d_%T_%s_%U'</span>;</span>
-<span class="line"></span>
-<span class="line">SQL&gt; show pdbs;</span>
-<span class="line"></span>
-<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
-<span class="line">---------- ------------------------------ ---------- ----------</span>
-<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
-<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
-<span class="line"></span>
-<span class="line">SQL&gt; conn lyj/lyj@pdb1</span>
-<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test;</span>
-<span class="line"></span>
-<span class="line">  COUNT(*)</span>
-<span class="line">----------</span>
-<span class="line">    <span class="number">272404</span></span>
-<span class="line"></span>
-<span class="line">SQL&gt; <span class="keyword">select</span> FILE_NAME,TABLESPACE_NAME from dba_data_files;</span>
-<span class="line"></span>
-<span class="line">FILE_NAME                                          TABLESPACE_NAME</span>
-<span class="line">-------------------------------------------------- ------------------------------</span>
-<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl1/pdb</span>1/system01.dbf    SYSTEM</span>
-<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/sysaux01.dbf    SYSAUX</span>
-<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/undotbs01.dbf   UNDOTBS1</span>
-<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf     USERS</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 模拟普通表空间损坏</span></span>
-<span class="line">SQL&gt; !rm /u01/app/oracle/oradata/orcl1/pdb1/users01.dbf</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 可以创建表并插入数据都可以正常完成</span></span>
-<span class="line">create table test1 (id <span class="keyword">int</span>, name varchar2(<span class="number">10</span>));</span>
-<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'aaaa'</span>);</span>
-<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">2</span>,<span class="string">'bbbb'</span>);</span>
-<span class="line">commit;</span>
-<span class="line"></span>
-<span class="line">SQL&gt; col SEGMENT_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
-<span class="line">SQL&gt; <span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME from user_segments;</span>
-<span class="line"></span>
-<span class="line">SEGMENT_NAME                                       TABLESPACE_NAME</span>
-<span class="line">-------------------------------------------------- ------------------------------</span>
-<span class="line">TEST                                               USERS</span>
-<span class="line">TEST1                                              USERS</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 再创建一个大表时报错</span></span>
-<span class="line">SQL&gt; create table test2 as <span class="keyword">select</span> * from all_objects;</span>
-<span class="line">create table test2 as <span class="keyword">select</span> * from all_objects</span>
-<span class="line">                                    *</span>
-<span class="line">ERROR at line <span class="number">1</span>:</span>
-<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
-<span class="line">ORA-<span class="number">01116</span>: error in opening database file <span class="number">30</span></span>
-<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
-<span class="line">ORA-<span class="number">27041</span>: unable to <span class="keyword">open</span> file</span>
-<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
-<span class="line">Additional information: <span class="number">3</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 打开另一个session窗口</span></span>
-<span class="line">conn / as sysdba</span>
-<span class="line">SQL&gt; show pdbs;</span>
-<span class="line"></span>
-<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
-<span class="line">---------- ------------------------------ ---------- ----------</span>
-<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
-<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
-<span class="line"></span>
-<span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 这时直接打开肯定也会报错</span></span>
-<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
-<span class="line">alter pluggable database pdb1 <span class="keyword">open</span></span>
-<span class="line">*</span>
-<span class="line">ERROR at line <span class="number">1</span>:</span>
-<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">30</span> - see DBWR trace file</span>
-<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 使用RMAN恢复PDB</span></span>
-<span class="line">rman target /</span>
-<span class="line">restore pluggable database pdb1;</span>
-<span class="line">recover pluggable database pdb1;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 这时pdb1就可以OPEN了</span></span>
-<span class="line">alter pluggable database pdb1 <span class="keyword">open</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 删除表空间文件后，创建的表也恢复成功</span></span>
-<span class="line">conn lyj/lyj@pdb1</span>
-<span class="line"><span class="keyword">select</span> count(*) from test1;</span>
-<span class="line">  COUNT(*)</span>
-<span class="line">----------</span>
-<span class="line">         <span class="number">2</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

@@ -266,6 +266,164 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-09T16:00:00.000Z" itemprop="datePublished">2017-06-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="模拟4种完全恢复场景"><a href="#模拟4种完全恢复场景" class="headerlink" title="模拟4种完全恢复场景"></a>模拟4种完全恢复场景</h2><h3 id="数据库open状态，普通表空间损坏"><a href="#数据库open状态，普通表空间损坏" class="headerlink" title="数据库open状态，普通表空间损坏"></a>数据库open状态，普通表空间损坏</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 备份整个数据库</span></span>
+<span class="line">rman target /</span>
+<span class="line">RMAN&gt; backup database </span>
+<span class="line"><span class="keyword">format</span> <span class="string">'/u01/app/rmanbackup/bak_%d_%T_%s_%U'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">SQL&gt; conn lyj/lyj@pdb1</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> count(*) from test;</span>
+<span class="line"></span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">    <span class="number">272404</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> FILE_NAME,TABLESPACE_NAME from dba_data_files;</span>
+<span class="line"></span>
+<span class="line">FILE_NAME                                          TABLESPACE_NAME</span>
+<span class="line">-------------------------------------------------- ------------------------------</span>
+<span class="line"><span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl1/pdb</span>1/system01.dbf    SYSTEM</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/sysaux01.dbf    SYSAUX</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/undotbs01.dbf   UNDOTBS1</span>
+<span class="line">/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf     USERS</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 模拟普通表空间损坏</span></span>
+<span class="line">SQL&gt; !rm /u01/app/oracle/oradata/orcl1/pdb1/users01.dbf</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 可以创建表并插入数据都可以正常完成</span></span>
+<span class="line">create table test1 (id <span class="keyword">int</span>, name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">1</span>,<span class="string">'aaaa'</span>);</span>
+<span class="line">insert into test1 <span class="keyword">values</span> (<span class="number">2</span>,<span class="string">'bbbb'</span>);</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; col SEGMENT_NAME <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> SEGMENT_NAME,TABLESPACE_NAME from user_segments;</span>
+<span class="line"></span>
+<span class="line">SEGMENT_NAME                                       TABLESPACE_NAME</span>
+<span class="line">-------------------------------------------------- ------------------------------</span>
+<span class="line">TEST                                               USERS</span>
+<span class="line">TEST1                                              USERS</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 再创建一个大表时报错</span></span>
+<span class="line">SQL&gt; create table test2 as <span class="keyword">select</span> * from all_objects;</span>
+<span class="line">create table test2 as <span class="keyword">select</span> * from all_objects</span>
+<span class="line">                                    *</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line">ORA-<span class="number">01116</span>: error in opening database file <span class="number">30</span></span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line">ORA-<span class="number">27041</span>: unable to <span class="keyword">open</span> file</span>
+<span class="line">Linux-x86_64 Error: <span class="number">2</span>: No such file <span class="keyword">or</span> directory</span>
+<span class="line">Additional information: <span class="number">3</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 打开另一个session窗口</span></span>
+<span class="line">conn / as sysdba</span>
+<span class="line">SQL&gt; show pdbs;</span>
+<span class="line"></span>
+<span class="line">    CON_ID CON_NAME                       OPEN MODE  RESTRICTED</span>
+<span class="line">---------- ------------------------------ ---------- ----------</span>
+<span class="line">         <span class="number">2</span> PDB$SEED                       READ ONLY  NO</span>
+<span class="line">         <span class="number">3</span> PDB1                           READ WRITE NO</span>
+<span class="line"></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">close</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时直接打开肯定也会报错</span></span>
+<span class="line">SQL&gt; alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span></span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">01157</span>: cannot identify/lock data file <span class="number">30</span> - see DBWR trace file</span>
+<span class="line">ORA-<span class="number">01110</span>: data file <span class="number">30</span>: <span class="string">'/u01/app/oracle/oradata/orcl1/pdb1/users01.dbf'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 使用RMAN恢复PDB</span></span>
+<span class="line">rman target /</span>
+<span class="line">restore pluggable database pdb1;</span>
+<span class="line">recover pluggable database pdb1;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这时pdb1就可以OPEN了</span></span>
+<span class="line">alter pluggable database pdb1 <span class="keyword">open</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除表空间文件后，创建的表也恢复成功</span></span>
+<span class="line">conn lyj/lyj@pdb1</span>
+<span class="line"><span class="keyword">select</span> count(*) from test1;</span>
+<span class="line">  COUNT(*)</span>
+<span class="line">----------</span>
+<span class="line">         <span class="number">2</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -356,6 +514,70 @@
 
 
   
+    <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" class="article-date">
+      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -417,70 +639,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/" class="article-date">
-      <time datetime="2017-05-23T16:00:00.000Z" itemprop="datePublished">2017-05-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -942,80 +1100,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-04-24T16:00:00.000Z" itemprop="datePublished">2017-04-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="MySQL常见故障"><a href="#MySQL常见故障" class="headerlink" title="MySQL常见故障"></a>MySQL常见故障</h2><ol>
-<li>数据库连接数爆满</li>
-<li>大事务导致数据库挂死</li>
-<li>MySQL 主库crash</li>
-<li>大规模行锁竞争</li>
-<li>线上执行update报错</li>
-<li>主从库不一致,复制中止
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

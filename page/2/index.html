@@ -266,6 +266,100 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-02-25T16:00:00.000Z" itemprop="datePublished">2018-02-26</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="控制文件没有备份全部丢失恢复实战"><a href="#控制文件没有备份全部丢失恢复实战" class="headerlink" title="控制文件没有备份全部丢失恢复实战"></a>控制文件没有备份全部丢失恢复实战</h2><h3 id="准备测试环境"><a href="#准备测试环境" class="headerlink" title="准备测试环境"></a>准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
+<span class="line">Automatic archival             Enabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">110</span></span>
+<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">112</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">112</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">READ WRITE</span>
+<span class="line"></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">set pagesize <span class="number">9999</span></span>
+<span class="line">col name <span class="keyword">for</span> a6<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> * from v$controlfile;</span>
+<span class="line"></span>
+<span class="line">STATUS  NAME                                                         IS<span class="number">_</span> BLOCK_SIZE FILE_SIZE_BLKS</span>
+<span class="line">------- ------------------------------------------------------------ --- ---------- --------------</span>
+<span class="line">        <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/control</span>01.ctl                   NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line">        /u01/app/oracle/fast_recovery_area/orcl/control02.ctl        NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 为方便后续测试，先生成一个创建控制文件的脚本(也可以不生成，创建脚本可以oracle官方文档中找到)</span></span>
+<span class="line">alter database backup controlfile to trace as <span class="string">'/tmp/control_bak.sql'</span>;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -907,117 +1001,6 @@
       
         <p class="article-more-link">
           <a href="/2017/12/11/docker/01_docker的相关概念/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/" class="article-date">
-      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="初始化环境"><a href="#初始化环境" class="headerlink" title="初始化环境"></a>初始化环境</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/redhat-release </span>
-<span class="line">Red Hat Enterprise Linux Server release <span class="number">7.4</span> (Maipo)</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置主机名</span></span>
-<span class="line">hostnamectl --static set-hostname NAME</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置IP地址</span></span>
-<span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens16<span class="number">0</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">TYPE=Ethernet</span>
-<span class="line">PROXY_METHOD=none</span>
-<span class="line">BROWSER_ONLY=<span class="keyword">no</span></span>
-<span class="line">BOOTPROTO=static</span>
-<span class="line">DEFROUTE=yes</span>
-<span class="line">IPV4_FAILURE_FATAL=<span class="keyword">no</span></span>
-<span class="line">IPV6INIT=<span class="keyword">no</span></span>
-<span class="line">NAME=ens16<span class="number">0</span></span>
-<span class="line">UUID=<span class="number">67869621</span>-df21-<span class="number">4</span>ad4-<span class="number">9369</span>-b58078ca74ea</span>
-<span class="line">DEVICE=ens16<span class="number">0</span></span>
-<span class="line">ONBOOT=yes</span>
-<span class="line">IPADDR=<span class="number">10.240</span>.<span class="number">4.179</span></span>
-<span class="line">PREFIX=<span class="number">24</span></span>
-<span class="line">GATEWAY=<span class="number">10.240</span>.<span class="number">4.254</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用firewall</span></span>
-<span class="line">systemctl stop firewalld</span>
-<span class="line">systemctl disable firewalld</span>
-<span class="line">systemctl status firewalld</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用SELINUX</span></span>
-<span class="line">setenforce <span class="number">0</span></span>
-<span class="line">sed -i <span class="string">"s/SELINUX=enforcing/SELINUX=disabled/g"</span> /etc/selinux/config</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置配认yum源为光盘</span></span>
-<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
-<span class="line">mount /dev/cdrom /media/disk</span>
-<span class="line">cd /etc/yum.repos.d/</span>
-<span class="line">mv CentOS-Base.repo CentOS-Base.repo_bak</span>
-<span class="line">vi CentOS-Base.repo</span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">[centos7]</span>
-<span class="line">name=CentOS-$releasever</span>
-<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span></span>
-<span class="line">gpgcheck=<span class="number">0</span></span>
-<span class="line">enabled=<span class="number">1</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

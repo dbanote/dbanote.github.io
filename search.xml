@@ -4,6 +4,806 @@
   
     
     <entry>
+      <title><![CDATA[Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration]]></title>
+      <url>/2018/04/18/oracle/Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/08_Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%85%A5%E9%97%A8/</url>
+      <content type="html"><![CDATA[<h2 id="IMU的好处"><a href="#IMU的好处" class="headerlink" title="IMU的好处"></a>IMU的好处</h2><p>IMU(In Memory Undo)顾名思义就是在内存中的undo，现在每次更改data block，Oracle不用去更改这个undo block（也不会生成相应的redo了），而是把undo信息缓存到IMU里去了，只有最后commit或者flush IMU时，这些undo 信息才会批量更新到undo block,并生成redo。可以避免Undo信息以前在Buffer Cache中的读写操作，从而可以进一步的减少Redo生成，同时可以大大减少以前的UNDO SEGMENT的操作。IMU中数据通过暂存、整理与收缩之后也可以写出到回滚段，这样的写出提供了有序、批量写的性能提升。</p>
+<a id="more"></a>
+<h2 id="IMU主要作用"><a href="#IMU主要作用" class="headerlink" title="IMU主要作用"></a>IMU主要作用</h2><ol>
+<li>减少CR块–&gt;在构造CR block时，不用像以前那样从<code>undo block</code>中获取<code>undo record</code>了，而是用共享池私有IMU区域里的信息来构造<code>cr block</code>，减少了<code>BUFFER CACEH</code>中<code>CBC LATCH</code>竞争。</li>
+<li>减少REDO日志条目数–&gt;不再是每条DML语句一个<code>redo records</code>,而是每个事务一个<code>redo records--REDO RECORD</code>的产生会传到<code>LOG BUFFER</code>，会申请LATCH。</li>
+<li>减少LATCH–&gt;首先因为减少<code>REDO RECORD</code>数目；其次用一个<code>IMU latch</code>代替<code>redo allocation latch</code>和<code>redo copy latch</code>这两个,也减少了LATCH争用。</li>
+</ol>
+<h2 id="在哪些场景下不会使用IMU特性"><a href="#在哪些场景下不会使用IMU特性" class="headerlink" title="在哪些场景下不会使用IMU特性"></a>在哪些场景下不会使用IMU特性</h2><ul>
+<li>在RAC环境中不支持IMU</li>
+<li>开启FLASHBACK DATABASE时会开启打开辅助日志，此时不能用IMU</li>
+<li>事务过大–据说每个IMU Buffer的Private redo strand area大小大概是64KB（64位的Oracle版本是128KB），大事务不能用。比如一个事务，先有一条UPDATE，此时将REDO私有区域使用完了，此事务的其它DML语句，将自动使用非IMU模式</li>
+<li>共享池太小时，ORACLE会自动不使用IMU</li>
+<li>无法获取IMU LATCH时，将自动使用非IMU模式</li>
+</ul>
+<h2 id="IMU下的redo产生过程"><a href="#IMU下的redo产生过程" class="headerlink" title="IMU下的redo产生过程"></a>IMU下的redo产生过程</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0418_oracle_dsi_02.png" alt=""><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看隐含参数_in_memory_undo的状态，默认开启IMU开启TRUE</span></span>
+<span class="line">SQL&gt; @show_para</span>
+<span class="line">Enter value <span class="keyword">for</span> p: in_memory_undo</span>
+<span class="line">old  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%&amp;p%'</span>)</span>
+<span class="line">new  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%in_memory_undo%'</span>)</span>
+<span class="line"></span>
+<span class="line">P_NAME                                           P_DESCRIPTION                                                  P_VALUE    ISDEFAULT ISMODIFIED ISADJ</span>
+<span class="line">------------------------------------------------ -------------------------------------------------------------- ---------- --------- ---------- -----</span>
+<span class="line">_in_memory_undo                                  Make in memory undo <span class="keyword">for</span> top level transactions                 TRUE       TRUE      FALSE      FALSE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 切换日志组，使CURRENT日志组为新的</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line">SQL&gt; col member <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> l.GROUP<span class="comment">#,l.STATUS,f.MEMBER from v$log l,v$logfile f</span></span>
+<span class="line">      where l.GROUP<span class="comment">#=f.GROUP#;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER</span></span>
+<span class="line">---------- ---------------- --------------------------------------------------</span>
+<span class="line">         <span class="number">1</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo01.log</span>
+<span class="line">         <span class="number">2</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo02.log</span>
+<span class="line">         <span class="number">3</span> CURRENT          /u01/app/oracle/oradata/orcl/redo03.log</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 执行测试语句</span></span>
+<span class="line">create tablespace lyj_ts datafile <span class="string">'/u01/app/oracle/oradata/orcl/lyj_01.dbf'</span> size <span class="number">100</span><span class="keyword">m</span> autoextend on <span class="keyword">next</span> <span class="number">50</span><span class="keyword">m</span> maxsize unlimited;</span>
+<span class="line">create user lyj identified by lyj default tablespace lyj_ts;</span>
+<span class="line">grant dba to lyj;</span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">drop table t1 purge;</span>
+<span class="line">create table t1 (id <span class="keyword">int</span>,name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'BBBBB'</span>);</span>
+<span class="line">commit;</span>
+<span class="line">update t1 set name=<span class="string">'aaaaa'</span> where name=<span class="string">'AAAAA'</span>;</span>
+<span class="line">update t1 set name=<span class="string">'bbbbb'</span> where name=<span class="string">'BBBBB'</span>;</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> object_id from user_objects where object_name=<span class="string">'T1'</span>;</span>
+<span class="line"></span>
+<span class="line"> OBJECT_ID</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">15682</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出当前redo log</span></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> logfile <span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from v$diag_info where name=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">   INST_ID NAME</span>
+<span class="line">---------- ----------------------------------------------------------------</span>
+<span class="line">VALUE</span>
+<span class="line">------------------------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="line">         <span class="number">1</span> Default Trace File</span>
+<span class="line">/u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_26888.trc</span>
+</pre></td></tr></table></figure></p>
+<p>查看分析dump的trace日志，一共4条REDO RECORD<br>第一个REDO RECORD, REDO RECORD头+CHANGE VECTOR组成（一个CV就是一个操作），由三个CV组成<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>9.<span class="number">0010</span> LEN: <span class="number">0x0170</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c6433 SUBSCN:  <span class="number">3</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">10</span>:<span class="number">59</span>:<span class="number">35</span></span>
+<span class="line"><span class="comment"># ---------------------------------------------------------&gt;REDO RECORD头</span></span>
+<span class="line">RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>9.<span class="number">0010</span> ==（由三部分组成：序列号，块号，偏移量或着叫第几个字节）</span>
+<span class="line">LEN: <span class="number">0x01e8</span>：一条日志的长度</span>
+<span class="line">VLD: <span class="number">0x01</span> ：日志类型</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># CHANGE VECTOR 1</span></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:17 AFN:3 DBA:0x00c00080 OBJ:4294967295 SCN:0x0000.000c6425 SEQ:1 OP:5.2 ENC:0 RBL:0</span></span>
+<span class="line">ktudh <span class="keyword">redo</span>: slt: <span class="number">0x0003</span> sqn: <span class="number">0x000001db</span> flg: <span class="number">0x0012</span> siz: <span class="number">112</span> fbi: <span class="number">0</span></span>
+<span class="line">            uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">17</span>    pxid:  <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt;UNDO段头事务表</span></span>
+<span class="line">OP:<span class="number">5.2</span>==&gt;OPRATION CODE 向UNDO段的段头的事务表写事务信息，开始事务          </span>
+<span class="line">TYP:<span class="number">0</span>（普通块）</span>
+<span class="line">CLS:<span class="number">17</span> （CLASS）超过<span class="number">16</span>表示undo</span>
+<span class="line">AFN:<span class="number">3</span>  (绝对文件号)</span>
+<span class="line">DBA:<span class="number">0x00c00080</span>   数据块的地址</span>
+<span class="line">OBJ:<span class="number">4294967295</span>   FFFFFFFF  表示undo</span>
+<span class="line">SCN:<span class="number">0x0000</span>.<span class="number">000</span>c6425  产生事务的时间</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># CHANGE VECTOR 2</span></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:18 AFN:3 DBA:0x00c0032d OBJ:4294967295 SCN:0x0000.000c6424 SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">112</span> spc: <span class="number">3810</span> flg: <span class="number">0x0012</span> seq: <span class="number">0x0103</span> rec: <span class="number">0x17</span></span>
+<span class="line">            xid:  <span class="number">0x0001</span>.<span class="number">003</span>.<span class="number">000001</span>db  </span>
+<span class="line">ktubl <span class="keyword">redo</span>: slt: <span class="number">3</span> rci: <span class="number">0</span> opc: <span class="number">11.1</span> [objn: <span class="number">15682</span> objd: <span class="number">15682</span> tsn: <span class="number">5</span>]</span>
+<span class="line">Undo type:  Regular undo        Begin trans    Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Temp Object:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span>  prev ctl uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">15</span> </span>
+<span class="line">prev ctl max cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c56d6  prev tx cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c56d7 </span>
+<span class="line">txn start scn:  <span class="number">0xffff</span>.ffffffff  logon user: <span class="number">34</span>  prev brb: <span class="number">12583727</span>  prev bcl: <span class="number">0</span> BuExt idx: <span class="number">0</span> flg2: <span class="number">0</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x03</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: Z</span>
+<span class="line">KDO Op code: DRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>)</span>
+<span class="line"><span class="comment"># ―――――――――――――――――――――――――――――――――――――――――――――――――――――――&gt;undo数据块头</span></span>
+<span class="line">OP:<span class="number">5.1</span> undo segment header</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># CHANGE VECTOR 3</span></span>
+<span class="line">CHANGE <span class="comment">#3 TYP:0 CLS:1 AFN:5 DBA:0x01400087 OBJ:15682 SCN:0x0000.000c6433 SEQ:2 OP:11.2 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x01</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: F  xid:  <span class="number">0x0001</span>.<span class="number">003</span>.<span class="number">000001</span>db    uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">17</span></span>
+<span class="line">KDO Op code: IRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) size/delt: <span class="number">12</span></span>
+<span class="line">fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span></span>
+<span class="line">null: --</span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line"><span class="comment"># -----------------------------------------------------------&gt;插入AAAAA</span></span>
+<span class="line">OP:<span class="number">11.2</span>:Insert Row Piece</span>
+</pre></td></tr></table></figure></p>
+<p>第二个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>9.<span class="number">01</span>8<span class="number">0</span> LEN: <span class="number">0x0100</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c6433 SUBSCN:  <span class="number">4</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">10</span>:<span class="number">59</span>:<span class="number">35</span></span>
+<span class="line"><span class="comment"># ---------------------------------------------------------&gt;REDO RECORD头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:18 AFN:3 DBA:0x00c0032d OBJ:4294967295 SCN:0x0000.000c6433 SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">68</span> spc: <span class="number">3696</span> flg: <span class="number">0x0022</span> seq: <span class="number">0x0103</span> rec: <span class="number">0x18</span></span>
+<span class="line">            xid:  <span class="number">0x0001</span>.<span class="number">003</span>.<span class="number">000001</span>db  </span>
+<span class="line">ktubu <span class="keyword">redo</span>: slt: <span class="number">3</span> rci: <span class="number">23</span> opc: <span class="number">11.1</span> objn: <span class="number">15682</span> objd: <span class="number">15682</span> tsn: <span class="number">5</span></span>
+<span class="line">Undo type:  Regular undo       Undo type:  Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">17</span></span>
+<span class="line">KDO Op code: DRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>)</span>
+<span class="line"><span class="comment"># ―――――――――――――――――――――――――――――――――――――――――――――――――――――――&gt;undo数据块头</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:1 AFN:5 DBA:0x01400087 OBJ:15682 SCN:0x0000.000c6433 SEQ:3 OP:11.2 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">18</span></span>
+<span class="line">KDO Op code: IRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) size/delt: <span class="number">12</span></span>
+<span class="line">fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span></span>
+<span class="line">null: --</span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">03</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span></span>
+<span class="line"><span class="comment"># -----------------------------------------------------------&gt;插入BBBBB</span></span>
+</pre></td></tr></table></figure></p>
+<p>第三个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>a.<span class="number">00</span>9<span class="number">0</span> LEN: <span class="number">0x0060</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c6434 SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">10</span>:<span class="number">59</span>:<span class="number">35</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:17 AFN:3 DBA:0x00c00080 OBJ:4294967295 SCN:0x0000.000c6433 SEQ:1 OP:5.4 ENC:0 RBL:0</span></span>
+<span class="line">ktucm <span class="keyword">redo</span>: slt: <span class="number">0x0003</span> sqn: <span class="number">0x000001db</span> srt: <span class="number">0</span> sta: <span class="number">9</span> flg: <span class="number">0x2</span> ktucf <span class="keyword">redo</span>: uba: <span class="number">0x00c0032d</span>.<span class="number">0103</span>.<span class="number">18</span> ext: <span class="number">2</span> spc: <span class="number">3626</span> fbi: <span class="number">0</span></span>
+<span class="line"><span class="comment"># -----------------------------------------------------------&gt;提交</span></span>
+<span class="line">OP:<span class="number">5.4</span> 提交作为单独的一条RECORD</span>
+</pre></td></tr></table></figure></p>
+<p>第四个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>b.<span class="number">0010</span> LEN: <span class="number">0x0374</span> VLD: <span class="number">0x0d</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c6436 SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">10</span>:<span class="number">59</span>:<span class="number">35</span></span>
+<span class="line">(LWN RBA: <span class="number">0x00003f</span>.<span class="number">0000003</span>b.<span class="number">0010</span> LEN: <span class="number">0002</span> NST: <span class="number">0001</span> SCN: <span class="number">0x0000</span>.<span class="number">000</span>c6435)</span>
+<span class="line"><span class="comment"># ---------------------------------------------------------&gt;REDO RECORD头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:2 CLS:1 AFN:5 DBA:0x01400087 OBJ:15682 SCN:0x0000.000c6434 SEQ:1 OP:11.19 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x11</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: F  xid:  <span class="number">0x0008</span>.<span class="number">011</span>.<span class="number">000001</span>d7    uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">22</span></span>
+<span class="line">Block cleanout record, scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6435 ver: <span class="number">0x01</span> opt: <span class="number">0x02</span>, entries follow...</span>
+<span class="line">  itli: <span class="number">1</span>  flg: <span class="number">2</span>  scn: <span class="number">0x0000</span>.<span class="number">000</span>c6434</span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">2</span> ckix: <span class="number">216</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">61</span> <span class="number">61</span> <span class="number">61</span> <span class="number">61</span> <span class="number">61</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt;数据修改成aaaaa</span></span>
+<span class="line">OP:<span class="number">11.19</span> 数据修改操作</span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:31 AFN:3 DBA:0x00c000f0 OBJ:4294967295 SCN:0x0000.000c6404 SEQ:1 OP:5.2 ENC:0 RBL:0</span></span>
+<span class="line">ktudh <span class="keyword">redo</span>: slt: <span class="number">0x0011</span> sqn: <span class="number">0x000001d7</span> flg: <span class="number">0x0012</span> siz: <span class="number">168</span> fbi: <span class="number">0</span></span>
+<span class="line">            uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">22</span>    pxid:  <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt;UNDO段头事务表</span></span>
+<span class="line">OP:<span class="number">5.2</span> 事务开始</span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#3 TYP:0 CLS:1 AFN:5 DBA:0x01400087 OBJ:15682 SCN:0x0000.000c6436 SEQ:1 OP:11.19 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">23</span></span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) flag: <span class="number">0x2c</span> lock: <span class="number">2</span> ckix: <span class="number">216</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">62</span> <span class="number">62</span> <span class="number">62</span> <span class="number">62</span> <span class="number">62</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt;数据修改成bbbbb</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#4 TYP:0 CLS:31 AFN:3 DBA:0x00c000f0 OBJ:4294967295 SCN:0x0000.000c6436 SEQ:1 OP:5.4 ENC:0 RBL:0</span></span>
+<span class="line">ktucm <span class="keyword">redo</span>: slt: <span class="number">0x0011</span> sqn: <span class="number">0x000001d7</span> srt: <span class="number">0</span> sta: <span class="number">9</span> flg: <span class="number">0x2</span> ktucf <span class="keyword">redo</span>: uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">23</span> ext: <span class="number">2</span> spc: <span class="number">3340</span> fbi: <span class="number">0</span> </span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt;提交</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#5 TYP:0 CLS:32 AFN:3 DBA:0x00c00bd1 OBJ:4294967295 SCN:0x0000.000c6403 SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">168</span> spc: <span class="number">3636</span> flg: <span class="number">0x0012</span> seq: <span class="number">0x00dd</span> rec: <span class="number">0x22</span></span>
+<span class="line">            xid:  <span class="number">0x0008</span>.<span class="number">011</span>.<span class="number">000001</span>d7  </span>
+<span class="line">ktubl <span class="keyword">redo</span>: slt: <span class="number">17</span> rci: <span class="number">0</span> opc: <span class="number">11.1</span> [objn: <span class="number">15682</span> objd: <span class="number">15682</span> tsn: <span class="number">5</span>]</span>
+<span class="line">Undo type:  Regular undo        Begin trans    Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Temp Object:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span>  prev ctl uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">21</span> </span>
+<span class="line">prev ctl max cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c52b6  prev tx cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c52c7 </span>
+<span class="line">txn start scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6434  logon user: <span class="number">34</span>  prev brb: <span class="number">12585939</span>  prev bcl: <span class="number">0</span> BuExt idx: <span class="number">0</span> flg2: <span class="number">0</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x03</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: Z</span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">0</span> ckix: <span class="number">216</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; Undo block 把数据修改前值放到UNDO</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#6 TYP:0 CLS:32 AFN:3 DBA:0x00c00bd1 OBJ:4294967295 SCN:0x0000.000c6436 SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">124</span> spc: <span class="number">3466</span> flg: <span class="number">0x0022</span> seq: <span class="number">0x00dd</span> rec: <span class="number">0x23</span></span>
+<span class="line">            xid:  <span class="number">0x0008</span>.<span class="number">011</span>.<span class="number">000001</span>d7  </span>
+<span class="line">ktubu <span class="keyword">redo</span>: slt: <span class="number">17</span> rci: <span class="number">34</span> opc: <span class="number">11.1</span> objn: <span class="number">15682</span> objd: <span class="number">15682</span> tsn: <span class="number">5</span></span>
+<span class="line">Undo type:  Regular undo       Undo type:  Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c00bd1</span>.<span class="number">00</span>dd.<span class="number">22</span></span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) flag: <span class="number">0x2c</span> lock: <span class="number">0</span> ckix: <span class="number">216</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400087</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; Undo block 把数据修改前值放到UNDO</span></span>
+</pre></td></tr></table></figure></p>
+<p>四条日志：<br> 第一条日志：<br>   日志头<br>   OP=5.2 ==&gt; 事务开始<br>   OP=5.1 ==&gt; undo segment header<br>   OP=11.2 ==&gt; 插入AAAAA</p>
+<p> 第二条日志：<br>    日志头<br>    OP=5.1 ==&gt; undo segment header<br>    OP=11.2 ==&gt; 插入BBBBB</p>
+<p> 第三条日志：<br>    日志头<br>    OP:5.4 ==&gt; 提交（事务结束）</p>
+<p> 第四条日志：<br>    日志头<br>    OP=11.19 ==&gt; 数据修改成aaaaa<br>    OP=5.2 ==&gt; 事务开始<br>    OP=11.19 ==&gt; 数据修改成bbbbb<br>    OP:5.4 ==&gt; 提交（事务结束）<br>    OP=5.1 ==&gt; 把数据修改前值AAAAA放到UNDO<br>    OP=5.1 ==&gt; 把数据修改前值BBBBB放到UNDO</p>
+<h2 id="非IMU下的redo产生过程"><a href="#非IMU下的redo产生过程" class="headerlink" title="非IMU下的redo产生过程"></a>非IMU下的redo产生过程</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0418_oracle_dsi_01.png" alt=""><br>实验：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看隐含参数_in_memory_undo的状态，默认开启IMU开启TRUE</span></span>
+<span class="line">SQL&gt; @show_para</span>
+<span class="line">Enter value <span class="keyword">for</span> p: in_memory_undo</span>
+<span class="line">old  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%&amp;p%'</span>)</span>
+<span class="line">new  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%in_memory_undo%'</span>)</span>
+<span class="line"></span>
+<span class="line">P_NAME                                           P_DESCRIPTION                                                  P_VALUE    ISDEFAULT ISMODIFIED ISADJ</span>
+<span class="line">------------------------------------------------ -------------------------------------------------------------- ---------- --------- ---------- -----</span>
+<span class="line">_in_memory_undo                                  Make in memory undo <span class="keyword">for</span> top level transactions                 TRUE       TRUE      FALSE      FALSE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 修改_in_memory_undo为false，并重启数据库</span></span>
+<span class="line">alter <span class="keyword">system</span> set <span class="string">"_in_memory_undo"</span>=false;</span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line"></span>
+<span class="line">SQL&gt; @show_para</span>
+<span class="line">Enter value <span class="keyword">for</span> p: in_memory_undo</span>
+<span class="line">old  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%&amp;p%'</span>)</span>
+<span class="line">new  <span class="number">12</span>:     AND upper(i.ksppinm) LIKE upper(<span class="string">'%in_memory_undo%'</span>)</span>
+<span class="line"></span>
+<span class="line">P_NAME                                           P_DESCRIPTION                                                  P_VALUE    ISDEFAULT ISMODIFIED ISADJ</span>
+<span class="line">------------------------------------------------ -------------------------------------------------------------- ---------- --------- ---------- -----</span>
+<span class="line">_in_memory_undo                                  Make in memory undo <span class="keyword">for</span> top level transactions                 FALSE      FALSE     FALSE      FALSE</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 切换日志组，使CURRENT日志组为新的</span></span>
+<span class="line">SQL&gt; alter <span class="keyword">system</span> switch logfile;</span>
+<span class="line">SQL&gt; col member <span class="keyword">for</span> a5<span class="number">0</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> l.GROUP<span class="comment">#,l.STATUS,f.MEMBER from v$log l,v$logfile f</span></span>
+<span class="line">      where l.GROUP<span class="comment">#=f.GROUP#;</span></span>
+<span class="line"></span>
+<span class="line">    GROUP<span class="comment"># STATUS           MEMBER</span></span>
+<span class="line">---------- ---------------- --------------------------------------------------</span>
+<span class="line">         <span class="number">1</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo01.log</span>
+<span class="line">         <span class="number">2</span> INACTIVE         /u01/app/oracle/oradata/orcl/redo02.log</span>
+<span class="line">         <span class="number">3</span> CURRENT          /u01/app/oracle/oradata/orcl/redo03.log</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 执行测试语句</span></span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">drop table t1 purge;</span>
+<span class="line">create table t1 (id <span class="keyword">int</span>,name varchar2(<span class="number">10</span>));</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">1</span>,<span class="string">'AAAAA'</span>);</span>
+<span class="line">insert into t1 <span class="keyword">values</span>(<span class="number">2</span>,<span class="string">'BBBBB'</span>);</span>
+<span class="line">commit;</span>
+<span class="line">update t1 set name=<span class="string">'aaaaa'</span> where name=<span class="string">'AAAAA'</span>;</span>
+<span class="line">update t1 set name=<span class="string">'bbbbb'</span> where name=<span class="string">'BBBBB'</span>;</span>
+<span class="line">commit;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> object_id from user_objects where object_name=<span class="string">'T1'</span>;</span>
+<span class="line"></span>
+<span class="line"> OBJECT_ID</span>
+<span class="line">----------</span>
+<span class="line">     <span class="number">15685</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 导出当前redo log</span></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> logfile <span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * from v$diag_info where name=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">   INST_ID NAME</span>
+<span class="line">---------- ----------------------------------------------------------------</span>
+<span class="line">VALUE</span>
+<span class="line">------------------------------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="line">         <span class="number">1</span> Default Trace File</span>
+<span class="line">/u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_26888.trc</span>
+</pre></td></tr></table></figure></p>
+<p>查看分析dump的trace日志，一共6条REDO RECORD<br>第一个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>9.<span class="number">0010</span> LEN: <span class="number">0x0170</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749d SUBSCN:  <span class="number">3</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 日志头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:31 AFN:3 DBA:0x00c000f0 OBJ:4294967295 SCN:0x0000.000c7436 SEQ:1 OP:5.2 ENC:0 RBL:0</span></span>
+<span class="line">ktudh <span class="keyword">redo</span>: slt: <span class="number">0x0004</span> sqn: <span class="number">0x000001dc</span> flg: <span class="number">0x0012</span> siz: <span class="number">112</span> fbi: <span class="number">0</span></span>
+<span class="line">            uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">2</span>f    pxid:  <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 事务开始</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:32 AFN:3 DBA:0x00c00bd8 OBJ:4294967295 SCN:0x0000.000c7435 SEQ:2 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">112</span> spc: <span class="number">1710</span> flg: <span class="number">0x0012</span> seq: <span class="number">0x00dd</span> rec: <span class="number">0x2f</span></span>
+<span class="line">            xid:  <span class="number">0x0008</span>.<span class="number">004</span>.<span class="number">000001</span>dc  </span>
+<span class="line">ktubl <span class="keyword">redo</span>: slt: <span class="number">4</span> rci: <span class="number">0</span> opc: <span class="number">11.1</span> [objn: <span class="number">15685</span> objd: <span class="number">15685</span> tsn: <span class="number">5</span>]</span>
+<span class="line">Undo type:  Regular undo        Begin trans    Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Temp Object:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span>  prev ctl uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">2</span>d </span>
+<span class="line">prev ctl max cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6607  prev tx cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6621 </span>
+<span class="line">txn start scn:  <span class="number">0xffff</span>.ffffffff  logon user: <span class="number">34</span>  prev brb: <span class="number">12585942</span>  prev bcl: <span class="number">0</span> BuExt idx: <span class="number">0</span> flg2: <span class="number">0</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x03</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: Z</span>
+<span class="line">KDO Op code: DRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>)</span>
+<span class="line"><span class="comment"># ―――――――――――――――――――――――――――――――――――――――――――――――――――――――&gt; undo segment header事务表</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#3 TYP:0 CLS:1 AFN:5 DBA:0x01400085 OBJ:15685 SCN:0x0000.000c749d SEQ:2 OP:11.2 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x01</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: F  xid:  <span class="number">0x0008</span>.<span class="number">004</span>.<span class="number">000001</span>dc    uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">2</span>f</span>
+<span class="line">KDO Op code: IRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) size/delt: <span class="number">12</span></span>
+<span class="line">fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span></span>
+<span class="line">null: --</span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">02</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 插入AAAAA</span></span>
+</pre></td></tr></table></figure></p>
+<p>第二个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>9.<span class="number">01</span>8<span class="number">0</span> LEN: <span class="number">0x0100</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749d SUBSCN:  <span class="number">4</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 日志头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:32 AFN:3 DBA:0x00c00bd8 OBJ:4294967295 SCN:0x0000.000c749d SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">68</span> spc: <span class="number">1596</span> flg: <span class="number">0x0022</span> seq: <span class="number">0x00dd</span> rec: <span class="number">0x30</span></span>
+<span class="line">            xid:  <span class="number">0x0008</span>.<span class="number">004</span>.<span class="number">000001</span>dc  </span>
+<span class="line">ktubu <span class="keyword">redo</span>: slt: <span class="number">4</span> rci: <span class="number">47</span> opc: <span class="number">11.1</span> objn: <span class="number">15685</span> objd: <span class="number">15685</span> tsn: <span class="number">5</span></span>
+<span class="line">Undo type:  Regular undo       Undo type:  Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">2</span>f</span>
+<span class="line">KDO Op code: DRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>)</span>
+<span class="line"><span class="comment"># ―――――――――――――――――――――――――――――――――――――――――――――――――――――――&gt; undo segment header事务表</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:1 AFN:5 DBA:0x01400085 OBJ:15685 SCN:0x0000.000c749d SEQ:3 OP:11.2 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">30</span></span>
+<span class="line">KDO Op code: IRP row dependencies Disabled</span>
+<span class="line">  xtype: XA flags: <span class="number">0x00000000</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">1</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) size/delt: <span class="number">12</span></span>
+<span class="line">fb: --H-FL-- lb: <span class="number">0x1</span>  cc: <span class="number">2</span></span>
+<span class="line">null: --</span>
+<span class="line">col  <span class="number">0</span>: [ <span class="number">2</span>]  c1 <span class="number">03</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 插入BBBBB</span></span>
+</pre></td></tr></table></figure></p>
+<p>第三个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>a.<span class="number">00</span>9<span class="number">0</span> LEN: <span class="number">0x0060</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749e SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 日志头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:31 AFN:3 DBA:0x00c000f0 OBJ:4294967295 SCN:0x0000.000c749d SEQ:1 OP:5.4 ENC:0 RBL:0</span></span>
+<span class="line">ktucm <span class="keyword">redo</span>: slt: <span class="number">0x0004</span> sqn: <span class="number">0x000001dc</span> srt: <span class="number">0</span> sta: <span class="number">9</span> flg: <span class="number">0x2</span> ktucf <span class="keyword">redo</span>: uba: <span class="number">0x00c00bd8</span>.<span class="number">00</span>dd.<span class="number">30</span> ext: <span class="number">2</span> spc: <span class="number">1526</span> fbi: <span class="number">0</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 提交(事务结束)</span></span>
+</pre></td></tr></table></figure></p>
+<p>第四个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>b.<span class="number">0010</span> LEN: <span class="number">0x0204</span> VLD: <span class="number">0x05</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749f SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line">(LWN RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>b.<span class="number">0010</span> LEN: <span class="number">0002</span> NST: <span class="number">0001</span> SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749f)</span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 日志头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:29 AFN:3 DBA:0x00c000e0 OBJ:4294967295 SCN:0x0000.000c7432 SEQ:1 OP:5.2 ENC:0 RBL:0</span></span>
+<span class="line">ktudh <span class="keyword">redo</span>: slt: <span class="number">0x0013</span> sqn: <span class="number">0x000001d5</span> flg: <span class="number">0x0012</span> siz: <span class="number">168</span> fbi: <span class="number">0</span></span>
+<span class="line">            uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">05</span>    pxid:  <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 事务开始</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:30 AFN:3 DBA:0x00c008e0 OBJ:4294967295 SCN:0x0000.000c742e SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">168</span> spc: <span class="number">7682</span> flg: <span class="number">0x0012</span> seq: <span class="number">0x012f</span> rec: <span class="number">0x05</span></span>
+<span class="line">            xid:  <span class="number">0x0007</span>.<span class="number">013</span>.<span class="number">000001</span>d5  </span>
+<span class="line">ktubl <span class="keyword">redo</span>: slt: <span class="number">19</span> rci: <span class="number">0</span> opc: <span class="number">11.1</span> [objn: <span class="number">15685</span> objd: <span class="number">15685</span> tsn: <span class="number">5</span>]</span>
+<span class="line">Undo type:  Regular undo        Begin trans    Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Temp Object:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span>  prev ctl uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">04</span> </span>
+<span class="line">prev ctl max cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6af1  prev tx cmt scn:  <span class="number">0x0000</span>.<span class="number">000</span>c6af2 </span>
+<span class="line">txn start scn:  <span class="number">0xffff</span>.ffffffff  logon user: <span class="number">34</span>  prev brb: <span class="number">12585145</span>  prev bcl: <span class="number">0</span> BuExt idx: <span class="number">0</span> flg2: <span class="number">0</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x03</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: Z</span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">0</span> ckix: <span class="number">27</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span> <span class="number">41</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 把数据修改前值AAAAA放到UNDO</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#3 TYP:2 CLS:1 AFN:5 DBA:0x01400085 OBJ:15685 SCN:0x0000.000c749e SEQ:1 OP:11.19 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x11</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: F  xid:  <span class="number">0x0007</span>.<span class="number">013</span>.<span class="number">000001</span>d5    uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">05</span></span>
+<span class="line">Block cleanout record, scn:  <span class="number">0x0000</span>.<span class="number">000</span>c749f ver: <span class="number">0x01</span> opt: <span class="number">0x02</span>, entries follow...</span>
+<span class="line">  itli: <span class="number">1</span>  flg: <span class="number">2</span>  scn: <span class="number">0x0000</span>.<span class="number">000</span>c749e</span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">0</span>(<span class="number">0x0</span>) flag: <span class="number">0x2c</span> lock: <span class="number">2</span> ckix: <span class="number">27</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">61</span> <span class="number">61</span> <span class="number">61</span> <span class="number">61</span> <span class="number">61</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 数据修改成aaaaa</span></span>
+</pre></td></tr></table></figure></p>
+<p>第五个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>c.<span class="number">0024</span> LEN: <span class="number">0x0140</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c749f SUBSCN:  <span class="number">2</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 日志头</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:30 AFN:3 DBA:0x00c008e0 OBJ:4294967295 SCN:0x0000.000c749f SEQ:1 OP:5.1 ENC:0 RBL:0</span></span>
+<span class="line">ktudb <span class="keyword">redo</span>: siz: <span class="number">124</span> spc: <span class="number">7512</span> flg: <span class="number">0x0022</span> seq: <span class="number">0x012f</span> rec: <span class="number">0x06</span></span>
+<span class="line">            xid:  <span class="number">0x0007</span>.<span class="number">013</span>.<span class="number">000001</span>d5  </span>
+<span class="line">ktubu <span class="keyword">redo</span>: slt: <span class="number">19</span> rci: <span class="number">5</span> opc: <span class="number">11.1</span> objn: <span class="number">15685</span> objd: <span class="number">15685</span> tsn: <span class="number">5</span></span>
+<span class="line">Undo type:  Regular undo       Undo type:  Last buffer <span class="keyword">split</span>:  No </span>
+<span class="line">Tablespace Undo:  No </span>
+<span class="line">             <span class="number">0x00000000</span></span>
+<span class="line">KDO undo record:</span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">05</span></span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) flag: <span class="number">0x2c</span> lock: <span class="number">0</span> ckix: <span class="number">27</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span> <span class="number">42</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 把数据修改前值BBBBB放到UNDO</span></span>
+<span class="line"></span>
+<span class="line">CHANGE <span class="comment">#2 TYP:0 CLS:1 AFN:5 DBA:0x01400085 OBJ:15685 SCN:0x0000.000c749f SEQ:1 OP:11.19 ENC:0 RBL:0</span></span>
+<span class="line">KTB Redo </span>
+<span class="line">op: <span class="number">0x02</span>  ver: <span class="number">0x01</span>  </span>
+<span class="line">compat bit: <span class="number">4</span> (post-<span class="number">11</span>) padding: <span class="number">1</span></span>
+<span class="line">op: C  uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">06</span></span>
+<span class="line">Array Update of <span class="number">1</span> rows: </span>
+<span class="line">tabn: <span class="number">0</span> slot: <span class="number">1</span>(<span class="number">0x1</span>) flag: <span class="number">0x2c</span> lock: <span class="number">2</span> ckix: <span class="number">27</span></span>
+<span class="line">ncol: <span class="number">2</span> nnew: <span class="number">1</span> size: <span class="number">0</span></span>
+<span class="line">KDO Op code:  <span class="number">21</span> row dependencies Disabled</span>
+<span class="line">  xtype: XAxtype KDO_KDOM2 flags: <span class="number">0x00000080</span>  bdba: <span class="number">0x01400085</span>  hdba: <span class="number">0x01400082</span></span>
+<span class="line">itli: <span class="number">2</span>  ispac: <span class="number">0</span>  maxfr: <span class="number">4858</span></span>
+<span class="line">vect = <span class="number">3</span></span>
+<span class="line">col  <span class="number">1</span>: [ <span class="number">5</span>]  <span class="number">62</span> <span class="number">62</span> <span class="number">62</span> <span class="number">62</span> <span class="number">62</span></span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 数据修改成bbbbb</span></span>
+</pre></td></tr></table></figure></p>
+<p>第六个REDO RECORD<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">REDO RECORD - Thread:<span class="number">1</span> RBA: <span class="number">0x000042</span>.<span class="number">0000003</span>c.<span class="number">0164</span> LEN: <span class="number">0x0060</span> VLD: <span class="number">0x01</span></span>
+<span class="line">SCN: <span class="number">0x0000</span>.<span class="number">000</span>c74a<span class="number">0</span> SUBSCN:  <span class="number">1</span> <span class="number">04</span>/<span class="number">19</span>/<span class="number">2018</span> <span class="number">13</span>:<span class="number">29</span>:<span class="number">30</span></span>
+<span class="line">CHANGE <span class="comment">#1 TYP:0 CLS:29 AFN:3 DBA:0x00c000e0 OBJ:4294967295 SCN:0x0000.000c749f SEQ:1 OP:5.4 ENC:0 RBL:0</span></span>
+<span class="line">ktucm <span class="keyword">redo</span>: slt: <span class="number">0x0013</span> sqn: <span class="number">0x000001d5</span> srt: <span class="number">0</span> sta: <span class="number">9</span> flg: <span class="number">0x2</span> ktucf <span class="keyword">redo</span>: uba: <span class="number">0x00c008e0</span>.<span class="number">012</span>f.<span class="number">06</span> ext: <span class="number">2</span> spc: <span class="number">7386</span> fbi: <span class="number">0</span> </span>
+<span class="line"><span class="comment"># --------------------------------------------------------&gt; 提交(事务结束)</span></span>
+</pre></td></tr></table></figure></p>
+<p>六条日志：<br> 第一条日志：<br>   日志头<br>   OP=5.2 ==&gt; 事务开始<br>   OP=5.1 ==&gt; undo segment header事务表<br>   OP=11.2 ==&gt; 插入AAAAA</p>
+<p> 第二条日志：<br>    日志头<br>    OP=5.1 ==&gt; undo segment header事务表<br>    OP=11.2 ==&gt; 插入BBBBB</p>
+<p> 第三条日志：<br>    日志头<br>    OP:5.4 ==&gt; 提交（事务结束）</p>
+<p> 第四条日志：<br>    日志头<br>    OP=5.2 ==&gt; 事务开始<br>    OP=5.1 ==&gt; 把数据修改前值AAAAA放到UNDO<br>    OP=11.19 ==&gt; 数据修改成aaaaa</p>
+<p> 第五条日志：<br>    日志头<br>    OP=5.1 ==&gt; 把数据修改前值BBBBB放到UNDO<br>    OP=11.19 ==&gt; 数据修改成bbbbb</p>
+<p> 第六条日志：<br>    日志头<br>    OP:5.4 ==&gt; 提交（事务结束）</p>
+<h2 id="简要解析BBED-LOGFILE"><a href="#简要解析BBED-LOGFILE" class="headerlink" title="简要解析BBED LOGFILE"></a>简要解析BBED LOGFILE</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$ bbed</span>
+<span class="line"></span>
+<span class="line">BBED: Release <span class="number">2.0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span> - Limited Production on Thu Apr <span class="number">19</span> <span class="number">15</span>:<span class="number">21</span>:<span class="number">28</span> <span class="number">2018</span></span>
+<span class="line"></span>
+<span class="line">Copyright (c) <span class="number">1982</span>, <span class="number">2011</span>, Oracle <span class="keyword">and</span>/<span class="keyword">or</span> its affiliates.  All rights reserved.</span>
+<span class="line"></span>
+<span class="line">************* !!! For Oracle Internal Use only !!! *************</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set filename <span class="string">'/u01/app/oracle/oradata/orcl/redo03.log'</span></span>
+<span class="line">        FILENAME        /u01/app/oracle/oradata/orcl/redo03.log</span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/redo</span>03.log (<span class="number">0</span>)</span>
+<span class="line"> Block: <span class="number">1</span>                Offsets:    <span class="number">0</span> to  <span class="number">511</span>           Dba:<span class="number">0x00000000</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">01220000</span> <span class="number">01000000</span> <span class="number">42000000</span> <span class="number">00</span>800b51 <span class="number">00000000</span> <span class="number">0004200</span>b acfd6d59 <span class="number">4</span>f52434c </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">2</span>f1c000<span class="number">0</span> <span class="number">00</span>90010<span class="number">0</span> <span class="number">00020000</span> <span class="number">03000200</span> ac546d59 <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">54687265</span> </span>
+<span class="line"> <span class="number">61642030</span> <span class="number">3030312</span>c <span class="number">20536571</span> <span class="number">23203030</span> <span class="number">30303030</span> <span class="number">30303636</span> <span class="number">2</span>c205343 <span class="number">4</span>e203078 </span>
+<span class="line"> <span class="number">30303030</span> <span class="number">30303063</span> <span class="number">37343736</span> <span class="number">2</span>d307866 <span class="number">66666666</span> <span class="number">66666666</span> <span class="number">66666600</span> ffffffff </span>
+<span class="line"> <span class="number">2</span>cb2f839 <span class="number">01000000</span> <span class="number">00000000</span> <span class="number">01000000</span> <span class="number">01000000</span> <span class="number">76740</span>c0<span class="number">0</span> <span class="number">00000000</span> <span class="number">1</span>df80b3a </span>
+<span class="line"> ffffffff ffff000<span class="number">0</span> <span class="number">00000000</span> <span class="number">01000002</span> <span class="number">01000000</span> <span class="number">00000000</span> <span class="number">30</span>b2f839 <span class="number">76740</span>c0<span class="number">0</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">1</span>df80b3a <span class="number">00000000</span> <span class="number">0000</span>800<span class="number">0</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">02000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"> aa00d25<span class="number">0</span> <span class="number">06</span>c69aa1 <span class="number">6693626</span>c <span class="number">2</span>ef450a8 <span class="number">114</span>e1e31 0fceb064 d6bab35<span class="number">0</span> <span class="number">5</span>a915c29 </span>
+<span class="line"> <span class="number">05000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> <span class="number">00000000</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># little Endian 注意颠倒</span></span>
+<span class="line">offset <span class="number">0</span>-<span class="number">1</span>: <span class="number">2201</span> 表示这是<span class="keyword">redo</span> logfile block，每个<span class="keyword">redo</span> block头都是这值(跟平台有关系)</span>
+<span class="line">offset <span class="number">4</span>-<span class="number">5</span>: <span class="number">0001</span> 表示<span class="keyword">redo</span> logfile block number号</span>
+<span class="line">offset <span class="number">8</span>-<span class="number">9</span>: <span class="number">0042</span> 表示<span class="keyword">redo</span> sequence number号</span>
+<span class="line">offset <span class="number">12</span>-<span class="number">13</span>: <span class="number">8000</span> 表示offset值(byte number with block)</span>
+</pre></td></tr></table></figure>
+<h2 id="redo-latch锁"><a href="#redo-latch锁" class="headerlink" title="redo latch锁"></a>redo latch锁</h2><blockquote>
+<p>非IMU产生一条REDO RECORD的步骤<br>1、获取redo copy Latch<br>2、获取redo allocate Latch<br>3、申请到LOG BUFFER空间<br>4、释放redo allocate Latch<br>5、生产日志（从buffer cache copy 修改前的值。从PGA copy 修改后的值），产生日志头<br>6、释放redo copy Latch<br>IMU—&gt;把多条日志条目合并成一条，减少LATCH，但会多出一个IMU LATCH</p>
+</blockquote>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看redo相关latch锁</span></span>
+<span class="line"><span class="keyword">select</span> latch<span class="comment">#,name from v$latch where name like '%redo%';</span></span>
+<span class="line"></span>
+<span class="line">    LATCH<span class="comment"># NAME</span></span>
+<span class="line">---------- ----------------------------------------------------------------</span>
+<span class="line">       <span class="number">168</span> <span class="keyword">redo</span> on-disk SCN</span>
+<span class="line">       <span class="number">169</span> ping <span class="keyword">redo</span> on-disk SCN</span>
+<span class="line">       <span class="number">207</span> <span class="keyword">redo</span> writing</span>
+<span class="line">       <span class="number">208</span> <span class="keyword">redo</span> copy</span>
+<span class="line">       <span class="number">209</span> <span class="keyword">redo</span> allocation</span>
+<span class="line">       <span class="number">210</span> real <span class="keyword">redo</span> SCN</span>
+<span class="line">       <span class="number">212</span> readredo stats <span class="keyword">and</span> histogram</span>
+<span class="line">       <span class="number">238</span> readable standby metadata <span class="keyword">redo</span> cache</span>
+<span class="line">       <span class="number">544</span> KFR <span class="keyword">redo</span> allocation latch</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> latch<span class="comment">#,name from v$latch_children where name like '%redo%';</span></span>
+</pre></td></tr></table></figure>
+<h2 id="OP-CODE-部分"><a href="#OP-CODE-部分" class="headerlink" title="OP CODE(部分)"></a>OP CODE(部分)</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">格式：layer: opcode</span>
+<span class="line">       LAYER的含义：</span>
+<span class="line">               <span class="number">4</span> ― Block Cleanout</span>
+<span class="line">               <span class="number">5</span> ― Transaction Management</span>
+<span class="line">               <span class="number">10</span> ― 索引操作</span>
+<span class="line">               <span class="number">11</span> ― 行操作</span>
+<span class="line">               <span class="number">13</span> ― 段[url=]管理[<span class="regexp">/url]</span>
+<span class="line">               14 ― Extent 管理</span>
+<span class="line">               17 ― 表空间管理</span>
+<span class="line">               18 ― Block Image (Hot Backups)</span>
+<span class="line">               19 ― Direct Loader</span>
+<span class="line">               20 ― Compatibility segment</span>
+<span class="line">               22 ― 本地管理表空间</span>
+<span class="line">               23 ― Block Writes</span>
+<span class="line">               24 ― DDL语句</span>
+<span class="line">Layer 1 : Transaction Control - KCOCOTCT     </span>
+<span class="line">   Opcode 1 : KTZFMT </span>
+<span class="line">   Opcode 2 : KTZRDH </span>
+<span class="line">   Opcode 3 : KTZARC</span>
+<span class="line">   Opcode 4 : KTZREP</span>
+<span class="line">Layer 2 : Transaction Read -  KCOCOTRD     </span>
+<span class="line">Layer 3 : Transaction Update -  KCOCOTUP     </span>
+<span class="line">Layer 4 : Transaction Block -  KCOCOTBK     [ktbcts.h]</span>
+<span class="line">         Opcode 1 : Block Cleanout </span>
+<span class="line">         Opcode 2 : Physical Cleanout </span>
+<span class="line">         Opcode 3 : Single Array Change</span>
+<span class="line">         Opcode 4 : Multiple Changes to an Array</span>
+<span class="line">         Opcode 5 : Format Block</span>
+<span class="line">Layer 5 : Transaction Undo -  KCOCOTUN     [ktucts.h]</span>
+<span class="line">         Opcode 1 : Undo block or undo segment header - KTURDB</span>
+<span class="line">         Opcode 2 : Update rollback segment header - KTURDH</span>
+<span class="line">         Opcode 3 : Rollout a transaction begin </span>
+<span class="line">         Opcode 4 : Commit transaction (transaction table update) </span>
+<span class="line">- no undo record </span>
+<span class="line">         Opcode 5 : Create rollback segment (format) - no undo record </span>
+<span class="line">         Opcode 6 : Rollback record index in an undo block - KTUIRB</span>
+<span class="line">         Opcode 7 : Begin transaction (transaction table update) </span>
+<span class="line">         Opcode 8 : Mark transaction as dead </span>
+<span class="line">         Opcode 9 : Undo routine to rollback the extend of a rollback segment </span>
+<span class="line">         Opcode 10 :Redo to perform the rollback of extend of rollback segment </span>
+<span class="line">                    to the segment header.  </span>
+<span class="line">         Opcode 11 :Rollback DBA in transaction table entry - KTUBRB </span>
+<span class="line">         Opcode 12 :Change transaction state (in transaction table entry) </span>
+<span class="line">         Opcode 13 :Convert rollback segment format (V6 -&gt; V7) </span>
+<span class="line">         Opcode 14 :Change extent allocation parameters in a rollback segment </span>
+<span class="line">         Opcode 15 :</span>
+<span class="line">         Opcode 16 :</span>
+<span class="line">         Opcode 17 :</span>
+<span class="line">         Opcode 18 :</span>
+<span class="line">         Opcode 19 : Transaction start audit log record</span>
+<span class="line">         Opcode 20 : Transaction continue audit log record     </span>
+<span class="line">         Opcode 24 : Kernel Transaction Undo Relog CHanGe - KTURLGU</span>
+<span class="line">Layer 6 : Control File -  KCOCODCF     [tbs.h]</span>
+<span class="line">Layer 10 : INDEX -  KCOCODIX     [kdi.h]</span>
+<span class="line">         Opcode 1 : load index block (Loader with direct mode) </span>
+<span class="line">         Opcode 2 : Insert leaf row </span>
+<span class="line">         Opcode 3 : Purge leaf row </span>
+<span class="line">         Opcode 4 : Mark leaf row deleted </span>
+<span class="line">         Opcode 5 : Restore leaf row (clear leaf delete flags) </span>
+<span class="line">         Opcode 6 : Lock index block </span>
+<span class="line">         Opcode 7 : Unlock index block </span>
+<span class="line">         Opcode 8 : Initialize new leaf block </span>
+<span class="line">         Opcode 9 : Apply Itl Redo </span>
+<span class="line">         Opcode 10 :Set leaf block next link </span>
+<span class="line">         Opcode 11 :Set leaf block previous link </span>
+<span class="line">         Opcode 12 :Init root block after split </span>
+<span class="line">         Opcode 13 :Make leaf block empty </span>
+<span class="line">         Opcode 14 :Restore block before image </span>
+<span class="line">         Opcode 15 :Branch block row insert </span>
+<span class="line">         Opcode 16 :Branch block row purge </span>
+<span class="line">         Opcode 17 :Initialize new branch block </span>
+<span class="line">         Opcode 18 :Update keydata in row </span>
+<span class="line">         Opcode 19 :Clear row’s split flag </span>
+<span class="line">         Opcode 20 :Set row’s split flag </span>
+<span class="line">         Opcode 21 :General undo above the cache (undo) </span>
+<span class="line">         Opcode 22 :Undo operation on leaf key above the cache (undo) </span>
+<span class="line">         Opcode 23 :Restore block to b-tree </span>
+<span class="line">         Opcode 24 :Shrink ITL (transaction entries) </span>
+<span class="line">         Opcode 25 :Format root block redo </span>
+<span class="line">         Opcode 26 :Undo of format root block (undo) </span>
+<span class="line">         Opcode 27 :Redo for undo of format root block </span>
+<span class="line">         Opcode 28 :Undo for migrating block</span>
+<span class="line">         Opcode 29 :Redo for migrating block</span>
+<span class="line">         Opcode 30 :IOT leaf block nonkey update</span>
+<span class="line">         Opcode 31 :Cirect load root redo</span>
+<span class="line">         Opcode 32 :Combine operation for insert and restore rows </span>
+<span class="line">Layer 11 : Row Access -  KCOCODRW     [kdocts.h]</span>
+<span class="line">         Opcode 1 : Interpret Undo Record (Undo) </span>
+<span class="line">         Opcode 2 : Insert Row Piece </span>
+<span class="line">         Opcode 3 : Drop Row Piece </span>
+<span class="line">         Opcode 4 : Lock Row Piece </span>
+<span class="line">         Opcode 5 : Update Row Piece </span>
+<span class="line">         Opcode 6 : Overwrite Row Piece </span>
+<span class="line">         Opcode 7 : Manipulate First Column (add or delete the 1rst column) </span>
+<span class="line">         Opcode 8 : Change Forwarding address </span>
+<span class="line">         Opcode 9 : Change the Cluster Key Index </span>
+<span class="line">         Opcode 10 :Set Key Links (change the forward &amp; backward key links </span>
+<span class="line">                    on a cluster key) </span>
+<span class="line">         Opcode 11 :Quick Multi-Insert (ex: insert as select …) </span>
+<span class="line">         Opcode 12 :Quick Multi-Delete </span>
+<span class="line">         Opcode 13 :Toggle Block Header flags </span>
+<span class="line">Layer 12 : Cluster -  KCOCODCL     [?]</span>
+<span class="line">Layer 13 : Transaction Segment -  KCOCOTSG     [ktscts.h]</span>
+<span class="line">         Opcode 1 : Data segment format </span>
+<span class="line">         Opcode 2 : Merge </span>
+<span class="line">         Opcode 3 : Set link in block </span>
+<span class="line">         Opcode 4 : Not used </span>
+<span class="line">         Opcode 5 : New block (affects segment header) </span>
+<span class="line">         Opcode 6 : Format block (affects data block) </span>
+<span class="line">         Opcode 7 : Record link </span>
+<span class="line">         Opcode 8 : Undo free list (undo) </span>
+<span class="line">         Opcode 9 : Redo free list head (called as part of undo) </span>
+<span class="line">         Opcode 9 : Format free list block (freelist group) </span>
+<span class="line">         Opcode 11 :Format new blocks in free list </span>
+<span class="line">         Opcode 12 :free list clear </span>
+<span class="line">         Opcode 13 :free list restore (back) (undo of opcode 12) </span>
+<span class="line">Layer 14 : Transaction Extent -  KCOCOTEX     [kte.h]</span>
+<span class="line">         Opcode 1 : Add extent to segment </span>
+<span class="line">         Opcode 2 : Unlock Segment Header </span>
+<span class="line">         Opcode 3 : Extent DEaLlocation (DEL) </span>
+<span class="line">         Opcode 4 : Undo to Add extent operation (see opcode 1) </span>
+<span class="line">         Opcode 5 : Extent Incarnation number increment </span>
+<span class="line">         Opcode 6 : Lock segment Header </span>
+<span class="line">         Opcode 7 : Undo to rollback extent deallocation (see opcode 3) </span>
+<span class="line">         Opcode 8 : Apply Position Update (truncate) </span>
+<span class="line">         Opcode 9 : Link blocks to Freelist </span>
+<span class="line">         Opcode 10 :Unlink blocks from Freelist </span>
+<span class="line">         Opcode 11 :Undo to Apply Position Update (see opcode 8) </span>
+<span class="line">         Opcode 12 :Convert segment header to 6.2.x type </span>
+<span class="line">Layer 15 : Table Space -  KCOCOTTS     [ktt.h]</span>
+<span class="line">        Opcode 1 : Format deferred rollback segment header </span>
+<span class="line">        Opcode 2 : Add deferred rollback record </span>
+<span class="line">        Opcode 3 : Move to next block </span>
+<span class="line">        Opcode 4 : Point to next deferred rollback record </span>
+<span class="line">Layer 16 : Row Cache -  KCOCOQRC     </span>
+<span class="line">Layer 17 : Recovery (REDO) -  KCOCORCV     [kcv.h]</span>
+<span class="line">         Opcode 1 : End Hot Backup : This operation clears the hot backup </span>
+<span class="line">                    in-progress flags in the indicated list of files </span>
+<span class="line">         Opcode 2 : Enable Thread : This operation creates a redo record </span>
+<span class="line">                    signalling that a thread has been enabled </span>
+<span class="line">         Opcode 3 : Crash Recovery Marker </span>
+<span class="line">         Opcode 4 : Resizeable datafiles</span>
+<span class="line">         Opcode 5 : Tablespace ONline</span>
+<span class="line">         Opcode 6 : Tablespace OFFline</span>
+<span class="line">         Opcode 7 : Tablespace ReaD Write</span>
+<span class="line">         Opcode 8 : Tablespace ReaD Only</span>
+<span class="line">         Opcode 9 : ADDing datafiles to database</span>
+<span class="line">         Opcode 10 : Tablespace DRoP</span>
+<span class="line">         Opcode 11 : Tablespace PitR     </span>
+<span class="line">Layer 18 : Hot Backup Log Blocks -  KCOCOHLB     [kcb.h]</span>
+<span class="line">         Opcode 1 : Log block image </span>
+<span class="line">         Opcode 2 : Recovery testing </span>
+<span class="line">Layer 19 : Direct Loader Log Blocks - KCOCODLB     [kcbl.h]</span>
+<span class="line">         Opcode 1 : Direct block logging </span>
+<span class="line">         Opcode 2 : Invalidate range </span>
+<span class="line">         Opcode 3 : Direct block relogging</span>
+<span class="line">         Opcode 4 : Invalidate range relogging     </span>
+<span class="line">Layer 20 : Compatibility Segment operations - KCOCOKCK  [kck.h]</span>
+<span class="line">         Opcode 1 : Format compatibility segment -  KCKFCS</span>
+<span class="line">         Opcode 2 : Update compatibility segment - KCKUCS</span>
+<span class="line">Layer 21 : LOB segment operations - KCOCOLFS     [kdl2.h]</span>
+<span class="line">         Opcode 1 : Write data into ILOB data block - KDLOPWRI</span>
+<span class="line">Layer 22 : Tablespace bitmapped file operations -  KCOCOTBF [ktfb.h]</span>
+<span class="line">Opcode 1 : format space header - KTFBHFO</span>
+<span class="line">Opcode 2 : space header generic redo - KTFBHREDO</span>
+<span class="line">Opcode 3 : space header undo - KTFBHUNDO</span>
+<span class="line">Opcode 4 : space bitmap block format - KTFBBFO</span>
+<span class="line">Opcode 5 : bitmap block generic redo - KTFBBREDO </span>
+<span class="line">Layer 23 : write behind logging of blocks - KCOCOLWR [kcbb.h]</span>
+<span class="line">Opcode 1 : Dummy block written callback - KCBBLWR</span>
+<span class="line">Layer 24 : Logminer related (DDL or OBJV# redo) - KCOCOKRV [krv.h]</span>
+<span class="line">Opcode : common portion of the ddl - KRVDDL</span>
+<span class="line">Opcode : direct load redo - KRVDLR </span>
+<span class="line">Opcode : lob related info - KRVLOB</span>
+<span class="line">Opcode : misc info - KRVMISC </span>
+<span class="line">Opcode : user info - KRVUSER</span>
+<span class="line"></span>
+<span class="line">还有begin backup时是18.1</span>
+<span class="line">end backup 是17.1</span>
+<span class="line">nologging操作是19.2 并注明是invld</span></span>
+</pre></td></tr></table></figure>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://blog.csdn.net/haibusuanyun/article/details/18037635" target="_blank" rel="external">Oracle IMU模式下REDO格式详解</a></li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Oracle特殊恢复原理与实战 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> DSI </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复]]></title>
       <url>/2018/04/03/oracle/Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/07_Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%85%A5%E9%97%A8/</url>
       <content type="html"><![CDATA[<h2 id="Inactive-redo-log丢失或损坏的恢复"><a href="#Inactive-redo-log丢失或损坏的恢复" class="headerlink" title="Inactive redo log丢失或损坏的恢复"></a>Inactive redo log丢失或损坏的恢复</h2><p>将数据库置于非归档模式<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
@@ -539,10 +1339,11 @@
 <p>CHANGE #1 - TYP:2 CLS:1 AFN:9 DBA:0x02400e87 OBJ:94895 SCN:0x0000.00420e97 SEQ:1 OP:11.19 ENC:0 RBL:0<br>  OP:11.19-update修改的值  TYP:2-类型2是普通文件  CLS:1-数据类型  AFN:9-绝对文件号  DBA:0x02400e87-数据文件地址 OBJ:94895-对象编号<br>CHANGE #2 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e51 SEQ:2 OP:5.2 ENC:0 RBL:0<br>  OP:5.2-启动一个事务(undo) AFN:3-绝对文件号(这个文件对应的是undo file)<br>CHANGE #3 TYP:0 CLS:19 AFN:3 DBA:0x00c00090 OBJ:4294967295 SCN:0x0000.00420e9e SEQ:1 OP:5.4 ENC:0 RBL:0<br>  OP:5.4-提交  AFN:3-绝对文件号(这个文件对应的是undo file)<br>CHANGE #4 TYP:0 CLS:20 AFN:3 DBA:0x00c0011a OBJ:4294967295 SCN:0x0000.00420e51 SEQ:3 OP:5.1 ENC:0 RBL:0<br>  OP:5.1-update修改前的值  AFN:3-绝对文件号(这个文件对应的是undo file)</p>
 <h2 id="查询隐含参数脚本"><a href="#查询隐含参数脚本" class="headerlink" title="查询隐含参数脚本"></a>查询隐含参数脚本</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi $ORACLE_HOME/rdbms/admin/show_para.sql</span>
 <span class="line"><span class="comment">#-----------------------------------------------------------------------------------</span></span>
-<span class="line">col p_name <span class="keyword">for</span> a4<span class="number">0</span></span>
-<span class="line">col p_DESCRIPTION <span class="keyword">for</span> a5<span class="number">0</span></span>
-<span class="line">col p_value <span class="keyword">for</span> a3<span class="number">0</span></span>
-<span class="line">set linesize <span class="number">10000</span></span>
+<span class="line">col p_name <span class="keyword">for</span> a48</span>
+<span class="line">col p_DESCRIPTION <span class="keyword">for</span> a62</span>
+<span class="line">col p_value <span class="keyword">for</span> a1<span class="number">0</span></span>
+<span class="line">set linesize <span class="number">150</span></span>
+<span class="line">set pagesize <span class="number">9999</span></span>
 <span class="line">SELECT  i.ksppinm p_name,</span>
 <span class="line">    i.ksppdesc p_description,</span>
 <span class="line">    CV.ksppstvl p_VALUE,</span>
@@ -4221,73 +5022,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[一台电脑同时使用GitHub和GitLab仓库]]></title>
-      <url>/2018/02/27/tools/github%E4%B8%8Egitlab%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8/</url>
-      <content type="html"><![CDATA[<p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
-<a id="more"></a>
-<p>进入git bash生成gitlab钥匙<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/.ssh</span>
-<span class="line">$ ssh-keygen -t rsa -C &quot;liuyajun@ydgw.cn&quot;</span>
-<span class="line">Generating public/private rsa key pair.</span>
-<span class="line">Enter file in which to save the key (/c/Users/liuyajun/.ssh/id_rsa): /c/Users/liuyajun/.ssh/gitlab_id_rsa</span>
-<span class="line">Enter passphrase (empty for no passphrase):</span>
-<span class="line">Enter same passphrase again:</span>
-<span class="line">Your identification has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.</span>
-<span class="line">Your public key has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.pub.</span>
-<span class="line">The key fingerprint is:</span>
-<span class="line">SHA256:IBKC+H7rm/4f19CViQ3qtbDXHGNGufG4GCx33ykCJdQ liuyajun@ydgw.cn</span>
-<span class="line">The keys randomart image is:</span>
-<span class="line">+---[RSA 2048]----+</span>
-<span class="line">|+ .     ... . .. |</span>
-<span class="line">|o. .     . E =oo |</span>
-<span class="line">| .. . .   =.o X= |</span>
-<span class="line">|  .. . . o.=+B+o.|</span>
-<span class="line">| .      S =o++ooo|</span>
-<span class="line">|  . .      =....o|</span>
-<span class="line">|   . .  . . o .  |</span>
-<span class="line">|    ..   o       |</span>
-<span class="line">|   o=o...        |</span>
-<span class="line">+----[SHA256]-----+</span>
-<span class="line"></span>
-<span class="line">$ ll</span>
-<span class="line">total 17</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 1679 二月 27 11:50 gitlab_id_rsa</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121  398 二月 27 11:50 gitlab_id_rsa.pub</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 1675 一月 22  2017 id_rsa</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121  401 一月 22  2017 id_rsa.pub</span>
-<span class="line">-rw-r--r-- 1 liuyajun 197121 2351 二月 27 11:34 known_hosts</span>
-<span class="line"></span>
-<span class="line">eval $(ssh-agent -s)</span>
-<span class="line">ssh-add ~/.ssh/gitlab_id_rsa</span>
-</pre></td></tr></table></figure></p>
-<p>用gitlab_id_rsa.pub里的内容配置gitlab帐号SSH KEY<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/gitlab_id_rsa.pub</span>
-</pre></td></tr></table></figure></p>
-<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_02.png" alt=""></p>
-<p>配置config<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/config</span>
-<span class="line"># GitLab.com server</span>
-<span class="line">Host gitlab.com</span>
-<span class="line">IdentityFile ~/.ssh/id_rsa</span>
-<span class="line"></span>
-<span class="line"># Private GitLab server</span>
-<span class="line">Host 10.240.4.160</span>
-<span class="line">IdentityFile ~/.ssh/gitlab_id_rsa</span>
-</pre></td></tr></table></figure></p>
-<p>测试<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span>
-<span class="line">ssh -T git@10.240.4.160</span>
-</pre></td></tr></table></figure></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> gitlab </tag>
-            
-            <tag> gitlub </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD]]></title>
       <url>/2018/02/27/docker/08_%E4%BD%BF%E7%94%A8Rancher-pipeline%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E5%AE%B9%E5%99%A8%E7%9A%84CICD/</url>
       <content type="html"><![CDATA[<h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
@@ -4388,6 +5122,73 @@
             <tag> docker </tag>
             
             <tag> rancher </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[一台电脑同时使用GitHub和GitLab仓库]]></title>
+      <url>/2018/02/27/tools/github%E4%B8%8Egitlab%E4%B8%80%E8%B5%B7%E4%BD%BF%E7%94%A8/</url>
+      <content type="html"><![CDATA[<p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+<a id="more"></a>
+<p>进入git bash生成gitlab钥匙<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/.ssh</span>
+<span class="line">$ ssh-keygen -t rsa -C &quot;liuyajun@ydgw.cn&quot;</span>
+<span class="line">Generating public/private rsa key pair.</span>
+<span class="line">Enter file in which to save the key (/c/Users/liuyajun/.ssh/id_rsa): /c/Users/liuyajun/.ssh/gitlab_id_rsa</span>
+<span class="line">Enter passphrase (empty for no passphrase):</span>
+<span class="line">Enter same passphrase again:</span>
+<span class="line">Your identification has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.</span>
+<span class="line">Your public key has been saved in /c/Users/liuyajun/.ssh/gd_rgitlab_id_rsa.pub.</span>
+<span class="line">The key fingerprint is:</span>
+<span class="line">SHA256:IBKC+H7rm/4f19CViQ3qtbDXHGNGufG4GCx33ykCJdQ liuyajun@ydgw.cn</span>
+<span class="line">The keys randomart image is:</span>
+<span class="line">+---[RSA 2048]----+</span>
+<span class="line">|+ .     ... . .. |</span>
+<span class="line">|o. .     . E =oo |</span>
+<span class="line">| .. . .   =.o X= |</span>
+<span class="line">|  .. . . o.=+B+o.|</span>
+<span class="line">| .      S =o++ooo|</span>
+<span class="line">|  . .      =....o|</span>
+<span class="line">|   . .  . . o .  |</span>
+<span class="line">|    ..   o       |</span>
+<span class="line">|   o=o...        |</span>
+<span class="line">+----[SHA256]-----+</span>
+<span class="line"></span>
+<span class="line">$ ll</span>
+<span class="line">total 17</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 1679 二月 27 11:50 gitlab_id_rsa</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121  398 二月 27 11:50 gitlab_id_rsa.pub</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 1675 一月 22  2017 id_rsa</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121  401 一月 22  2017 id_rsa.pub</span>
+<span class="line">-rw-r--r-- 1 liuyajun 197121 2351 二月 27 11:34 known_hosts</span>
+<span class="line"></span>
+<span class="line">eval $(ssh-agent -s)</span>
+<span class="line">ssh-add ~/.ssh/gitlab_id_rsa</span>
+</pre></td></tr></table></figure></p>
+<p>用gitlab_id_rsa.pub里的内容配置gitlab帐号SSH KEY<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/gitlab_id_rsa.pub</span>
+</pre></td></tr></table></figure></p>
+<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_02.png" alt=""></p>
+<p>配置config<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat ~/.ssh/config</span>
+<span class="line"># GitLab.com server</span>
+<span class="line">Host gitlab.com</span>
+<span class="line">IdentityFile ~/.ssh/id_rsa</span>
+<span class="line"></span>
+<span class="line"># Private GitLab server</span>
+<span class="line">Host 10.240.4.160</span>
+<span class="line">IdentityFile ~/.ssh/gitlab_id_rsa</span>
+</pre></td></tr></table></figure></p>
+<p>测试<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh -T git@github.com</span>
+<span class="line">ssh -T git@10.240.4.160</span>
+</pre></td></tr></table></figure></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> gitlab </tag>
+            
+            <tag> gitlub </tag>
             
         </tags>
         
@@ -7966,96 +8767,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[flashback常用命令整理]]></title>
-      <url>/2017/10/19/oracle/flashback%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/</url>
-      <content type="html"><![CDATA[<h2 id="flashback常用命令整理"><a href="#flashback常用命令整理" class="headerlink" title="flashback常用命令整理"></a>flashback常用命令整理</h2><h3 id="打开数据库闪回"><a href="#打开数据库闪回" class="headerlink" title="打开数据库闪回"></a>打开数据库闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> name,open_mode,log_mode,force_logging,flashback_on from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      OPEN_MODE            LOG_MODE     FOR FLASHBACK_ON</span>
-<span class="line">--------- -------------------- ------------ --- ------------------</span>
-<span class="line">ORCL      READ WRITE           ARCHIVELOG   NO  NO</span>
-<span class="line"></span>
-<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
-<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
-<span class="line">Automatic archival             Enabled</span>
-<span class="line">Archive destination            /u01/app/arch/</span>
-<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">246</span></span>
-<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">249</span></span>
-<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">249</span></span>
-<span class="line"></span>
-<span class="line">SQL&gt; show parameter recovery</span>
-<span class="line"></span>
-<span class="line">NAME                                 TYPE        VALUE</span>
-<span class="line">------------------------------------ ----------- ------------------------------</span>
-<span class="line">db_recovery_file_dest                string</span>
-<span class="line">db_recovery_file_dest_size           big integer <span class="number">0</span></span>
-<span class="line">recovery_parallelism                 integer     <span class="number">0</span></span>
-<span class="line"></span>
-<span class="line">alter <span class="keyword">system</span> set log_archive_dest=<span class="string">''</span>;</span>
-<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest_size=<span class="number">10</span>g;</span>
-<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest=<span class="string">'/u01/app/fra'</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 2880单位是分钟minutes</span></span>
-<span class="line">alter <span class="keyword">system</span> set db_flashback_retention_target=<span class="number">2880</span>;</span>
-<span class="line"></span>
-<span class="line">alter database flashback on;</span>
-</pre></td></tr></table></figure>
-<a id="more"></a>
-<h3 id="数据库的闪回"><a href="#数据库的闪回" class="headerlink" title="数据库的闪回"></a>数据库的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 基于SCN的闪回</span></span>
-<span class="line"><span class="keyword">shutdown</span> immediate</span>
-<span class="line">startup</span>
-<span class="line">flashback database to scn <span class="number">5303782</span>;</span>
-<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 基于时间闪回</span></span>
-<span class="line"><span class="keyword">shutdown</span> immediate</span>
-<span class="line">startup</span>
-<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-10-20 10:09:56'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>);</span>
-<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
-</pre></td></tr></table></figure>
-<h3 id="删除表的闪回"><a href="#删除表的闪回" class="headerlink" title="删除表的闪回"></a>删除表的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
-<span class="line">drop table flashback_test;</span>
-<span class="line"></span>
-<span class="line">show recyclebin;</span>
-<span class="line">ORIGINAL NAME    RECYCLEBIN NAME                OBJECT TYPE  DROP TIME</span>
-<span class="line">---------------- ------------------------------ ------------ -------------------</span>
-<span class="line">FLASHBACK_TEST   BIN$W/KZ5pudF7bgU24D9QoueQ==$0 TABLE        <span class="number">2017</span>-<span class="number">10</span>-<span class="number">20</span>:<span class="number">10</span>:<span class="number">55</span>:<span class="number">11</span></span>
-<span class="line"></span>
-<span class="line">flashback table FLASHBACK_TEST to before drop;</span>
-</pre></td></tr></table></figure>
-<h3 id="DML操作的闪回"><a href="#DML操作的闪回" class="headerlink" title="DML操作的闪回"></a>DML操作的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 根据时间确定SCN号</span></span>
-<span class="line"><span class="keyword">select</span> timestamp_to_scn(to_date(<span class="string">'2017-10-20 11:23:44'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>)) scn from dual;</span>
-<span class="line">alter table flashback_test enable row movement;</span>
-<span class="line">flashback table flashback_test to scn <span class="number">5305382</span>;</span>
-</pre></td></tr></table></figure>
-<h3 id="查询的闪回"><a href="#查询的闪回" class="headerlink" title="查询的闪回"></a>查询的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 基于时间的闪回查询（5分钟前）</span></span>
-<span class="line"><span class="keyword">select</span> count(*) from flashback_test as of timestamp sysdate-<span class="number">5</span>/<span class="number">1440</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 基于SCN号的闪回查询</span></span>
-<span class="line"><span class="keyword">select</span> count(*) from flashback_test as of scn <span class="number">5305382</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 闪回查询时间设置参数，单位是秒 10800s=3小时间</span></span>
-<span class="line">alter <span class="keyword">system</span> set undo_retention=<span class="number">10800</span>;</span>
-</pre></td></tr></table></figure>
-]]></content>
-      
-        <categories>
-            
-            <category> 常用命令与脚本 </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> flashback </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[RMAN (Recovery Manager) 常用命令整理]]></title>
       <url>/2017/10/19/oracle/RMAN%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/</url>
       <content type="html"><![CDATA[<h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
@@ -8278,6 +8989,96 @@
             <tag> oracle </tag>
             
             <tag> rman </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[flashback常用命令整理]]></title>
+      <url>/2017/10/19/oracle/flashback%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/</url>
+      <content type="html"><![CDATA[<h2 id="flashback常用命令整理"><a href="#flashback常用命令整理" class="headerlink" title="flashback常用命令整理"></a>flashback常用命令整理</h2><h3 id="打开数据库闪回"><a href="#打开数据库闪回" class="headerlink" title="打开数据库闪回"></a>打开数据库闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> name,open_mode,log_mode,force_logging,flashback_on from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      OPEN_MODE            LOG_MODE     FOR FLASHBACK_ON</span>
+<span class="line">--------- -------------------- ------------ --- ------------------</span>
+<span class="line">ORCL      READ WRITE           ARCHIVELOG   NO  NO</span>
+<span class="line"></span>
+<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
+<span class="line">Automatic archival             Enabled</span>
+<span class="line">Archive destination            /u01/app/arch/</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">246</span></span>
+<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">249</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">249</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; show parameter recovery</span>
+<span class="line"></span>
+<span class="line">NAME                                 TYPE        VALUE</span>
+<span class="line">------------------------------------ ----------- ------------------------------</span>
+<span class="line">db_recovery_file_dest                string</span>
+<span class="line">db_recovery_file_dest_size           big integer <span class="number">0</span></span>
+<span class="line">recovery_parallelism                 integer     <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> set log_archive_dest=<span class="string">''</span>;</span>
+<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest_size=<span class="number">10</span>g;</span>
+<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest=<span class="string">'/u01/app/fra'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 2880单位是分钟minutes</span></span>
+<span class="line">alter <span class="keyword">system</span> set db_flashback_retention_target=<span class="number">2880</span>;</span>
+<span class="line"></span>
+<span class="line">alter database flashback on;</span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="数据库的闪回"><a href="#数据库的闪回" class="headerlink" title="数据库的闪回"></a>数据库的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 基于SCN的闪回</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line">flashback database to scn <span class="number">5303782</span>;</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 基于时间闪回</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line">flashback database to timestamp to_timestamp(<span class="string">'2017-10-20 10:09:56'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>);</span>
+<span class="line">alter database <span class="keyword">open</span> resetlogs;</span>
+</pre></td></tr></table></figure>
+<h3 id="删除表的闪回"><a href="#删除表的闪回" class="headerlink" title="删除表的闪回"></a>删除表的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line">drop table flashback_test;</span>
+<span class="line"></span>
+<span class="line">show recyclebin;</span>
+<span class="line">ORIGINAL NAME    RECYCLEBIN NAME                OBJECT TYPE  DROP TIME</span>
+<span class="line">---------------- ------------------------------ ------------ -------------------</span>
+<span class="line">FLASHBACK_TEST   BIN$W/KZ5pudF7bgU24D9QoueQ==$0 TABLE        <span class="number">2017</span>-<span class="number">10</span>-<span class="number">20</span>:<span class="number">10</span>:<span class="number">55</span>:<span class="number">11</span></span>
+<span class="line"></span>
+<span class="line">flashback table FLASHBACK_TEST to before drop;</span>
+</pre></td></tr></table></figure>
+<h3 id="DML操作的闪回"><a href="#DML操作的闪回" class="headerlink" title="DML操作的闪回"></a>DML操作的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 根据时间确定SCN号</span></span>
+<span class="line"><span class="keyword">select</span> timestamp_to_scn(to_date(<span class="string">'2017-10-20 11:23:44'</span>,<span class="string">'yyyy-mm-dd hh24:mi:ss'</span>)) scn from dual;</span>
+<span class="line">alter table flashback_test enable row movement;</span>
+<span class="line">flashback table flashback_test to scn <span class="number">5305382</span>;</span>
+</pre></td></tr></table></figure>
+<h3 id="查询的闪回"><a href="#查询的闪回" class="headerlink" title="查询的闪回"></a>查询的闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 基于时间的闪回查询（5分钟前）</span></span>
+<span class="line"><span class="keyword">select</span> count(*) from flashback_test as of timestamp sysdate-<span class="number">5</span>/<span class="number">1440</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 基于SCN号的闪回查询</span></span>
+<span class="line"><span class="keyword">select</span> count(*) from flashback_test as of scn <span class="number">5305382</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 闪回查询时间设置参数，单位是秒 10800s=3小时间</span></span>
+<span class="line">alter <span class="keyword">system</span> set undo_retention=<span class="number">10800</span>;</span>
+</pre></td></tr></table></figure>
+]]></content>
+      
+        <categories>
+            
+            <category> 常用命令与脚本 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> flashback </tag>
             
         </tags>
         
@@ -10533,43 +11334,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划]]></title>
-      <url>/2017/07/28/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/03_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
-      <content type="html"><![CDATA[<h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
-<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-</pre></td></tr></table></figure>
-<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-</pre></td></tr></table></figure>
-<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> sql优化 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[一键获取数据库整体信息脚本]]></title>
       <url>/2017/07/28/oracle/Scripts/%E4%B8%80%E9%94%AE%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B4%E4%BD%93%E4%BF%A1%E6%81%AF%E8%84%9A%E6%9C%AC/</url>
       <content type="html"><![CDATA[<p>一键获取数据库整体信息脚本<br>将脚本内容放<code>spooldb.sql</code>中，在sqlplus中执行，相关信息会自动生成5个文件，其中addm是最近一小时文件，ash是最近半小时文件，而awr文件是最近一小时和最近7天的两个文件。<br><a id="more"></a><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SET markup html ON spool ON pre off entmap off</span>
@@ -11596,6 +12360,76 @@
     </entry>
     
     <entry>
+      <title><![CDATA[收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划]]></title>
+      <url>/2017/07/28/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/03_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> sql优化 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程]]></title>
+      <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/02_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
+<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
+<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
+<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
+<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
+</ol>
+<a id="more"></a>
+<h2 id="如何缩短SQL调优时间"><a href="#如何缩短SQL调优时间" class="headerlink" title="如何缩短SQL调优时间"></a>如何缩短SQL调优时间</h2><ol>
+<li>先获取有助调优的数据库整体信息</li>
+<li>快速获取SQL运行台前信息</li>
+<li>快速拿到SQL关联幕后信息</li>
+</ol>
+<p>相关脚本：</p>
+<ul>
+<li><a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li>
+<li><a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li>
+</ul>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> sql优化 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化]]></title>
       <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/01_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
       <content type="html"><![CDATA[<h2 id="SQL优化不同场景对应工具"><a href="#SQL优化不同场景对应工具" class="headerlink" title="SQL优化不同场景对应工具"></a>SQL优化不同场景对应工具</h2><h3 id="数据库的整体分析调优工具"><a href="#数据库的整体分析调优工具" class="headerlink" title="数据库的整体分析调优工具"></a>数据库的整体分析调优工具</h3><ol>
@@ -11681,39 +12515,6 @@
 <span class="line"></span>
 <span class="line">SELECT dbms_advisor.get_task_report(<span class="string">'TASK_30670'</span>,<span class="string">'TEXT'</span>,<span class="string">'ALL'</span>) FROM DUAL ;</span>
 </pre></td></tr></table></figure>]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> sql优化 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程]]></title>
-      <url>/2017/07/25/oracle/%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/02_%E6%94%B6%E8%8E%B7%E4%B8%8D%E6%AD%A2SQL%E4%BC%98%E5%8C%96/</url>
-      <content type="html"><![CDATA[<h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
-<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
-<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
-<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
-<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
-</ol>
-<a id="more"></a>
-<h2 id="如何缩短SQL调优时间"><a href="#如何缩短SQL调优时间" class="headerlink" title="如何缩短SQL调优时间"></a>如何缩短SQL调优时间</h2><ol>
-<li>先获取有助调优的数据库整体信息</li>
-<li>快速获取SQL运行台前信息</li>
-<li>快速拿到SQL关联幕后信息</li>
-</ol>
-<p>相关脚本：</p>
-<ul>
-<li><a href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li>
-<li><a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li>
-</ul>
-]]></content>
       
         
         <tags>
@@ -14629,6 +15430,23 @@
     </entry>
     
     <entry>
+      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
+      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
+      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
+<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
+<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理]]></title>
       <url>/2017/05/24/oracle/Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/04_Oracle_12c%E7%89%B9%E6%80%A7%E8%A7%A3%E8%AF%BB-%E5%AE%B9%E5%99%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E5%92%8C%E7%81%BE%E5%A4%87/</url>
       <content type="html"><![CDATA[<h2 id="在多PDB环境中，创建common-user，并赋予权限"><a href="#在多PDB环境中，创建common-user，并赋予权限" class="headerlink" title="在多PDB环境中，创建common user，并赋予权限"></a>在多PDB环境中，创建common user，并赋予权限</h2><p>查看状态<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> pdbs;</span>
@@ -14837,23 +15655,6 @@
             <tag> oracle </tag>
             
             <tag> 12c </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[在DELL R730物理机上安装配置Oracle Linux 7.3图解]]></title>
-      <url>/2017/05/24/linux/20170524_%E5%9C%A8DELL_R730%E7%89%A9%E7%90%86%E6%9C%BA%E4%B8%8A%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEOracle_Linux_7.3/</url>
-      <content type="html"><![CDATA[<p>Oracle Linux 7.3（Oracle Linux 7 Update 3）在2016.11.10发布。Oracle Linux全称为Oracle Enterprise Linux，是由Oracle公司提供支持的企业级Linux发行。这是第一个包含UEK版本 4（UEK R4）的 Oracle Linux 7 ISO，新安装的 Oracle Linux 7 Update 3 将默认安装和引导 UEK R4 内核。<br><strong>显著更新：</strong><br>UEFI 安全引导支持 - 此更新允许您在已启用 UEFI 安全引导的系统上安装和使用 Oracle Linux 7，这在 Oracle Linux 7 Update 3 上完全支持。<br><a id="more"></a></p>
-<h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>Oracle Linux 7.X较6.X版本变动较大，图形化安装也有较大变化，默认使用英文<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_01.png" alt=""><br>所有配置项都集中放在一起，根据需求，依次配置相关设置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_10.png" alt=""><br>操作系统安装位置/磁盘配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_02.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_03.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_04.png" alt=""><br>如果不想设置efi分区，需要在服务器BIOS里关闭UEFI功能<br><img src="http://oligvdnzp.bkt.clouddn.com/0523_dell_idrac_10.png" alt=""></p>
-<p>网络/主机名配置<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_06.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_07.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_08.png" alt=""><br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_09.png" alt=""><br>在配置项集中页，点开始安装<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_11.png" alt=""><br>设置root密码<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_12.png" alt=""><br>安装完后重启<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_13.png" alt=""><br>安装成功，登陆<br><img src="http://oligvdnzp.bkt.clouddn.com/0524_DellR730_Oracle_7_3_install_14.png" alt=""></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> Linux </tag>
             
         </tags>
         
@@ -16851,40 +17652,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
-      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
-      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
-<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
-<span class="line">......</span>
-<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
-<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
-<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
-<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
-<span class="line">Additional information: <span class="number">10</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
-<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
-<span class="line"></span>
-<span class="line">vi /etc</span><span class="regexp">/fstab</span>
-<span class="line">#------------------------------------------------------------------------</span>
-<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
-<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> ORA- </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划]]></title>
       <url>/2017/04/13/mysql/MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/12-MySQL-DBA%E4%BB%8E%E5%B0%8F%E7%99%BD%E5%88%B0%E5%A4%A7%E7%A5%9E%E5%AE%9E%E6%88%98/</url>
       <content type="html"><![CDATA[<h2 id="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"><a href="#用sysbench压测MySQL，通过orzdba监控工具分析机器的容量" class="headerlink" title="用sysbench压测MySQL，通过orzdba监控工具分析机器的容量"></a>用sysbench压测MySQL，通过orzdba监控工具分析机器的容量</h2><h3 id="编译安装sysbench"><a href="#编译安装sysbench" class="headerlink" title="编译安装sysbench"></a>编译安装sysbench</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装依赖包（在上节中的mha机器上安装）</span></span>
@@ -17092,6 +17859,40 @@
             <tag> mysql </tag>
             
             <tag> sysbench </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[ORA-27086 unable to lock file - already in use]]></title>
+      <url>/2017/04/13/oracle/ORA/ORA-27086/</url>
+      <content type="html"><![CDATA[<p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
+<span class="line"></span>
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> ORA- </tag>
             
         </tags>
         
@@ -17935,6 +18736,24 @@
     </entry>
     
     <entry>
+      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
+      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
+      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+]]></content>
+      
+        
+        <tags>
+            
+            <tag> oracle </tag>
+            
+            <tag> goldengate </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)]]></title>
       <url>/2017/03/31/oracle/Oracle%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A5%E4%B8%81%E5%8F%B7%E7%A0%81%E5%BF%AB%E9%80%9F%E5%8F%82%E8%80%83%20(%E6%96%87%E6%A1%A3%20ID%201922396.1)/</url>
       <content type="html"><![CDATA[<p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1" target="_blank" rel="external">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
@@ -18020,10 +18839,26 @@
     </entry>
     
     <entry>
-      <title><![CDATA[GoldenGate 12.1.2 新特性参数部分解释]]></title>
-      <url>/2017/03/31/oracle/goldengate/GoldenGate%2012.1.2%20%E6%96%B0%E7%89%B9%E6%80%A7%E5%8F%82%E6%95%B0%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A/</url>
-      <content type="html"><![CDATA[<h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
+      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
+      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
+<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
+<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
+<span class="line">...</span>
+<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
+<span class="line"></span>
+<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
+</pre></td></tr></table></figure></p>
+<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
+<span class="line">...</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
+<span class="line">COMMIT;</span>
+<span class="line"></span>
+<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
+<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
+</pre></td></tr></table></figure></p>
 ]]></content>
       
         
@@ -18031,7 +18866,7 @@
             
             <tag> oracle </tag>
             
-            <tag> goldengate </tag>
+            <tag> expdp </tag>
             
         </tags>
         
@@ -18185,40 +19020,6 @@
             <tag> oracle </tag>
             
             <tag> scripts </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Oracle expdp中INCLUDE参数限制4000个字符的解决办法]]></title>
-      <url>/2017/03/31/oracle/Oracle_DataPump_INCLUDE_%E5%8F%82%E6%95%B0%E9%99%90%E5%88%B64000%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/</url>
-      <content type="html"><![CDATA[<p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
-]]></content>
-      
-        
-        <tags>
-            
-            <tag> oracle </tag>
-            
-            <tag> expdp </tag>
             
         </tags>
         
@@ -20335,9 +21136,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -21898,9 +22699,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -21972,9 +22773,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         
@@ -22150,9 +22951,9 @@
         
         <tags>
             
-            <tag> tools </tag>
-            
             <tag> hexo </tag>
+            
+            <tag> tools </tag>
             
         </tags>
         

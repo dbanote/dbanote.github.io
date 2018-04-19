@@ -266,6 +266,74 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-04-17T16:00:00.000Z" itemprop="datePublished">2018-04-18</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="IMU的好处"><a href="#IMU的好处" class="headerlink" title="IMU的好处"></a>IMU的好处</h2><p>IMU(In Memory Undo)顾名思义就是在内存中的undo，现在每次更改data block，Oracle不用去更改这个undo block（也不会生成相应的redo了），而是把undo信息缓存到IMU里去了，只有最后commit或者flush IMU时，这些undo 信息才会批量更新到undo block,并生成redo。可以避免Undo信息以前在Buffer Cache中的读写操作，从而可以进一步的减少Redo生成，同时可以大大减少以前的UNDO SEGMENT的操作。IMU中数据通过暂存、整理与收缩之后也可以写出到回滚段，这样的写出提供了有序、批量写的性能提升。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -854,70 +922,6 @@
 
 
   
-    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
-      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -993,11 +997,11 @@
 
 
   
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-02-25T16:00:00.000Z" itemprop="datePublished">2018-02-26</time>
+      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
 </a>
 
 
@@ -1012,7 +1016,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a>
+      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
     </h1>
   
 
@@ -1022,33 +1026,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="控制文件没有备份全部丢失恢复实战"><a href="#控制文件没有备份全部丢失恢复实战" class="headerlink" title="控制文件没有备份全部丢失恢复实战"></a>控制文件没有备份全部丢失恢复实战</h2><h3 id="准备测试环境"><a href="#准备测试环境" class="headerlink" title="准备测试环境"></a>准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
-<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
-<span class="line">Automatic archival             Enabled</span>
-<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
-<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">110</span></span>
-<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">112</span></span>
-<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">112</span></span>
-<span class="line"></span>
-<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
-<span class="line"></span>
-<span class="line">OPEN_MODE</span>
-<span class="line">--------------------</span>
-<span class="line">READ WRITE</span>
-<span class="line"></span>
-<span class="line">set line <span class="number">150</span></span>
-<span class="line">set pagesize <span class="number">9999</span></span>
-<span class="line">col name <span class="keyword">for</span> a6<span class="number">0</span></span>
-<span class="line"><span class="keyword">select</span> * from v$controlfile;</span>
-<span class="line"></span>
-<span class="line">STATUS  NAME                                                         IS<span class="number">_</span> BLOCK_SIZE FILE_SIZE_BLKS</span>
-<span class="line">------- ------------------------------------------------------------ --- ---------- --------------</span>
-<span class="line">        <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/control</span>01.ctl                   NO       <span class="number">16384</span>            <span class="number">594</span></span>
-<span class="line">        /u01/app/oracle/fast_recovery_area/orcl/control02.ctl        NO       <span class="number">16384</span>            <span class="number">594</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 为方便后续测试，先生成一个创建控制文件的脚本(也可以不生成，创建脚本可以oracle官方文档中找到)</span></span>
-<span class="line">alter database backup controlfile to trace as <span class="string">'/tmp/control_bak.sql'</span>;</span>
-</pre></td></tr></table></figure>
+              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
           
       
     </div>
@@ -1056,19 +1034,15 @@
     <div class="article-info article-info-index">
       
       
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/#more">阅读全文 >></a>
+          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
