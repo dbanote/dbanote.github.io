@@ -266,6 +266,70 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -930,77 +994,6 @@
       
         <p class="article-more-link">
           <a href="/2017/12/12/docker/02_docker的部署安装-Centos/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/01_docker的相关概念" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/11/docker/01_docker的相关概念/" class="article-date">
-      <time datetime="2017-12-10T16:00:00.000Z" itemprop="datePublished">2017-12-11</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Docker就是虚拟化的一种轻量级替代技术。Docker的容器技术不依赖任何语言、框架或系统，可以将App变成一种标准化的、可移植的、自管理的组件，并脱离服务器硬件在任何主流系统中开发、调试和运行。</p>
-<h2 id="Docker的核心技术"><a href="#Docker的核心技术" class="headerlink" title="Docker的核心技术"></a>Docker的核心技术</h2><h3 id="Docker相关的核心技术之cgroups"><a href="#Docker相关的核心技术之cgroups" class="headerlink" title="Docker相关的核心技术之cgroups"></a>Docker相关的核心技术之cgroups</h3><p>Linux系统中经常有个需求就是希望能限制某个或者某些进程的分配资源。于是就出现了<code>cgroups</code>的概念，<code>cgroup</code>就是<code>controller group</code> ，在这个group中，有分配好的特定比例的cpu时间，IO时间，可用内存大小等。 <code>cgroups</code>是将任意进程进行分组化管理的Linux内核功能。最初由google的工程师提出，后来被整合进Linux内核中。</p>
-<p>cgroups中的 重要概念是“子系统”，也就是资源控制器，每种子系统就是一个资源的分配器，比如cpu子系统是控制cpu时间分配的。首先挂载子系统，然后才有control group的。比如先挂载memory子系统，然后在memory子系统中创建一个cgroup节点，在这个节点中，将需要控制的进程id写入，并且将控制的属性写入，这就完成了内存的资源限制。</p>
-<p>cgroups 被Linux内核支持，有得天独厚的性能优势，发展势头迅猛。在很多领域可以取代虚拟化技术分割资源。cgroup默认有诸多资源组，可以限制几乎所有服务器上的资源：cpu mem iops,iobandwide,net,device acess等<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/11/docker/01_docker的相关概念/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

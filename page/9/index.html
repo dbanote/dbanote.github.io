@@ -266,6 +266,89 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-02-23T16:00:00.000Z" itemprop="datePublished">2017-02-24</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><a href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。" class="headerlink" title="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。"></a>使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</h2><h3 id="规划多实例目录"><a href="#规划多实例目录" class="headerlink" title="规划多实例目录"></a>规划多实例目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p /u01/mysql             <span class="comment"># 程序目录</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/conf              <span class="comment"># 配置文件</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3306</span>         </span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3307</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/iblog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/binlog</span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3306</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3307</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3306</span></span>
+<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3307</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">chown</span> -R mysql:mysql /u01</span>
+<span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -879,74 +962,6 @@
       
         <p class="article-more-link">
           <a href="/2017/01/28/tools/vim常用命令/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-01-22T16:00:00.000Z" itemprop="datePublished">2017-01-23</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="为什么数据目录和日志目录需要分开"><a href="#为什么数据目录和日志目录需要分开" class="headerlink" title="为什么数据目录和日志目录需要分开?"></a>为什么数据目录和日志目录需要分开?</h2><p>这里的分开，我理解是将MySQL的数据目录和日志目录分别放到不同类型的磁盘中。<br>假设生产环境中服务器上有两种类型的磁盘，分别是SSD和SAS，SSD比SAS的响应时间要快（SSD响应时间约0.1毫秒，SAS的响应时间约10毫秒），为了更好的利用磁盘，一般会把活跃的数据放到SSD上，冷数据放到SAS磁盘上。<br>数据目录下的数据一般是随机读写的热数据，放到SSD盘中会有较高的响应速度；<br>日志目录下的日志是顺序读写的冷数据，放到SAS盘中满足写日志高吞吐量的需求。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

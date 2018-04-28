@@ -330,6 +330,70 @@
 
 
   
+    <article id="post-oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" class="article-date">
+      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>按SQLID一键获取执行计划索引分区等信息的脚本<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1011,107 +1075,6 @@
       
         <p class="article-more-link">
           <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-06-15T16:00:00.000Z" itemprop="datePublished">2017-06-16</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="11g升级到12-2"><a href="#11g升级到12-2" class="headerlink" title="11g升级到12.2"></a>11g升级到12.2</h2><h3 id="查看当前系统环境"><a href="#查看当前系统环境" class="headerlink" title="查看当前系统环境"></a>查看当前系统环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">df -hT</span>
-<span class="line">Filesystem           Type   Size  Used Avail Use% Mounted on</span>
-<span class="line">/dev/mapper/VolGroup-lv_root</span>
-<span class="line">                     ext4    <span class="number">43</span>G   <span class="number">20</span>G   <span class="number">22</span>G  <span class="number">48</span>% <span class="regexp">/</span>
-<span class="line">tmpfs                tmpfs  3.9G  109M  3.8G   3% /dev</span><span class="regexp">/shm</span>
-<span class="line">/dev</span><span class="regexp">/sda1            ext4   477M   85M  364M  19% /boot</span></span>
-<span class="line"></span>
-<span class="line">free</span>
-<span class="line">             total       used       free     shared    buffers     cached</span>
-<span class="line">Mem:       <span class="number">8174784</span>    <span class="number">5810232</span>    <span class="number">2364552</span>     <span class="number">111112</span>     <span class="number">196636</span>     <span class="number">731784</span></span>
-<span class="line">-<span class="regexp">/+ buffers/cache</span>:    <span class="number">4881812</span>    <span class="number">3292972</span></span>
-<span class="line">Swap:     <span class="number">16777212</span>          <span class="number">0</span>   <span class="number">16777212</span></span>
-<span class="line"></span>
-<span class="line">su - grid</span>
-<span class="line">opatch lspatches</span>
-<span class="line"><span class="number">22502505</span>;ACFS Patch Set Update : <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.160419</span> (<span class="number">22502505</span>)</span>
-<span class="line"><span class="number">23054319</span>;OCW Patch Set Update : <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.160719</span> (<span class="number">23054319</span>)</span>
-<span class="line"><span class="number">24732075</span>;Database Patch Set Update : <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.170418</span> (<span class="number">24732075</span>)</span>
-<span class="line"></span>
-<span class="line"><span class="keyword">exit</span></span>
-<span class="line">su - oracle</span>
-<span class="line">sqlplus / as sysdba</span>
-<span class="line"><span class="keyword">select</span> PROPERTY_VALUE from database_properties where PROPERTY_NAME=<span class="string">'NLS_RDBMS_VERSION'</span>;</span>
-<span class="line"></span>
-<span class="line">PROPERTY_VALUE</span>
-<span class="line">--------------------------------------------------</span>
-<span class="line"><span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      DB_UNIQUE_NAME                 OPEN_MODE            DATABASE_ROLE</span>
-<span class="line">--------- ------------------------------ -------------------- ----------------</span>
-<span class="line">DGT       dgts                           READ WRITE           PRIMARY</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

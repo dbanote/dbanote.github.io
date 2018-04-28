@@ -266,6 +266,89 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/" class="article-date">
+      <time datetime="2017-09-24T16:00:00.000Z" itemprop="datePublished">2017-09-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 原库：CRM (DBID=3657993631)  异机：DGT (DBID=1562574039)</span></span>
+<span class="line">sqlplus / as sysdba</span>
+<span class="line"><span class="keyword">exec</span> dbms_backup_restore.nidbegin(<span class="string">'dgt'</span>,<span class="string">'DGT'</span>,<span class="string">'3657993631'</span>,<span class="string">'1562574039'</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">10</span>);</span>
+<span class="line"></span>
+<span class="line">variable a number;</span>
+<span class="line">variable b number;</span>
+<span class="line">variable c number;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">exec</span> dbms_backup_restore.nidprocessdf(<span class="number">0</span>,<span class="number">0</span>,:a,:b,:c);</span>
+<span class="line"><span class="keyword">exec</span> dbms_backup_restore.nidprocesscf(:a,:b);</span>
+<span class="line"><span class="keyword">exec</span> dbms_backup_restore.nidend;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> dbid from v$database;</span>
+<span class="line"></span>
+<span class="line">rman target /</span>
+<span class="line">catalog start with <span class="string">'/oradata/nfs/crmpn_rman/arc_temp'</span>;</span>
+<span class="line"></span>
+<span class="line">run</span>
+<span class="line">&#123;allocate channel ci type disk;</span>
+<span class="line">set archivelog destination to <span class="string">'/u01/'</span>;</span>
+<span class="line">restore archivelog all;</span>
+<span class="line">release channel ci;</span>
+<span class="line">&#125;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+        <p class="article-more-link">
+          <a href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -993,70 +1076,6 @@
       
         <p class="article-more-link">
           <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" class="article-date">
-      <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>按SQLID一键获取执行计划索引分区等信息的脚本<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

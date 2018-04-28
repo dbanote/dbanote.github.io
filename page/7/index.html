@@ -266,6 +266,110 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-05-01T16:00:00.000Z" itemprop="datePublished">2017-05-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="通过gdb工具分析mysqld进程启动的过程"><a href="#通过gdb工具分析mysqld进程启动的过程" class="headerlink" title="通过gdb工具分析mysqld进程启动的过程"></a>通过gdb工具分析mysqld进程启动的过程</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">gdb --args /u01/mysql/bin/mysqld</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line">GNU gdb (GDB) Red Hat Enterprise Linux (<span class="number">7.2</span>-<span class="number">90</span>.el6)</span>
+<span class="line">Copyright (C) <span class="number">2010</span> Free Software Foundation, Inc.</span>
+<span class="line">License GPLv3+: GNU GPL version <span class="number">3</span> <span class="keyword">or</span> later &lt;http:<span class="regexp">//gnu</span>.org/licenses/gpl.html&gt;</span>
+<span class="line">This is free software: you are free to change <span class="keyword">and</span> redistribute it.</span>
+<span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span>
+<span class="line"><span class="keyword">and</span> <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span>
+<span class="line">This GDB was configured as <span class="string">"x86_64-redhat-linux-gnu"</span>.</span>
+<span class="line">For bug reporting instructions, please see:</span>
+<span class="line">&lt;http:<span class="regexp">//www</span>.gnu.org/software/gdb/bugs/&gt;...</span>
+<span class="line">Reading symbols from /u01/mysql/bin/mysqld...done.</span>
+<span class="line">(gdb) b mysqld_main   <span class="comment"># 设置断点</span></span>
+<span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x58c0e4</span>: file /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc, line <span class="number">5245</span>.</span>
+<span class="line">(gdb) r   <span class="comment"># 运行</span></span>
+<span class="line">Starting program: <span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqld</span> </span>
+<span class="line">[Thread debugging using libthread_db enabled]</span>
+<span class="line"></span>
+<span class="line">Breakpoint <span class="number">1</span>, mysqld_main (argc=<span class="number">1</span>, argv=<span class="number">0x7fffffffe668</span>) at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc:<span class="number">5245</span></span>
+<span class="line"><span class="number">5245</span>    &#123;</span>
+<span class="line">Missing separate debuginfos, <span class="keyword">use</span>: debuginfo-install glibc-<span class="number">2.12</span>-<span class="number">1.192</span>.el6.x86_64 keyutils-libs-<span class="number">1.4</span>-<span class="number">5.0</span>.<span class="number">1</span>.el6.x86_64 </span>
+<span class="line">krb5-libs-<span class="number">1.10</span>.<span class="number">3</span>-<span class="number">57</span>.el6.x86_64 libcom_err-<span class="number">1.42</span>.<span class="number">8</span>-<span class="number">1.0</span>.<span class="number">2</span>.el6.x86_64 libgcc-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 </span>
+<span class="line">libselinux-<span class="number">2.0</span>.<span class="number">94</span>-<span class="number">7</span>.el6.x86_64  libstdc++-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 nss-softokn-freebl-<span class="number">3.14</span>.<span class="number">3</span>-<span class="number">23</span>.el6_7.x86_64 </span>
+<span class="line">openssl-<span class="number">1.0</span>.<span class="number">1</span>e-<span class="number">48</span>.el6.x86_64 zlib-<span class="number">1.2</span>.<span class="number">3</span>-<span class="number">29</span>.el6.x86_64</span>
+<span class="line">(gdb) n   <span class="comment"># 向下</span></span>
+<span class="line"><span class="number">5250</span>      my_progname= argv[<span class="number">0</span>];</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">5254</span>      <span class="keyword">if</span> (my_init())                 // init my_sys library &amp; pthreads</span>
+<span class="line">(gdb) <span class="keyword">s</span>   <span class="comment"># 看源码位置</span></span>
+<span class="line">my_init () at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/mysys/my_init.c:<span class="number">69</span></span>
+<span class="line"><span class="number">69</span>        <span class="keyword">if</span> (my_init_done)</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">74</span>        my_umask= <span class="number">0660</span>;                       <span class="regexp">/* Default umask for new files */</span></span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">75</span>        my_umask_dir= <span class="number">0700</span>;                   <span class="regexp">/* Default umask for new directories */</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -821,67 +925,6 @@
 
 
   
-    <article id="post-oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -949,11 +992,11 @@
 
 
   
-    <article id="post-oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
+      <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
 </a>
 
 
@@ -968,7 +1011,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a>
+      <a class="article-title" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a>
     </h1>
   
 
@@ -978,24 +1021,8 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
+        <h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
 
       
     </div>
@@ -1006,7 +1033,7 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/expdp/">expdp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
     </div>
 
       
