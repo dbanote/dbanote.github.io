@@ -467,10 +467,10 @@
 
 
   
-    <article id="post-oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" class="article-date">
+      <a href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
       <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
 </a>
 
@@ -486,7 +486,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a>
+      <a class="article-title" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
     </h1>
   
 
@@ -496,8 +496,28 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>按SQLID一键获取执行计划索引分区等信息的脚本<br>
-          
+        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
+<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
+<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
+<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
+</pre></td></tr></table></figure>
+<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
+<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
+</pre></td></tr></table></figure>
+<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
       
     </div>
     
@@ -507,13 +527,9 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
     </div>
 
-      
-        <p class="article-more-link">
-          <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/#more">阅读全文 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -595,10 +611,10 @@
 
 
   
-    <article id="post-oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/" class="article-date">
+      <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/" class="article-date">
       <time datetime="2017-07-27T16:00:00.000Z" itemprop="datePublished">2017-07-28</time>
 </a>
 
@@ -614,7 +630,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a>
+      <a class="article-title" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a>
     </h1>
   
 
@@ -624,92 +640,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="执行计划分析概述"><a href="#执行计划分析概述" class="headerlink" title="执行计划分析概述"></a>执行计划分析概述</h2><h3 id="SQL执行计划"><a href="#SQL执行计划" class="headerlink" title="SQL执行计划"></a>SQL执行计划</h3><p>同一条SQL词句，可以有不同的执行计划，但一次只能有一种访问路径。<br>哪种执行开销更低，性能更好，速度更快，就选哪一种，这个过程叫作Oracle的解析过程。<br>解析后的SQL执行计划保存到SGA的Shared Pool里，后续再执行同样的SQL只需要在Shared Pool里获取，不需要再次分析了。<br>SQL执行计划选定选定依据是统计信息</p>
-<h3 id="查看表和索引的统计信息"><a href="#查看表和索引的统计信息" class="headerlink" title="查看表和索引的统计信息"></a>查看表和索引的统计信息</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 表的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,num_rows,blocks,last_analyzed from user_tables</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 索引的相关统计信息</span></span>
-<span class="line"><span class="keyword">select</span> table_name,index_name,blevel,num_rows,leaf_blocks,last_analyzed from user_indexes</span>
-<span class="line">where table_name in (<span class="string">'&amp;table_name'</span>);</span>
-</pre></td></tr></table></figure>
-<h3 id="数据库统计信息的收集"><a href="#数据库统计信息的收集" class="headerlink" title="数据库统计信息的收集"></a>数据库统计信息的收集</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 收集表统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_index_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">indname=&gt;</span><span class="string">'&amp;index_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="string">'10'</span>,<span class="string">degree=&gt;</span><span class="string">'4'</span>);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集表和索引统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 收集分区表指定分区统计信息</span></span>
-<span class="line"><span class="keyword">exec</span> dbms_stats.gather_table_stats(<span class="string">ownname=&gt;</span><span class="string">'&amp;owner'</span>,<span class="string">tabname=&gt;</span><span class="string">'&amp;table_name'</span>,partname=<span class="string">'&amp;partition_name'</span>,<span class="string">estimate_percent=&gt;</span><span class="number">10</span>,<span class="string">method_opt=&gt;</span><span class="string">'for all indexed columns'</span>,<span class="string">cascade=&gt;</span>TRUE);</span>
-</pre></td></tr></table></figure>
-<h2 id="读懂执行计划的关键"><a href="#读懂执行计划的关键" class="headerlink" title="读懂执行计划的关键"></a>读懂执行计划的关键</h2><h2 id="从案例中辨别低效SQL"><a href="#从案例中辨别低效SQL" class="headerlink" title="从案例中辨别低效SQL"></a>从案例中辨别低效SQL</h2>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
-      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
-<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
-<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
-<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
-<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
-</ol>
+              <p>按SQLID一键获取执行计划索引分区等信息的脚本<br>
           
       
     </div>
@@ -720,12 +651,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
+          <a href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -809,6 +740,75 @@
       
         <p class="article-more-link">
           <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/" class="article-date">
+      <time datetime="2017-07-24T16:00:00.000Z" itemprop="datePublished">2017-07-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="SQL调优时间都去哪儿了"><a href="#SQL调优时间都去哪儿了" class="headerlink" title="SQL调优时间都去哪儿了"></a>SQL调优时间都去哪儿了</h2><ol>
+<li><strong>不善于批处理频频忙交互</strong>：尽量一次性获取SQL调优前所需的信息，如SQL执行计划、SQL执行频率、对应的表和索引尺寸、表和索引的统计信息、表和索引的类型等。</li>
+<li><strong>无法抓住主要矛盾瞎折腾</strong>：首先要判断出是整体问题，还是局部问题。</li>
+<li><strong>未能明确需求目标自费劲</strong>：一切以客户的需求为前提。局部问题时，虽慢用户满意即是快，虽快用户不满意即是慢。但是，整体问题必须解决，无论用户感觉是慢还是慢。</li>
+<li><strong>没有分析操作难度乱调优</strong>：SQL调优前首先要知道这个SOL返回记录有多少，如果很少，就说明调优空间很大，反之就要考虑特殊手段了。 SQL的执行频次、执行时长以及服务器的配置高低也要了解清楚。</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

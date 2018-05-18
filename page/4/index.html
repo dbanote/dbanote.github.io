@@ -266,10 +266,10 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-oracle/flashback常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/10/19/oracle/flashback常用命令整理/" class="article-date">
+      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
       <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
 </a>
 
@@ -285,7 +285,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a>
+      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
     </h1>
   
 
@@ -295,37 +295,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="flashback常用命令整理"><a href="#flashback常用命令整理" class="headerlink" title="flashback常用命令整理"></a>flashback常用命令整理</h2><h3 id="打开数据库闪回"><a href="#打开数据库闪回" class="headerlink" title="打开数据库闪回"></a>打开数据库闪回</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> name,open_mode,log_mode,force_logging,flashback_on from v$database;</span>
-<span class="line"></span>
-<span class="line">NAME      OPEN_MODE            LOG_MODE     FOR FLASHBACK_ON</span>
-<span class="line">--------- -------------------- ------------ --- ------------------</span>
-<span class="line">ORCL      READ WRITE           ARCHIVELOG   NO  NO</span>
-<span class="line"></span>
-<span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
-<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
-<span class="line">Automatic archival             Enabled</span>
-<span class="line">Archive destination            /u01/app/arch/</span>
-<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">246</span></span>
-<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">249</span></span>
-<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">249</span></span>
-<span class="line"></span>
-<span class="line">SQL&gt; show parameter recovery</span>
-<span class="line"></span>
-<span class="line">NAME                                 TYPE        VALUE</span>
-<span class="line">------------------------------------ ----------- ------------------------------</span>
-<span class="line">db_recovery_file_dest                string</span>
-<span class="line">db_recovery_file_dest_size           big integer <span class="number">0</span></span>
-<span class="line">recovery_parallelism                 integer     <span class="number">0</span></span>
-<span class="line"></span>
-<span class="line">alter <span class="keyword">system</span> set log_archive_dest=<span class="string">''</span>;</span>
-<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest_size=<span class="number">10</span>g;</span>
-<span class="line">alter <span class="keyword">system</span> set db_recovery_file_dest=<span class="string">'/u01/app/fra'</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 2880单位是分钟minutes</span></span>
-<span class="line">alter <span class="keyword">system</span> set db_flashback_retention_target=<span class="number">2880</span>;</span>
-<span class="line"></span>
-<span class="line">alter database flashback on;</span>
-</pre></td></tr></table></figure>
+              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
           
       
     </div>
@@ -340,12 +310,12 @@
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/flashback/">flashback</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2017/10/19/oracle/flashback常用命令整理/#more">阅读全文 >></a>
+          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
