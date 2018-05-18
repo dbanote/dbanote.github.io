@@ -266,6 +266,149 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-05-16T16:00:00.000Z" itemprop="datePublished">2018-05-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="ORA-8102-Index-Corruption修复"><a href="#ORA-8102-Index-Corruption修复" class="headerlink" title="ORA-8102 Index Corruption修复"></a>ORA-8102 Index Corruption修复</h2><h3 id="ORA-8102解析"><a href="#ORA-8102解析" class="headerlink" title="ORA-8102解析"></a>ORA-8102解析</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">oerr ora <span class="number">8102</span></span>
+<span class="line">08102, <span class="number">00000</span>, <span class="string">"index key not found, obj# %s, file %s, block %s (%s)"</span></span>
+<span class="line">// *Cause:  Internal error: possible inconsistency in <span class="keyword">index</span></span>
+<span class="line">// *Action:  Send trace file to your customer support representative, along</span>
+<span class="line">//           with information on reproducing the error</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 常见于索引键值与表上存的值不一致，可能是ORACLE的bug，也可能是由于硬件I/0错误所引起！</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-05-09T16:00:00.000Z" itemprop="datePublished">2018-05-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="恢复ora-600-4193-的错误"><a href="#恢复ora-600-4193-的错误" class="headerlink" title="恢复ora-600[4193]的错误"></a>恢复ora-600[4193]的错误</h2><h3 id="ora-600-4193-解析"><a href="#ora-600-4193-解析" class="headerlink" title="ora-600[4193]解析"></a>ora-600[4193]解析</h3><p>ORA-600[41XX] 这种错误基本都于UNDO有关系<br>ora-600[4193]：表示undo和redo不一致（Arg [a] Undo record seq number，Arg [b] Redo record seq number ）<br>数据库在启动时需要进行一个前滚的操作，在前滚时会应用redo 到undo block上，操作时会检查undo record里的seq#和redo record里的seq#。正常情况下，这2者的seq# 应该是一致的，在一致的情况下，我们才应用redo record 到undo record。如果不一致就会出现ORA-600[4193][a][b]的错误。其中a是undo里的seq#记录，b是redo里的seq#值。 这里的值都是十六进程，可以通过to_number() 函数来转换。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -899,181 +1042,9 @@
 
 
   
-    <article id="post-docker/10_docker常用命令" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/28/docker/10_docker常用命令/" class="article-date">
-      <time datetime="2018-02-27T16:00:00.000Z" itemprop="datePublished">2018-02-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="docker-search"><a href="#docker-search" class="headerlink" title="docker search"></a>docker search</h2><p>命令示例：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">docker search oracle</span>
-<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
-<span class="line">NAME                                DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED</span>
-<span class="line">oraclelinux                         Oracle Linux is an <span class="keyword">open</span>-source operating s...   <span class="number">404</span>                 [OK]                </span>
-<span class="line">frolvlad/alpine-oraclejdk8          The smallest Docker image with OracleJDK <span class="number">8</span>...   <span class="number">270</span>                                     [OK]</span>
-<span class="line">alexeiled/docker-oracle-xe-<span class="number">11</span>g      This is a working (hopefully) Oracle XE <span class="number">11</span>...   <span class="number">223</span>                                     [OK]</span>
-<span class="line">sath89/oracle-<span class="number">12</span>c                   Oracle Standard Edition <span class="number">12</span>c Release <span class="number">1</span> with...   <span class="number">222</span>                                     [OK]</span>
-<span class="line">sath89/oracle-xe-<span class="number">11</span>g                Oracle xe <span class="number">11</span>g with database files mount su...   <span class="number">136</span>                                     [OK]</span>
-<span class="line">isuper/java-oracle                  This repository contains all java releases...   <span class="number">55</span>                                      [OK]</span>
-<span class="line">jaspeen/oracle-<span class="number">11</span>g                  Docker image <span class="keyword">for</span> Oracle <span class="number">11</span>g database            <span class="number">55</span>                                      [OK]</span>
-<span class="line">oracle/glassfish                    GlassFish Java EE Application Server on Or...   <span class="number">31</span>                                      [OK]</span>
-<span class="line">oracle/openjdk                      Docker images containing OpenJDK Oracle Linux   <span class="number">26</span>                                      [OK]</span>
-<span class="line">airdock/oracle-jdk                  Docker Image <span class="keyword">for</span> Oracle Java SDK (<span class="number">8</span> <span class="keyword">and</span> <span class="number">7</span>)...   <span class="number">23</span>                                      [OK]</span>
-<span class="line">wnameless/oracle-xe-<span class="number">11</span>g             Dockerfile of Oracle Database Express Edit...   <span class="number">22</span>                                      [OK]</span>
-<span class="line">ingensi/oracle-jdk                  Official Oracle JDK installed on centos.        <span class="number">21</span>                                      [OK]</span>
-<span class="line">cogniteev/oracle-java               Oracle JDK <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="keyword">and</span> <span class="number">9</span> based on Ubuntu ...   <span class="number">20</span>                                      [OK]</span>
-<span class="line">n3ziniuka5/ubuntu-oracle-jdk        Ubuntu with Oracle JDK. Check tags <span class="keyword">for</span> ver...   <span class="number">14</span>                                      [OK]</span>
-<span class="line">oracle/nosql                        Oracle NoSQL on a Docker Image with Oracle...   <span class="number">13</span>                                      [OK]</span>
-<span class="line">sgrio/java-oracle                   Docker images of Java <span class="number">7</span>/<span class="number">8</span> provided by Orac...   <span class="number">7</span>                                       [OK]</span>
-<span class="line">andreptb/oracle-java                Debian Jessie based image with Oracle JDK ...   <span class="number">7</span>                                       [OK]</span>
-<span class="line">openweb/oracle-tomcat               A <span class="keyword">fork</span> off of Official tomcat image with O...   <span class="number">7</span>                                       [OK]</span>
-<span class="line">flurdy/oracle-java7                 Base image containing Oracle<span class="string">'s Java 7 JDK       5                                       [OK]</span>
-<span class="line">martinseeler/oracle-server-jre      Oracle'</span><span class="keyword">s</span> Java <span class="number">8</span> as <span class="number">61</span> MB Docker container.      <span class="number">4</span>                                       [OK]</span>
-<span class="line">davidcaste/debian-oracle-java       Oracle Java <span class="number">8</span> (<span class="keyword">and</span> <span class="number">7</span>) over Debian Jessie        <span class="number">3</span>                                       [OK]</span>
-<span class="line">teradatalabs/centos6-java8-oracle   Docker image of CentOS <span class="number">6</span> with Oracle JDK <span class="number">8</span>...   <span class="number">3</span>                                       </span>
-<span class="line">spansari/nodejs-oracledb            nodejs with oracledb installed globally on...   <span class="number">1</span>                                       </span>
-<span class="line">publicisworldwide/oracle-core       This is the core image based on Oracle Lin...   <span class="number">1</span>                                       [OK]</span>
-<span class="line">sigma/nimbus-lock-oracle                                                            <span class="number">0</span>                                       [OK]</span>
-<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/28/docker/10_docker常用命令/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/" class="article-date">
-      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
-<li>CI-持续集成(Continuous Integration)：频繁地将代码集成到主干的一种开发实践，每次集成都通过自动化的构建（包括编译，发布，自动化测试）来验证，从而尽早地发现集成错误。</li>
-<li>CD-持续部署(Continuous Deployment)：从代码提交，自动化完成测试、构建及到生产环境的部署</li>
-</ul>
-<h2 id="在Rancher中做CI-CD的方法"><a href="#在Rancher中做CI-CD的方法" class="headerlink" title="在Rancher中做CI/CD的方法"></a>在Rancher中做CI/CD的方法</h2><ol>
-<li>配合第三方工具，Drone/Travis/Jenkins，配合webhook，rancher cli等触发部署更新 </li>
-<li>使用<code>Rancher pipeline</code>构建从源码提交到Rancher中应用部署的一套流水线</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
     </nav>
   
 </div>

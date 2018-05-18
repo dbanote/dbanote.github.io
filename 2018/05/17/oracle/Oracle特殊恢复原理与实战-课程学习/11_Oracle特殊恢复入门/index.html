@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="ORA-8102 Index Corruption修复ORA-8102解析oerr ora 8102
+08102, 00000, &quot;index key not found, obj# %s, file %s, block %s (%s)&quot;
+// *Cause:  Internal error: possible inconsistency in index
+// *Action:  Send tr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复">
+<meta property="og:url" content="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="ORA-8102 Index Corruption修复ORA-8102解析oerr ora 8102
+08102, 00000, &quot;index key not found, obj# %s, file %s, block %s (%s)&quot;
+// *Cause:  Internal error: possible inconsistency in index
+// *Action:  Send tr">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_01.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_02.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_03.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_04.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_05.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_06.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_07.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_08.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_09.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_10.png">
+<meta property="og:updated_time" content="2018-05-18T07:15:02.045Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复">
+<meta name="twitter:description" content="ORA-8102 Index Corruption修复ORA-8102解析oerr ora 8102
+08102, 00000, &quot;index key not found, obj# %s, file %s, block %s (%s)&quot;
+// *Cause:  Internal error: possible inconsistency in index
+// *Action:  Send tr">
+<meta name="twitter:image" content="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-05-16T16:00:00.000Z" itemprop="datePublished">2018-05-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="ORA-8102-Index-Corruption修复"><a href="#ORA-8102-Index-Corruption修复" class="headerlink" title="ORA-8102 Index Corruption修复"></a>ORA-8102 Index Corruption修复</h2><h3 id="ORA-8102解析"><a href="#ORA-8102解析" class="headerlink" title="ORA-8102解析"></a>ORA-8102解析</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">oerr ora <span class="number">8102</span></span>
+<span class="line">08102, <span class="number">00000</span>, <span class="string">"index key not found, obj# %s, file %s, block %s (%s)"</span></span>
+<span class="line">// *Cause:  Internal error: possible inconsistency in <span class="keyword">index</span></span>
+<span class="line">// *Action:  Send trace file to your customer support representative, along</span>
+<span class="line">//           with information on reproducing the error</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 常见于索引键值与表上存的值不一致，可能是ORACLE的bug，也可能是由于硬件I/0错误所引起！</span></span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="重现ORA-8102错误环境准备"><a href="#重现ORA-8102错误环境准备" class="headerlink" title="重现ORA-8102错误环境准备"></a>重现ORA-8102错误环境准备</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line"></span>
+<span class="line">create table lyj_100<span class="number">0</span>(id <span class="keyword">int</span>,name varchar2(<span class="number">100</span>));</span>
+<span class="line"></span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">5000</span> loop</span>
+<span class="line">  insert into lyj_100<span class="number">0</span> <span class="keyword">values</span>(i,<span class="string">'lyj'</span>||i);</span>
+<span class="line">  commit;</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">select user_id,username from dba_users where username='LYJ';</span>
+<span class="line"></span>
+<span class="line">   USER_ID USERNAME</span>
+<span class="line">---------- ------------------------------</span>
+<span class="line">        34 LYJ</span>
+<span class="line"></span>
+<span class="line">alter table LYJ_1000 add primary key(id);</span>
+<span class="line"></span>
+<span class="line">select CONSTRAINT_NAME from dba_constraints where table_name='LYJ_1000';</span>
+<span class="line"></span>
+<span class="line">CONSTRAINT_NAME</span>
+<span class="line">------------------------------</span>
+<span class="line">SYS_C003989</span>
+<span class="line"></span>
+<span class="line">conn /</span> as sysdba</span>
+<span class="line"><span class="keyword">select</span> dbms_rowid.rowid_relative_fno(rowid) file<span class="comment">#,</span></span>
+<span class="line">       dbms_rowid.rowid_block_number(rowid) block<span class="comment">#,</span></span>
+<span class="line">       dbms_rowid.rowid_row_number(rowid) row<span class="comment"># </span></span>
+<span class="line">from con$ </span>
+<span class="line">where name=<span class="string">'_NEXT_CONSTRAINT'</span>;</span>
+<span class="line"></span>
+<span class="line">     FILE<span class="comment">#     BLOCK#       ROW#</span></span>
+<span class="line">---------- ---------- ----------</span>
+<span class="line">         <span class="number">1</span>        <span class="number">289</span>         <span class="number">12</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> /*+ FULL(t1) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3990</span>
+<span class="line"></span>
+<span class="line">select /</span>*+ <span class="keyword">index</span>(t1 I_CON2) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3990</span>
+<span class="line"></span>
+<span class="line"># 上面这两个值相等的时候，是正常的，创建新索引时，会分别更新上面的两个值</span></span>
+</pre></td></tr></table></figure>
+<h3 id="重现ORA-8102错误"><a href="#重现ORA-8102错误" class="headerlink" title="重现ORA-8102错误"></a>重现ORA-8102错误</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">bbed</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set file <span class="number">1</span> block <span class="number">289</span></span>
+<span class="line">        FILE<span class="comment">#           1</span></span>
+<span class="line">        BLOCK<span class="comment">#          289</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 找到12行（* 绝对值）</span></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">12</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @1108     <span class="number">0x2c</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 看这行记录的信息</span></span>
+<span class="line">BBED&gt; <span class="keyword">x</span> /rccnn</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @1108    </span>
+<span class="line">----------</span>
+<span class="line">flag@1108: <span class="number">0x2c</span> (KDRHFL, KDRHFF, KDRHFH)</span>
+<span class="line">lock@1109: <span class="number">0x02</span></span>
+<span class="line">cols@1110:    <span class="number">4</span></span>
+<span class="line"></span>
+<span class="line">col    <span class="number">0</span>[<span class="number">1</span>] @1111: .</span>
+<span class="line">col   <span class="number">1</span>[<span class="number">16</span>] @1113: _NEXT_CONSTRAINT</span>
+<span class="line">col    <span class="number">2</span>[<span class="number">3</span>] @1130: <span class="number">3990</span>   <span class="comment"># # </span></span>
+<span class="line">col    <span class="number">3</span>[<span class="number">1</span>] @1134: <span class="number">0</span> </span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看offset 1130</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">1130</span> count <span class="number">32</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">289</span>     Offsets: <span class="number">1130</span> to <span class="number">1161</span>  Dba:<span class="number">0x00400121</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">03</span>c2285b <span class="number">01</span>802c0<span class="number">0</span> <span class="number">0401</span>801<span class="number">0</span> <span class="number">5</span>f4e4558 l ..([..,....._NEX   </span>
+<span class="line"> <span class="number">545</span>f434f <span class="number">4</span>e535452 <span class="number">41494</span>e54 <span class="number">02</span>c22801 l T_CONSTRAINT..(.</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> <span class="keyword">dump</span>(<span class="number">3990</span>,<span class="number">16</span>) from dual;</span>
+<span class="line"></span>
+<span class="line">DUMP(<span class="number">3990</span>,<span class="number">16</span>)</span>
+<span class="line">---------------------</span>
+<span class="line">Typ=<span class="number">2</span> Len=<span class="number">3</span>: c2,<span class="number">28</span>,<span class="number">5</span>b</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> <span class="keyword">dump</span>(<span class="number">3991</span>,<span class="number">16</span>) from dual;  <span class="comment"># 改成大一些的值，重现故障</span></span>
+<span class="line"></span>
+<span class="line">DUMP(<span class="number">3991</span>,<span class="number">16</span>)</span>
+<span class="line">---------------------</span>
+<span class="line">Typ=<span class="number">2</span> Len=<span class="number">3</span>: c2,<span class="number">28</span>,<span class="number">5</span>c</span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">5</span>c offset <span class="number">1133</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">289</span>              Offsets: <span class="number">1133</span> to <span class="number">1164</span>           Dba:<span class="number">0x00400121</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c01802c <span class="number">000401</span>8<span class="number">0</span> <span class="number">105</span>f4e45 <span class="number">58545</span>f43 <span class="number">4</span>f4e5354 <span class="number">5241494</span>e <span class="number">5402</span>c228 <span class="number">01</span>802c0<span class="number">0</span> </span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">1</span>, Block <span class="number">289</span>:</span>
+<span class="line">current = <span class="number">0x8edd</span>, required = <span class="number">0x8edd</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看修改后状态</span></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">1130</span> count <span class="number">32</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">289</span>     Offsets: <span class="number">1130</span> to <span class="number">1161</span>  Dba:<span class="number">0x00400121</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">03</span>c2285c <span class="number">01</span>802c0<span class="number">0</span> <span class="number">0401</span>801<span class="number">0</span> <span class="number">5</span>f4e4558 l ..(\..,....._NEX</span>
+<span class="line"> <span class="number">545</span>f434f <span class="number">4</span>e535452 <span class="number">41494</span>e54 <span class="number">02</span>c22801 l T_CONSTRAINT..(.</span>
+<span class="line"></span>
+<span class="line">BBED&gt; p *kdbr[<span class="number">12</span>]</span>
+<span class="line">rowdata[<span class="number">0</span>]</span>
+<span class="line">----------</span>
+<span class="line">ub1 rowdata[<span class="number">0</span>]                              @1108     <span class="number">0x2c</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">x</span> /rccnn</span>
+<span class="line">rowdata[<span class="number">0</span>]                                  @1108    </span>
+<span class="line">----------</span>
+<span class="line">flag@1108: <span class="number">0x2c</span> (KDRHFL, KDRHFF, KDRHFH)</span>
+<span class="line">lock@1109: <span class="number">0x02</span></span>
+<span class="line">cols@1110:    <span class="number">4</span></span>
+<span class="line"></span>
+<span class="line">col    <span class="number">0</span>[<span class="number">1</span>] @1111: .</span>
+<span class="line">col   <span class="number">1</span>[<span class="number">16</span>] @1113: _NEXT_CONSTRAINT</span>
+<span class="line">col    <span class="number">2</span>[<span class="number">3</span>] @1130: <span class="number">3991</span> </span>
+<span class="line">col    <span class="number">3</span>[<span class="number">1</span>] @1134: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重启数据库</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重建索引时出现ORA-08102报错</span></span>
+<span class="line">conn lyj/lyj</span>
+<span class="line">alter table LYJ_100<span class="number">0</span> drop primary key;</span>
+<span class="line"></span>
+<span class="line">alter table LYJ_100<span class="number">0</span> add primary key(id);</span>
+<span class="line">alter table LYJ_100<span class="number">0</span> add primary key(id)</span>
+<span class="line">*</span>
+<span class="line">ERROR at line <span class="number">1</span>:</span>
+<span class="line">ORA-<span class="number">00604</span>: error occurred at recursive SQL level <span class="number">1</span></span>
+<span class="line">ORA-08102: <span class="keyword">index</span> key <span class="keyword">not</span> found, obj<span class="comment"># 52, file 1, block 15536 (2)</span></span>
+</pre></td></tr></table></figure>
+<h3 id="分析ORA-8102错误"><a href="#分析ORA-8102错误" class="headerlink" title="分析ORA-8102错误"></a>分析ORA-8102错误</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看相关日志</span></span>
+<span class="line">vi alert.log</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Thu May <span class="number">17</span> <span class="number">16</span>:<span class="number">52</span>:<span class="number">20</span> <span class="number">2018</span></span>
+<span class="line">Errors in file /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_24252.trc:</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_24252.trc</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">oer <span class="number">8102.2</span> - obj<span class="comment"># 52, rdba: 0x00403cb0(afn 1, blk# 15536)       # obj# 52 -&gt; bootstrap$</span></span>
+<span class="line">kdk key <span class="number">8102.2</span>:</span>
+<span class="line">  ncol: <span class="number">1</span>, len: <span class="number">4</span></span>
+<span class="line">  key: (<span class="number">4</span>):  <span class="number">03</span> c2 <span class="number">28</span> <span class="number">5</span>c</span>
+<span class="line">  mask: (<span class="number">4096</span>):</span>
+<span class="line"> <span class="number">61</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">18</span> <span class="number">87</span> <span class="number">97</span> <span class="number">65</span> <span class="number">01</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">00</span> <span class="number">60</span> <span class="number">19</span> <span class="number">12</span> 0c</span>
+<span class="line">.....</span>
+<span class="line"><span class="comment">#============</span></span>
+<span class="line">Plan Table</span>
+<span class="line"><span class="comment">#============</span></span>
+<span class="line">--------------------------------------+-----------------------------------+</span>
+<span class="line">| Id  | Operation           | Name    | Rows  | Bytes | Cost  | Time      |</span>
+<span class="line">--------------------------------------+-----------------------------------+</span>
+<span class="line">| <span class="number">0</span>   | UPDATE STATEMENT    |         |       |       |     <span class="number">2</span> |           |</span>
+<span class="line">| <span class="number">1</span>   |  UPDATE             | CON$    |       |       |       |           |  <span class="comment"># 更新CON$时发现不一致</span></span>
+<span class="line">| <span class="number">2</span>   |   INDEX UNIQUE SCAN | I_CON1  |     <span class="number">1</span> |    <span class="number">22</span> |     <span class="number">1</span> |  <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">--------------------------------------+-----------------------------------+</span>
+<span class="line"><span class="comment">#----------------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">set line <span class="number">100</span></span>
+<span class="line"><span class="keyword">select</span> * from bootstrap$ where obj<span class="comment">#=52;</span></span>
+<span class="line"></span>
+<span class="line">     LINE<span class="comment">#       OBJ#</span></span>
+<span class="line">---------- ----------</span>
+<span class="line">SQL_TEXT</span>
+<span class="line">----------------------------------------------------------------------------------------------------</span>
+<span class="line">        <span class="number">52</span>         <span class="number">52</span></span>
+<span class="line">CREATE UNIQUE INDEX I_CON2 ON CON$(CON<span class="comment">#) PCTFREE 10 INITRANS 2 MAXTRANS 255 STORAGE (  INITIAL 64K N</span></span>
+<span class="line">EXT <span class="number">1024</span>K MINEXTENTS <span class="number">1</span> MAXEXTENTS <span class="number">2147483645</span> PCTINCREASE <span class="number">0</span> OBJNO <span class="number">52</span> EXTENTS (FILE <span class="number">1</span> BLOCK <span class="number">464</span>))</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 这两个值不一样了</span></span>
+<span class="line"><span class="keyword">select</span> /*+ FULL(t1) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3991</span>
+<span class="line"></span>
+<span class="line">select /</span>*+ <span class="keyword">index</span>(t1 I_CON2) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3990</span>
+<span class="line"></span>
+<span class="line"># dump afn 1, blk# 15536(新开一个会话)</span>
+<span class="line">alter system dump datafile 1 block 15536;</span>
+<span class="line">oradebug setmypid</span>
+<span class="line">oradebug tracefile_name</span>
+<span class="line">/u</span>01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_24374.trc</span>
+<span class="line"></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x00403cb0</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x34</span>  csc: <span class="number">0x00</span>.<span class="number">2240</span>b6  itc: <span class="number">3</span>  flg: O  typ: <span class="number">2</span> - INDEX   <span class="comment"># 索引块</span></span>
+<span class="line">     fsl: <span class="number">0</span>  fnx: <span class="number">0x403cb1</span> ver: <span class="number">0x01</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0001</span>.<span class="number">00</span>b.<span class="number">0000006</span>d  <span class="number">0x00c02131</span>.<span class="number">0014</span>.<span class="number">01</span>  CB--    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">0001</span>b805</span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0x0008</span>.<span class="number">00</span>9.<span class="number">00000403</span>  <span class="number">0x00c01041</span>.<span class="number">01</span>ee.0c  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">002236</span>8f</span>
+<span class="line"><span class="number">0x03</span>   <span class="number">0x0005</span>.<span class="number">01</span>f.<span class="number">000003</span>f6  <span class="number">0x00c00cbd</span>.<span class="number">02</span>b6.0c  --U-    <span class="number">1</span>  fsc <span class="number">0x000e</span>.<span class="number">002240</span>b7</span>
+<span class="line">Leaf block <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#===============</span></span>
+<span class="line">header address <span class="number">140264942398068</span>=<span class="number">0x7f91fa10ea74</span></span>
+<span class="line">kdxcolev <span class="number">0</span>  <span class="comment"># 0 叶子块 根块&gt;0</span></span>
+<span class="line">KDXCOLEV Flags = - - -</span>
+<span class="line">kdxcolok <span class="number">0</span></span>
+<span class="line">kdxcoopc <span class="number">0x80</span>: opcode=<span class="number">0</span>: iot flags=--- is converted=Y</span>
+<span class="line">kdxconco <span class="number">1</span></span>
+<span class="line">kdxcosdc <span class="number">1</span></span>
+<span class="line">kdxconro <span class="number">498</span></span>
+<span class="line">kdxcofbo <span class="number">1032</span>=<span class="number">0x408</span></span>
+<span class="line">kdxcofeo <span class="number">1184</span>=<span class="number">0x4a0</span></span>
+<span class="line">kdxcoavs <span class="number">1004</span></span>
+<span class="line">kdxlespl <span class="number">0</span></span>
+<span class="line">kdxlende <span class="number">1</span></span>
+<span class="line">kdxlenxt <span class="number">0</span>=<span class="number">0x0</span></span>
+<span class="line">kdxleprv <span class="number">4194775</span>=<span class="number">0x4001d7</span></span>
+<span class="line">kdxledsz <span class="number">6</span></span>
+<span class="line">kdxlebksz <span class="number">8008</span></span>
+<span class="line">row<span class="comment">#0[7996] flag: ------, lock: 0, len=12, data:(6):  00 40 33 e5 00 6f</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">23</span> <span class="number">17</span></span>
+<span class="line">row<span class="comment">#1[7984] flag: ------, lock: 0, len=12, data:(6):  00 40 33 e5 00 70</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">23</span> <span class="number">18</span></span>
+<span class="line">.....</span>
+<span class="line">row<span class="comment">#497[1196] flag: ------, lock: 0, len=12, data:(6):  00 40 01 21 00 0c</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">28</span> <span class="number">5</span>b   <span class="comment"># 这个是最后的行</span></span>
+<span class="line">----- end of leaf block <span class="keyword">dump</span> -----</span>
+<span class="line">End <span class="keyword">dump</span> data blocks tsn: <span class="number">0</span> file<span class="comment">#: 1 minblk 15536 maxblk 15536</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> utl_raw.cast_to_number(replace(<span class="string">'c2 28 5b'</span>,<span class="string">' '</span>)) from dual;  </span>
+<span class="line"></span>
+<span class="line">UTL_RAW.CAST_TO_NUMBER(REPLACE(<span class="string">'C2285B'</span>,<span class="string">''</span>))</span>
+<span class="line">--------------------------------------------</span>
+<span class="line">                                        <span class="number">3990</span></span>
+</pre></td></tr></table></figure>
+<h3 id="解决ORA-8102错误"><a href="#解决ORA-8102错误" class="headerlink" title="解决ORA-8102错误"></a>解决ORA-8102错误</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">bbed</span>
+<span class="line"></span>
+<span class="line">BBED&gt; set file <span class="number">1</span> block <span class="number">15536</span></span>
+<span class="line">        FILE<span class="comment">#           1</span></span>
+<span class="line">        BLOCK<span class="comment">#          15536</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># row#497[1196] flag: ------, lock: 0, len=12, data:(6):  00 40 01 21 00 0c</span></span>
+<span class="line"><span class="comment"># 1196 是相对的偏移量，需要先转到绝对偏移量，ASSM数据块是+100，索引是+124，因为索引的IT槽是3个，计算绝对偏移量公式如下</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> <span class="number">1196</span>+<span class="number">20</span>+<span class="number">24</span>+<span class="number">24</span>*<span class="number">3</span>+<span class="number">8</span> from dual;</span>
+<span class="line"></span>
+<span class="line"><span class="number">1196</span>+<span class="number">20</span>+<span class="number">24</span>+<span class="number">24</span>*<span class="number">3</span>+<span class="number">8</span></span>
+<span class="line">-----------------</span>
+<span class="line">             <span class="number">1320</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">1320</span> count <span class="number">32</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">15536</span>   Offsets: <span class="number">1320</span> to <span class="number">1351</span>  Dba:<span class="number">0x00403cb0</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">03</span>c2285b <span class="number">00000040</span> <span class="number">33</span>e7005e <span class="number">03</span>c22859 l ..([...@3..^..(Y    <span class="comment"># col 0; len 3; (3):  c2 28 5b</span></span>
+<span class="line"> <span class="number">01000040</span> <span class="number">0121000</span>c <span class="number">03</span>c2285a <span class="number">00000040</span> l ...@.!....(Z...@</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">BBED&gt; modify /<span class="keyword">x</span> <span class="number">5</span>c offset <span class="number">1323</span></span>
+<span class="line">Warning: contents of previous BIFILE will be lost. Proceed? (Y/N) <span class="keyword">y</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">15536</span>            Offsets: <span class="number">1323</span> to <span class="number">1354</span>           Dba:<span class="number">0x00403cb0</span></span>
+<span class="line">------------------------------------------------------------------------</span>
+<span class="line"> <span class="number">5</span>c00000<span class="number">0</span> <span class="number">4033</span>e70<span class="number">0</span> <span class="number">5</span>e03c228 <span class="number">59010000</span> <span class="number">40012100</span> 0c03c228 <span class="number">5</span>a00000<span class="number">0</span> <span class="number">4033</span>e70<span class="number">0</span> </span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">32</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">dump</span> /v offset <span class="number">1320</span> count <span class="number">32</span></span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/system</span>01.dbf (<span class="number">1</span>)</span>
+<span class="line"> Block: <span class="number">15536</span>   Offsets: <span class="number">1320</span> to <span class="number">1351</span>  Dba:<span class="number">0x00403cb0</span></span>
+<span class="line">-------------------------------------------------------</span>
+<span class="line"> <span class="number">03</span>c2285c <span class="number">00000040</span> <span class="number">33</span>e7005e <span class="number">03</span>c22859 l ..(\...@3..^..(Y</span>
+<span class="line"> <span class="number">01000040</span> <span class="number">0121000</span>c <span class="number">03</span>c2285a <span class="number">00000040</span> l ...@.!....(Z...@</span>
+<span class="line"></span>
+<span class="line"> &lt;<span class="number">16</span> bytes per line&gt;</span>
+<span class="line"></span>
+<span class="line">BBED&gt; sum apply</span>
+<span class="line">Check value <span class="keyword">for</span> File <span class="number">1</span>, Block <span class="number">15536</span>:</span>
+<span class="line">current = <span class="number">0x5958</span>, required = <span class="number">0x5958</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 重启数据库</span></span>
+<span class="line"><span class="keyword">shutdown</span> immediate</span>
+<span class="line">startup</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> /*+ FULL(t1) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3991</span>
+<span class="line"></span>
+<span class="line">select /</span>*+ <span class="keyword">index</span>(t1 I_CON2) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3991</span>
+<span class="line"></span>
+<span class="line"># 重建索引时恢复正常</span>
+<span class="line">conn lyj/lyj</span></span>
+<span class="line">alter table LYJ_100<span class="number">0</span> add primary key(id);</span>
+<span class="line"></span>
+<span class="line">conn /as sysdba</span>
+<span class="line"><span class="keyword">select</span> /*+ FULL(t1) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3992</span>
+<span class="line"></span>
+<span class="line">select /</span>*+ <span class="keyword">index</span>(t1 I_CON2) *<span class="regexp">/ owner#,name,con# from con$ t1 WHERE NAME='_NEXT_CONSTRAINT';</span>
+<span class="line"></span>
+<span class="line">    OWNER# NAME                                 CON#</span>
+<span class="line">---------- ------------------------------ ----------</span>
+<span class="line">         0 _NEXT_CONSTRAINT                     3992</span></span>
+</pre></td></tr></table></figure>
+<h2 id="索引块结构解析"><a href="#索引块结构解析" class="headerlink" title="索引块结构解析"></a>索引块结构解析</h2><h3 id="B树索引的结构"><a href="#B树索引的结构" class="headerlink" title="B树索引的结构"></a>B树索引的结构</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_01.png" alt=""></p>
+<h3 id="ROWID"><a href="#ROWID" class="headerlink" title="ROWID"></a>ROWID</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_02.png" alt=""></p>
+<h3 id="转储B树索引"><a href="#转储B树索引" class="headerlink" title="转储B树索引"></a>转储B树索引</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line"><span class="keyword">select</span> uo.object_id idx_object_id, ui.index_name, ui.table_name</span>
+<span class="line">  from user_objects uo,user_indexes ui</span>
+<span class="line">  where uo.object_name=ui.index_name;</span>
+<span class="line"></span>
+<span class="line">IDX_OBJECT_ID INDEX_NAME                     TABLE_NAME</span>
+<span class="line">------------- ------------------------------ ------------------------------</span>
+<span class="line">        <span class="number">18360</span> SYS_C003991                    LYJ_100<span class="number">0</span></span>
+<span class="line"></span>
+<span class="line">alter session set events <span class="string">'immediate trace name treedump level 18360'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">vi /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_27697.trc</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">----- begin tree <span class="keyword">dump</span></span>
+<span class="line">branch: <span class="number">0x1400223</span> <span class="number">20972067</span> (<span class="number">0</span>: nrow: <span class="number">10</span>, level: <span class="number">1</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400224</span> <span class="number">20972068</span> (-<span class="number">1</span>: nrow: <span class="number">520</span> rrow: <span class="number">520</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400225</span> <span class="number">20972069</span> (<span class="number">0</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400226</span> <span class="number">20972070</span> (<span class="number">1</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400227</span> <span class="number">20972071</span> (<span class="number">2</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400228</span> <span class="number">20972072</span> (<span class="number">3</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400229</span> <span class="number">20972073</span> (<span class="number">4</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140022a</span> <span class="number">20972074</span> (<span class="number">5</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140022b</span> <span class="number">20972075</span> (<span class="number">6</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140022c</span> <span class="number">20972076</span> (<span class="number">7</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140022d</span> <span class="number">20972077</span> (<span class="number">8</span>: nrow: <span class="number">376</span> rrow: <span class="number">376</span>)</span>
+<span class="line">----- end tree <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+<h3 id="索引块结构"><a href="#索引块结构" class="headerlink" title="索引块结构"></a>索引块结构</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_03.png" alt=""></p>
+<h3 id="分支块的结构"><a href="#分支块的结构" class="headerlink" title="分支块的结构"></a>分支块的结构</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_04.png" alt=""></p>
+<h3 id="根块"><a href="#根块" class="headerlink" title="根块"></a>根块</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_05.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_06.png" alt=""></p>
+<p>示例：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> header_file,header_block from dba_segments where segment_name=<span class="string">'SYS_C003991'</span>;</span>
+<span class="line"></span>
+<span class="line">HEADER_FILE HEADER_BLOCK</span>
+<span class="line">----------- ------------</span>
+<span class="line">          <span class="number">5</span>          <span class="number">546</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># root:546+1=547</span></span>
+<span class="line"></span>
+<span class="line">alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">5</span> block <span class="number">547</span>;</span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">vi /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_27766.trc</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x01400223</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x47b8</span>  csc: <span class="number">0x00</span>.<span class="number">224881</span>  itc: <span class="number">1</span>  flg: E  typ: <span class="number">2</span> - INDEX</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1400220</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0xffff</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">00224</span>881</span>
+<span class="line">Branch block <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#=================</span></span>
+<span class="line">header address <span class="number">139748680186444</span>=<span class="number">0x7f19c670ba4c</span></span>
+<span class="line">kdxcolev <span class="number">1</span></span>
+<span class="line">KDXCOLEV Flags = - - -</span>
+<span class="line">kdxcolok <span class="number">0</span></span>
+<span class="line">kdxcoopc <span class="number">0x80</span>: opcode=<span class="number">0</span>: iot flags=--- is converted=Y</span>
+<span class="line">kdxconco <span class="number">1</span></span>
+<span class="line">kdxcosdc <span class="number">0</span></span>
+<span class="line">kdxconro <span class="number">9</span></span>
+<span class="line">kdxcofbo <span class="number">46</span>=<span class="number">0x2e</span></span>
+<span class="line">kdxcofeo <span class="number">7984</span>=<span class="number">0x1f30</span></span>
+<span class="line">kdxcoavs <span class="number">7938</span></span>
+<span class="line">kdxbrlmc <span class="number">20972068</span>=<span class="number">0x1400224</span>   <span class="comment"># lmc: left most children</span></span>
+<span class="line">kdxbrsno <span class="number">0</span></span>
+<span class="line">kdxbrbksz <span class="number">8056</span></span>
+<span class="line">kdxbr2urrc <span class="number">5</span></span>
+<span class="line">row<span class="comment">#0[8048] dba: 20972069=0x1400225</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">06</span> <span class="number">16</span></span>
+<span class="line">row<span class="comment">#1[8040] dba: 20972070=0x1400226</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 0b <span class="number">23</span></span>
+<span class="line">row<span class="comment">#2[8032] dba: 20972071=0x1400227</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">10</span> <span class="number">30</span></span>
+<span class="line">row<span class="comment">#3[8024] dba: 20972072=0x1400228</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">15</span> <span class="number">3</span>d</span>
+<span class="line">row<span class="comment">#4[8016] dba: 20972073=0x1400229</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">1</span>a <span class="number">4</span>a</span>
+<span class="line">row<span class="comment">#5[8008] dba: 20972074=0x140022a</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">1</span>f <span class="number">57</span></span>
+<span class="line">row<span class="comment">#6[8000] dba: 20972075=0x140022b</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">24</span> <span class="number">64</span></span>
+<span class="line">row<span class="comment">#7[7992] dba: 20972076=0x140022c</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">2</span>a 0d</span>
+<span class="line">row<span class="comment">#8[7984] dba: 20972077=0x140022d</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">2</span>f <span class="number">1</span>a</span>
+<span class="line">----- end of branch block <span class="keyword">dump</span> -----</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="叶子块"><a href="#叶子块" class="headerlink" title="叶子块"></a>叶子块</h3><p>叶子块的结构<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_07.png" alt=""></p>
+<p>转储索引叶子块（非唯一）<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_08.png" alt=""></p>
+<p>转储索引叶子块（唯一）<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_09.png" alt=""></p>
+<p>唯一与非唯一叶子块结构对比<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0518_oracle_dsi_10.png" alt=""></p>
+<p>使用<a href="/2018/03/28/oracle/Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E6%88%98-%E8%AF%BE%E7%A8%8B%E5%AD%A6%E4%B9%A0/06_Oracle%E7%89%B9%E6%AE%8A%E6%81%A2%E5%A4%8D%E5%85%A5%E9%97%A8/#RDBA转换函数">DBA转换函数getbfno</a>计算出文件号和块号，转储页对应的叶子块示例如下：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># row#0[8048] dba: 20972069=0x1400225</span></span>
+<span class="line"><span class="keyword">select</span> getbfno(<span class="string">'0x1400225'</span>) BFNO from dual;</span>
+<span class="line"></span>
+<span class="line">BFNO</span>
+<span class="line">----------------------------------------------------------------------------------------------------</span>
+<span class="line">datafile<span class="comment"># is:5</span></span>
+<span class="line">datablock is:<span class="number">549</span></span>
+<span class="line"><span class="keyword">dump</span> command:alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">5</span> block <span class="number">549</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"></span>
+<span class="line">vi /u01/app/oracle/diag/rdbms/orcl/orcl/trace/orcl_ora_2785<span class="number">0</span>.trc</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x01400225</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x47b8</span>  csc: <span class="number">0x00</span>.<span class="number">224881</span>  itc: <span class="number">2</span>  flg: E  typ: <span class="number">2</span> - INDEX</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1400220</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  ----    <span class="number">0</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0xffff</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">00224</span>881</span>
+<span class="line">Leaf block <span class="keyword">dump</span></span>
+<span class="line"><span class="comment"># ===============</span></span>
+<span class="line">header address <span class="number">140111196736100</span>=<span class="number">0x7f6e2e1c4a64</span></span>
+<span class="line">kdxcolev <span class="number">0</span></span>
+<span class="line">KDXCOLEV Flags = - - -</span>
+<span class="line">kdxcolok <span class="number">0</span></span>
+<span class="line">kdxcoopc <span class="number">0x80</span>: opcode=<span class="number">0</span>: iot flags=--- is converted=Y</span>
+<span class="line">kdxconco <span class="number">1</span></span>
+<span class="line">kdxcosdc <span class="number">0</span></span>
+<span class="line">kdxconro <span class="number">513</span></span>
+<span class="line">kdxcofbo <span class="number">1062</span>=<span class="number">0x426</span></span>
+<span class="line">kdxcofeo <span class="number">1881</span>=<span class="number">0x759</span></span>
+<span class="line">kdxcoavs <span class="number">819</span></span>
+<span class="line">kdxlespl <span class="number">0</span></span>
+<span class="line">kdxlende <span class="number">0</span></span>
+<span class="line">kdxlenxt <span class="number">20972070</span>=<span class="number">0x1400226</span>   <span class="comment"># 下一个块</span></span>
+<span class="line">kdxleprv <span class="number">20972068</span>=<span class="number">0x1400224</span>   <span class="comment"># 上一个块</span></span>
+<span class="line">kdxledsz <span class="number">6</span></span>
+<span class="line">kdxlebksz <span class="number">8032</span></span>
+<span class="line">row<span class="comment">#0[8020] flag: ------, lock: 0, len=12, data:(6):  01 40 02 14 00 35</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">3</span>; (<span class="number">3</span>):  c2 <span class="number">06</span> <span class="number">16</span></span>
+<span class="line">......</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p>BBED查看索引跟块和叶子块<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 根块</span></span>
+<span class="line">BBED&gt; set file <span class="number">5</span> block <span class="number">547</span></span>
+<span class="line">        FILE<span class="comment">#           5</span></span>
+<span class="line">        BLOCK<span class="comment">#          547</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/lyj</span>_01.dbf (<span class="number">5</span>)</span>
+<span class="line"> Block: <span class="number">547</span>                                   Dba:<span class="number">0x01400223</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Index Branch)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">48</span> bytes                     @20      </span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">1</span>], <span class="number">24</span> bytes            @44      </span>
+<span class="line"></span>
+<span class="line"> struct kdxbr, <span class="number">24</span> bytes                     @76      </span>
+<span class="line">    struct kdxbrxco, <span class="number">16</span> bytes               @76      </span>
+<span class="line">    ub4 kdxbrlmc                            @92      </span>
+<span class="line">    sb2 kdxbrsno                            @96      </span>
+<span class="line"></span>
+<span class="line"> sb2 kd_off[<span class="number">9</span>]                              @100     </span>
+<span class="line"></span>
+<span class="line"> ub1 freespace[<span class="number">7938</span>]                        @118     </span>
+<span class="line"></span>
+<span class="line"> ub1 rowdata[<span class="number">72</span>]                            @8056    </span>
+<span class="line"></span>
+<span class="line"> ub4 tailchk                                @8188    </span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 叶子块</span></span>
+<span class="line">BBED&gt; set file <span class="number">5</span> block <span class="number">549</span></span>
+<span class="line">        FILE<span class="comment">#           5</span></span>
+<span class="line">        BLOCK<span class="comment">#          549</span></span>
+<span class="line"></span>
+<span class="line">BBED&gt; <span class="keyword">map</span> /v</span>
+<span class="line"> File: <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/lyj</span>_01.dbf (<span class="number">5</span>)</span>
+<span class="line"> Block: <span class="number">549</span>                                   Dba:<span class="number">0x01400225</span></span>
+<span class="line">------------------------------------------------------------</span>
+<span class="line"> KTB Data Block (Index Leaf)</span>
+<span class="line"></span>
+<span class="line"> struct kcbh, <span class="number">20</span> bytes                      @0       </span>
+<span class="line">    ub1 type_kcbh                           @0       </span>
+<span class="line">    ub1 frmt_kcbh                           @1       </span>
+<span class="line">    ub1 spare1_kcbh                         @2       </span>
+<span class="line">    ub1 spare2_kcbh                         @3       </span>
+<span class="line">    ub4 rdba_kcbh                           @4       </span>
+<span class="line">    ub4 bas_kcbh                            @8       </span>
+<span class="line">    ub2 wrp_kcbh                            @12      </span>
+<span class="line">    ub1 seq_kcbh                            @14      </span>
+<span class="line">    ub1 flg_kcbh                            @15      </span>
+<span class="line">    ub2 chkval_kcbh                         @16      </span>
+<span class="line">    ub2 spare3_kcbh                         @18      </span>
+<span class="line"></span>
+<span class="line"> struct ktbbh, <span class="number">72</span> bytes                     @20      </span>
+<span class="line">    ub1 ktbbhtyp                            @20      </span>
+<span class="line">    union ktbbhsid, <span class="number">4</span> bytes                 @24      </span>
+<span class="line">    struct ktbbhcsc, <span class="number">8</span> bytes                @28      </span>
+<span class="line">    sb2 ktbbhict                            @36      </span>
+<span class="line">    ub1 ktbbhflg                            @38      </span>
+<span class="line">    ub1 ktbbhfsl                            @39      </span>
+<span class="line">    ub4 ktbbhfnx                            @40      </span>
+<span class="line">    struct ktbbhitl[<span class="number">2</span>], <span class="number">48</span> bytes            @44      </span>
+<span class="line"></span>
+<span class="line"> struct kdxle, <span class="number">32</span> bytes                     @100     </span>
+<span class="line">    struct kdxlexco, <span class="number">16</span> bytes               @100     </span>
+<span class="line">    sb2 kdxlespl                            @116     </span>
+<span class="line">    sb2 kdxlende                            @118     </span>
+<span class="line">    ub4 kdxlenxt                            @120     </span>
+<span class="line">    ub4 kdxleprv                            @124     </span>
+<span class="line">    ub1 kdxledsz                            @128     </span>
+<span class="line">    ub1 kdxleflg                            @129     </span>
+<span class="line"></span>
+<span class="line"> sb2 kd_off[<span class="number">513</span>]                            @132     </span>
+<span class="line"></span>
+<span class="line"> ub1 freespace[<span class="number">819</span>]                         @1158    </span>
+<span class="line"></span>
+<span class="line"> ub1 rowdata[<span class="number">6151</span>]                          @1977    </span>
+<span class="line"></span>
+<span class="line"> ub4 tailchk                                @8188</span>
+</pre></td></tr></table></figure></p>
+<h3 id="唯一索引与非唯一索引的本质区别实验"><a href="#唯一索引与非唯一索引的本质区别实验" class="headerlink" title="唯一索引与非唯一索引的本质区别实验"></a>唯一索引与非唯一索引的本质区别实验</h3><h4 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line">drop table t1 purge;</span>
+<span class="line">drop table t2 purge;</span>
+<span class="line">create table t1 (id number, name varchar(<span class="number">20</span>));</span>
+<span class="line">create table t2 (id number, name varchar(<span class="number">20</span>));</span>
+<span class="line"></span>
+<span class="line">begin</span>
+<span class="line">  <span class="keyword">for</span> i in <span class="number">1</span> .. <span class="number">5000</span> loop</span>
+<span class="line">  insert into t1 <span class="keyword">values</span>(i,<span class="string">'lyj'</span>||i);</span>
+<span class="line">  commit;</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line"><span class="regexp">/</span>
+<span class="line"></span>
+<span class="line">begin</span>
+<span class="line">  for i in 1 .. 5000 loop</span>
+<span class="line">  insert into t2 values(i,'lyj'||i);</span>
+<span class="line">  commit;</span>
+<span class="line">  end loop;</span>
+<span class="line">end;</span>
+<span class="line">/</span></span>
+<span class="line"></span>
+<span class="line">create <span class="keyword">index</span> t1_idx on t1(id);</span>
+<span class="line">create unique <span class="keyword">index</span> t2_idx on t2(id);</span>
+<span class="line">alter <span class="keyword">system</span> flush buffer_cache;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> object_id, object_name from user_objects where object_name in (<span class="string">'T1_IDX'</span>,<span class="string">'T2_IDX'</span>);</span>
+<span class="line"></span>
+<span class="line"> OBJECT_ID OBJECT_NAME</span>
+<span class="line">---------- -------------------------</span>
+<span class="line">     <span class="number">18457</span> T1_IDX</span>
+<span class="line">     <span class="number">18458</span> T2_IDX</span>
+</pre></td></tr></table></figure>
+<h4 id="非唯一索引叶子块结构"><a href="#非唯一索引叶子块结构" class="headerlink" title="非唯一索引叶子块结构"></a>非唯一索引叶子块结构</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 新开会话，转储非唯一索引</span></span>
+<span class="line">alter session set events <span class="string">'immediate trace name treedump level 18457'</span>;</span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">----- begin tree <span class="keyword">dump</span></span>
+<span class="line">branch: <span class="number">0x140024b</span> <span class="number">20972107</span> (<span class="number">0</span>: nrow: <span class="number">11</span>, level: <span class="number">1</span>)</span>
+<span class="line">   leaf: <span class="number">0x140024c</span> <span class="number">20972108</span> (-<span class="number">1</span>: nrow: <span class="number">485</span> rrow: <span class="number">485</span>)  <span class="comment"># 导出此叶子节点</span></span>
+<span class="line">   leaf: <span class="number">0x140024d</span> <span class="number">20972109</span> (<span class="number">0</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x140024e</span> <span class="number">20972110</span> (<span class="number">1</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x140024f</span> <span class="number">20972111</span> (<span class="number">2</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400250</span> <span class="number">20972112</span> (<span class="number">3</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400251</span> <span class="number">20972113</span> (<span class="number">4</span>: nrow: <span class="number">478</span> rrow: <span class="number">478</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400252</span> <span class="number">20972114</span> (<span class="number">5</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400253</span> <span class="number">20972115</span> (<span class="number">6</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400254</span> <span class="number">20972116</span> (<span class="number">7</span>: nrow: <span class="number">479</span> rrow: <span class="number">479</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400255</span> <span class="number">20972117</span> (<span class="number">8</span>: nrow: <span class="number">478</span> rrow: <span class="number">478</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400256</span> <span class="number">20972118</span> (<span class="number">9</span>: nrow: <span class="number">206</span> rrow: <span class="number">206</span>)</span>
+<span class="line">----- end tree <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> getbfno(<span class="string">'0x140024c'</span>) BFNO from dual;</span>
+<span class="line"></span>
+<span class="line">BFNO</span>
+<span class="line">--------------------------------------------------------------------</span>
+<span class="line">datafile<span class="comment"># is:5</span></span>
+<span class="line">datablock is:<span class="number">588</span></span>
+<span class="line"><span class="keyword">dump</span> command:alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">5</span> block <span class="number">588</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 新开会话dump上面的块的内容如下</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x0140024c</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x4819</span>  csc: <span class="number">0x00</span>.<span class="number">232721</span>  itc: <span class="number">2</span>  flg: E  typ: <span class="number">2</span> - INDEX</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1400248</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  ----    <span class="number">0</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0xffff</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">00232721</span></span>
+<span class="line">Leaf block <span class="keyword">dump</span></span>
+<span class="line"><span class="comment"># ===============</span></span>
+<span class="line">header address <span class="number">139863743519332</span>=<span class="number">0x7f3490bfda64</span></span>
+<span class="line">kdxcolev <span class="number">0</span></span>
+<span class="line">KDXCOLEV Flags = - - -</span>
+<span class="line">kdxcolok <span class="number">0</span></span>
+<span class="line">kdxcoopc <span class="number">0x80</span>: opcode=<span class="number">0</span>: iot flags=--- is converted=Y</span>
+<span class="line">kdxconco <span class="number">2</span></span>
+<span class="line">kdxcosdc <span class="number">0</span></span>
+<span class="line">kdxconro <span class="number">485</span></span>
+<span class="line">kdxcofbo <span class="number">1006</span>=<span class="number">0x3ee</span></span>
+<span class="line">kdxcofeo <span class="number">1830</span>=<span class="number">0x726</span></span>
+<span class="line">kdxcoavs <span class="number">824</span></span>
+<span class="line">kdxlespl <span class="number">0</span></span>
+<span class="line">kdxlende <span class="number">0</span></span>
+<span class="line">kdxlenxt <span class="number">20972109</span>=<span class="number">0x140024d</span></span>
+<span class="line">kdxleprv <span class="number">0</span>=<span class="number">0x0</span></span>
+<span class="line">kdxledsz <span class="number">0</span>                      <span class="comment"># Bytes in ROWID data</span></span>
+<span class="line">kdxlebksz <span class="number">8032</span></span>
+<span class="line">row<span class="comment">#0[8020] flag: ------, lock: 0, len=12</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">2</span>; (<span class="number">2</span>):  c1 <span class="number">02</span></span>
+<span class="line">col <span class="number">1</span>; len <span class="number">6</span>; (<span class="number">6</span>):  <span class="number">01</span> <span class="number">40</span> <span class="number">00</span> <span class="number">85</span> <span class="number">00</span> <span class="number">00</span>     <span class="comment"># ROWID</span></span>
+<span class="line">row<span class="comment">#1[8008] flag: ------, lock: 0, len=12</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">2</span>; (<span class="number">2</span>):  c1 <span class="number">03</span></span>
+<span class="line">col <span class="number">1</span>; len <span class="number">6</span>; (<span class="number">6</span>):  <span class="number">01</span> <span class="number">40</span> <span class="number">00</span> <span class="number">85</span> <span class="number">00</span> <span class="number">01</span>     <span class="comment"># ROWID</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">非唯一索引的叶子节点每行len=<span class="number">12</span>，ROWID值在col <span class="number">1</span>; len <span class="number">6</span>; (<span class="number">6</span>)</span>
+</pre></td></tr></table></figure>
+<h4 id="唯一索引叶子块结构"><a href="#唯一索引叶子块结构" class="headerlink" title="唯一索引叶子块结构"></a>唯一索引叶子块结构</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 新开会话，转储唯一索引</span></span>
+<span class="line">alter session set events <span class="string">'immediate trace name treedump level 18458'</span>;</span>
+<span class="line"><span class="keyword">select</span> VALUE from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">----- begin tree <span class="keyword">dump</span></span>
+<span class="line">branch: <span class="number">0x140025b</span> <span class="number">20972123</span> (<span class="number">0</span>: nrow: <span class="number">10</span>, level: <span class="number">1</span>)</span>
+<span class="line">   leaf: <span class="number">0x140025c</span> <span class="number">20972124</span> (-<span class="number">1</span>: nrow: <span class="number">520</span> rrow: <span class="number">520</span>)  <span class="comment"># 导出此叶子节点</span></span>
+<span class="line">   leaf: <span class="number">0x140025d</span> <span class="number">20972125</span> (<span class="number">0</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140025e</span> <span class="number">20972126</span> (<span class="number">1</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x140025f</span> <span class="number">20972127</span> (<span class="number">2</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400260</span> <span class="number">20972128</span> (<span class="number">3</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400261</span> <span class="number">20972129</span> (<span class="number">4</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400262</span> <span class="number">20972130</span> (<span class="number">5</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400263</span> <span class="number">20972131</span> (<span class="number">6</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400264</span> <span class="number">20972132</span> (<span class="number">7</span>: nrow: <span class="number">513</span> rrow: <span class="number">513</span>)</span>
+<span class="line">   leaf: <span class="number">0x1400265</span> <span class="number">20972133</span> (<span class="number">8</span>: nrow: <span class="number">376</span> rrow: <span class="number">376</span>)</span>
+<span class="line">----- end tree <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> getbfno(<span class="string">'0x140025c'</span>) BFNO from dual;</span>
+<span class="line"></span>
+<span class="line">BFNO</span>
+<span class="line">--------------------------------------------------------------------</span>
+<span class="line">datafile<span class="comment"># is:5</span></span>
+<span class="line">datablock is:<span class="number">604</span></span>
+<span class="line"><span class="keyword">dump</span> command:alter <span class="keyword">system</span> <span class="keyword">dump</span> datafile <span class="number">5</span> block <span class="number">604</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 新开会话dump上面的块的内容如下</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line">Block header <span class="keyword">dump</span>:  <span class="number">0x0140025c</span></span>
+<span class="line"> Object id on Block? Y</span>
+<span class="line"> seg/obj: <span class="number">0x481a</span>  csc: <span class="number">0x00</span>.<span class="number">23272</span>d  itc: <span class="number">2</span>  flg: E  typ: <span class="number">2</span> - INDEX</span>
+<span class="line">     brn: <span class="number">0</span>  bdba: <span class="number">0x1400258</span> ver: <span class="number">0x01</span> opc: <span class="number">0</span></span>
+<span class="line">     inc: <span class="number">0</span>  exflg: <span class="number">0</span></span>
+<span class="line"></span>
+<span class="line"> Itl           Xid                  Uba         Flag  Lck        Scn/Fsc</span>
+<span class="line"><span class="number">0x01</span>   <span class="number">0x0000</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  ----    <span class="number">0</span>  fsc <span class="number">0x0000</span>.<span class="number">00000000</span></span>
+<span class="line"><span class="number">0x02</span>   <span class="number">0xffff</span>.<span class="number">000</span>.<span class="number">00000000</span>  <span class="number">0x00000000</span>.<span class="number">0000</span>.<span class="number">00</span>  C---    <span class="number">0</span>  scn <span class="number">0x0000</span>.<span class="number">0023272</span>d</span>
+<span class="line">Leaf block <span class="keyword">dump</span></span>
+<span class="line"><span class="comment">#===============</span></span>
+<span class="line">header address <span class="number">140346102651492</span>=<span class="number">0x7fa4df981a64</span></span>
+<span class="line">kdxcolev <span class="number">0</span></span>
+<span class="line">KDXCOLEV Flags = - - -</span>
+<span class="line">kdxcolok <span class="number">0</span></span>
+<span class="line">kdxcoopc <span class="number">0x80</span>: opcode=<span class="number">0</span>: iot flags=--- is converted=Y</span>
+<span class="line">kdxconco <span class="number">1</span></span>
+<span class="line">kdxcosdc <span class="number">0</span></span>
+<span class="line">kdxconro <span class="number">520</span></span>
+<span class="line">kdxcofbo <span class="number">1076</span>=<span class="number">0x434</span></span>
+<span class="line">kdxcofeo <span class="number">1896</span>=<span class="number">0x768</span></span>
+<span class="line">kdxcoavs <span class="number">820</span></span>
+<span class="line">kdxlespl <span class="number">0</span></span>
+<span class="line">kdxlende <span class="number">0</span></span>
+<span class="line">kdxlenxt <span class="number">20972125</span>=<span class="number">0x140025d</span></span>
+<span class="line">kdxleprv <span class="number">0</span>=<span class="number">0x0</span></span>
+<span class="line">kdxledsz <span class="number">6</span>              <span class="comment"># Bytes in ROWID data</span></span>
+<span class="line">kdxlebksz <span class="number">8032</span></span>
+<span class="line">row<span class="comment">#0[8021] flag: ------, lock: 0, len=11, data:(6):  01 40 02 3d 00 00    &lt;- ROWID DATA</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">2</span>; (<span class="number">2</span>):  c1 <span class="number">02</span></span>
+<span class="line">row<span class="comment">#1[8010] flag: ------, lock: 0, len=11, data:(6):  01 40 02 3d 00 01    &lt;- ROWID DATA</span></span>
+<span class="line">col <span class="number">0</span>; len <span class="number">2</span>; (<span class="number">2</span>):  c1 <span class="number">03</span></span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">非唯一索引的叶子节点每行len=<span class="number">11</span>，ROWID值在data:(<span class="number">6</span>)</span>
+</pre></td></tr></table></figure>
+<p>可见唯一索引与非唯一索引的本质区别就是ROWID所在的位置，唯一索引比非唯一索引的结构少ROWID Length Byte</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">
+                    Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ORA-8102-Index-Corruption修复"><span class="toc-number">1.</span> <span class="toc-text">ORA-8102 Index Corruption修复</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ORA-8102解析"><span class="toc-number">1.1.</span> <span class="toc-text">ORA-8102解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重现ORA-8102错误环境准备"><span class="toc-number">1.2.</span> <span class="toc-text">重现ORA-8102错误环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重现ORA-8102错误"><span class="toc-number">1.3.</span> <span class="toc-text">重现ORA-8102错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分析ORA-8102错误"><span class="toc-number">1.4.</span> <span class="toc-text">分析ORA-8102错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解决ORA-8102错误"><span class="toc-number">1.5.</span> <span class="toc-text">解决ORA-8102错误</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引块结构解析"><span class="toc-number">2.</span> <span class="toc-text">索引块结构解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#B树索引的结构"><span class="toc-number">2.1.</span> <span class="toc-text">B树索引的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROWID"><span class="toc-number">2.2.</span> <span class="toc-text">ROWID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#转储B树索引"><span class="toc-number">2.3.</span> <span class="toc-text">转储B树索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引块结构"><span class="toc-number">2.4.</span> <span class="toc-text">索引块结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分支块的结构"><span class="toc-number">2.5.</span> <span class="toc-text">分支块的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#根块"><span class="toc-number">2.6.</span> <span class="toc-text">根块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#叶子块"><span class="toc-number">2.7.</span> <span class="toc-text">叶子块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#唯一索引与非唯一索引的本质区别实验"><span class="toc-number">2.8.</span> <span class="toc-text">唯一索引与非唯一索引的本质区别实验</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#环境准备"><span class="toc-number">2.8.1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#非唯一索引叶子块结构"><span class="toc-number">2.8.2.</span> <span class="toc-text">非唯一索引叶子块结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#唯一索引叶子块结构"><span class="toc-number">2.8.3.</span> <span class="toc-text">唯一索引叶子块结构</span></a></li></ol></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/" title="下一篇: Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 ORA-8102 Index Corruption修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 Undo深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

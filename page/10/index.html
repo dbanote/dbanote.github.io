@@ -266,6 +266,140 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-01-28T05:42:00.000Z" itemprop="datePublished">2017-01-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="1-thread-pool的原理是什么？"><a href="#1-thread-pool的原理是什么？" class="headerlink" title="1. thread pool的原理是什么？"></a>1. thread pool的原理是什么？</h2><p>线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。</p>
+<p>MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。</p>
+<p>在传统方式下，MySQL线程调度方式有两种：每个连接一个线程(one-thread-per-connection)和所有连接一个线程（no-threads）。在实际生产中，一般用的是前者。即每当有一个客户端连接到MySQL服务器，MySQL服务器都会为该客户端创建一个单独的线程，请求结束后，销毁线程。连接数越多，则相应的线程会越多。这种方式在高并发情况下，会导致线程的频繁创建和释放。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/vim常用命令" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/01/28/tools/vim常用命令/" class="article-date">
+      <time datetime="2017-01-27T16:00:00.000Z" itemprop="datePublished">2017-01-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>文本编辑器是所有计算机系统中最常用的一种工具。UNIX下的编辑器有ex,sed和vi等，其中，使用最为广泛的是vi。 文中是两张<code>VIM键盘图</code>和<code>VIM命令图解</code>。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/">vim</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/01/28/tools/vim常用命令/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -886,91 +1020,9 @@
 
 
   
-    <article id="post-oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/" class="article-date">
-      <time datetime="2015-02-09T16:00:00.000Z" itemprop="datePublished">2015-02-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="使用sqlplus-启动和关闭数据库"><a href="#使用sqlplus-启动和关闭数据库" class="headerlink" title="使用sqlplus 启动和关闭数据库"></a>使用sqlplus 启动和关闭数据库</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$ sqlplus / as sysdba</span>
-<span class="line"></span>
-<span class="line">SQL&gt; <span class="keyword">shutdown</span> immediate</span>
-<span class="line">Database closed.</span>
-<span class="line">Database dismounted.</span>
-<span class="line">ORACLE instance shut down.</span>
-<span class="line"></span>
-<span class="line">SQL&gt; startup</span>
-<span class="line">ORACLE instance started.</span>
-<span class="line"></span>
-<span class="line">Total System Global Area <span class="number">4375998464</span> bytes</span>
-<span class="line">Fixed Size                  <span class="number">2260328</span> bytes</span>
-<span class="line">Variable Size             <span class="number">905970328</span> bytes</span>
-<span class="line">Database Buffers         <span class="number">3456106496</span> bytes</span>
-<span class="line">Redo Buffers               <span class="number">11661312</span> bytes</span>
-<span class="line">Database mounted.</span>
-<span class="line">Database opened.</span>
-</pre></td></tr></table></figure>
-<h2 id="创建用户test，密码test"><a href="#创建用户test，密码test" class="headerlink" title="创建用户test，密码test"></a>创建用户test，密码test</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="keyword">test</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="keyword">test</span> <span class="keyword">default</span> <span class="keyword">tablespace</span> <span class="keyword">users</span>;</span>
-</pre></td></tr></table></figure>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/9/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span>
+      <a class="extend prev" rel="prev" href="/page/9/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/11/">Next &raquo;</a>
     </nav>
   
 </div>

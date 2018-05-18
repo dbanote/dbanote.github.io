@@ -266,6 +266,155 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-03-05T16:00:00.000Z" itemprop="datePublished">2017-03-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="使用mydumper工具全库备份"><a href="#使用mydumper工具全库备份" class="headerlink" title="使用mydumper工具全库备份"></a>使用mydumper工具全库备份</h2><blockquote>
+<p>mydumper是针对mysql数据库备份的一个轻量级第三方的开源工具，备份方式采用逻辑备份。<br>mydumper支持多线程，备份速度远高于原生态的mysqldump。</p>
+</blockquote>
+<h3 id="下载mydumper"><a href="#下载mydumper" class="headerlink" title="下载mydumper"></a>下载mydumper</h3><p>下载地址：<a href="https://launchpad.net/mydumper">https://launchpad.net/mydumper </a><br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/hexo解决代码块空行自动删除问题" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/" class="article-date">
+      <time datetime="2017-03-02T07:24:57.008Z" itemprop="datePublished">2017-03-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="修改hexo源码"><a href="#修改hexo源码" class="headerlink" title="修改hexo源码"></a>修改hexo源码</h2><p>将<code>node_modules\hexo-util\lib\highlight.js</code>文件中第<code>35</code>行<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 原</span></span>
+<span class="line">    numbers += <span class="string">'&lt;div class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/div&gt;\n'</span>;</span>
+<span class="line">    content += <span class="string">'&lt;div class="line'</span>;</span>
+<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
+<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/div&gt;\n'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 改后</span></span>
+<span class="line">    numbers += <span class="string">'&lt;span class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/span&gt;\n'</span>;</span>
+<span class="line">    content += <span class="string">'&lt;span class="line'</span>;</span>
+<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
+<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/span&gt;\n'</span>;</span>
+</pre></td></tr></table></figure></p>
+<h2 id="清理临时数据库并重启本地服务"><a href="#清理临时数据库并重启本地服务" class="headerlink" title="清理临时数据库并重启本地服务"></a>清理临时数据库并重启本地服务</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">hexo clean</span>
+<span class="line">hexo <span class="keyword">s</span> -g</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -846,143 +995,9 @@
 
 
   
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-01-28T05:42:00.000Z" itemprop="datePublished">2017-01-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="1-thread-pool的原理是什么？"><a href="#1-thread-pool的原理是什么？" class="headerlink" title="1. thread pool的原理是什么？"></a>1. thread pool的原理是什么？</h2><p>线程池的原理很简单，类似于操作系统中的缓冲区的概念，它的流程如下：先启动若干数量的线程，并让这些线程都处于睡眠状态，当客户端有一个新请求时，就会唤醒线程池中的某一个睡眠线程，让它来处理客户端的这个请求，当处理完这个请求后，线程又处于睡眠状态。</p>
-<p>MySQL线程池只在MariaDB，Oracle MySQL企业版中提供，Oracle MySQL社区版并不提供。</p>
-<p>在传统方式下，MySQL线程调度方式有两种：每个连接一个线程(one-thread-per-connection)和所有连接一个线程（no-threads）。在实际生产中，一般用的是前者。即每当有一个客户端连接到MySQL服务器，MySQL服务器都会为该客户端创建一个单独的线程，请求结束后，销毁线程。连接数越多，则相应的线程会越多。这种方式在高并发情况下，会导致线程的频繁创建和释放。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-tools/vim常用命令" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/01/28/tools/vim常用命令/" class="article-date">
-      <time datetime="2017-01-27T16:00:00.000Z" itemprop="datePublished">2017-01-28</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>文本编辑器是所有计算机系统中最常用的一种工具。UNIX下的编辑器有ex,sed和vi等，其中，使用最为广泛的是vi。 文中是两张<code>VIM键盘图</code>和<code>VIM命令图解</code>。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/">vim</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/01/28/tools/vim常用命令/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
     </nav>
   
 </div>

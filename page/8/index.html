@@ -266,6 +266,134 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
+<h2 id="Base-Releases"><a href="#Base-Releases" class="headerlink" title="Base Releases"></a>Base Releases</h2><blockquote>
+<p>12.2.0.1.0  12.2.0.1.0 Download Page<br>12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br>11.2.0.1.0  11.2.0.1.0 Download Page<br>Older Versions  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br> 注意: 对于11.2.0.2或者更高的patchsets, 请参照patch的readme中”Software Availability”部分下的”Table 1 Installation Types and Associated Zip Files”来查找具体哪些zip文件需要下载。</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle 11g工作中常用的命令和脚本整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -845,158 +973,9 @@
 
 
   
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-03-05T16:00:00.000Z" itemprop="datePublished">2017-03-06</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="使用mydumper工具全库备份"><a href="#使用mydumper工具全库备份" class="headerlink" title="使用mydumper工具全库备份"></a>使用mydumper工具全库备份</h2><blockquote>
-<p>mydumper是针对mysql数据库备份的一个轻量级第三方的开源工具，备份方式采用逻辑备份。<br>mydumper支持多线程，备份速度远高于原生态的mysqldump。</p>
-</blockquote>
-<h3 id="下载mydumper"><a href="#下载mydumper" class="headerlink" title="下载mydumper"></a>下载mydumper</h3><p>下载地址：<a href="https://launchpad.net/mydumper">https://launchpad.net/mydumper </a><br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-tools/hexo解决代码块空行自动删除问题" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/" class="article-date">
-      <time datetime="2017-03-02T07:24:57.008Z" itemprop="datePublished">2017-03-02</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="修改hexo源码"><a href="#修改hexo源码" class="headerlink" title="修改hexo源码"></a>修改hexo源码</h2><p>将<code>node_modules\hexo-util\lib\highlight.js</code>文件中第<code>35</code>行<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 原</span></span>
-<span class="line">    numbers += <span class="string">'&lt;div class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/div&gt;\n'</span>;</span>
-<span class="line">    content += <span class="string">'&lt;div class="line'</span>;</span>
-<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
-<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/div&gt;\n'</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 改后</span></span>
-<span class="line">    numbers += <span class="string">'&lt;span class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/span&gt;\n'</span>;</span>
-<span class="line">    content += <span class="string">'&lt;span class="line'</span>;</span>
-<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
-<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/span&gt;\n'</span>;</span>
-</pre></td></tr></table></figure></p>
-<h2 id="清理临时数据库并重启本地服务"><a href="#清理临时数据库并重启本地服务" class="headerlink" title="清理临时数据库并重启本地服务"></a>清理临时数据库并重启本地服务</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">hexo clean</span>
-<span class="line">hexo <span class="keyword">s</span> -g</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
     </nav>
   
 </div>

@@ -266,6 +266,178 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-docker/10_docker常用命令" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/28/docker/10_docker常用命令/" class="article-date">
+      <time datetime="2018-02-27T16:00:00.000Z" itemprop="datePublished">2018-02-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/28/docker/10_docker常用命令/">Docker学习笔记_10 Docker常用命令</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="docker-search"><a href="#docker-search" class="headerlink" title="docker search"></a>docker search</h2><p>命令示例：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">docker search oracle</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
+<span class="line">NAME                                DESCRIPTION                                     STARS               OFFICIAL            AUTOMATED</span>
+<span class="line">oraclelinux                         Oracle Linux is an <span class="keyword">open</span>-source operating s...   <span class="number">404</span>                 [OK]                </span>
+<span class="line">frolvlad/alpine-oraclejdk8          The smallest Docker image with OracleJDK <span class="number">8</span>...   <span class="number">270</span>                                     [OK]</span>
+<span class="line">alexeiled/docker-oracle-xe-<span class="number">11</span>g      This is a working (hopefully) Oracle XE <span class="number">11</span>...   <span class="number">223</span>                                     [OK]</span>
+<span class="line">sath89/oracle-<span class="number">12</span>c                   Oracle Standard Edition <span class="number">12</span>c Release <span class="number">1</span> with...   <span class="number">222</span>                                     [OK]</span>
+<span class="line">sath89/oracle-xe-<span class="number">11</span>g                Oracle xe <span class="number">11</span>g with database files mount su...   <span class="number">136</span>                                     [OK]</span>
+<span class="line">isuper/java-oracle                  This repository contains all java releases...   <span class="number">55</span>                                      [OK]</span>
+<span class="line">jaspeen/oracle-<span class="number">11</span>g                  Docker image <span class="keyword">for</span> Oracle <span class="number">11</span>g database            <span class="number">55</span>                                      [OK]</span>
+<span class="line">oracle/glassfish                    GlassFish Java EE Application Server on Or...   <span class="number">31</span>                                      [OK]</span>
+<span class="line">oracle/openjdk                      Docker images containing OpenJDK Oracle Linux   <span class="number">26</span>                                      [OK]</span>
+<span class="line">airdock/oracle-jdk                  Docker Image <span class="keyword">for</span> Oracle Java SDK (<span class="number">8</span> <span class="keyword">and</span> <span class="number">7</span>)...   <span class="number">23</span>                                      [OK]</span>
+<span class="line">wnameless/oracle-xe-<span class="number">11</span>g             Dockerfile of Oracle Database Express Edit...   <span class="number">22</span>                                      [OK]</span>
+<span class="line">ingensi/oracle-jdk                  Official Oracle JDK installed on centos.        <span class="number">21</span>                                      [OK]</span>
+<span class="line">cogniteev/oracle-java               Oracle JDK <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="keyword">and</span> <span class="number">9</span> based on Ubuntu ...   <span class="number">20</span>                                      [OK]</span>
+<span class="line">n3ziniuka5/ubuntu-oracle-jdk        Ubuntu with Oracle JDK. Check tags <span class="keyword">for</span> ver...   <span class="number">14</span>                                      [OK]</span>
+<span class="line">oracle/nosql                        Oracle NoSQL on a Docker Image with Oracle...   <span class="number">13</span>                                      [OK]</span>
+<span class="line">sgrio/java-oracle                   Docker images of Java <span class="number">7</span>/<span class="number">8</span> provided by Orac...   <span class="number">7</span>                                       [OK]</span>
+<span class="line">andreptb/oracle-java                Debian Jessie based image with Oracle JDK ...   <span class="number">7</span>                                       [OK]</span>
+<span class="line">openweb/oracle-tomcat               A <span class="keyword">fork</span> off of Official tomcat image with O...   <span class="number">7</span>                                       [OK]</span>
+<span class="line">flurdy/oracle-java7                 Base image containing Oracle<span class="string">'s Java 7 JDK       5                                       [OK]</span>
+<span class="line">martinseeler/oracle-server-jre      Oracle'</span><span class="keyword">s</span> Java <span class="number">8</span> as <span class="number">61</span> MB Docker container.      <span class="number">4</span>                                       [OK]</span>
+<span class="line">davidcaste/debian-oracle-java       Oracle Java <span class="number">8</span> (<span class="keyword">and</span> <span class="number">7</span>) over Debian Jessie        <span class="number">3</span>                                       [OK]</span>
+<span class="line">teradatalabs/centos6-java8-oracle   Docker image of CentOS <span class="number">6</span> with Oracle JDK <span class="number">8</span>...   <span class="number">3</span>                                       </span>
+<span class="line">spansari/nodejs-oracledb            nodejs with oracledb installed globally on...   <span class="number">1</span>                                       </span>
+<span class="line">publicisworldwide/oracle-core       This is the core image based on Oracle Lin...   <span class="number">1</span>                                       [OK]</span>
+<span class="line">sigma/nimbus-lock-oracle                                                            <span class="number">0</span>                                       [OK]</span>
+<span class="line"><span class="comment">#---------------------------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/28/docker/10_docker常用命令/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
+<li>CI-持续集成(Continuous Integration)：频繁地将代码集成到主干的一种开发实践，每次集成都通过自动化的构建（包括编译，发布，自动化测试）来验证，从而尽早地发现集成错误。</li>
+<li>CD-持续部署(Continuous Deployment)：从代码提交，自动化完成测试、构建及到生产环境的部署</li>
+</ul>
+<h2 id="在Rancher中做CI-CD的方法"><a href="#在Rancher中做CI-CD的方法" class="headerlink" title="在Rancher中做CI/CD的方法"></a>在Rancher中做CI/CD的方法</h2><ol>
+<li>配合第三方工具，Drone/Travis/Jenkins，配合webhook，rancher cli等触发部署更新 </li>
+<li>使用<code>Rancher pipeline</code>构建从源码提交到Rancher中应用部署的一套流水线</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -879,142 +1051,9 @@
 
 
   
-    <article id="post-linux/20180110_Ubuntu16.04.3安装图解" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/" class="article-date">
-      <time datetime="2018-01-09T16:00:00.000Z" itemprop="datePublished">2018-01-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>下载网站：<a href="https://www.ubuntu.com/download/server">https://www.ubuntu.com/download/server</a><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0110-ubuntu-install-01.png" alt=""></p>
-<p>ubuntu-16.04.3快速下载地址：<a href="https://mirrors.aliyun.com/ubuntu-releases/16.04.3/ubuntu-16.04.3-server-amd64.iso">https://mirrors.aliyun.com/ubuntu-releases/16.04.3/ubuntu-16.04.3-server-amd64.iso</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/02_docker的部署安装-Centos" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/12/docker/02_docker的部署安装-Centos/" class="article-date">
-      <time datetime="2017-12-11T16:00:00.000Z" itemprop="datePublished">2017-12-12</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="操作系统需求"><a href="#操作系统需求" class="headerlink" title="操作系统需求"></a>操作系统需求</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1212_docker_15.png" alt=""><br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/12/docker/02_docker的部署安装-Centos/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
     </nav>
   
 </div>

@@ -266,6 +266,142 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/RMAN常用命令整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/19/oracle/RMAN常用命令整理/" class="article-date">
+      <time datetime="2017-10-18T16:00:00.000Z" itemprop="datePublished">2017-10-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="RMAN核心文件"><a href="#RMAN核心文件" class="headerlink" title="RMAN核心文件"></a>RMAN核心文件</h2><p>RMAN的核心文件：recover.bsq (dbms_rcvman dbms_backup_restore)<br>所在位置：$ORACLE_HOME/rdbms/admin/recover.bsq</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rman/">rman</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/10/19/oracle/RMAN常用命令整理/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/" class="article-date">
+      <time datetime="2017-10-16T16:00:00.000Z" itemprop="datePublished">2017-10-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="什么是归并排序？"><a href="#什么是归并排序？" class="headerlink" title="什么是归并排序？"></a>什么是归并排序？</h2><p>如果需要排序的数据超过了sort_buffer_size的大小，说明无法在内存中完成排序，就需要写到临时文件中。若排序中产生了临时文件，需要利用归并排序算法保证临时文件中的记录是有序的。归并排序算法是分批将数据放到文件中进行排序，然后逐一按序合并。<br>简单来说是把在内存中无法直接排序的数据进行分批，每批已排序的结果分别放到文件中。用每个已排序的文件中第一行数据做进行比较，取出最小的值放到最终的合并排序文件中。重复以上操作，直到所有文件文件数据都放到合并排序文件中。<br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -893,210 +1029,9 @@
 
 
   
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-08-18T16:00:00.000Z" itemprop="datePublished">2017-08-19</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="测试服务器（或虚拟机）的QPS峰值"><a href="#测试服务器（或虚拟机）的QPS峰值" class="headerlink" title="测试服务器（或虚拟机）的QPS峰值"></a>测试服务器（或虚拟机）的QPS峰值</h2><h3 id="利用sysbench压测工具模拟SELECT操作"><a href="#利用sysbench压测工具模拟SELECT操作" class="headerlink" title="利用sysbench压测工具模拟SELECT操作"></a>利用sysbench压测工具模拟SELECT操作</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 已有test库的话先drop掉</span></span>
-<span class="line">drop database test;</span>
-<span class="line">create database test;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># prepare准备阶段，构建压测环境</span></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/select.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">20000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 开始压测</span></span>
-<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/select.lua \</span>
-<span class="line">--oltp-table-size=<span class="number">20000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
-<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
-<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=test \</span>
-<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">20</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
-<span class="line"></span>
-<span class="line">sysbench <span class="number">1.0</span>.<span class="number">5</span> (using bundled LuaJIT <span class="number">2.1</span>.<span class="number">0</span>-beta2)</span>
-<span class="line"></span>
-<span class="line">Running the test with following options:</span>
-<span class="line">Number of threads: <span class="number">2</span></span>
-<span class="line">Report intermediate results every <span class="number">10</span> second(<span class="keyword">s</span>)</span>
-<span class="line">Initializing random number generator from current <span class="keyword">time</span></span>
-<span class="line"></span>
-<span class="line"></span>
-<span class="line">Initializing worker threads...</span>
-<span class="line"></span>
-<span class="line">Threads started!</span>
-<span class="line"></span>
-<span class="line">[ <span class="number">10</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">8087.29</span> qps: <span class="number">8087.29</span> (r/w/o: <span class="number">8087.29</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">34</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">[ <span class="number">20</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">6949.28</span> qps: <span class="number">6949.28</span> (r/w/o: <span class="number">6949.28</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">35</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">[ <span class="number">30</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">7251.71</span> qps: <span class="number">7251.71</span> (r/w/o: <span class="number">7251.71</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">34</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">[ <span class="number">40</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">6927.19</span> qps: <span class="number">6927.19</span> (r/w/o: <span class="number">6927.19</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">35</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">[ <span class="number">50</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">7387.64</span> qps: <span class="number">7387.64</span> (r/w/o: <span class="number">7387.64</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">32</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">[ <span class="number">60</span><span class="keyword">s</span> ] thds: <span class="number">2</span> tps: <span class="number">10171.21</span> qps: <span class="number">10171.21</span> (r/w/o: <span class="number">10171.21</span>/<span class="number">0</span>.<span class="number">00</span>/<span class="number">0</span>.<span class="number">00</span>) lat (ms,<span class="number">95</span>%): <span class="number">0</span>.<span class="number">26</span> err/ <span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span> reconn/<span class="keyword">s</span>: <span class="number">0</span>.<span class="number">00</span></span>
-<span class="line">SQL statistics:</span>
-<span class="line">    queries performed:</span>
-<span class="line">        <span class="keyword">read</span>:                            <span class="number">467780</span></span>
-<span class="line">        <span class="keyword">write</span>:                           <span class="number">0</span></span>
-<span class="line">        other:                           <span class="number">0</span></span>
-<span class="line">        total:                           <span class="number">467780</span></span>
-<span class="line">    transactions:                        <span class="number">467780</span> (<span class="number">7795.29</span> per sec.)</span>
-<span class="line">    queries:                             <span class="number">467780</span> (<span class="number">7795.29</span> per sec.)</span>
-<span class="line">    ignored errors:                      <span class="number">0</span>      (<span class="number">0</span>.<span class="number">00</span> per sec.)</span>
-<span class="line">    reconnects:                          <span class="number">0</span>      (<span class="number">0</span>.<span class="number">00</span> per sec.)</span>
-<span class="line"></span>
-<span class="line">General statistics:</span>
-<span class="line">    total <span class="keyword">time</span>:                          <span class="number">60.0008</span><span class="keyword">s</span></span>
-<span class="line">    total number of events:              <span class="number">467780</span></span>
-<span class="line"></span>
-<span class="line">Latency (ms):</span>
-<span class="line">         min:                                  <span class="number">0</span>.<span class="number">11</span></span>
-<span class="line">         avg:                                  <span class="number">0</span>.<span class="number">25</span></span>
-<span class="line">         max:                                 <span class="number">27.63</span></span>
-<span class="line">         <span class="number">95</span>th percentile:                      <span class="number">0</span>.<span class="number">34</span></span>
-<span class="line">         sum:                             <span class="number">119092.82</span></span>
-<span class="line"></span>
-<span class="line">Threads fairness:</span>
-<span class="line">    events (avg/stddev):           <span class="number">233890.0000</span>/<span class="number">242.00</span></span>
-<span class="line">    execution <span class="keyword">time</span> (avg/stddev):   <span class="number">59.5464</span>/<span class="number">0</span>.<span class="number">00</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-08-03T16:00:00.000Z" itemprop="datePublished">2017-08-04</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="MySQL优化方法的关键是？"><a href="#MySQL优化方法的关键是？" class="headerlink" title="MySQL优化方法的关键是？"></a>MySQL优化方法的关键是？</h2><ul>
-<li>MySQL参数优化，innodb_buffer_pool_size/innodb_flush_log_at_trx_commit/sync_binlog</li>
-<li>SQL开发规范</li>
-<li>分库分表</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/5/">Next &raquo;</a>
     </nav>
   
 </div>

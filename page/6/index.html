@@ -266,6 +266,171 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/SQL优化--dbms_sqltune应用实例" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/" class="article-date">
+      <time datetime="2017-06-27T16:00:00.000Z" itemprop="datePublished">2017-06-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="需要优化的SQL"><a href="#需要优化的SQL" class="headerlink" title="需要优化的SQL"></a>需要优化的SQL</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SELECT a.sjhm</span>
+<span class="line">FROM    bfcrm8.hyk_hyxx  b,</span>
+<span class="line">        bfcrm8.hyk_grxx  a,</span>
+<span class="line">        bfcrm8.hyxfjl    c,</span>
+<span class="line">        bfcrm8.hyxfjl_sp d</span>
+<span class="line">WHERE   a.hyid         =b.hyid</span>
+<span class="line">        AND a.hyid     =c.hyid</span>
+<span class="line">        AND c.xfjlid   =d.xfjlid</span>
+<span class="line">        AND b.hyktype IN (<span class="string">'101'</span>)</span>
+<span class="line">        AND b.status  &gt;=<span class="number">0</span></span>
+<span class="line">        AND a.sex      =<span class="string">'1'</span></span>
+<span class="line">        AND d.bmdm LIKE <span class="string">'010104%'</span></span>
+<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>)&gt;=<span class="string">'20'</span></span>
+<span class="line">        AND TO_CHAR(sysdate,<span class="string">'YYYY'</span>) - TO_CHAR(a.csrq,<span class="string">'YYYY'</span>) &lt;<span class="string">'41'</span></span>
+<span class="line">GROUP BY a.sjhm</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-06-22T16:00:00.000Z" itemprop="datePublished">2017-06-23</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="搭建12c的Data-Guard环境"><a href="#搭建12c的Data-Guard环境" class="headerlink" title="搭建12c的Data Guard环境"></a>搭建12c的Data Guard环境</h2><h3 id="主备库环境配置"><a href="#主备库环境配置" class="headerlink" title="主备库环境配置"></a>主备库环境配置</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库已安数据，备库只安装了数据库软件，环境配置如下</span></span>
+<span class="line">cat /etc/hosts</span>
+<span class="line"><span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>   localhost localhost.localdomain localhost4 localhost4.localdomain4</span>
+<span class="line">::<span class="number">1</span>         localhost localhost.localdomain localhost6 localhost6.localdomain6</span>
+<span class="line"><span class="number">10.240</span>.<span class="number">4.174</span>  dgtp12  dgtp12.ydgwng.cn</span>
+<span class="line"><span class="number">10.240</span>.<span class="number">4.175</span>  dgts12  dgts12.ydgwng.cn</span>
+<span class="line"></span>
+<span class="line">echo <span class="string">"export ORACLE_SID=dgt"</span> &gt;&gt; <span class="regexp">/home/oracle</span><span class="regexp">/.bash_profile</span>
+<span class="line">echo "export ORACLE_BASE=/u</span>01/app/oracle<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export ORACLE_HOME=\$ORACLE_BASE/product/<span class="number">12.2</span>.<span class="number">0</span>/db_1<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export LD_LIBRARY_PATH=\$ORACLE_HOME/lib<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export PATH=\$PATH:\$HOME/bin:\$ORACLE_HOME/bin:\$ORACLE_HOME/OPatch<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export NLS_LANG=AMERICAN_AMERICA.ZHS16GBK<span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>export NLS_DATE_FORMAT=<span class="string">'yyyy-mm-dd hh24:mi:ss'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias sqlplus=<span class="string">'rlwrap sqlplus'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias asmcmd=<span class="string">'rlwrap asmcmd'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias rman=<span class="string">'rlwrap rman'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span>
+<span class="line">echo "</span>alias dgmgrl=<span class="string">'rlwrap dgmgrl'</span><span class="string">" &gt;&gt; /home/oracle/.bash_profile</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -904,75 +1069,6 @@
 
 
   
-    <article id="post-oracle/hugepage计算脚本" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/08/oracle/hugepage计算脚本/" class="article-date">
-      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
-<li>Oracle Database instance(s) are up and running</li>
-<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
-<li>The shared memory segments can be listed by command “ipcs -m”</li>
-<li>Oracle Linux</li>
-<li>Package ‘bc’ installed
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/08/oracle/hugepage计算脚本/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1046,78 +1142,9 @@
 
 
   
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-04T16:00:00.000Z" itemprop="datePublished">2017-05-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="安装部署12c"><a href="#安装部署12c" class="headerlink" title="安装部署12c"></a>安装部署12c</h2><h3 id="官网下载12cr2的安装包"><a href="#官网下载12cr2的安装包" class="headerlink" title="官网下载12cr2的安装包"></a>官网下载12cr2的安装包</h3><p>下载地址：<a href="http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html">http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html </a><br><img src="http://oligvdnzp.bkt.clouddn.com/0505_oracle12c_install_01.png" alt=""></p>
-<p>有MOS帐号也可以去edelivery下载：<a href="https://edelivery.oracle.com">https://edelivery.oracle.com</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
     </nav>
   
 </div>
