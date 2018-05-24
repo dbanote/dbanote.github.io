@@ -266,6 +266,93 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-07-01T16:00:00.000Z" itemprop="datePublished">2017-07-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="Snapshot-Standby"><a href="#Snapshot-Standby" class="headerlink" title="Snapshot Standby"></a>Snapshot Standby</h2><h3 id="查看数据库状态"><a href="#查看数据库状态" class="headerlink" title="查看数据库状态"></a>查看数据库状态</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 主库状态</span></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
+<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
+<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
+<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
+<span class="line">DGT       DGTP            READ WRITE           PRIMARY          YES                YES             ARCHIVELOG</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看备库状态</span></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">col DB_UNIQUE_NAME <span class="keyword">for</span> a15</span>
+<span class="line">col FORCE_LOGGING <span class="keyword">for</span> a15</span>
+<span class="line"><span class="keyword">select</span> name,db_unique_name,open_mode,database_role,flashback_on,force_logging,log_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">NAME      DB_UNIQUE_NAME  OPEN_MODE            DATABASE_ROLE    FLASHBACK_ON       FORCE_LOGGING   LOG_MODE</span>
+<span class="line">--------- --------------- -------------------- ---------------- ------------------ --------------- ------------</span>
+<span class="line">DGT       DGTS            READ ONLY WITH APPLY PHYSICAL STANDBY YES                YES             ARCHIVELOG</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/SQL优化--dbms_sqltune应用实例" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1051,79 +1138,6 @@
       
         <p class="article-more-link">
           <a href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
-      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
-<span class="line">cat /etc/redhat-release</span>
-<span class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</span>
-<span class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</span>
-<span class="line">df -hT</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

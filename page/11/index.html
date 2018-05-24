@@ -266,6 +266,96 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/" class="article-date">
+      <time datetime="2015-03-01T16:00:00.000Z" itemprop="datePublished">2015-03-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="教材第二章课后作业-1，2，3，4题"><a href="#教材第二章课后作业-1，2，3，4题" class="headerlink" title="教材第二章课后作业 1，2，3，4题"></a>教材第二章课后作业 1，2，3，4题</h2><h3 id="创建一查询，显示与BLAKE在同一部门工作的雇员的项目和受雇日期，但是BLAKE不包含在内。"><a href="#创建一查询，显示与BLAKE在同一部门工作的雇员的项目和受雇日期，但是BLAKE不包含在内。" class="headerlink" title="创建一查询，显示与BLAKE在同一部门工作的雇员的项目和受雇日期，但是BLAKE不包含在内。"></a>创建一查询，显示与BLAKE在同一部门工作的雇员的项目和受雇日期，但是BLAKE不包含在内。</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; conn scott/scott</span>
+<span class="line">Connected.</span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * from cat;</span>
+<span class="line"></span>
+<span class="line">TABLE_NAME                     TABLE_TYPE</span>
+<span class="line">------------------------------ -----------</span>
+<span class="line">BONUS                          TABLE</span>
+<span class="line">DEPT                           TABLE</span>
+<span class="line">EMP                            TABLE</span>
+<span class="line">SALGRADE                       TABLE</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> ENAME,JOB,to_char(HIREDATE,<span class="string">'YYYY-mm-dd'</span>) as HIREDATE from emp </span>
+<span class="line">  where DEPTNO = (<span class="keyword">select</span> DEPTNO from emp where ENAME=<span class="string">'BLAKE'</span>)</span>
+<span class="line">    <span class="keyword">and</span> ENAME&lt;&gt;<span class="string">'BLAKE'</span>;</span>
+<span class="line"></span>
+<span class="line">ENAME      JOB       HIREDATE</span>
+<span class="line">---------- --------- ----------</span>
+<span class="line">ALLEN      SALESMAN  <span class="number">1981</span>-<span class="number">02</span>-<span class="number">20</span></span>
+<span class="line">WARD       SALESMAN  <span class="number">1981</span>-<span class="number">02</span>-<span class="number">22</span></span>
+<span class="line">MARTIN     SALESMAN  <span class="number">1981</span>-09-<span class="number">28</span></span>
+<span class="line">TURNER     SALESMAN  <span class="number">1981</span>-09-08</span>
+<span class="line">JAMES      CLERK     <span class="number">1981</span>-<span class="number">12</span>-<span class="number">03</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle职业直通车/">Oracle职业直通车</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">

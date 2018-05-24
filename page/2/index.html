@@ -266,6 +266,83 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-03-09T16:00:00.000Z" itemprop="datePublished">2018-03-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="Control-file-dump"><a href="#Control-file-dump" class="headerlink" title="Control file: dump"></a>Control file: dump</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter session set events <span class="string">'immediate trace name controlf level &lt;n&gt;'</span>;</span>
+<span class="line">如：</span>
+<span class="line">alter session set events <span class="string">'immediate trace name controlf level 1'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 通过以下命令查看dump trace文件的位置</span></span>
+<span class="line"><span class="keyword">select</span> * from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>level <n>:<br>level 1: Generic File Header<br>Level 2: Level 1 + database information + database entry + check point<br>         progress records + Extended database entry<br>level 3 or Higher&lt; 9: level 2 + reuse record section<br>level 10: Memory dump of all the control file logical blocks</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-docker/10_docker常用命令" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -964,75 +1041,6 @@
       
         <p class="article-more-link">
           <a href="/2018/01/12/docker/04_rancher的部署安装/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/03_docker的部署安装-Ubuntu" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/" class="article-date">
-      <time datetime="2018-01-10T16:00:00.000Z" itemprop="datePublished">2018-01-11</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="为什么生产环境中Docker要部署在Ubuntu上"><a href="#为什么生产环境中Docker要部署在Ubuntu上" class="headerlink" title="为什么生产环境中Docker要部署在Ubuntu上"></a>为什么生产环境中Docker要部署在Ubuntu上</h2><p>原来为了兼容企业级应用，之前学习Docker选用了Centos7做为部署安装Docker的系统平台，但在阅读官方文档后发现，Centos7下默认的Docker存储驱动在生产环境中部署是会有一些问题。<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_01.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0111_docker_02.png" alt=""></p>
-<p>详细可参考这篇文章：<a href="http://blog.csdn.net/csdn_duomaomao/article/details/78499639">http://blog.csdn.net/csdn_duomaomao/article/details/78499639</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

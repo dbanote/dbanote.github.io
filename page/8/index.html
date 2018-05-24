@@ -266,6 +266,78 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-tools/Hexo文章的密码访问" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/tools/Hexo文章的密码访问/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.373Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>工作中有些文档中的部分内容，虽然机密性不高，但也不便在网上直接公开发布。 这时可以通过以下的小技巧来实现<code>简单</code>的文档密码保护。</p>
+<h2 id="方法实现"><a href="#方法实现" class="headerlink" title="方法实现"></a>方法实现</h2><p>因Hexo中Markdown语言和html是混用的，所以可直接在Markdown中直接插入以下这段<code>script</code>(建议放到<code>&lt;!-- more --&gt;</code>段后面)。<br>这里用到了windows对象的<code>alert()</code>方法和<code>prompt()</code>方法。<code>prompt()</code>方法的作用即是显示一个可提示用户输入的对话框，而其本身的返回值就是你输入的那个字符串。因此只需要将其与你默认的密码比较一下就好，如果不正确，则直接将当前页面的loaction属性设为上一个页面即可。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span>
+<span class="line">    <span class="keyword">if</span>(<span class="string">"123"</span>==prompt(<span class="string">"请输入文档密码"</span>))</span>
+<span class="line">    &#123;</span>
+<span class="line">        alert(<span class="string">"密码正确"</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line">    <span class="keyword">else</span></span>
+<span class="line">    &#123;</span>
+<span class="line">        alert(<span class="string">"密码错误返回主页"</span>);</span>
+<span class="line">        location=<span class="string">"/"</span>;</span>
+<span class="line">    &#125;</span>
+<span class="line">&lt;<span class="regexp">/script&gt;</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -394,83 +466,6 @@
 
 
   
-    <article id="post-oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/expdp/">expdp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-oracle/Oracle 11g工作中常用的命令和脚本整理" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -535,6 +530,83 @@
         <p class="article-more-link">
           <a href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/#more">阅读全文 >></a>
         </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
+<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
+<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
+<span class="line">...</span>
+<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
+<span class="line"></span>
+<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
+</pre></td></tr></table></figure></p>
+<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
+<span class="line">...</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
+<span class="line">COMMIT;</span>
+<span class="line"></span>
+<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
+<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/expdp/">expdp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
       
       <div class="clearfix"></div>
     </div>
@@ -877,84 +949,6 @@
       
         <p class="article-more-link">
           <a href="/2017/03/18/linux/20170318_CentOS7.3安装图解/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-03-09T16:00:00.000Z" itemprop="datePublished">2017-03-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="MySQL参数autocommit生产环境设1还是0？为什么？"><a href="#MySQL参数autocommit生产环境设1还是0？为什么？" class="headerlink" title="MySQL参数autocommit生产环境设1还是0？为什么？"></a>MySQL参数autocommit生产环境设1还是0？为什么？</h2><p>MySQL参数autocommit生产环境设成0，即不自动提交。 设置成不自动提交，事务能做rollback，以满足事务的原子性Atomicity的要求，设置方法：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set autocommit=<span class="number">0</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 也可以修改my.cnf配置文件</span></span>
-<span class="line">autocommit=<span class="number">0</span></span>
-</pre></td></tr></table></figure></p>
-<h2 id="MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？"><a href="#MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？" class="headerlink" title="MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？"></a>MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？</h2><p>MySQL参数<code>tx_isolation</code>生产环境上大多数是设成<code>READ-COMMITED</code>。事务的隔离级别设置为<code>READ-COMMITED</code>时不会发生脏读现象，虽会出现不可重复读和幻读问题，但不会对业务应用造成影响。而设置成以下隔离级别会出现的问题如下：</p>
-<ul>
-<li>Read Uncommitted：会产生脏读、不可重复读、幻读现象，而脏读这在生产环境中是不被允许的</li>
-<li>Repeatable Read：不会出现不可重复读和幻读问题，但此特性一般不符合应用业务需要，且并发性能也不好。</li>
-<li>Serializable：所有事务全部串行执行（只允许同时一个事务操作，若有其他事务，也需要等前一个事务完成后才能开始），不能并发执行，这在生产环境中是不现实的。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
