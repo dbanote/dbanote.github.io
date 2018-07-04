@@ -15,16 +15,48 @@
 
 
 
-<meta name="description" content="Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。在一些安全性要求比较高的环境是需要做一些审计的配置的。">
+<meta name="description" content="基础语法向屏幕输出print()
+
+&amp;gt;&amp;gt;&amp;gt; print(&apos;hello world&apos;)
+hello world
+
+基础数据类型整型 int&amp;gt;&amp;gt;&amp;gt; 1111111111235456
+1111111111235456
+&amp;gt;&amp;gt;&amp;gt; type(1111111111235456)
+print()
+&amp;lt;class &apos;int&apos;&amp;gt;
+# 在python3中已">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ORACLE审计">
-<meta property="og:url" content="/2017/09/13/oracle/oracle审计/index.html">
+<meta property="og:title" content="Python3自动化运维 - 02 数据类型及引用计数">
+<meta property="og:url" content="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/index.html">
 <meta property="og:site_name" content="一个DBA的工作学习笔记">
-<meta property="og:description" content="Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。在一些安全性要求比较高的环境是需要做一些审计的配置的。">
-<meta property="og:updated_time" content="2017-09-13T08:48:17.768Z">
+<meta property="og:description" content="基础语法向屏幕输出print()
+
+&amp;gt;&amp;gt;&amp;gt; print(&apos;hello world&apos;)
+hello world
+
+基础数据类型整型 int&amp;gt;&amp;gt;&amp;gt; 1111111111235456
+1111111111235456
+&amp;gt;&amp;gt;&amp;gt; type(1111111111235456)
+print()
+&amp;lt;class &apos;int&apos;&amp;gt;
+# 在python3中已">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0704_python_01.png">
+<meta property="og:updated_time" content="2018-07-04T09:15:00.661Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ORACLE审计">
-<meta name="twitter:description" content="Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。在一些安全性要求比较高的环境是需要做一些审计的配置的。">
+<meta name="twitter:title" content="Python3自动化运维 - 02 数据类型及引用计数">
+<meta name="twitter:description" content="基础语法向屏幕输出print()
+
+&amp;gt;&amp;gt;&amp;gt; print(&apos;hello world&apos;)
+hello world
+
+基础数据类型整型 int&amp;gt;&amp;gt;&amp;gt; 1111111111235456
+1111111111235456
+&amp;gt;&amp;gt;&amp;gt; type(1111111111235456)
+print()
+&amp;lt;class &apos;int&apos;&amp;gt;
+# 在python3中已">
+<meta name="twitter:image" content="http://p2c0rtsgc.bkt.clouddn.com/0704_python_01.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -51,7 +83,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>ORACLE审计 | 一个DBA的工作学习笔记</title>
+<title>Python3自动化运维 - 02 数据类型及引用计数 | 一个DBA的工作学习笔记</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -265,11 +297,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-oracle/oracle审计" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2017/09/13/oracle/oracle审计/" class="article-date">
-      <time datetime="2017-09-12T16:00:00.000Z" itemprop="datePublished">2017-09-13</time>
+      <a href="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/" class="article-date">
+      <time datetime="2018-07-03T16:00:00.000Z" itemprop="datePublished">2018-07-04</time>
 </a>
 
 
@@ -284,7 +316,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      ORACLE审计
+      Python3自动化运维 - 02 数据类型及引用计数
     </h1>
   
 
@@ -292,10 +324,14 @@
       
       <div class="article-info article-info-post">
         
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Python3自动化运维/">Python3自动化运维</a>
+    </div>
+
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/audit/">audit</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -305,52 +341,330 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>Oracle审计(Audit)主要用于记录用户对数据库所做的操作，基于配置的不同，审计的结果会放在操作系统文件中或者系统表中。<br>默认情况下，使用管理员权限连接实例，开启及关闭数据库是会强制进行审计的，其它的基础的操作则没有进行审计。<br>在一些安全性要求比较高的环境是需要做一些审计的配置的。</p>
-<a id="more"></a>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">show parameter audit_trail;</span>
+        <h2 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h2><p>向屏幕输出<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print()</span>
 <span class="line"></span>
-<span class="line"></span>
-<span class="line">NAME                                 TYPE        VALUE</span>
-<span class="line">------------------------------------ ----------- ------------------------------</span>
-<span class="line">audit_trail                          string      DB_EXTENDED</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 将审计结果放在数据库表中，并额外记录SQL_BIND和SQL_TEXT(具体执行语句)</span></span>
-<span class="line">alter <span class="keyword">system</span> set audit_trail=db_extended scope=spfile;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 重启数据库</span></span>
-<span class="line"><span class="keyword">shutdown</span> immediate</span>
-<span class="line">startup</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 设置审计内容</span></span>
-<span class="line">audit all by lyj by access;</span>
-<span class="line">audit <span class="keyword">select</span> table, update table, insert table, <span class="keyword">delete</span> table by lyj by access;</span>
-<span class="line">audit execute procedure by lyj by access;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 取消设置</span></span>
-<span class="line">noaudit all by lyj;</span>
-<span class="line">noaudit <span class="keyword">select</span> table, update table, insert table, <span class="keyword">delete</span> table by lyj;</span>
-<span class="line">noaudit execute procedure by lyj;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 审计dept表的查询，删除不论它是否成功</span></span>
-<span class="line">audit <span class="keyword">select</span> ,<span class="keyword">delete</span> on scott.dept by access whenever <span class="keyword">not</span> successful;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 审计emp表的所有操作，只有当操作成功的时候</span></span>
-<span class="line">audit all on scott.emp by access whenever successful;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 取消对表的审计</span></span>
-<span class="line">noaudit all on scott.dept;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看审计记录</span></span>
-<span class="line"><span class="keyword">select</span> USERNAME,USERHOST,TIMESTAMP,SQL_TEXT FROM dba_audit_trail order by timestamp;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 清空审计表内容</span></span>
-<span class="line"><span class="keyword">truncate</span> table aud$;</span>
-<span class="line"></span>
-<span class="line"><span class="comment">## by access  每个被审计的操作都会生成一条记录</span></span>
-<span class="line"><span class="comment">## by session 默认值，每个会话里同类型操作只会生成一条audit trail</span></span>
-<span class="line"><span class="comment">## whenever successful 操作成功才审计</span></span>
-<span class="line"><span class="comment">## whenever not successful 操作不成功才审计</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>print(<span class="string">'hello world'</span>)</span>
+<span class="line">hello world</span>
+</pre></td></tr></table></figure></p>
+<h2 id="基础数据类型"><a href="#基础数据类型" class="headerlink" title="基础数据类型"></a>基础数据类型</h2><h3 id="整型-int"><a href="#整型-int" class="headerlink" title="整型 int"></a>整型 int</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">1111111111235456</span></span>
+<span class="line"><span class="number">1111111111235456</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type(<span class="number">1111111111235456</span>)</span>
+<span class="line">print()</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'int'</span>&gt;</span>
+<span class="line"><span class="comment"># 在python3中已经删除长整型</span></span>
 </pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="浮点型-float"><a href="#浮点型-float" class="headerlink" title="浮点型 float"></a>浮点型 float</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">1.5</span></span>
+<span class="line"><span class="number">1.5</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type(<span class="number">1.5</span>)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'float'</span>&gt;</span>
+<span class="line"></span>
+<span class="line">运算（整型、浮点型）示例：</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">1</span> + <span class="number">1</span></span>
+<span class="line"><span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">3.0</span> - <span class="number">1</span></span>
+<span class="line"><span class="number">2.0</span></span>
+<span class="line"><span class="comment"># 在python3中，运算之后的结果，首先默认会向参加运算的复杂类型靠拢(整型 - 浮点型 = 浮点型)</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">5</span> / <span class="number">2</span> </span>
+<span class="line"><span class="number">2.5</span></span>
+<span class="line"><span class="comment"># 在python3中，除法的结果会自动向浮点型靠拢(python2不是，结果会是2)</span></span>
+</pre></td></tr></table></figure>
+<h3 id="复数-complex"><a href="#复数-complex" class="headerlink" title="复数 complex"></a>复数 complex</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">2</span> + <span class="number">3j</span></span>
+<span class="line">(<span class="number">2</span>+<span class="number">3j</span>)</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type (<span class="number">2</span>+<span class="number">3j</span>)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'complex'</span>&gt;</span>
+<span class="line"><span class="comment"># 复数虚部结尾一般以大J或小j结尾</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>aa=<span class="number">123</span><span class="number">-12j</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> (aa.real)</span>
+<span class="line"><span class="number">123.0</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">print</span> (aa.imag)</span>
+<span class="line"><span class="number">-12.0</span></span>
+</pre></td></tr></table></figure>
+<h3 id="布尔型-bool"><a href="#布尔型-bool" class="headerlink" title="布尔型 bool"></a>布尔型 bool</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">True</span></span>
+<span class="line"><span class="keyword">True</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">False</span></span>
+<span class="line"><span class="keyword">False</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type (<span class="keyword">True</span>)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'bool'</span>&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># True(非0，非空)  False(0)</span></span>
+<span class="line"><span class="comment"># bool值做计算时，True为1  False为0</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">True</span> + <span class="keyword">True</span></span>
+<span class="line"><span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">False</span> + <span class="keyword">False</span></span>
+<span class="line"><span class="number">0</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">True</span> + <span class="keyword">False</span></span>
+<span class="line"><span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 注意：true不是bool</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>true</span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">NameError: name <span class="string">'true'</span> <span class="keyword">is</span> <span class="keyword">not</span> defined</span>
+</pre></td></tr></table></figure>
+<h2 id="字符串-str"><a href="#字符串-str" class="headerlink" title="字符串 str"></a>字符串 str</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 单引号</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">' abc '</span></span>
+<span class="line"><span class="string">' abc '</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type (<span class="string">' abc '</span>)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'str'</span>&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type(str)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'type'</span>&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 双引号</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">"abc"</span></span>
+<span class="line"><span class="string">'abc'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 3个单引号</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'''abc'''</span></span>
+<span class="line"><span class="string">'abc'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 3个双引号（可以换行来写）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">"""abc</span>
+<span class="line"><span class="meta">... </span>"""</span></span>
+<span class="line"><span class="string">'abc\n'</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'Po say: "today is a good weather"'</span></span>
+<span class="line"><span class="string">'Po say: "today is a good weather"'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 斜杠可以避免转义</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">'Po say: \"today is a good weather\"'</span></span>
+<span class="line"><span class="string">'Po say: "today is a good weather"'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 加r也可以避免转义 ，但是要注意 这里斜杠不能写到字符串的结尾</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="string">r"C:\a"</span></span>
+<span class="line"><span class="string">'C:\\a'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 声明变量</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr = <span class="string">'abc'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr</span>
+<span class="line"><span class="string">'abc'</span></span>
+</pre></td></tr></table></figure>
+<h3 id="字符串-索引"><a href="#字符串-索引" class="headerlink" title="字符串-索引"></a>字符串-索引</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 从左向右访问：索引从0开始</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">0</span>]</span>
+<span class="line"><span class="string">'a'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">1</span>]</span>
+<span class="line"><span class="string">'b'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">2</span>]</span>
+<span class="line"><span class="string">'c'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">3</span>]</span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">IndexError: string index out of range  <span class="comment"># 访问到字符串的位置 大于了他最大的索引值上限</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 从右向左访问：索引从-1开始</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">-1</span>]</span>
+<span class="line"><span class="string">'c'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">-2</span>]</span>
+<span class="line"><span class="string">'b'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">-3</span>]</span>
+<span class="line"><span class="string">'a'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">-4</span>]</span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">IndexError: string index out of range</span>
+</pre></td></tr></table></figure>
+<h3 id="字符串-切片"><a href="#字符串-切片" class="headerlink" title="字符串-切片"></a>字符串-切片</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切片操作，是左闭右开的，结束索引的值不会被取到</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr = <span class="string">'abcdefg'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[:]</span>
+<span class="line"><span class="string">'abcdefg'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">1</span>:<span class="number">3</span>]</span>
+<span class="line"><span class="string">'bc'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">1</span>:<span class="number">4</span>]</span>
+<span class="line"><span class="string">'bcd'</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">-5</span>:]</span>
+<span class="line"><span class="string">'cdefg'</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[:<span class="number">4</span>]</span>
+<span class="line"><span class="string">'abcd'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 字符串相加，代表拼接</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr1=<span class="string">'1234567'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr + mystr1</span>
+<span class="line"><span class="string">'abcdefg1234567'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 字符串相乘，代表叠加</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>newstr = mystr * <span class="number">3</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>newstr</span>
+<span class="line"><span class="string">'abcdefgabcdefgabcdefg'</span></span>
+</pre></td></tr></table></figure>
+<h2 id="列表-list"><a href="#列表-list" class="headerlink" title="列表 list"></a>列表 list</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type(mylist)</span>
+<span class="line">&lt;type <span class="string">'list'</span>&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 列表可以存储各种各样的数据</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]]</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 列表支持索引、切片</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">1</span>]</span>
+<span class="line"><span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">3</span>:<span class="number">6</span>]</span>
+<span class="line">[<span class="number">4</span>, <span class="string">'a'</span>, <span class="string">'b'</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">-5</span>:<span class="number">-2</span>]</span>
+<span class="line">[<span class="number">4</span>, <span class="string">'a'</span>, <span class="string">'b'</span>]</span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">-1</span>][<span class="number">1</span>]</span>
+<span class="line"><span class="number">2</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 练习:单独取出以下列表中的a</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,[<span class="number">1</span>,[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,[<span class="number">3</span>,<span class="number">2</span>,[<span class="number">4</span>,<span class="string">'a'</span>],<span class="number">2</span>]],<span class="number">3</span>],<span class="string">'b'</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">-2</span>][<span class="number">-2</span>][<span class="number">-1</span>][<span class="number">-2</span>][<span class="number">-1</span>]</span>
+<span class="line"><span class="string">'a'</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">3</span>][<span class="number">1</span>][<span class="number">3</span>][<span class="number">2</span>][<span class="number">1</span>]</span>
+<span class="line"><span class="string">'a'</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 列表的值是可变的</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">0</span>] = <span class="string">'a'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist</span>
+<span class="line">[<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, [<span class="number">1</span>, [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, [<span class="number">3</span>, <span class="number">2</span>, [<span class="number">4</span>, <span class="string">'a'</span>], <span class="number">2</span>]], <span class="number">3</span>], <span class="string">'b'</span>]</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 字符串的值是不可变的</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr</span>
+<span class="line"><span class="string">'abcdefg'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">0</span>]</span>
+<span class="line"><span class="string">'a'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mystr[<span class="number">0</span>] = <span class="string">'1'</span></span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">TypeError: <span class="string">'str'</span> object does <span class="keyword">not</span> support item assignment</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 验证列表内存地址指向的值是可变的，字符和整形是不可变的</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(mylist)</span>
+<span class="line"><span class="number">140452016060464</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist[<span class="number">0</span>] = <span class="string">'a'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist</span>
+<span class="line">[<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(mylist)</span>
+<span class="line"><span class="number">140452016060464</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</span>
+<span class="line"><span class="number">9330880</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</span>
+<span class="line"><span class="number">9330912</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">#列表可拼接（+）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist + mylist</span>
+<span class="line">[<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 列表可叠加（*）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist * <span class="number">3</span></span>
+<span class="line">[<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span>
+</pre></td></tr></table></figure>
+<h2 id="元组tuple"><a href="#元组tuple" class="headerlink" title="元组tuple"></a>元组tuple</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple = (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],(<span class="string">'a'</span>,<span class="string">'b'</span>))</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>type(mytuple)</span>
+<span class="line">&lt;<span class="keyword">class</span> <span class="string">'tuple'</span>&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 支持索引和切片</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple[<span class="number">0</span>]</span>
+<span class="line"><span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple[<span class="number">-1</span>]</span>
+<span class="line">(<span class="string">'a'</span>, <span class="string">'b'</span>)</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple[:]</span>
+<span class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>))</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 元组是不可修改的</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple[<span class="number">0</span>] =<span class="string">'a'</span></span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">TypeError: <span class="string">'tuple'</span> object does <span class="keyword">not</span> support item assignment</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 元组可拼接（+）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple + mytuple</span>
+<span class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>), <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>))</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 元组可叠加（*）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mytuple * <span class="number">3</span></span>
+<span class="line">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>), <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>), <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>))</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 类型转换 列表-&gt;元组</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>mylist</span>
+<span class="line">[<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple(mylist)</span>
+<span class="line">(<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)</span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple(mylist) + mytuple</span>
+<span class="line">(<span class="string">'a'</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], (<span class="string">'a'</span>, <span class="string">'b'</span>))</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 删除误用关键字定义的变量</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple = <span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple</span>
+<span class="line"><span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple()</span>
+<span class="line">Traceback (most recent call last):</span>
+<span class="line">  File <span class="string">"&lt;stdin&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span>
+<span class="line">TypeError: <span class="string">'int'</span> object <span class="keyword">is</span> <span class="keyword">not</span> callable</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># del用来删除定义的变量</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> tuple      </span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>tuple()</span>
+<span class="line">()</span>
+</pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>可变/可修改内部值：list</li>
+<li><p>不可变/不可修改内部值：number、str、tuple </p>
+</li>
+<li><p>能做切片索引：number</p>
+</li>
+<li><p>不能切片索引：str、list、tuple</p>
+</li>
+<li><p>元组和列表的区别，就是在于能否修改其内部的元素</p>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">mynum = <span class="number">1.5</span></span>
+<span class="line">mystr = <span class="string">'abc'</span></span>
+<span class="line">mylist = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span>
+<span class="line">mytuple = (<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)</span>
+</pre></td></tr></table></figure>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><ol>
+<li>Python中的变量不需要先定义，可以直接赋值使用（要想使用必须选赋值）</li>
+<li>命名风格，不能和系统函数和关键字重名，也不要和模块名相同</li>
+<li>变量名大小写是敏感的，变量名只能是字母、数字、下划线，数字不能打头</li>
+<li><p>可以同给给多个变量赋值</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a,b = <span class="number">1</span>,<span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a</span>
+<span class="line"><span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>b</span>
+<span class="line"><span class="number">2</span></span>
+</pre></td></tr></table></figure>
+</li>
+<li><p>变量的引用计数<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0704_python_01.png" alt=""></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="number">1</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>b = a</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</span>
+<span class="line"><span class="number">9330880</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(b)</span>
+<span class="line"><span class="number">9330880</span></span>
+<span class="line"></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="string">'abc'</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>b = a</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)</span>
+<span class="line"><span class="number">140160997615408</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>id(b)</span>
+<span class="line"><span class="number">140160997615408</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看引用计数（除了a,b外，还有22个在用  python解析器在用）</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> sys</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getrefcount(a)</span>
+<span class="line"><span class="number">24</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getrefcount(b)</span>
+<span class="line"><span class="number">24</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">del</span> b</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>sys.getrefcount(a)</span>
+<span class="line"><span class="number">23</span></span>
+<span class="line"><span class="comment"># 引用计数为0时，这块内存被回收</span></span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+
       
     </div>
     
@@ -361,16 +675,10 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">
-                    MySQL性能优化最佳实践 - 07 MySQL索引设计
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">
-                    MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践
+                <a href="/2018/07/03/python/Python3自动化运维-课程学习/01_Python3自动化运维_环境配置/">
+                    Python3自动化运维 - 01 环境配置
                 </a>
             </div>
         
@@ -382,7 +690,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基础语法"><span class="toc-number">1.</span> <span class="toc-text">基础语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础数据类型"><span class="toc-number">2.</span> <span class="toc-text">基础数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#整型-int"><span class="toc-number">2.1.</span> <span class="toc-text">整型 int</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#浮点型-float"><span class="toc-number">2.2.</span> <span class="toc-text">浮点型 float</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复数-complex"><span class="toc-number">2.3.</span> <span class="toc-text">复数 complex</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#布尔型-bool"><span class="toc-number">2.4.</span> <span class="toc-text">布尔型 bool</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串-str"><span class="toc-number">3.</span> <span class="toc-text">字符串 str</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字符串-索引"><span class="toc-number">3.1.</span> <span class="toc-text">字符串-索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字符串-切片"><span class="toc-number">3.2.</span> <span class="toc-text">字符串-切片</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#列表-list"><span class="toc-number">4.</span> <span class="toc-text">列表 list</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#元组tuple"><span class="toc-number">5.</span> <span class="toc-text">元组tuple</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量"><span class="toc-number">7.</span> <span class="toc-text">变量</span></a></li></ol>
         
     </div>
     <style>
@@ -413,15 +721,13 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/" title="上一篇: MySQL性能优化最佳实践 - 07 MySQL索引设计">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/" title="下一篇: MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践">
+            <a href="/2018/07/03/python/Python3自动化运维-课程学习/01_Python3自动化运维_环境配置/" title="下一篇: Python3自动化运维 - 01 环境配置">
                 <i class="fa fa-angle-right"></i>
             </a>
         
