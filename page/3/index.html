@@ -266,6 +266,402 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-03-09T16:00:00.000Z" itemprop="datePublished">2018-03-10</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="Control-file-dump"><a href="#Control-file-dump" class="headerlink" title="Control file: dump"></a>Control file: dump</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter session set events <span class="string">'immediate trace name controlf level &lt;n&gt;'</span>;</span>
+<span class="line">如：</span>
+<span class="line">alter session set events <span class="string">'immediate trace name controlf level 1'</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 通过以下命令查看dump trace文件的位置</span></span>
+<span class="line"><span class="keyword">select</span> * from v$diag_info where NAME=<span class="string">'Default Trace File'</span>;</span>
+</pre></td></tr></table></figure>
+<blockquote>
+<p>level <n>:<br>level 1: Generic File Header<br>Level 2: Level 1 + database information + database entry + check point<br>         progress records + Extended database entry<br>level 3 or Higher&lt; 9: level 2 + reuse record section<br>level 10: Memory dump of all the control file logical blocks</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
+<li>CI-持续集成(Continuous Integration)：频繁地将代码集成到主干的一种开发实践，每次集成都通过自动化的构建（包括编译，发布，自动化测试）来验证，从而尽早地发现集成错误。</li>
+<li>CD-持续部署(Continuous Deployment)：从代码提交，自动化完成测试、构建及到生产环境的部署</li>
+</ul>
+<h2 id="在Rancher中做CI-CD的方法"><a href="#在Rancher中做CI-CD的方法" class="headerlink" title="在Rancher中做CI/CD的方法"></a>在Rancher中做CI/CD的方法</h2><ol>
+<li>配合第三方工具，Drone/Travis/Jenkins，配合webhook，rancher cli等触发部署更新 </li>
+<li>使用<code>Rancher pipeline</code>构建从源码提交到Rancher中应用部署的一套流水线</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
+      <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-02-25T16:00:00.000Z" itemprop="datePublished">2018-02-26</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="控制文件没有备份全部丢失恢复实战"><a href="#控制文件没有备份全部丢失恢复实战" class="headerlink" title="控制文件没有备份全部丢失恢复实战"></a>控制文件没有备份全部丢失恢复实战</h2><h3 id="准备测试环境"><a href="#准备测试环境" class="headerlink" title="准备测试环境"></a>准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
+<span class="line">Database <span class="keyword">log</span> mode              Archive Mode</span>
+<span class="line">Automatic archival             Enabled</span>
+<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
+<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">110</span></span>
+<span class="line">Next <span class="keyword">log</span> sequence to archive   <span class="number">112</span></span>
+<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">112</span></span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> open_mode from v$database;</span>
+<span class="line"></span>
+<span class="line">OPEN_MODE</span>
+<span class="line">--------------------</span>
+<span class="line">READ WRITE</span>
+<span class="line"></span>
+<span class="line">set line <span class="number">150</span></span>
+<span class="line">set pagesize <span class="number">9999</span></span>
+<span class="line">col name <span class="keyword">for</span> a6<span class="number">0</span></span>
+<span class="line"><span class="keyword">select</span> * from v$controlfile;</span>
+<span class="line"></span>
+<span class="line">STATUS  NAME                                                         IS<span class="number">_</span> BLOCK_SIZE FILE_SIZE_BLKS</span>
+<span class="line">------- ------------------------------------------------------------ --- ---------- --------------</span>
+<span class="line">        <span class="regexp">/u01/app</span><span class="regexp">/oracle/oradata</span><span class="regexp">/orcl/control</span>01.ctl                   NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line">        /u01/app/oracle/fast_recovery_area/orcl/control02.ctl        NO       <span class="number">16384</span>            <span class="number">594</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 为方便后续测试，先生成一个创建控制文件的脚本(也可以不生成，创建脚本可以oracle官方文档中找到)</span></span>
+<span class="line">alter database backup controlfile to trace as <span class="string">'/tmp/control_bak.sql'</span>;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/" class="article-date">
+      <time datetime="2018-02-24T16:00:00.000Z" itemprop="datePublished">2018-02-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <blockquote>
+<p><strong>本课程就是基于Oracle DSI403e学习Oracle特殊恢复</strong></p>
+</blockquote>
+<h2 id="DSI介绍"><a href="#DSI介绍" class="headerlink" title="DSI介绍"></a>DSI介绍</h2><p>DSI是Data Server Internals的缩写，是Oracle公司内部用来培训Oracle售后工程师使用的教材<br>DSI课程系统包括：</p>
+<ul>
+<li>DSI303  Advanced Backup, Restore and recovery Techniques</li>
+<li>DSI401  Dumps Crashes and Corruptions</li>
+<li>DSI402  Space and Transaction Management</li>
+<li>DSI402e Data types and block structures</li>
+<li>DSI403e Recovery Architecture Components</li>
+<li>DSI404e Query Optimizer</li>
+<li>DSI405  Performance TUning</li>
+<li>DSI408  Real Application clusters Internals</li>
+</ul>
+<h2 id="BBED工具介绍"><a href="#BBED工具介绍" class="headerlink" title="BBED工具介绍"></a>BBED工具介绍</h2><ul>
+<li>BBED stands for <strong><font color=red>B</font></strong>lock <strong><font color=red>B</font></strong>rower and <strong><font color=red>ED</font></strong>itor</li>
+<li>BBED只是一款工具，类似于ultraEdit，单纯的会用BBED来修改数据没有任何意义！关键是要知道为什么要这么改！</li>
+<li>在充分了解Block格式和Oracle的各种机制的基础上广泛使用BBED，用它来帮你构造测试案例，用它来验证测试结果，<strong><font color=red>用它来帮你深入理解Oracle！</font></strong></li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-docker/07_搭建harbor企业级register" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -635,404 +1031,9 @@
 
 
   
-    <article id="post-linux/20180110_Ubuntu16.04.3安装图解" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/" class="article-date">
-      <time datetime="2018-01-09T16:00:00.000Z" itemprop="datePublished">2018-01-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="系统安装"><a href="#系统安装" class="headerlink" title="系统安装"></a>系统安装</h2><p>下载网站：<a href="https://www.ubuntu.com/download/server">https://www.ubuntu.com/download/server</a><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0110-ubuntu-install-01.png" alt=""></p>
-<p>ubuntu-16.04.3快速下载地址：<a href="https://mirrors.aliyun.com/ubuntu-releases/16.04.3/ubuntu-16.04.3-server-amd64.iso">https://mirrors.aliyun.com/ubuntu-releases/16.04.3/ubuntu-16.04.3-server-amd64.iso</a></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/02_docker的部署安装-Centos" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/12/docker/02_docker的部署安装-Centos/" class="article-date">
-      <time datetime="2017-12-11T16:00:00.000Z" itemprop="datePublished">2017-12-12</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><h3 id="操作系统需求"><a href="#操作系统需求" class="headerlink" title="操作系统需求"></a>操作系统需求</h3><p><img src="http://oligvdnzp.bkt.clouddn.com/1212_docker_15.png" alt=""><br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/12/docker/02_docker的部署安装-Centos/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-docker/01_docker的相关概念" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/11/docker/01_docker的相关概念/" class="article-date">
-      <time datetime="2017-12-10T16:00:00.000Z" itemprop="datePublished">2017-12-11</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>Docker就是虚拟化的一种轻量级替代技术。Docker的容器技术不依赖任何语言、框架或系统，可以将App变成一种标准化的、可移植的、自管理的组件，并脱离服务器硬件在任何主流系统中开发、调试和运行。</p>
-<h2 id="Docker的核心技术"><a href="#Docker的核心技术" class="headerlink" title="Docker的核心技术"></a>Docker的核心技术</h2><h3 id="Docker相关的核心技术之cgroups"><a href="#Docker相关的核心技术之cgroups" class="headerlink" title="Docker相关的核心技术之cgroups"></a>Docker相关的核心技术之cgroups</h3><p>Linux系统中经常有个需求就是希望能限制某个或者某些进程的分配资源。于是就出现了<code>cgroups</code>的概念，<code>cgroup</code>就是<code>controller group</code> ，在这个group中，有分配好的特定比例的cpu时间，IO时间，可用内存大小等。 <code>cgroups</code>是将任意进程进行分组化管理的Linux内核功能。最初由google的工程师提出，后来被整合进Linux内核中。</p>
-<p>cgroups中的 重要概念是“子系统”，也就是资源控制器，每种子系统就是一个资源的分配器，比如cpu子系统是控制cpu时间分配的。首先挂载子系统，然后才有control group的。比如先挂载memory子系统，然后在memory子系统中创建一个cgroup节点，在这个节点中，将需要控制的进程id写入，并且将控制的属性写入，这就完成了内存的资源限制。</p>
-<p>cgroups 被Linux内核支持，有得天独厚的性能优势，发展势头迅猛。在很多领域可以取代虚拟化技术分割资源。cgroup默认有诸多资源组，可以限制几乎所有服务器上的资源：cpu mem iops,iobandwide,net,device acess等<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/11/docker/01_docker的相关概念/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/20171205_CentOS7下MySQL57的安装-源码方式" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/" class="article-date">
-      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="初始化环境"><a href="#初始化环境" class="headerlink" title="初始化环境"></a>初始化环境</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cat /etc/redhat-release </span>
-<span class="line">Red Hat Enterprise Linux Server release <span class="number">7.4</span> (Maipo)</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置主机名</span></span>
-<span class="line">hostnamectl --static set-hostname NAME</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置IP地址</span></span>
-<span class="line">vi /etc/sysconfig/network-scripts/ifcfg-ens16<span class="number">0</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">TYPE=Ethernet</span>
-<span class="line">PROXY_METHOD=none</span>
-<span class="line">BROWSER_ONLY=<span class="keyword">no</span></span>
-<span class="line">BOOTPROTO=static</span>
-<span class="line">DEFROUTE=yes</span>
-<span class="line">IPV4_FAILURE_FATAL=<span class="keyword">no</span></span>
-<span class="line">IPV6INIT=<span class="keyword">no</span></span>
-<span class="line">NAME=ens16<span class="number">0</span></span>
-<span class="line">UUID=<span class="number">67869621</span>-df21-<span class="number">4</span>ad4-<span class="number">9369</span>-b58078ca74ea</span>
-<span class="line">DEVICE=ens16<span class="number">0</span></span>
-<span class="line">ONBOOT=yes</span>
-<span class="line">IPADDR=<span class="number">10.240</span>.<span class="number">4.179</span></span>
-<span class="line">PREFIX=<span class="number">24</span></span>
-<span class="line">GATEWAY=<span class="number">10.240</span>.<span class="number">4.254</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用firewall</span></span>
-<span class="line">systemctl stop firewalld</span>
-<span class="line">systemctl disable firewalld</span>
-<span class="line">systemctl status firewalld</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 禁用SELINUX</span></span>
-<span class="line">setenforce <span class="number">0</span></span>
-<span class="line">sed -i <span class="string">"s/SELINUX=enforcing/SELINUX=disabled/g"</span> /etc/selinux/config</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 配置配认yum源为光盘</span></span>
-<span class="line"><span class="keyword">mkdir</span> /media/disk</span>
-<span class="line">mount /dev/cdrom /media/disk</span>
-<span class="line">cd /etc/yum.repos.d/</span>
-<span class="line">mv CentOS-Base.repo CentOS-Base.repo_bak</span>
-<span class="line">vi CentOS-Base.repo</span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-<span class="line">[centos7]</span>
-<span class="line">name=CentOS-$releasever</span>
-<span class="line">baseurl=file:<span class="regexp">//</span><span class="regexp">/media/disk</span></span>
-<span class="line">gpgcheck=<span class="number">0</span></span>
-<span class="line">enabled=<span class="number">1</span></span>
-<span class="line"><span class="comment">#-----------------------------------------</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/" class="article-date">
-      <time datetime="2017-12-04T16:00:00.000Z" itemprop="datePublished">2017-12-05</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>本章有部分内容与《<a href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a>》互为补充。</p>
-<h2 id="从程序员的角度优化"><a href="#从程序员的角度优化" class="headerlink" title="从程序员的角度优化"></a>从程序员的角度优化</h2><ul>
-<li>数据库的操作越来越成为整个应的的性能瓶颈，这点对于WEB应用尤其明显。</li>
-<li>关于数据库性能，这不只是DBA才需要担心的事，更是程序员需要去关注的事情。</li>
-<li>当设计表结构和操作数据库（DML操作）时，需要注意数据操作的性能。</li>
-</ul>
-<h3 id="为查询缓存优化你的查询"><a href="#为查询缓存优化你的查询" class="headerlink" title="为查询缓存优化你的查询"></a>为查询缓存优化你的查询</h3><p>大多数的MySQL服务器都开启了查询缓存</p>
-<h3 id="EXPLAIN-你的SELECT-查询"><a href="#EXPLAIN-你的SELECT-查询" class="headerlink" title="EXPLAIN 你的SELECT 查询"></a>EXPLAIN 你的SELECT 查询</h3><ul>
-<li>使用EXPLAIN 关键字可以让你知道MySQL是如何处理你的SQL语句的。这可以帮你分析你的查询语句或是表结构的性能瓶颈。</li>
-<li>EXPLAIN 的查询结果还会告诉你你的索引主键被如何利用的，你的数据表是如何被搜索和排序的等等。</li>
-<li>挑一个你的SELECT语句（推荐挑选那个最复杂的，有多表联接的），把关键字EXPLAIN加到前面。你可以使用phpmyadmin来做这个事。然后，你会看到一张表格。下面的这个示例中，我们忘记加上了group_id索引，并且有表联接。</li>
-<li>当我们为group_id字段加上索引后：我们可以看到，前一个结果显示搜索了7883 行，而后一个只是搜索了两个表的9 和16 行。查看rows列可以让我们找到潜在的性能问题。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL性能优化最佳实践/">MySQL性能优化最佳实践</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
     </nav>
   
 </div>

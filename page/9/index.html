@@ -266,6 +266,436 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-tools/Hexo文章的密码访问" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/tools/Hexo文章的密码访问/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.373Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>工作中有些文档中的部分内容，虽然机密性不高，但也不便在网上直接公开发布。 这时可以通过以下的小技巧来实现<code>简单</code>的文档密码保护。</p>
+<h2 id="方法实现"><a href="#方法实现" class="headerlink" title="方法实现"></a>方法实现</h2><p>因Hexo中Markdown语言和html是混用的，所以可直接在Markdown中直接插入以下这段<code>script</code>(建议放到<code>&lt;!-- more --&gt;</code>段后面)。<br>这里用到了windows对象的<code>alert()</code>方法和<code>prompt()</code>方法。<code>prompt()</code>方法的作用即是显示一个可提示用户输入的对话框，而其本身的返回值就是你输入的那个字符串。因此只需要将其与你默认的密码比较一下就好，如果不正确，则直接将当前页面的loaction属性设为上一个页面即可。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span>
+<span class="line">    <span class="keyword">if</span>(<span class="string">"123"</span>==prompt(<span class="string">"请输入文档密码"</span>))</span>
+<span class="line">    &#123;</span>
+<span class="line">        alert(<span class="string">"密码正确"</span>);</span>
+<span class="line">    &#125;</span>
+<span class="line">    <span class="keyword">else</span></span>
+<span class="line">    &#123;</span>
+<span class="line">        alert(<span class="string">"密码错误返回主页"</span>);</span>
+<span class="line">        location=<span class="string">"/"</span>;</span>
+<span class="line">    &#125;</span>
+<span class="line">&lt;<span class="regexp">/script&gt;</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
+<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
+<h2 id="Base-Releases"><a href="#Base-Releases" class="headerlink" title="Base Releases"></a>Base Releases</h2><blockquote>
+<p>12.2.0.1.0  12.2.0.1.0 Download Page<br>12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br>11.2.0.1.0  11.2.0.1.0 Download Page<br>Older Versions  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br> 注意: 对于11.2.0.2或者更高的patchsets, 请参照patch的readme中”Software Availability”部分下的”Table 1 Installation Types and Associated Zip Files”来查找具体哪些zip文件需要下载。</p>
+</blockquote>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle 11g工作中常用的命令和脚本整理" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="设置Oracle用户密码永不过期"><a href="#设置Oracle用户密码永不过期" class="headerlink" title="设置Oracle用户密码永不过期"></a>设置Oracle用户密码永不过期</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter profile default limit PASSWORD_LIFE_TIME unlimited;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看设置</span></span>
+<span class="line"><span class="keyword">select</span> * from dba_profiles where resource_name like <span class="string">'PASSWORD_LIFE_TIME%'</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="设置Oracle用户登陆失败次数限制"><a href="#设置Oracle用户登陆失败次数限制" class="headerlink" title="设置Oracle用户登陆失败次数限制"></a>设置Oracle用户登陆失败次数限制</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置登陆失败次数限制为100，错误登陆数超过100会导致用户被锁</span></span>
+<span class="line">alter profile default limit FAILED_LOGIN_ATTEMPTS <span class="number">100</span>;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 无限制</span></span>
+<span class="line">alter profile default limit FAILED_LOGIN_ATTEMPTS unlimited;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 查看登陆失败限制设置</span></span>
+<span class="line"><span class="keyword">select</span> * from dba_profiles where resource_name like <span class="string">'FAILED_LOGIN_ATTEMPTS%'</span>;</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" class="article-date">
+      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
+<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
+<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
+<span class="line">...</span>
+<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
+<span class="line"></span>
+<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
+</pre></td></tr></table></figure></p>
+<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
+<span class="line">...</span>
+<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
+<span class="line">COMMIT;</span>
+<span class="line"></span>
+<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
+<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
+</pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/expdp/">expdp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-03-30T16:00:00.000Z" itemprop="datePublished">2017-03-31</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="如何解决主从复制延迟的问题？"><a href="#如何解决主从复制延迟的问题？" class="headerlink" title="如何解决主从复制延迟的问题？"></a>如何解决主从复制延迟的问题？</h2><ol>
+<li>加大主从库之间网络带宽</li>
+<li>使用SSD盘</li>
+<li>使用缓存服务器Redis/memcached</li>
+</ol>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -537,452 +967,9 @@
 
 
   
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-03-09T16:00:00.000Z" itemprop="datePublished">2017-03-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="MySQL参数autocommit生产环境设1还是0？为什么？"><a href="#MySQL参数autocommit生产环境设1还是0？为什么？" class="headerlink" title="MySQL参数autocommit生产环境设1还是0？为什么？"></a>MySQL参数autocommit生产环境设1还是0？为什么？</h2><p>MySQL参数autocommit生产环境设成0，即不自动提交。 设置成不自动提交，事务能做rollback，以满足事务的原子性Atomicity的要求，设置方法：<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">set autocommit=<span class="number">0</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 也可以修改my.cnf配置文件</span></span>
-<span class="line">autocommit=<span class="number">0</span></span>
-</pre></td></tr></table></figure></p>
-<h2 id="MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？"><a href="#MySQL参数tx-isolation生产环境上大多数是设什么值，为什么？" class="headerlink" title="MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？"></a>MySQL参数tx_isolation生产环境上大多数是设什么值，为什么？</h2><p>MySQL参数<code>tx_isolation</code>生产环境上大多数是设成<code>READ-COMMITED</code>。事务的隔离级别设置为<code>READ-COMMITED</code>时不会发生脏读现象，虽会出现不可重复读和幻读问题，但不会对业务应用造成影响。而设置成以下隔离级别会出现的问题如下：</p>
-<ul>
-<li>Read Uncommitted：会产生脏读、不可重复读、幻读现象，而脏读这在生产环境中是不被允许的</li>
-<li>Repeatable Read：不会出现不可重复读和幻读问题，但此特性一般不符合应用业务需要，且并发性能也不好。</li>
-<li>Serializable：所有事务全部串行执行（只允许同时一个事务操作，若有其他事务，也需要等前一个事务完成后才能开始），不能并发执行，这在生产环境中是不现实的。</li>
-</ul>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-03-05T16:00:00.000Z" itemprop="datePublished">2017-03-06</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="使用mydumper工具全库备份"><a href="#使用mydumper工具全库备份" class="headerlink" title="使用mydumper工具全库备份"></a>使用mydumper工具全库备份</h2><blockquote>
-<p>mydumper是针对mysql数据库备份的一个轻量级第三方的开源工具，备份方式采用逻辑备份。<br>mydumper支持多线程，备份速度远高于原生态的mysqldump。</p>
-</blockquote>
-<h3 id="下载mydumper"><a href="#下载mydumper" class="headerlink" title="下载mydumper"></a>下载mydumper</h3><p>下载地址：<a href="https://launchpad.net/mydumper">https://launchpad.net/mydumper </a><br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-tools/hexo解决代码块空行自动删除问题" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/" class="article-date">
-      <time datetime="2017-03-02T07:24:57.008Z" itemprop="datePublished">2017-03-02</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="修改hexo源码"><a href="#修改hexo源码" class="headerlink" title="修改hexo源码"></a>修改hexo源码</h2><p>将<code>node_modules\hexo-util\lib\highlight.js</code>文件中第<code>35</code>行<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 原</span></span>
-<span class="line">    numbers += <span class="string">'&lt;div class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/div&gt;\n'</span>;</span>
-<span class="line">    content += <span class="string">'&lt;div class="line'</span>;</span>
-<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
-<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/div&gt;\n'</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 改后</span></span>
-<span class="line">    numbers += <span class="string">'&lt;span class="line"&gt;'</span> + (firstLine + i) + <span class="string">'&lt;/span&gt;\n'</span>;</span>
-<span class="line">    content += <span class="string">'&lt;span class="line'</span>;</span>
-<span class="line">    content += (mark.indexOf(firstLine + i) !== -<span class="number">1</span>) ? <span class="string">' marked'</span> : <span class="string">''</span>;</span>
-<span class="line">    content += <span class="string">'"&gt;'</span> + line + <span class="string">'&lt;/span&gt;\n'</span>;</span>
-</pre></td></tr></table></figure></p>
-<h2 id="清理临时数据库并重启本地服务"><a href="#清理临时数据库并重启本地服务" class="headerlink" title="清理临时数据库并重启本地服务"></a>清理临时数据库并重启本地服务</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">hexo clean</span>
-<span class="line">hexo <span class="keyword">s</span> -g</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-02-23T16:00:00.000Z" itemprop="datePublished">2017-02-24</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。"><a href="#使用mysqld-mutil-start命令启动多实例3306、3307，使用mysqld-multi-report命令显示结果。" class="headerlink" title="使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。"></a>使用mysqld_mutil start命令启动多实例3306、3307，使用mysqld_multi report命令显示结果。</h2><h3 id="规划多实例目录"><a href="#规划多实例目录" class="headerlink" title="规划多实例目录"></a>规划多实例目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p /u01/mysql             <span class="comment"># 程序目录</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/conf              <span class="comment"># 配置文件</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3306</span>         </span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/data/<span class="number">3307</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/iblog</span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/iblog</span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3306</span>/binlog</span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/<span class="keyword">log</span>/<span class="number">3307</span>/binlog</span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3306</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/run/<span class="number">3307</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3306</span></span>
-<span class="line"><span class="keyword">mkdir</span> -p /u01/tmp/<span class="number">3307</span></span>
-<span class="line"></span>
-<span class="line"><span class="keyword">chown</span> -R mysql:mysql /u01</span>
-<span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> /u01</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-02-16T16:00:00.000Z" itemprop="datePublished">2017-02-17</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="1-为什么创建一个InnoDB表只分配了96K而不是1M？"><a href="#1-为什么创建一个InnoDB表只分配了96K而不是1M？" class="headerlink" title="1. 为什么创建一个InnoDB表只分配了96K而不是1M？"></a>1. 为什么创建一个InnoDB表只分配了96K而不是1M？</h2><p>Mysql中<code>extent</code>(区)中是64个连续的<code>page</code>(页)，是分配空间的最小单位，标准大小是1M。 但在用户启用了参数<code>innodb_file_per_table=on</code>后，创建一个Innodb表时，初始分配的大小却是为96K。这是因为在每个段开始时，先用32个页大小的碎片页(fragment page)来存放数据，在使用完这些页之后才是64个连续页的申请。这样做的目的是，对于一些小表，或者是undo这类的段，可以在开始时申请较少的空间，节省磁盘容量的开销。 下面通过示例来显示InnoDB存储引擎对于区的申请方式。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/那些在11gR2中可能惹祸的新特性" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/" class="article-date">
-      <time datetime="2017-02-15T16:00:00.000Z" itemprop="datePublished">2017-02-16</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>有很多朋友因为11gR2那些潜在的特性可能给升级后系统稳定运行带来麻烦而无法鼓足升级到11gR2的勇气，实际Oracle在开发新版本RDBMS软件时引入的一些特性有很好的理念的，但是往往这些理念会给已稳定的应用环境带来变数，最显著的就是10g/9i升级到11gR2时的执行计划稳定性，此外adaptive cursor sharing 自适应游标、automatic serial direct path自动判断串行直接路径读、deferred segment creation、GC read mostly DRM…….等等的一系列特性已经在大量的案例中被证明是不适合于大量国产Application的。</p>
-<p>这篇文章里想做的是给出一张列表，能够将11gR2的优化器optimizer特性、和其他的如上列的这些可能引起问题的特性通过参数的方式给出一张列表，你可以选择性的禁用这些特性，前提是你的Applicaiton就该特性经过充分的测试，如果没有时间或者环境来测试这些新特性，那么还不如禁用这些特性，禁用新特性的结果也仅仅是回到老版本(一般是10gR2 10.2.0.4)的默认表现上来。<br>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/11g/">11g</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
     </nav>
   
 </div>

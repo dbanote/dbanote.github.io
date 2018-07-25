@@ -266,6 +266,478 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-oracle/hugepage计算脚本" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/08/oracle/hugepage计算脚本/" class="article-date">
+      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="REQUIREMENTS"><a href="#REQUIREMENTS" class="headerlink" title="REQUIREMENTS"></a>REQUIREMENTS</h2><ol>
+<li>Oracle Database instance(s) are up and running</li>
+<li>Oracle Database 11g Automatic Memory Management (AMM) is not setup  (See Note 749851.1)</li>
+<li>The shared memory segments can be listed by command “ipcs -m”</li>
+<li>Oracle Linux</li>
+<li>Package ‘bc’ installed
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/08/oracle/hugepage计算脚本/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-07T16:00:00.000Z" itemprop="datePublished">2017-05-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="静默安装12c软件"><a href="#静默安装12c软件" class="headerlink" title="静默安装12c软件"></a>静默安装12c软件</h2><h3 id="系统检查"><a href="#系统检查" class="headerlink" title="系统检查"></a>系统检查</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">uname –a</span>
+<span class="line">cat /etc/redhat-release</span>
+<span class="line"><span class="keyword">grep</span> MemTotal /proc/meminfo</span>
+<span class="line"><span class="keyword">grep</span> SwapTotal /proc/meminfo</span>
+<span class="line">df -hT</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/" class="article-date">
+      <time datetime="2017-05-04T16:00:00.000Z" itemprop="datePublished">2017-05-05</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="安装部署12c"><a href="#安装部署12c" class="headerlink" title="安装部署12c"></a>安装部署12c</h2><h3 id="官网下载12cr2的安装包"><a href="#官网下载12cr2的安装包" class="headerlink" title="官网下载12cr2的安装包"></a>官网下载12cr2的安装包</h3><p>下载地址：<a href="http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html">http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html </a><br><img src="http://oligvdnzp.bkt.clouddn.com/0505_oracle12c_install_01.png" alt=""></p>
+<p>有MOS帐号也可以去edelivery下载：<a href="https://edelivery.oracle.com">https://edelivery.oracle.com</a></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-05-01T16:00:00.000Z" itemprop="datePublished">2017-05-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="通过gdb工具分析mysqld进程启动的过程"><a href="#通过gdb工具分析mysqld进程启动的过程" class="headerlink" title="通过gdb工具分析mysqld进程启动的过程"></a>通过gdb工具分析mysqld进程启动的过程</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">gdb --args /u01/mysql/bin/mysqld</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+<span class="line">GNU gdb (GDB) Red Hat Enterprise Linux (<span class="number">7.2</span>-<span class="number">90</span>.el6)</span>
+<span class="line">Copyright (C) <span class="number">2010</span> Free Software Foundation, Inc.</span>
+<span class="line">License GPLv3+: GNU GPL version <span class="number">3</span> <span class="keyword">or</span> later &lt;http:<span class="regexp">//gnu</span>.org/licenses/gpl.html&gt;</span>
+<span class="line">This is free software: you are free to change <span class="keyword">and</span> redistribute it.</span>
+<span class="line">There is NO WARRANTY, to the extent permitted by law.  Type <span class="string">"show copying"</span></span>
+<span class="line"><span class="keyword">and</span> <span class="string">"show warranty"</span> <span class="keyword">for</span> details.</span>
+<span class="line">This GDB was configured as <span class="string">"x86_64-redhat-linux-gnu"</span>.</span>
+<span class="line">For bug reporting instructions, please see:</span>
+<span class="line">&lt;http:<span class="regexp">//www</span>.gnu.org/software/gdb/bugs/&gt;...</span>
+<span class="line">Reading symbols from /u01/mysql/bin/mysqld...done.</span>
+<span class="line">(gdb) b mysqld_main   <span class="comment"># 设置断点</span></span>
+<span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x58c0e4</span>: file /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc, line <span class="number">5245</span>.</span>
+<span class="line">(gdb) r   <span class="comment"># 运行</span></span>
+<span class="line">Starting program: <span class="regexp">/u01/mysql</span><span class="regexp">/bin/mysqld</span> </span>
+<span class="line">[Thread debugging using libthread_db enabled]</span>
+<span class="line"></span>
+<span class="line">Breakpoint <span class="number">1</span>, mysqld_main (argc=<span class="number">1</span>, argv=<span class="number">0x7fffffffe668</span>) at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/sql/mysqld.cc:<span class="number">5245</span></span>
+<span class="line"><span class="number">5245</span>    &#123;</span>
+<span class="line">Missing separate debuginfos, <span class="keyword">use</span>: debuginfo-install glibc-<span class="number">2.12</span>-<span class="number">1.192</span>.el6.x86_64 keyutils-libs-<span class="number">1.4</span>-<span class="number">5.0</span>.<span class="number">1</span>.el6.x86_64 </span>
+<span class="line">krb5-libs-<span class="number">1.10</span>.<span class="number">3</span>-<span class="number">57</span>.el6.x86_64 libcom_err-<span class="number">1.42</span>.<span class="number">8</span>-<span class="number">1.0</span>.<span class="number">2</span>.el6.x86_64 libgcc-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 </span>
+<span class="line">libselinux-<span class="number">2.0</span>.<span class="number">94</span>-<span class="number">7</span>.el6.x86_64  libstdc++-<span class="number">4.4</span>.<span class="number">7</span>-<span class="number">17</span>.el6.x86_64 nss-softokn-freebl-<span class="number">3.14</span>.<span class="number">3</span>-<span class="number">23</span>.el6_7.x86_64 </span>
+<span class="line">openssl-<span class="number">1.0</span>.<span class="number">1</span>e-<span class="number">48</span>.el6.x86_64 zlib-<span class="number">1.2</span>.<span class="number">3</span>-<span class="number">29</span>.el6.x86_64</span>
+<span class="line">(gdb) n   <span class="comment"># 向下</span></span>
+<span class="line"><span class="number">5250</span>      my_progname= argv[<span class="number">0</span>];</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">5254</span>      <span class="keyword">if</span> (my_init())                 // init my_sys library &amp; pthreads</span>
+<span class="line">(gdb) <span class="keyword">s</span>   <span class="comment"># 看源码位置</span></span>
+<span class="line">my_init () at /u01/mysql-<span class="number">5.6</span>.<span class="number">35</span>/mysys/my_init.c:<span class="number">69</span></span>
+<span class="line"><span class="number">69</span>        <span class="keyword">if</span> (my_init_done)</span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">74</span>        my_umask= <span class="number">0660</span>;                       <span class="regexp">/* Default umask for new files */</span></span>
+<span class="line">(gdb) n</span>
+<span class="line"><span class="number">75</span>        my_umask_dir= <span class="number">0700</span>;                   <span class="regexp">/* Default umask for new directories */</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-04-24T16:00:00.000Z" itemprop="datePublished">2017-04-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="MySQL常见故障"><a href="#MySQL常见故障" class="headerlink" title="MySQL常见故障"></a>MySQL常见故障</h2><ol>
+<li>数据库连接数爆满</li>
+<li>大事务导致数据库挂死</li>
+<li>MySQL 主库crash</li>
+<li>大规模行锁竞争</li>
+<li>线上执行update报错</li>
+<li>主从库不一致,复制中止
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/" class="article-date">
+      <time datetime="2017-04-20T16:00:00.000Z" itemprop="datePublished">2017-04-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="用oak对表sbtest1做添加字段和增加索引的Online-DDL"><a href="#用oak对表sbtest1做添加字段和增加索引的Online-DDL" class="headerlink" title="用oak对表sbtest1做添加字段和增加索引的Online DDL"></a>用oak对表sbtest1做添加字段和增加索引的Online DDL</h2><h3 id="用sysbench工具准备测试环境"><a href="#用sysbench工具准备测试环境" class="headerlink" title="用sysbench工具准备测试环境"></a>用sysbench工具准备测试环境</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据库</span></span>
+<span class="line">mysql&gt; create database lyj;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 用sysbench工具准备测试环境</span></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> prepare</span>
+<span class="line"></span>
+<span class="line">sysbench /usr/<span class="keyword">local</span>/share/sysbench/tests/include/oltp_legacy/insert.lua \</span>
+<span class="line">--oltp-table-size=<span class="number">1000000</span> --mysql-table-engine=innodb --db-driver=mysql \</span>
+<span class="line">--mysql-user=root --mysql-password=root123 --mysql-port=<span class="number">3306</span> \</span>
+<span class="line">--mysql-host=<span class="number">10.245</span>.<span class="number">231.202</span> --mysql-db=lyj \</span>
+<span class="line">--events=<span class="number">0</span> --<span class="keyword">time</span>=<span class="number">60</span> --oltp-tables-count=<span class="number">2</span> --report-interval=<span class="number">10</span> --threads=<span class="number">2</span> run</span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-oracle/那些12c中惹祸的特性关闭列表" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -320,6 +792,83 @@
       
     <div class="article-tag tagcloud">
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/12c/">12c</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-oracle/ORA/ORA-27086" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/13/oracle/ORA/ORA-27086/" class="article-date">
+      <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
+<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
+<span class="line">......</span>
+<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
+<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
+<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
+<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
+<span class="line">Additional information: <span class="number">10</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
+<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
+<span class="line"></span>
+<span class="line">vi /etc</span><span class="regexp">/fstab</span>
+<span class="line">#------------------------------------------------------------------------</span>
+<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
+<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
     </div>
 
       
@@ -400,83 +949,6 @@
         <p class="article-more-link">
           <a href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/ORA/ORA-27086" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/04/13/oracle/ORA/ORA-27086/" class="article-date">
-      <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p><strong>故障现象：</strong> nas存储通过nfs挂载到Linux主机上，使用expdp直接备份到nfs上时偶尔会报以下错误<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">;;; </span>
-<span class="line">Export: Release <span class="number">11.2</span>.<span class="number">0</span>.<span class="number">4.0</span> - Production on Wed Apr <span class="number">12</span> <span class="number">16</span>:<span class="number">58</span>:<span class="number">22</span> <span class="number">2017</span></span>
-<span class="line">......</span>
-<span class="line">ORA-<span class="number">39000</span>: bad <span class="keyword">dump</span> file specification</span>
-<span class="line">ORA-<span class="number">31641</span>: unable to create <span class="keyword">dump</span> file <span class="string">"/oradata/hknfs/erpnogg_expdp/erpnogg_expdp_20170412165822_01.dmp"</span></span>
-<span class="line">ORA-<span class="number">27086</span>: unable to lock file - already in <span class="keyword">use</span></span>
-<span class="line">Linux-x86_64 Error: <span class="number">37</span>: No locks available</span>
-<span class="line">Additional information: <span class="number">10</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>解决办法：</strong> 卸载nfs挂载存储，重新挂载的时候加上<code>nolock</code>参数(存储上的锁文件功能也取消)<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">umount /oradata/hknfs</span>
-<span class="line">mount -t nfs -o nolock <span class="number">10.230</span>.<span class="number">51.200</span>:<span class="regexp">/cybackup /oradata</span><span class="regexp">/hknfs</span>
-<span class="line"></span>
-<span class="line">vi /etc</span><span class="regexp">/fstab</span>
-<span class="line">#------------------------------------------------------------------------</span>
-<span class="line">10.230.51.200:/cybackup</span> /oradata/hknfs          nfs     nolock       <span class="number">1</span> <span class="number">1</span></span>
-<span class="line"><span class="comment">#------------------------------------------------------------------------</span></span>
-</pre></td></tr></table></figure></p>
-<p><strong>原因分析：</strong> nas存储将逻辑卷nfs共享出去，一旦服务器挂载使用，存储就会自动将该逻辑卷锁住，保护逻辑卷内不被其他服务器挂载，达到保护数据作用，但是数据库添加挂载目录中创建数据文件，数据库需要对该数据文件获取锁，但是该锁已经被存储占用，这个时候就需要设置存储在挂载的时候不锁住，使用nolock参数。</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
       
       <div class="clearfix"></div>
     </div>
@@ -592,439 +1064,9 @@
 
 
   
-    <article id="post-tools/Hexo文章的密码访问" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/tools/Hexo文章的密码访问/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.373Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>工作中有些文档中的部分内容，虽然机密性不高，但也不便在网上直接公开发布。 这时可以通过以下的小技巧来实现<code>简单</code>的文档密码保护。</p>
-<h2 id="方法实现"><a href="#方法实现" class="headerlink" title="方法实现"></a>方法实现</h2><p>因Hexo中Markdown语言和html是混用的，所以可直接在Markdown中直接插入以下这段<code>script</code>(建议放到<code>&lt;!-- more --&gt;</code>段后面)。<br>这里用到了windows对象的<code>alert()</code>方法和<code>prompt()</code>方法。<code>prompt()</code>方法的作用即是显示一个可提示用户输入的对话框，而其本身的返回值就是你输入的那个字符串。因此只需要将其与你默认的密码比较一下就好，如果不正确，则直接将当前页面的loaction属性设为上一个页面即可。<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;</span>
-<span class="line">    <span class="keyword">if</span>(<span class="string">"123"</span>==prompt(<span class="string">"请输入文档密码"</span>))</span>
-<span class="line">    &#123;</span>
-<span class="line">        alert(<span class="string">"密码正确"</span>);</span>
-<span class="line">    &#125;</span>
-<span class="line">    <span class="keyword">else</span></span>
-<span class="line">    &#123;</span>
-<span class="line">        alert(<span class="string">"密码错误返回主页"</span>);</span>
-<span class="line">        location=<span class="string">"/"</span>;</span>
-<span class="line">    &#125;</span>
-<span class="line">&lt;<span class="regexp">/script&gt;</span></span>
-</pre></td></tr></table></figure></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hexo/">hexo</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>原文件地址(需登陆MOS)：<br><a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1">https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=247921994816714&amp;id=1922396.1 </a></p>
-<h2 id="Base-Releases"><a href="#Base-Releases" class="headerlink" title="Base Releases"></a>Base Releases</h2><blockquote>
-<p>12.2.0.1.0  12.2.0.1.0 Download Page<br>12.1.0.1.0  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br>11.2.0.1.0  11.2.0.1.0 Download Page<br>Older Versions  开一个非技术SR来获取物理介质或下载链接,根据Doc ID 1071023.1<br> 注意: 对于11.2.0.2或者更高的patchsets, 请参照patch的readme中”Software Availability”部分下的”Table 1 Installation Types and Associated Zip Files”来查找具体哪些zip文件需要下载。</p>
-</blockquote>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.372Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="LOGALLSUPCOLS"><a href="#LOGALLSUPCOLS" class="headerlink" title="LOGALLSUPCOLS"></a>LOGALLSUPCOLS</h2><p>Writes all supplementally logged columns to the trail, including those required for conflict detection and resolution and the scheduling columns required to support integrated Replicat. (Scheduling columns are primary key, unique index, and foreign key columns.) You configure the database to log these columns with GGSCI commands.<br>使用该参数可以记录所有附加日志信息并写入trail文件中。</p>
-<h2 id="UPDATERECORDFORMAT-COMPACT"><a href="#UPDATERECORDFORMAT-COMPACT" class="headerlink" title="UPDATERECORDFORMAT COMPACT"></a>UPDATERECORDFORMAT COMPACT</h2><p>Combines the before and after images of an UPDATE operation into a single record in the trail. This parameter is valid for Oracle databases version 12c and later to support Replicat in integrated mode. Although not a required parameter, UPDATERECORDFORMAT COMPACT is a best practice and significantly improves Replicat performance.<br>UPDATERECORDFORMAT参数可以控制抽取进程兼容更新操作的前镜像和后镜像信息并写入到一个trail文件中，但是一定要注意的是该参数必须在数据库版本是11.2.0.4或者12c版本。</p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>使用expdp的include参数，当需要包含大量表时，一旦字符超4000时就会报错<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM</span>
-<span class="line">DUMPFILE=dadm_tables_data.dmp CONTENT=DATA_ONLY </span>
-<span class="line">INCLUDE=TABLE:<span class="string">"IN ('CBTRFCC','CBTFCCN','CGTGCDD','CGDSALC',</span>
-<span class="line">...</span>
-<span class="line">'CGTRSGR','CBTFCCE','CGTREPD','CPDORPG')"</span></span>
-<span class="line"></span>
-<span class="line">UDE-<span class="number">00014</span> : invalid value <span class="keyword">for</span> parameter, <span class="string">'include'</span>.</span>
-</pre></td></tr></table></figure></p>
-<p>使用以下技巧可以解决<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">CREATE TABLE list_of_tables ( tbl_name VARCHAR2(<span class="number">30</span>) );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTRFCC'</span> );</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CBTFCCN'</span> );</span>
-<span class="line">...</span>
-<span class="line">INSERT INTO list_of_tables ( <span class="string">'CPDORPG'</span> );</span>
-<span class="line">COMMIT;</span>
-<span class="line"></span>
-<span class="line">expdp DADM/passwd DIRECTORY=DMP_DIR SCHEMAS=DADM DUMPFILE=dadm_data.dmp </span>
-<span class="line">CONTENT=DATA_ONLY include=TABLE:<span class="string">"IN (SELECT tbl_name FROM list_of_tables)"</span></span>
-</pre></td></tr></table></figure></p>
-
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/expdp/">expdp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle 11g工作中常用的命令和脚本整理" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/" class="article-date">
-      <time datetime="2017-03-31T01:51:26.370Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="设置Oracle用户密码永不过期"><a href="#设置Oracle用户密码永不过期" class="headerlink" title="设置Oracle用户密码永不过期"></a>设置Oracle用户密码永不过期</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">alter profile default limit PASSWORD_LIFE_TIME unlimited;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看设置</span></span>
-<span class="line"><span class="keyword">select</span> * from dba_profiles where resource_name like <span class="string">'PASSWORD_LIFE_TIME%'</span>;</span>
-</pre></td></tr></table></figure>
-<h2 id="设置Oracle用户登陆失败次数限制"><a href="#设置Oracle用户登陆失败次数限制" class="headerlink" title="设置Oracle用户登陆失败次数限制"></a>设置Oracle用户登陆失败次数限制</h2><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置登陆失败次数限制为100，错误登陆数超过100会导致用户被锁</span></span>
-<span class="line">alter profile default limit FAILED_LOGIN_ATTEMPTS <span class="number">100</span>;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 无限制</span></span>
-<span class="line">alter profile default limit FAILED_LOGIN_ATTEMPTS unlimited;</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 查看登陆失败限制设置</span></span>
-<span class="line"><span class="keyword">select</span> * from dba_profiles where resource_name like <span class="string">'FAILED_LOGIN_ATTEMPTS%'</span>;</span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/常用命令与脚本/">常用命令与脚本</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/scripts/">scripts</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/" class="article-date">
-      <time datetime="2017-03-30T16:00:00.000Z" itemprop="datePublished">2017-03-31</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="如何解决主从复制延迟的问题？"><a href="#如何解决主从复制延迟的问题？" class="headerlink" title="如何解决主从复制延迟的问题？"></a>如何解决主从复制延迟的问题？</h2><ol>
-<li>加大主从库之间网络带宽</li>
-<li>使用SSD盘</li>
-<li>使用缓存服务器Redis/memcached</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
+      <a class="extend prev" rel="prev" href="/page/7/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/9/">Next &raquo;</a>
     </nav>
   
 </div>

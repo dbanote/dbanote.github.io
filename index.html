@@ -266,6 +266,373 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-docker/11_docker应用-部署GITLAB服务" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/" class="article-date">
+      <time datetime="2018-07-12T16:00:00.000Z" itemprop="datePublished">2018-07-13</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/">Docker学习笔记_11 docker应用 - 部署GITLAB服务</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="选择基镜像"><a href="#选择基镜像" class="headerlink" title="选择基镜像"></a>选择基镜像</h2><p>基镜像使用dokcer hub官方提供的gitlab-ce当前最新版本11.0.3-ce.0，<a href="https://hub.docker.com/r/gitlab/gitlab-ce/tags/">https://hub.docker.com/r/gitlab/gitlab-ce/tags/</a><br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">docker pull gitlab/gitlab-ce:<span class="number">11.0</span><span class="number">.3</span>-ce<span class="number">.0</span></span>
+<span class="line">docker tag gitlab/gitlab-ce:<span class="number">11.0</span><span class="number">.3</span>-ce<span class="number">.0</span> <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/gitlab-ce:<span class="number">11.0</span><span class="number">.3</span>-ce<span class="number">.0</span></span>
+<span class="line">docker push <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/gitlab-ce:<span class="number">11.0</span><span class="number">.3</span>-ce<span class="number">.0</span></span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-docker/10_docker应用-部署TOMCAT服务" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/" class="article-date">
+      <time datetime="2018-07-11T16:00:00.000Z" itemprop="datePublished">2018-07-12</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/">Docker学习笔记_10 docker应用 - 部署TOMCAT服务</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="选择基镜像"><a href="#选择基镜像" class="headerlink" title="选择基镜像"></a>选择基镜像</h2><p>基镜像使用dokcer hub官方提供的tomcat8 alpine当前最新版本，<a href="https://hub.docker.com/_/tomcat/">https://hub.docker.com/_/tomcat/</a><br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">docker pull tomcat:<span class="number">8.5</span><span class="number">.32</span>-jre8-alpine</span>
+<span class="line">docker tag tomcat:<span class="number">8.5</span><span class="number">.32</span>-jre8-alpine <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/tomcat:<span class="number">8.5</span><span class="number">.32</span>-alpine</span>
+<span class="line">docker push <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/tomcat:<span class="number">8.5</span><span class="number">.32</span>-alpine</span>
+</pre></td></tr></table></figure></p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-tools/20180711_注册美区Apple-ID-无需信用卡" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/" class="article-date">
+      <time datetime="2018-07-10T16:00:00.000Z" itemprop="datePublished">2018-07-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/">注册美区Apple ID（无需信用卡）</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p><strong> 美国作为苹果的大本营，其美国区的 Apple ID 也是好处众多：</strong></p>
+<ul>
+<li>在美区的 App Store 商店中，有着丰富的数字内容，其中就包括了影视剧、电影和音乐。中国的数字内容短暂上线了一段时间之后，就因为相关审查规则便暂停了服务，归期不定。</li>
+<li>在美区 App Store 中，有着更加丰富的应用程序，其中有些应用在中国区是没有的。</li>
+<li>类似于我们介绍的星巴克福利等，也仅限于美区兑换。</li>
+<li>美区有许多中区没有上架的游戏和 app</li>
+</ul>
+<p>如果要说缺点，那就是购买比较麻烦（需要绑定美国信用卡或者购买 iTunes 礼品卡充值），以及没有中国区 1 元 / 3 元的超低定价（美区收费应用的最低价为 0.99 美元，Apple Music 为 15 美元 / 月）。</p>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/tools/">tools</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-docker/09_docker应用-部署DNS服务" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/11/docker/09_docker应用-部署DNS服务/" class="article-date">
+      <time datetime="2018-07-10T16:00:00.000Z" itemprop="datePublished">2018-07-11</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/11/docker/09_docker应用-部署DNS服务/">Docker学习笔记_09 docker应用 - 部署DNS服务</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>使用<code>Rancher + Docker</code>部署应用/服务非常简单的，很多应用/服务的镜像都可以从docker hub上直接获得。</li>
+<li>但是在实际环境中，还是需要在基镜像的基础上进行相关的设置，或编写Dockerfile build出符合要求的镜像，才能满足具体的使用需求。</li>
+<li>本文是docker应用系列的开始，本文介绍一个最简单的DNS服务器部署过程</li>
+</ul>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/11/docker/09_docker应用-部署DNS服务/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/" class="article-date">
+      <time datetime="2018-07-05T16:00:00.000Z" itemprop="datePublished">2018-07-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/">Python3自动化运维 - 04 分支循环与深浅拷贝</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="分支循环"><a href="#分支循环" class="headerlink" title="分支循环"></a>分支循环</h2><h3 id="and-or-历史"><a href="#and-or-历史" class="headerlink" title="and or (历史)"></a>and or (历史)</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果a&lt;b成立，那么结果为a，否则结果是b</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="number">3</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>b = <span class="number">4</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>c = (a &lt; b <span class="keyword">and</span> a <span class="keyword">or</span> b) </span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span></span>
+<span class="line"><span class="number">3</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 另外一种写法</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>a = <span class="number">3</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>b = <span class="number">4</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>c = <span class="number">0</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>c = a <span class="keyword">if</span> a &lt; b <span class="keyword">else</span> b</span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span>c</span>
+<span class="line"><span class="number">3</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Python3自动化运维/">Python3自动化运维</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -327,6 +694,83 @@
       
         <p class="article-more-link">
           <a href="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/" class="article-date">
+      <time datetime="2018-07-03T16:00:00.000Z" itemprop="datePublished">2018-07-04</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/">Python3自动化运维 - 03 运算表达式</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <h2 id="算术表达式"><a href="#算术表达式" class="headerlink" title="算术表达式"></a>算术表达式</h2><h3 id="加减乘除"><a href="#加减乘除" class="headerlink" title="加减乘除(+ - * /)"></a>加减乘除(+ - * /)</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">1</span> + <span class="number">1</span></span>
+<span class="line"><span class="number">2</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">5</span> - <span class="number">2</span></span>
+<span class="line"><span class="number">3</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">5</span> * <span class="number">2</span></span>
+<span class="line"><span class="number">10</span></span>
+<span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="number">5</span> / <span class="number">2</span></span>
+<span class="line"><span class="number">2.5</span></span>
+<span class="line"><span class="comment"># 除法Python3中是默认向浮点数靠拢</span></span>
+</pre></td></tr></table></figure>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Python3自动化运维/">Python3自动化运维</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -560,436 +1004,9 @@
 
 
   
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-05-21T16:00:00.000Z" itemprop="datePublished">2018-05-22</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_12 Oracle坏块处理</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="数据坏块的类型"><a href="#数据坏块的类型" class="headerlink" title="数据坏块的类型"></a>数据坏块的类型</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0522_oracle_dsi_01.png" alt=""></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-05-16T16:00:00.000Z" itemprop="datePublished">2018-05-17</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_11 ORA-8102 Index Corruption修复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="ORA-8102-Index-Corruption修复"><a href="#ORA-8102-Index-Corruption修复" class="headerlink" title="ORA-8102 Index Corruption修复"></a>ORA-8102 Index Corruption修复</h2><h3 id="ORA-8102解析"><a href="#ORA-8102解析" class="headerlink" title="ORA-8102解析"></a>ORA-8102解析</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">oerr ora <span class="number">8102</span></span>
-<span class="line">08102, <span class="number">00000</span>, <span class="string">"index key not found, obj# %s, file %s, block %s (%s)"</span></span>
-<span class="line">// *Cause:  Internal error: possible inconsistency in <span class="keyword">index</span></span>
-<span class="line">// *Action:  Send trace file to your customer support representative, along</span>
-<span class="line">//           with information on reproducing the error</span>
-<span class="line"></span>
-<span class="line"><span class="comment"># 常见于索引键值与表上存的值不一致，可能是ORACLE的bug，也可能是由于硬件I/0错误所引起！</span></span>
-</pre></td></tr></table></figure>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-05-09T16:00:00.000Z" itemprop="datePublished">2018-05-10</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="恢复ora-600-4193-的错误"><a href="#恢复ora-600-4193-的错误" class="headerlink" title="恢复ora-600[4193]的错误"></a>恢复ora-600[4193]的错误</h2><h3 id="ora-600-4193-解析"><a href="#ora-600-4193-解析" class="headerlink" title="ora-600[4193]解析"></a>ora-600[4193]解析</h3><p>ORA-600[41XX] 这种错误基本都于UNDO有关系<br>ora-600[4193]：表示undo和redo不一致（Arg [a] Undo record seq number，Arg [b] Redo record seq number ）<br>数据库在启动时需要进行一个前滚的操作，在前滚时会应用redo 到undo block上，操作时会检查undo record里的seq#和redo record里的seq#。正常情况下，这2者的seq# 应该是一致的，在一致的情况下，我们才应用redo record 到undo record。如果不一致就会出现ORA-600[4193][a][b]的错误。其中a是undo里的seq#记录，b是redo里的seq#值。 这里的值都是十六进程，可以通过to_number() 函数来转换。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-04-25T16:00:00.000Z" itemprop="datePublished">2018-04-26</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 Undo深入内部解析</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="UNDO回滚段的作用"><a href="#UNDO回滚段的作用" class="headerlink" title="UNDO回滚段的作用"></a>UNDO回滚段的作用</h2><ol>
-<li>事务回滚</li>
-<li>实例恢复（利用回滚来恢复未提交的数据）</li>
-<li>读一致性（构造CR）</li>
-<li>数据库闪回查询</li>
-<li>数据库闪回恢复逻辑错误</li>
-</ol>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-04-17T16:00:00.000Z" itemprop="datePublished">2018-04-18</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="IMU的好处"><a href="#IMU的好处" class="headerlink" title="IMU的好处"></a>IMU的好处</h2><p>IMU(In Memory Undo)顾名思义就是在内存中的undo，现在每次更改data block，Oracle不用去更改这个undo block（也不会生成相应的redo了），而是把undo信息缓存到IMU里去了，只有最后commit或者flush IMU时，这些undo 信息才会批量更新到undo block,并生成redo。可以避免Undo信息以前在Buffer Cache中的读写操作，从而可以进一步的减少Redo生成，同时可以大大减少以前的UNDO SEGMENT的操作。IMU中数据通过暂存、整理与收缩之后也可以写出到回滚段，这样的写出提供了有序、批量写的性能提升。</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/" class="article-date">
-      <time datetime="2018-04-02T16:00:00.000Z" itemprop="datePublished">2018-04-03</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="Inactive-redo-log丢失或损坏的恢复"><a href="#Inactive-redo-log丢失或损坏的恢复" class="headerlink" title="Inactive redo log丢失或损坏的恢复"></a>Inactive redo log丢失或损坏的恢复</h2><p>将数据库置于非归档模式<br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">SQL&gt; archive <span class="keyword">log</span> list;</span>
-<span class="line">Database <span class="keyword">log</span> mode              No Archive Mode</span>
-<span class="line">Automatic archival             Disabled</span>
-<span class="line">Archive destination            USE_DB_RECOVERY_FILE_DEST</span>
-<span class="line">Oldest online <span class="keyword">log</span> sequence     <span class="number">90</span></span>
-<span class="line">Current <span class="keyword">log</span> sequence           <span class="number">91</span></span>
-</pre></td></tr></table></figure></p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Oracle特殊恢复原理与实战/">Oracle特殊恢复原理与实战</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DSI/">DSI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
     </nav>
   
 </div>
