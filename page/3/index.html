@@ -967,10 +967,10 @@
 
 
   
-    <article id="post-tools/github与gitlab一起使用" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-docker/08_使用Rancher-pipeline搭建基于容器的CICD" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2018/02/27/tools/github与gitlab一起使用/" class="article-date">
+      <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/" class="article-date">
       <time datetime="2018-02-26T16:00:00.000Z" itemprop="datePublished">2018-02-27</time>
 </a>
 
@@ -986,7 +986,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a>
+      <a class="article-title" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a>
     </h1>
   
 
@@ -996,7 +996,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>github已在用，后公司搭建私有gitlab仓库，现要在一台电脑上同时使用GitHub和GitLab仓库<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0227_gitlab_01.png" alt=""></p>
+              <h2 id="CICD概述"><a href="#CICD概述" class="headerlink" title="CICD概述"></a>CICD概述</h2><ul>
+<li>CI-持续集成(Continuous Integration)：频繁地将代码集成到主干的一种开发实践，每次集成都通过自动化的构建（包括编译，发布，自动化测试）来验证，从而尽早地发现集成错误。</li>
+<li>CD-持续部署(Continuous Deployment)：从代码提交，自动化完成测试、构建及到生产环境的部署</li>
+</ul>
+<h2 id="在Rancher中做CI-CD的方法"><a href="#在Rancher中做CI-CD的方法" class="headerlink" title="在Rancher中做CI/CD的方法"></a>在Rancher中做CI/CD的方法</h2><ol>
+<li>配合第三方工具，Drone/Travis/Jenkins，配合webhook，rancher cli等触发部署更新 </li>
+<li>使用<code>Rancher pipeline</code>构建从源码提交到Rancher中应用部署的一套流水线</li>
+</ol>
           
       
     </div>
@@ -1004,15 +1011,19 @@
     <div class="article-info article-info-index">
       
       
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
 
       
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/gitlub/">gitlub</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rancher/">rancher</a></li></ul>
     </div>
 
       
         <p class="article-more-link">
-          <a href="/2018/02/27/tools/github与gitlab一起使用/#more">阅读全文 >></a>
+          <a href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>
