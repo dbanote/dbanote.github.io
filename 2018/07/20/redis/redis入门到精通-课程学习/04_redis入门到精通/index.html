@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="lpush/rpush语法：
+lpush key value [value ...]  # 把值插入到链表头部
+rpush key value [value ...]  # 把值插入到链表尾部
+
+示例：
+127.0.0.1:6379&amp;gt; lpush charactor a
+(integer) 1
+127.0.0.1:6379&amp;gt; rpush charactor b
+(integer) 2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis入门到精通 - 04 link链表">
+<meta property="og:url" content="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="lpush/rpush语法：
+lpush key value [value ...]  # 把值插入到链表头部
+rpush key value [value ...]  # 把值插入到链表尾部
+
+示例：
+127.0.0.1:6379&amp;gt; lpush charactor a
+(integer) 1
+127.0.0.1:6379&amp;gt; rpush charactor b
+(integer) 2">
+<meta property="og:updated_time" content="2018-07-20T08:16:57.419Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="redis入门到精通 - 04 link链表">
+<meta name="twitter:description" content="lpush/rpush语法：
+lpush key value [value ...]  # 把值插入到链表头部
+rpush key value [value ...]  # 把值插入到链表尾部
+
+示例：
+127.0.0.1:6379&amp;gt; lpush charactor a
+(integer) 1
+127.0.0.1:6379&amp;gt; rpush charactor b
+(integer) 2">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>redis入门到精通 - 04 link链表 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dsi/">dsi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-redis/redis入门到精通-课程学习/04_redis入门到精通" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/" class="article-date">
+      <time datetime="2018-07-19T16:00:00.000Z" itemprop="datePublished">2018-07-20</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      redis入门到精通 - 04 link链表
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/redis入门到精通/">redis入门到精通</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/">redis</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="lpush-rpush"><a href="#lpush-rpush" class="headerlink" title="lpush/rpush"></a>lpush/rpush</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">lpush key value [value ...]  <span class="comment"># 把值插入到链表头部</span></span>
+<span class="line">rpush key value [value ...]  <span class="comment"># 把值插入到链表尾部</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lpush charactor a</span>
+<span class="line">(integer) <span class="number">1</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush charactor b</span>
+<span class="line">(integer) <span class="number">2</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush charactor c d e f g</span>
+<span class="line">(integer) <span class="number">7</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lpush charactor <span class="number">0</span></span>
+<span class="line">(integer) <span class="number">8</span></span>
+</pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="lrange"><a href="#lrange" class="headerlink" title="lrange"></a>lrange</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">lrange key start stop  <span class="comment"># 返回链表中[start ,stop]中的元素，左数从0开始,右数从-1开始</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">2</span> <span class="number">5</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"0"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">5</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">6</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">7</span>) <span class="string">"f"</span></span>
+<span class="line"><span class="number">8</span>) <span class="string">"g"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">5</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"f"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"g"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">5</span> <span class="number">6</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"f"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="lpop-rpop"><a href="#lpop-rpop" class="headerlink" title="lpop/rpop"></a>lpop/rpop</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">lpop key  <span class="comment"># 返回并删除链表尾元素</span></span>
+<span class="line">rpop key  <span class="comment"># 返回并删除链表尾元素</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lpop charactor</span>
+<span class="line"><span class="string">"0"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpop charactor</span>
+<span class="line"><span class="string">"g"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">5</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">6</span>) <span class="string">"f"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="lrem"><a href="#lrem" class="headerlink" title="lrem"></a>lrem</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">lrem key count value   <span class="comment"># 从key链表中删除value值</span></span>
+<span class="line"></span>
+<span class="line">注: 删除count的绝对值个value后结束</span>
+<span class="line">Count&gt;<span class="number">0</span> 从表头删除</span>
+<span class="line">Count&lt;<span class="number">0</span> 从表尾删除</span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; flushdb</span>
+<span class="line">OK</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush charactor a b c a d e b d a c a b</span>
+<span class="line">(integer) <span class="number">12</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrem charactor <span class="number">2</span> a</span>
+<span class="line">(integer) <span class="number">2</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"> <span class="number">1</span>) <span class="string">"b"</span></span>
+<span class="line"> <span class="number">2</span>) <span class="string">"c"</span></span>
+<span class="line"> <span class="number">3</span>) <span class="string">"d"</span></span>
+<span class="line"> <span class="number">4</span>) <span class="string">"e"</span></span>
+<span class="line"> <span class="number">5</span>) <span class="string">"b"</span></span>
+<span class="line"> <span class="number">6</span>) <span class="string">"d"</span></span>
+<span class="line"> <span class="number">7</span>) <span class="string">"a"</span></span>
+<span class="line"> <span class="number">8</span>) <span class="string">"c"</span></span>
+<span class="line"> <span class="number">9</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">10</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrem charactor <span class="number">-2</span> b</span>
+<span class="line">(integer) <span class="number">2</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">5</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">6</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">7</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">8</span>) <span class="string">"a"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="ltrim"><a href="#ltrim" class="headerlink" title="ltrim"></a>ltrim</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">ltrim key start stop   <span class="comment"># 剪切key对应的链接,切[start,stop]一段,并把该段重新赋给key</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; ltrim charactor <span class="number">3</span> <span class="number">6</span></span>
+<span class="line">OK</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange charactor <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"e"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"d"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"c"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="lindex"><a href="#lindex" class="headerlink" title="lindex"></a>lindex</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">lindex key index   <span class="comment"># 返回index索引上的值</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lindex charactor <span class="number">2</span></span>
+<span class="line"><span class="string">"a"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="llen"><a href="#llen" class="headerlink" title="llen"></a>llen</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">llen key  <span class="comment"># 计算链接表的元素个数</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; llen charactor</span>
+<span class="line">(integer) <span class="number">4</span></span>
+</pre></td></tr></table></figure>
+<h2 id="linsert"><a href="#linsert" class="headerlink" title="linsert"></a>linsert</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">linsert key BEFORE|AFTER pivot value  <span class="comment"># 在key链表中寻找pivot,并在pivot值之前|之后插入value</span></span>
+<span class="line"><span class="comment"># 注: 一旦找到一个search后,命令就结束了,因此不会插入多个value</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; flushdb</span>
+<span class="line">OK</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush num <span class="number">1</span> <span class="number">3</span> <span class="number">5</span> <span class="number">7</span> <span class="number">9</span></span>
+<span class="line">(integer) <span class="number">5</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; linsert num before <span class="number">5</span> <span class="number">4</span></span>
+<span class="line">(integer) <span class="number">6</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange num <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"1"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"3"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"4"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"5"</span></span>
+<span class="line"><span class="number">5</span>) <span class="string">"7"</span></span>
+<span class="line"><span class="number">6</span>) <span class="string">"9"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; linsert num after <span class="number">5</span> <span class="number">6</span></span>
+<span class="line">(integer) <span class="number">7</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange num <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"1"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"3"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"4"</span></span>
+<span class="line"><span class="number">4</span>) <span class="string">"5"</span></span>
+<span class="line"><span class="number">5</span>) <span class="string">"6"</span></span>
+<span class="line"><span class="number">6</span>) <span class="string">"7"</span></span>
+<span class="line"><span class="number">7</span>) <span class="string">"9"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="rpoplpush"><a href="#rpoplpush" class="headerlink" title="rpoplpush"></a>rpoplpush</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：</span>
+<span class="line">rpoplpush source destination  <span class="comment"># 把source的尾部拿出,放在dest的头部，并返回该单元值</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush task a b c d</span>
+<span class="line">(integer) <span class="number">4</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpoplpush task job</span>
+<span class="line"><span class="string">"d"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange task <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"a"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"b"</span></span>
+<span class="line"><span class="number">3</span>) <span class="string">"c"</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange job <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"d"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="blpop-brpop"><a href="#blpop-brpop" class="headerlink" title="blpop/brpop"></a>blpop/brpop</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">语法：<span class="number">30</span></span>
+<span class="line">blpop key [key ...] timeout  <span class="comment"># 等待弹出key的头元素</span></span>
+<span class="line">brpop key [key ...] timeout  <span class="comment"># 等待弹出key的头元素</span></span>
+<span class="line"><span class="comment"># 注：Timeout为等待超时时间，如果timeout为0,则一直等待</span></span>
+<span class="line"><span class="comment"># 场景: 长轮询Ajax,在线聊天时,能够用到</span></span>
+<span class="line"></span>
+<span class="line">示例：</span>
+<span class="line"><span class="comment"># 会话1</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; lrange job <span class="number">0</span> <span class="number">-1</span></span>
+<span class="line">(empty list <span class="keyword">or</span> set)</span>
+<span class="line"></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; brpop job <span class="number">30</span>   <span class="comment"># 处于等待状态</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话2</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; rpush job a</span>
+<span class="line">(integer) <span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 会话1</span></span>
+<span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">6379</span>&gt; brpop job <span class="number">30</span></span>
+<span class="line"><span class="number">1</span>) <span class="string">"job"</span></span>
+<span class="line"><span class="number">2</span>) <span class="string">"a"</span></span>
+<span class="line">(<span class="number">10.02</span>s)</span>
+</pre></td></tr></table></figure>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/">
+                    Oracle SQL Tuning_02 SQL优化方法论
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/07/18/redis/redis入门到精通-课程学习/03_redis入门到精通/">
+                    redis入门到精通 - 03 Redis字符串类型的操作
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#lpush-rpush"><span class="toc-number">1.</span> <span class="toc-text">lpush/rpush</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lrange"><span class="toc-number">2.</span> <span class="toc-text">lrange</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lpop-rpop"><span class="toc-number">3.</span> <span class="toc-text">lpop/rpop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lrem"><span class="toc-number">4.</span> <span class="toc-text">lrem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ltrim"><span class="toc-number">5.</span> <span class="toc-text">ltrim</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lindex"><span class="toc-number">6.</span> <span class="toc-text">lindex</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#llen"><span class="toc-number">7.</span> <span class="toc-text">llen</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#linsert"><span class="toc-number">8.</span> <span class="toc-text">linsert</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rpoplpush"><span class="toc-number">9.</span> <span class="toc-text">rpoplpush</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blpop-brpop"><span class="toc-number">10.</span> <span class="toc-text">blpop/brpop</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/" title="上一篇: Oracle SQL Tuning_02 SQL优化方法论">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/07/18/redis/redis入门到精通-课程学习/03_redis入门到精通/" title="下一篇: redis入门到精通 - 03 Redis字符串类型的操作">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/08/08/docker/13_docker应用-部署MYSQL服务/">Docker学习笔记_13 docker应用 - 部署MYSQL服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/">Oracle SQL Tuning_02 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/">redis入门到精通 - 04 link链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/18/redis/redis入门到精通-课程学习/03_redis入门到精通/">redis入门到精通 - 03 Redis字符串类型的操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/17/redis/redis入门到精通-课程学习/02_redis入门到精通/">redis入门到精通 - 02 通用key操作命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/16/redis/redis入门到精通-课程学习/01_redis入门到精通/">redis入门到精通 - 01 redis特点及安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/14/docker/12_docker应用-部署REDIS服务/">Docker学习笔记_12 docker应用 - 部署REDIS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/python/Python3自动化运维-课程学习/05_Python3自动化运维_函数入门/">Python3自动化运维 - 05 函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/">Docker学习笔记_11 docker应用 - 部署GITLAB服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/">Docker学习笔记_10 docker应用 - 部署TOMCAT服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/">注册美区Apple ID（无需信用卡）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/docker/09_docker应用-部署DNS服务/">Docker学习笔记_09 docker应用 - 部署DNS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/">Python3自动化运维 - 04 分支循环与深浅拷贝</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/">Python3自动化运维 - 03 运算表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/">Python3自动化运维 - 02 数据类型及引用计数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/03/python/Python3自动化运维-课程学习/01_Python3自动化运维_环境配置/">Python3自动化运维 - 01 环境配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/28/oracle/ORA/ORA-01157/">ORA-01157 ORA-01110 错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/20/oracle/Oracle_SQL_Tuning-课程学习/01_Oracle_SQL_Tuning/">Oracle SQL Tuning_01 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_12 Oracle坏块处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_11 ORA-8102 Index Corruption修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 Undo深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/10/docker/00_docker常用命令/">Docker学习笔记_00 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

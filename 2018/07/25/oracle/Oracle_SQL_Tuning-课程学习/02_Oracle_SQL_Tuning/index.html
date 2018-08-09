@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="RBO &amp;amp; CBO优化器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle SQL Tuning_02 SQL优化方法论">
+<meta property="og:url" content="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="RBO &amp;amp; CBO优化器">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_01.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_02.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_03.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_04.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_05.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_06.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_07.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_08.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_09.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_10.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_11.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_12.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_13.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_14.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_15.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_16.png">
+<meta property="og:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_17.png">
+<meta property="og:updated_time" content="2018-07-27T09:40:20.362Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle SQL Tuning_02 SQL优化方法论">
+<meta name="twitter:description" content="RBO &amp;amp; CBO优化器">
+<meta name="twitter:image" content="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_01.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Oracle SQL Tuning_02 SQL优化方法论 | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dsi/">dsi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/" class="article-date">
+      <time datetime="2018-07-24T16:00:00.000Z" itemprop="datePublished">2018-07-25</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle SQL Tuning_02 SQL优化方法论
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Oracle-SQL-Tuning/">Oracle SQL Tuning</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dsi/">dsi</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/oracle/">oracle</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql优化/">sql优化</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="RBO-amp-CBO优化器"><a href="#RBO-amp-CBO优化器" class="headerlink" title="RBO &amp; CBO优化器"></a>RBO &amp; CBO优化器</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_01.png" alt=""><br><a id="more"></a></p>
+<ul>
+<li>RBO有着一套严格的使用规则，只要你按照它去写SQL语句，无论数据表中的内容怎样，也不会影响到你的“执行计划”，也就是说RBO对数据不“敏感”，它根据ORACLE指定的优先顺序规则，对指定的表进行执行计划的选择。比如在规则中，索引的优先级大于全表扫描。RBO是根据可用的访问路径以及访问路径等级来选择执行计划。在RBO中，SQL的写法往往会影响执行计划。</li>
+<li>CBO（Cost-Based Optimizer）是计算各种可能“执行计划”的“代价”，即COST，从中选用COST最低的执行方案，作为实际运行方案。它依赖数据库对象的统计信息，统计信息的准确与否会影响CBO做出最优的选择。如果对一次执行SQL时发现涉及对象（表、索引等）没有被分析、统计过，那么ORACLE会采用一种叫做动态采样的技术，动态的收集表和索引上的一些数据信息。</li>
+</ul>
+<h2 id="基于规则的优化器-RBO"><a href="#基于规则的优化器-RBO" class="headerlink" title="基于规则的优化器 - RBO"></a>基于规则的优化器 - RBO</h2><p>在判断最优查询路径时以这些定义好的优先顺序为规则<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_02.png" alt=""></p>
+<ol>
+<li><strong><font color="red">使用ROWID读取一行数据</font></strong></li>
+<li>依据聚簇连接读取一行数据</li>
+<li>依据Unique HASH Cluster读取一行数据</li>
+<li><strong><font color="red">依据Unique INDEX读取一行数据</font></strong></li>
+<li>CLUSTER连接</li>
+<li>Non Unique HASH CLUSTER Key</li>
+<li>Non Unique CLUSTER Key</li>
+<li><strong><font color="red">Non Unique组合索引</font></strong></li>
+<li><strong><font color="red">Non Unique 单一列索引</font></strong></li>
+<li><strong><font color="red">依据索引的范围查询</font></strong></li>
+<li><strong><font color="red">依据索引的整体范围查询</font></strong></li>
+<li>Sort Merge连接</li>
+<li>索引列的MIN、MAX计算</li>
+<li>索引列的ORDER BY</li>
+<li><strong><font color="red">全表扫描</font></strong></li>
+</ol>
+<p>注：红色是常用的规则</p>
+<h2 id="基于RBO的测试"><a href="#基于RBO的测试" class="headerlink" title="基于RBO的测试"></a>基于RBO的测试</h2><p>构建测试环境<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t10(<span class="keyword">id</span> <span class="built_in">int</span>, <span class="keyword">name</span> <span class="built_in">varchar</span>(<span class="number">100</span>));</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span> .. <span class="number">10000</span> <span class="keyword">loop</span></span>
+<span class="line">        <span class="keyword">insert</span> <span class="keyword">into</span> t10 <span class="keyword">values</span>(i,<span class="string">'lyj'</span>||i);</span>
+<span class="line">    <span class="keyword">end</span> <span class="keyword">loop</span>;</span>
+<span class="line">    <span class="keyword">commit</span>;</span>
+<span class="line"><span class="keyword">end</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">index</span> idx_t10_id <span class="keyword">on</span> t10(<span class="keyword">id</span>);</span>
+<span class="line"></span>
+<span class="line">exec dbms_stats.gather_table_stats(user,'T10',cascade=&gt;true);</span>
+</pre></td></tr></table></figure></p>
+<p>测试一(CBO)<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> t10 <span class="keyword">where</span> <span class="keyword">id</span>&gt;=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">id</span>&lt;=<span class="number">100</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 1113277928</span>
+<span class="line"></span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                   | Name       | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>            |            |   <span class="number">100</span> |  <span class="number">1200</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| T10        |   <span class="number">100</span> |  <span class="number">1200</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>          | IDX_T10_ID |   <span class="number">100</span> |       |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">2</span> - <span class="keyword">access</span>(<span class="string">"ID"</span>&gt;=<span class="number">1</span> <span class="keyword">AND</span> <span class="string">"ID"</span>&lt;=<span class="number">100</span>)</span>
+<span class="line"></span>
+<span class="line"><span class="number">14</span> <span class="keyword">rows</span> selected.</span>
+</pre></td></tr></table></figure></p>
+<p>测试二(CBO)<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> t10 <span class="keyword">where</span> <span class="keyword">id</span>&gt;=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">id</span>&lt;=<span class="number">8000</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 2919944937</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation         | Name | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>  |      |  <span class="number">8001</span> | <span class="number">96012</span> |     <span class="number">9</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| T10  |  <span class="number">8001</span> | <span class="number">96012</span> |     <span class="number">9</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - filter(<span class="string">"ID"</span>&lt;=<span class="number">8000</span> <span class="keyword">AND</span> <span class="string">"ID"</span>&gt;=<span class="number">1</span>)</span>
+<span class="line"></span>
+<span class="line"><span class="number">13</span> <span class="keyword">rows</span> selected.</span>
+</pre></td></tr></table></figure></p>
+<p>测试三(RBO)<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> <span class="comment">/*+ index(t10 idx_t10_id) */</span> * <span class="keyword">from</span> t10 <span class="keyword">where</span> <span class="keyword">id</span>&gt;=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">id</span>&lt;=<span class="number">8000</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 1113277928</span>
+<span class="line"></span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                   | Name       | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>            |            |  <span class="number">8001</span> | <span class="number">96012</span> |    <span class="number">38</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| T10        |  <span class="number">8001</span> | <span class="number">96012</span> |    <span class="number">38</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>          | IDX_T10_ID |  <span class="number">8001</span> |       |    <span class="number">18</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">2</span> - <span class="keyword">access</span>(<span class="string">"ID"</span>&gt;=<span class="number">1</span> <span class="keyword">AND</span> <span class="string">"ID"</span>&lt;=<span class="number">8000</span>)</span>
+<span class="line"></span>
+<span class="line"><span class="number">14</span> <span class="keyword">rows</span> selected.</span>
+</pre></td></tr></table></figure></p>
+<h2 id="CBO误区"><a href="#CBO误区" class="headerlink" title="CBO误区"></a>CBO误区</h2><ol>
+<li>不同SQL文本的Cost是不可比较的</li>
+<li>统计信息就是指柱状图</li>
+<li>执行计划突然错误, 分析柱状图就可以解决所有问题</li>
+<li>绑定变量可以减少硬解析, 任何时候都应该使用它</li>
+<li>/<em>+NO_MERGE</em>/是不使用归并连接</li>
+</ol>
+<h2 id="理解CBO"><a href="#理解CBO" class="headerlink" title="理解CBO"></a>理解CBO</h2><p>CBO可能会把SQL进行等价转换（所见非所得），借助Oracle的10053事件event，可以监控到CBO对SQL进行成本计算和路径选择的过程和方法。<br>CBO将系统I/O和CPU转化为统一的成本度量，比较多条可能的执行路径成本差额，最后将成本cost最少的一个作为实际生成的执行计划。<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_03.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_04.png" alt=""></p>
+<h2 id="CBO成本计算"><a href="#CBO成本计算" class="headerlink" title="CBO成本计算"></a>CBO成本计算</h2><ol>
+<li>统计信息：与SQL语句所引用的对象相关，以及主机的CPU和IO</li>
+<li>SQL语句本身</li>
+<li>数据库实例环境，例如与优化器相关的参数设置<ol>
+<li>optimizer_features_enable – 限定优化器的特性支持到特定的Oracle版本</li>
+<li>optimizer_index_caching – 用于在执行in-list遍历和嵌套循环连接时，优化器评估已经存在于buffer cache中的索引块的数量（以百分比的方式）。参数的取值范围是0到100，默认值为0,取值越大就越减少优化器在评估In-list和嵌套循环连接的索引扫描的开销COST</li>
+<li>optimizer_index_cost_adj – 优化器计算通过索引扫描访问表数据的cost开销，可以通过这个参数进行调整。参数可用值的范围为1到10000。默认值为100，超过100后越大则越会使索引扫描的COST开销越高（计算的），从而导致查询优化器更加倾向于使用全表扫描。相反，值越小于100，计算出来的索引扫描的开销就越低。</li>
+<li>optimizer_mode: ALL_ROWS(注重吞吐量-OLAP,默认值)、FIRST_ROWS_N(注重响应时间-OLTP)<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">show</span> parameter optimizer</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">NAME</span>                                 <span class="keyword">TYPE</span>        <span class="keyword">VALUE</span></span>
+<span class="line"><span class="comment">------------------------------------ ----------- ------------------------------</span></span>
+<span class="line">optimizer_capture_sql_plan_baselines <span class="built_in">boolean</span>     <span class="literal">FALSE</span></span>
+<span class="line">optimizer_dynamic_sampling           <span class="built_in">integer</span>     <span class="number">2</span></span>
+<span class="line">optimizer_features_enable            <span class="keyword">string</span>      <span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span></span>
+<span class="line">optimizer_index_caching              <span class="built_in">integer</span>     <span class="number">0</span></span>
+<span class="line">optimizer_index_cost_adj             <span class="built_in">integer</span>     <span class="number">100</span></span>
+<span class="line">optimizer_mode                       <span class="keyword">string</span>      ALL_ROWS</span>
+<span class="line">optimizer_secure_view_merging        <span class="built_in">boolean</span>     <span class="literal">TRUE</span></span>
+<span class="line">optimizer_use_invisible_indexes      <span class="built_in">boolean</span>     <span class="literal">FALSE</span></span>
+<span class="line">optimizer_use_pending_statistics     <span class="built_in">boolean</span>     <span class="literal">FALSE</span></span>
+<span class="line">optimizer_use_sql_plan_baselines     <span class="built_in">boolean</span>     <span class="literal">TRUE</span></span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="CBO的核心概念"><a href="#CBO的核心概念" class="headerlink" title="CBO的核心概念"></a>CBO的核心概念</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_05.png" alt=""></p>
+<h2 id="执行计划"><a href="#执行计划" class="headerlink" title="执行计划"></a>执行计划</h2><p>执行计划是数据库访问操作的一组有序集合，是指导数据库对数据进行读取的算法。<br>查看执行计划的方法<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> t10 <span class="keyword">where</span> <span class="keyword">id</span>&gt;=<span class="number">1</span> <span class="keyword">and</span> <span class="keyword">id</span>&lt;=<span class="number">8000</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+</pre></td></tr></table></figure></p>
+<h2 id="单表访问路径"><a href="#单表访问路径" class="headerlink" title="单表访问路径"></a>单表访问路径</h2><ul>
+<li>全表扫描(Full Table Scan)</li>
+<li>索引范围扫描(Index Range Scan)</li>
+<li>索引快速全扫描(Fast Full Index Scan)</li>
+<li>索引全扫描(Index Full Scan)</li>
+</ul>
+<h2 id="Costing-Model-成本模型"><a href="#Costing-Model-成本模型" class="headerlink" title="Costing Model 成本模型"></a>Costing Model 成本模型</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_06.png" alt=""><br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_07.png" alt=""><br>解释<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">Cost = IO Cost + CPU Cost</span>
+<span class="line">     = (单块读IO次数*单块读时间 + 多块读IO次数*多块读时间 + </span>
+<span class="line">       CPU周期/CPU速度) / 单块读的时间</span>
+<span class="line"></span>
+<span class="line">单块读时间 = IO磁盘寻道时间 + 数据块大小 / IO传输速度</span>
+<span class="line">多块读时间 = IO磁盘寻道时间 + 多块读一次数量(db_file_multiblock_read_count) * 数据块大小 / IO传输速度</span>
+<span class="line">多块读次数 = 总的块数 / MBRC(db_file_multiblock_read_count)</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">show</span> parameter db_file_multiblock_read_count</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">NAME</span>                                 <span class="keyword">TYPE</span>        <span class="keyword">VALUE</span></span>
+<span class="line"><span class="comment">------------------------------------ ----------- ------------------------------</span></span>
+<span class="line">db_file_multiblock_read_count        <span class="built_in">integer</span>     <span class="number">128</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- CPUCycles(CPU周期)等于PLAN_TABLE里面的CPU_COST</span></span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> t10;</span>
+<span class="line"><span class="keyword">select</span> cpu_cost <span class="keyword">from</span> plan_table <span class="keyword">where</span> object_name=<span class="string">'T10'</span>;</span>
+<span class="line"></span>
+<span class="line">  CPU_COST</span>
+<span class="line"><span class="comment">----------</span></span>
+<span class="line">   1699400</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- CPUSPPED(CPU速度)</span></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> pname,pval1 <span class="keyword">from</span> sys.aux_stats$ <span class="keyword">where</span> sname=<span class="string">'SYSSTATS_MAIN'</span>;</span>
+<span class="line"></span>
+<span class="line">PNAME                               PVAL1</span>
+<span class="line"><span class="comment">------------------------------ ----------</span></span>
+<span class="line">CPUSPEEDNW                           1200   <span class="comment">--每秒的操作次数</span></span>
+<span class="line">IOSEEKTIM                              10   <span class="comment">--IO磁盘寻道时间</span></span>
+<span class="line">IOTFRSPEED                           4096   <span class="comment">--IO传输速度</span></span>
+<span class="line">SREADTIM</span>
+<span class="line">MREADTIM</span>
+<span class="line">CPUSPEED                <span class="comment">--表示CPU每秒的转速(在操作平台上每秒执行校准操作的次数)</span></span>
+<span class="line">MBRC</span>
+<span class="line">MAXTHR</span>
+<span class="line">SLAVETHR</span>
+</pre></td></tr></table></figure></p>
+<h2 id="全表扫描成本公式"><a href="#全表扫描成本公式" class="headerlink" title="全表扫描成本公式"></a>全表扫描成本公式</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_08.png" alt=""><br>全表扫描的时候，单块读次数=0，#SRds表示单块读次数。全表扫描的成本里面，CPU消耗其实非常少，可以忽略不计，所以全表扫描的公式可以改写为：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Cost = #MRds * mreadtim  / sreadtim</span>
+</pre></td></tr></table></figure></p>
+<h2 id="索引范围扫描成本公式"><a href="#索引范围扫描成本公式" class="headerlink" title="索引范围扫描成本公式"></a>索引范围扫描成本公式</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">cost =  </span>
+<span class="line"> blevel +  </span>
+<span class="line"> celiling(leaf_blocks *effective index selectivity) +  </span>
+<span class="line"> celiling(clustering_factor * effective table selectivity) </span>
+<span class="line"></span>
+<span class="line">cost = </span>
+<span class="line">  索引高度 +</span>
+<span class="line">  celiling(叶子块*索引选择率） + </span>
+<span class="line">  celiling(聚簇因子*表选择率）</span>
+</pre></td></tr></table></figure>
+<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_09.png" alt=""></p>
+<h2 id="索引快速全扫描成本公式"><a href="#索引快速全扫描成本公式" class="headerlink" title="索引快速全扫描成本公式"></a>索引快速全扫描成本公式</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">Cost ≈ Leaf Bolcks / db_file_multiblock_read_count</span>
+</pre></td></tr></table></figure>
+<h2 id="Clustering-factor聚簇因子"><a href="#Clustering-factor聚簇因子" class="headerlink" title="Clustering_factor聚簇因子"></a>Clustering_factor聚簇因子</h2><ul>
+<li>聚簇因子(Clustering_factor)是使用B树索引进行区间扫描的成本很重要因素，反映数据在表中分布的随机程序</li>
+<li>聚簇因子的计算方法是扫描索引比较某行的ROWID和前一行的ROWID，如果这两个ROWID不属于同一个数据块，那么聚簇因子增加1，整个索引扫描完毕后，就得到了该索引的聚簇因子</li>
+<li>对选择最优查询路径影响最大的只有列的选择率和聚簇因子</li>
+</ul>
+<p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_10.png" alt=""></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">SQL&gt; <span class="keyword">select</span> NUM_ROWS,BLOCKS <span class="keyword">from</span> user_tables <span class="keyword">where</span> TABLE_NAME=<span class="string">'T10'</span>;</span>
+<span class="line"></span>
+<span class="line">  NUM_ROWS     BLOCKS</span>
+<span class="line"><span class="comment">---------- ----------</span></span>
+<span class="line">     10000         28</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> CLUSTERING_FACTOR <span class="keyword">from</span> user_indexes <span class="keyword">where</span> TABLE_NAME=<span class="string">'T10'</span>;</span>
+<span class="line"></span>
+<span class="line">CLUSTERING_FACTOR</span>
+<span class="line"><span class="comment">-----------------</span></span>
+<span class="line">               24</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--当CLUSTERING_FACTOR和BLOCKS接近时，  说明表中数据分布有序</span></span>
+<span class="line"><span class="comment">--当CLUSTERING_FACTOR和NUM_ROWS接近时，说明表中数据分布很乱，最好用move等命令进行优化</span></span>
+</pre></td></tr></table></figure>
+<h2 id="嵌套循环连接成本公式"><a href="#嵌套循环连接成本公式" class="headerlink" title="嵌套循环连接成本公式"></a>嵌套循环连接成本公式</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_11.png" alt=""></p>
+<h2 id="哈希连接成本公式"><a href="#哈希连接成本公式" class="headerlink" title="哈希连接成本公式"></a>哈希连接成本公式</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_12.png" alt=""></p>
+<h2 id="排序合并连接成本公式"><a href="#排序合并连接成本公式" class="headerlink" title="排序合并连接成本公式"></a>排序合并连接成本公式</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_13.png" alt=""></p>
+<h2 id="选择率-Selectivity"><a href="#选择率-Selectivity" class="headerlink" title="选择率 - Selectivity"></a>选择率 - Selectivity</h2><p>计算依据<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_14.png" alt=""></p>
+<p>选择率是指满足条件的行在查询的结果集中所占的比率，即满足需求的行数 / 可用的总行数<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">Selectivity = "required range" divided by "total available range"</span>
+</pre></td></tr></table></figure></p>
+<p>多表连接Selectivity<br><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_15.png" alt=""></p>
+<h2 id="基数-Cardinality"><a href="#基数-Cardinality" class="headerlink" title="基数 - Cardinality"></a>基数 - Cardinality</h2><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_16.png" alt=""></p>
+<h2 id="Oracle经典的查询转换"><a href="#Oracle经典的查询转换" class="headerlink" title="Oracle经典的查询转换"></a>Oracle经典的查询转换</h2><h3 id="视图合并-view-merge"><a href="#视图合并-view-merge" class="headerlink" title="视图合并(view merge)"></a>视图合并(view merge)</h3><p>如果不进行视图合并，那么这个视图就会当成一整块，在SQL执行过程中，这个视图会被当成一个结果集，然后再去和别的表/结果集关联。<br>如果进行了视图合并，那么这个视力就不会当成一整块了，它会被拆散，分开的执行。CBO通常情况下认为视图进行合并之后，性能较高，所以一般情况下都会发生视图合并。但是并不是每次进行了视图合并性能就高，所以在进行SQL优化的时候要特别留意视图合并。</p>
+<p>视图合并(view merge)试验<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 视图合并</span></span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">SELECT</span> to_char(wmsys.wm_concat(a.TABLE_NAME))</span>
+<span class="line">   <span class="keyword">FROM</span> user_tables a, dba_objects b</span>
+<span class="line">   <span class="keyword">WHERE</span> a.TABLE_NAME = b.OBJECT_NAME</span>
+<span class="line">   <span class="keyword">AND</span> b.OWNER = <span class="string">'LYJ'</span></span>
+<span class="line">   <span class="keyword">AND</span> B.OBJECT_TYPE = <span class="string">'TABLE'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 2990975862</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                          | Name        | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>                   |             |     <span class="number">1</span> |   <span class="number">203</span> |   <span class="number">297</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">04</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">SORT</span> <span class="keyword">AGGREGATE</span>                    |             |     <span class="number">1</span> |   <span class="number">203</span> |            |          |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                        |             |  <span class="number">1211</span> |   <span class="number">240</span>K|   <span class="number">297</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">04</span> |</span>
+<span class="line">|*  <span class="number">3</span> |    <span class="keyword">VIEW</span>                            | DBA_OBJECTS |  <span class="number">1596</span> | <span class="number">75012</span> |    <span class="number">51</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |   <span class="comment">-- 执行计划中只能看到DBA_OBJECTS视图</span></span>
+<span class="line">|   <span class="number">4</span> |     <span class="keyword">UNION</span>-ALL                      |             |       |       |            |          |   </span>
+<span class="line">|*  <span class="number">5</span> |      <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>   | <span class="keyword">SUM</span>$        |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |   <span class="comment">-- USER_TABLES视图被合并</span></span>
+<span class="line">|*  <span class="number">6</span> |       <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>            | I_SUM$_1    |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">7</span> |      FILTER                        |             |       |       |            |          |</span>
+<span class="line">|*  <span class="number">8</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                    |             |  <span class="number">1595</span> |   <span class="number">182</span>K|    <span class="number">51</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">9</span> |        <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>             | I_USER2     |    <span class="number">36</span> |   <span class="number">756</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">10</span> |        <span class="keyword">NESTED</span> LOOPS                |             |  <span class="number">1595</span> |   <span class="number">149</span>K|    <span class="number">50</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">11</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| <span class="keyword">USER</span>$       |     <span class="number">1</span> |    <span class="number">18</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">12</span> |          <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>         | I_USER1     |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">13</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>          | OBJ$        |  <span class="number">1595</span> |   <span class="number">121</span>K|    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">14</span> |       <span class="keyword">NESTED</span> LOOPS                 |             |     <span class="number">1</span> |    <span class="number">28</span> |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">15</span> |        <span class="keyword">INDEX</span> <span class="keyword">SKIP</span> <span class="keyword">SCAN</span>             | I_USER2     |     <span class="number">1</span> |    <span class="number">19</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">16</span> |        <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>            | I_OBJ4      |     <span class="number">1</span> |     <span class="number">9</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">17</span> |      FILTER                        |             |       |       |            |          |</span>
+<span class="line">|* <span class="number">18</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                    |             |     <span class="number">1</span> |    <span class="number">97</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">19</span> |        <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span> | <span class="keyword">USER</span>$       |     <span class="number">1</span> |    <span class="number">18</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">20</span> |         <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>          | I_USER1     |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">21</span> |        <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>             | I_LINK1     |     <span class="number">1</span> |    <span class="number">79</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">22</span> |    <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">OUTER</span>                 |             |  <span class="number">1211</span> |   <span class="number">184</span>K|   <span class="number">245</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|* <span class="number">23</span> |     <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">RIGHT</span> <span class="keyword">OUTER</span>          |             |  <span class="number">1211</span> |   <span class="number">178</span>K|   <span class="number">232</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">24</span> |      <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>               | I_USER2     |    <span class="number">36</span> |   <span class="number">108</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">25</span> |      <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">OUTER</span>               |             |  <span class="number">1211</span> |   <span class="number">175</span>K|   <span class="number">231</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|* <span class="number">26</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                    |             |  <span class="number">1211</span> |   <span class="number">165</span>K|   <span class="number">218</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">27</span> |        <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>           | TS$         |     <span class="number">8</span> |    <span class="number">24</span> |     <span class="number">5</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">28</span> |        <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">RIGHT</span> <span class="keyword">OUTER</span>       |             |  <span class="number">1211</span> |   <span class="number">162</span>K|   <span class="number">213</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">29</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>          | SEG$        |  <span class="number">2833</span> | <span class="number">31163</span> |    <span class="number">27</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">30</span> |         <span class="keyword">NESTED</span> LOOPS               |             |  <span class="number">1211</span> |   <span class="number">149</span>K|   <span class="number">186</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">31</span> |          <span class="keyword">MERGE</span> <span class="keyword">JOIN</span> CARTESIAN      |             |  <span class="number">1596</span> |   <span class="number">152</span>K|    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">32</span> |           <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                |             |     <span class="number">1</span> |    <span class="number">68</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">33</span> |            <span class="keyword">FIXED</span> <span class="keyword">TABLE</span> <span class="keyword">FULL</span>        | X$KSPPI     |     <span class="number">1</span> |    <span class="number">55</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">34</span> |            <span class="keyword">FIXED</span> <span class="keyword">TABLE</span> <span class="keyword">FULL</span>        | X$KSPPCV    |   <span class="number">100</span> |  <span class="number">1300</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">35</span> |           BUFFER <span class="keyword">SORT</span>              |             |  <span class="number">1596</span> | <span class="number">47880</span> |    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">36</span> |            <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>       | OBJ$        |  <span class="number">1596</span> | <span class="number">47880</span> |    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">37</span> |          <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> CLUSTER      | TAB$        |     <span class="number">1</span> |    <span class="number">28</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">38</span> |           <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>        | I_OBJ#      |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">39</span> |       <span class="keyword">INDEX</span> <span class="keyword">FAST</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>         | I_OBJ1      | <span class="number">14362</span> |   <span class="number">112</span>K|    <span class="number">13</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">40</span> |     <span class="keyword">INDEX</span> <span class="keyword">FAST</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>           | I_OBJ1      | <span class="number">14362</span> | <span class="number">71810</span> |    <span class="number">13</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+<span class="line">....</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 视图不合并</span></span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span>  <span class="keyword">SELECT</span> <span class="comment">/*+ no_merge(a) */</span> to_char(wmsys.wm_concat(a.TABLE_NAME))</span>
+<span class="line">   <span class="keyword">FROM</span> user_tables a, dba_objects b</span>
+<span class="line">   <span class="keyword">WHERE</span> a.TABLE_NAME = b.OBJECT_NAME</span>
+<span class="line">   <span class="keyword">AND</span> b.OWNER = <span class="string">'GYJ'</span></span>
+<span class="line">   <span class="keyword">AND</span> B.OBJECT_TYPE  = <span class="string">'TABLE'</span>;</span>
+<span class="line"></span>
+<span class="line">SQL&gt; <span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 3297109666</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                          | Name        | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>                   |             |     <span class="number">1</span> |    <span class="number">66</span> |   <span class="number">297</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">04</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">SORT</span> <span class="keyword">AGGREGATE</span>                    |             |     <span class="number">1</span> |    <span class="number">66</span> |            |          |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                        |             |  <span class="number">1211</span> | <span class="number">79926</span> |   <span class="number">297</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">04</span> |</span>
+<span class="line">|   <span class="number">3</span> |    <span class="keyword">VIEW</span>                            | USER_TABLES |  <span class="number">1211</span> | <span class="number">23009</span> |   <span class="number">245</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |   <span class="comment">-- 执行计划中会有两个视图，USER_TABLES</span></span>
+<span class="line">|*  <span class="number">4</span> |     <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">OUTER</span>                |             |  <span class="number">1211</span> |   <span class="number">184</span>K|   <span class="number">245</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|*  <span class="number">5</span> |      <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">RIGHT</span> <span class="keyword">OUTER</span>         |             |  <span class="number">1211</span> |   <span class="number">178</span>K|   <span class="number">232</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|   <span class="number">6</span> |       <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>              | I_USER2     |    <span class="number">36</span> |   <span class="number">108</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">7</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">OUTER</span>              |             |  <span class="number">1211</span> |   <span class="number">175</span>K|   <span class="number">231</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|*  <span class="number">8</span> |        <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                   |             |  <span class="number">1211</span> |   <span class="number">165</span>K|   <span class="number">218</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|   <span class="number">9</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>          | TS$         |     <span class="number">8</span> |    <span class="number">24</span> |     <span class="number">5</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">10</span> |         <span class="keyword">HASH</span> <span class="keyword">JOIN</span> <span class="keyword">RIGHT</span> <span class="keyword">OUTER</span>      |             |  <span class="number">1211</span> |   <span class="number">162</span>K|   <span class="number">213</span>   (<span class="number">1</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">11</span> |          <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>         | SEG$        |  <span class="number">2833</span> | <span class="number">31163</span> |    <span class="number">27</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">12</span> |          <span class="keyword">NESTED</span> LOOPS              |             |  <span class="number">1211</span> |   <span class="number">149</span>K|   <span class="number">186</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">03</span> |</span>
+<span class="line">|  <span class="number">13</span> |           <span class="keyword">MERGE</span> <span class="keyword">JOIN</span> CARTESIAN     |             |  <span class="number">1596</span> |   <span class="number">152</span>K|    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">14</span> |            <span class="keyword">HASH</span> <span class="keyword">JOIN</span>               |             |     <span class="number">1</span> |    <span class="number">68</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">15</span> |             <span class="keyword">FIXED</span> <span class="keyword">TABLE</span> <span class="keyword">FULL</span>       | X$KSPPI     |     <span class="number">1</span> |    <span class="number">55</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">16</span> |             <span class="keyword">FIXED</span> <span class="keyword">TABLE</span> <span class="keyword">FULL</span>       | X$KSPPCV    |   <span class="number">100</span> |  <span class="number">1300</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">17</span> |            BUFFER <span class="keyword">SORT</span>             |             |  <span class="number">1596</span> | <span class="number">47880</span> |    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">18</span> |             <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>      | OBJ$        |  <span class="number">1596</span> | <span class="number">47880</span> |    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">19</span> |           <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> CLUSTER     | TAB$        |     <span class="number">1</span> |    <span class="number">28</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">20</span> |            <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>       | I_OBJ#      |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">21</span> |        <span class="keyword">INDEX</span> <span class="keyword">FAST</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>        | I_OBJ1      | <span class="number">14362</span> |   <span class="number">112</span>K|    <span class="number">13</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">22</span> |      <span class="keyword">INDEX</span> <span class="keyword">FAST</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>          | I_OBJ1      | <span class="number">14362</span> | <span class="number">71810</span> |    <span class="number">13</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">23</span> |    <span class="keyword">VIEW</span>                            | DBA_OBJECTS |  <span class="number">1596</span> | <span class="number">75012</span> |    <span class="number">51</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |   <span class="comment">-- 和DBA_OBJECTS</span></span>
+<span class="line">|  <span class="number">24</span> |     <span class="keyword">UNION</span>-ALL                      |             |       |       |            |          |</span>
+<span class="line">|* <span class="number">25</span> |      <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>   | <span class="keyword">SUM</span>$        |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">26</span> |       <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>            | I_SUM$_1    |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">27</span> |      FILTER                        |             |       |       |            |          |</span>
+<span class="line">|* <span class="number">28</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                    |             |  <span class="number">1595</span> |   <span class="number">182</span>K|    <span class="number">51</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">29</span> |        <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>             | I_USER2     |    <span class="number">36</span> |   <span class="number">756</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">30</span> |        <span class="keyword">NESTED</span> LOOPS                |             |  <span class="number">1595</span> |   <span class="number">149</span>K|    <span class="number">50</span>   (<span class="number">2</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">31</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| <span class="keyword">USER</span>$       |     <span class="number">1</span> |    <span class="number">18</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">32</span> |          <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>         | I_USER1     |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">33</span> |         <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>          | OBJ$        |  <span class="number">1595</span> |   <span class="number">121</span>K|    <span class="number">49</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">34</span> |       <span class="keyword">NESTED</span> LOOPS                 |             |     <span class="number">1</span> |    <span class="number">28</span> |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">35</span> |        <span class="keyword">INDEX</span> <span class="keyword">SKIP</span> <span class="keyword">SCAN</span>             | I_USER2     |     <span class="number">1</span> |    <span class="number">19</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">36</span> |        <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>            | I_OBJ4      |     <span class="number">1</span> |     <span class="number">9</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">37</span> |      FILTER                        |             |       |       |            |          |</span>
+<span class="line">|* <span class="number">38</span> |       <span class="keyword">HASH</span> <span class="keyword">JOIN</span>                    |             |     <span class="number">1</span> |    <span class="number">97</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">39</span> |        <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span> | <span class="keyword">USER</span>$       |     <span class="number">1</span> |    <span class="number">18</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|* <span class="number">40</span> |         <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>          | I_USER1     |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|  <span class="number">41</span> |        <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>             | I_LINK1     |     <span class="number">1</span> |    <span class="number">79</span> |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------------------------</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="谓词推进-Predicate-Pushing"><a href="#谓词推进-Predicate-Pushing" class="headerlink" title="谓词推进(Predicate Pushing)"></a>谓词推进(Predicate Pushing)</h3><p>当SQL语句中包含有不能合并的视图，并且视图有谓语过滤（也就是WHERE过滤条件），CBO会将WHERE过滤条件推入视图中，这个就叫做谓词推进。谓词推进的主要目的就是让Oracle尽可能早的过滤掉无用的数据，从而提升查询性能。<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">or</span> <span class="keyword">replace</span> <span class="keyword">view</span> emp12 <span class="keyword">as</span> <span class="keyword">select</span> <span class="comment">/*+ NO_MERGE */</span> ename,job,deptno <span class="keyword">from</span> emp <span class="keyword">where</span> sal&gt;(<span class="keyword">select</span> <span class="keyword">avg</span>(sal) <span class="keyword">from</span> emp);</span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp12 <span class="keyword">where</span> job=<span class="string">'ANALYST'</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 1573522662</span>
+<span class="line"></span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation            | Name  | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>     |       |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">6</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">VIEW</span>                | EMP12 |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">6</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>  | EMP   |     <span class="number">1</span> |    <span class="number">39</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |   <span class="comment">-- 谓词推进EMP表</span></span>
+<span class="line">|   <span class="number">3</span> |    <span class="keyword">SORT</span> <span class="keyword">AGGREGATE</span>    |       |     <span class="number">1</span> |    <span class="number">13</span> |            |          |</span>
+<span class="line">|   <span class="number">4</span> |     <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| EMP   |    <span class="number">14</span> |   <span class="number">182</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">2</span> - filter(<span class="string">"JOB"</span>=<span class="string">'ANALYST'</span> <span class="keyword">AND</span> <span class="string">"SAL"</span>&gt; (<span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">"SAL"</span>) <span class="keyword">FROM</span></span>
+<span class="line">              LYJ.<span class="string">"EMP"</span> <span class="string">"EMP"</span>))</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">or</span> <span class="keyword">replace</span> <span class="keyword">view</span> emp11 <span class="keyword">as</span> <span class="keyword">select</span> ename,job,deptno <span class="keyword">from</span> emp <span class="keyword">where</span> sal&gt;(<span class="keyword">select</span> <span class="keyword">avg</span>(sal) <span class="keyword">from</span> emp) <span class="keyword">and</span> <span class="keyword">rownum</span>&gt;=<span class="number">1</span>;</span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp11 <span class="keyword">where</span> job=<span class="string">'ANALYST'</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display);</span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 2936634123</span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation              | Name  | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>       |       |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">6</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">1</span> |  <span class="keyword">VIEW</span>                  | EMP11 |     <span class="number">1</span> |    <span class="number">26</span> |     <span class="number">6</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |  <span class="comment">-- 谓词没有推进</span></span>
+<span class="line">|   <span class="number">2</span> |   <span class="keyword">COUNT</span>                |       |       |       |            |          |</span>
+<span class="line">|*  <span class="number">3</span> |    FILTER              |       |       |       |            |          |</span>
+<span class="line">|*  <span class="number">4</span> |     <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>  | EMP   |     <span class="number">1</span> |    <span class="number">39</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">5</span> |      <span class="keyword">SORT</span> <span class="keyword">AGGREGATE</span>    |       |     <span class="number">1</span> |    <span class="number">13</span> |            |          |</span>
+<span class="line">|   <span class="number">6</span> |       <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| EMP   |    <span class="number">14</span> |   <span class="number">182</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - filter(<span class="string">"JOB"</span>=<span class="string">'ANALYST'</span>)</span>
+<span class="line">   <span class="number">3</span> - filter(<span class="keyword">ROWNUM</span>&gt;=<span class="number">1</span>)</span>
+<span class="line">   <span class="number">4</span> - filter(<span class="string">"SAL"</span>&gt; (<span class="keyword">SELECT</span> <span class="keyword">AVG</span>(<span class="string">"SAL"</span>) <span class="keyword">FROM</span> LYJ.<span class="string">"EMP"</span> <span class="string">"EMP"</span>))</span>
+</pre></td></tr></table></figure></p>
+<h3 id="子查询非嵌套化-Subquery-Unnesting"><a href="#子查询非嵌套化-Subquery-Unnesting" class="headerlink" title="子查询非嵌套化(Subquery Unnesting)"></a>子查询非嵌套化(Subquery Unnesting)</h3><p>如果SQL语句中的WHERE条件后面有子查询，子查询前面有in, not in, exists, not exists, &lt;, &lt;=, =, &gt;, &gt;=等等，CBO很可能会对该子查询进行等价改写，改写的过程其实就叫做子查询扩展。Oracle始终认为SQL语句进行改写之后，CBO能更好的优化，当然，并不是所有的子查询都会被改写，子查询中有些限制条件会阻止CBO进行改写（因为改写之后不等价）<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp <span class="keyword">where</span> deptno <span class="keyword">in</span>(<span class="keyword">select</span> deptno <span class="keyword">from</span> dept <span class="keyword">where</span> dname=<span class="string">'SALES'</span>);</span>
+<span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">TABLE</span>(DBMS_XPLAN.DISPLAY(<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="string">'ADVANCED -PROJECTION'</span>)); </span>
+<span class="line"></span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 2125045483</span>
+<span class="line"></span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                    | Name    | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>             |         |     <span class="number">5</span> |   <span class="number">545</span> |     <span class="number">6</span>  (<span class="number">17</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">MERGE</span> <span class="keyword">JOIN</span>                  |         |     <span class="number">5</span> |   <span class="number">545</span> |     <span class="number">6</span>  (<span class="number">17</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| DEPT    |     <span class="number">1</span> |    <span class="number">22</span> |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">3</span> |    <span class="keyword">INDEX</span> <span class="keyword">FULL</span> <span class="keyword">SCAN</span>           | DEPT_PK |     <span class="number">4</span> |       |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">4</span> |   <span class="keyword">SORT</span> <span class="keyword">JOIN</span>                  |         |    <span class="number">14</span> |  <span class="number">1218</span> |     <span class="number">4</span>  (<span class="number">25</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|   <span class="number">5</span> |    <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>         | EMP     |    <span class="number">14</span> |  <span class="number">1218</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">Query</span> <span class="keyword">Block</span> <span class="keyword">Name</span> / <span class="keyword">Object</span> <span class="keyword">Alias</span> (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">-------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - SEL$<span class="number">5</span>DA710D3</span>
+<span class="line">   <span class="number">2</span> - SEL$<span class="number">5</span>DA710D3 / DEPT@SEL$<span class="number">2</span></span>
+<span class="line">   <span class="number">3</span> - SEL$<span class="number">5</span>DA710D3 / DEPT@SEL$<span class="number">2</span></span>
+<span class="line">   <span class="number">5</span> - SEL$<span class="number">5</span>DA710D3 / EMP@SEL$<span class="number">1</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">explain</span> plan <span class="keyword">for</span> <span class="keyword">select</span> * <span class="keyword">from</span> emp <span class="keyword">where</span> deptno <span class="keyword">in</span>(<span class="keyword">select</span> <span class="comment">/*+ NO_UNNEST */</span> deptno <span class="keyword">from</span> dept <span class="keyword">where</span> dname=<span class="string">'SALES'</span>);</span>
+<span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">TABLE</span>(DBMS_XPLAN.DISPLAY(<span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="string">'ADVANCED -PROJECTION'</span>)); </span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">Plan hash value: 963670887</span>
+<span class="line"></span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line">| Id  | Operation                    | Name    | Rows  | Bytes | Cost (%CPU)| Time     |</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line">|   0 | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>             |         |    <span class="number">14</span> |  <span class="number">1218</span> |     <span class="number">4</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">1</span> |  FILTER                      |         |       |       |            |          |</span>
+<span class="line">|   <span class="number">2</span> |   <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>          | EMP     |    <span class="number">14</span> |  <span class="number">1218</span> |     <span class="number">3</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">3</span> |   <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| DEPT    |     <span class="number">1</span> |    <span class="number">22</span> |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">4</span> |    <span class="keyword">INDEX</span> <span class="keyword">UNIQUE</span> <span class="keyword">SCAN</span>         | DEPT_PK |     <span class="number">1</span> |       |     <span class="number">0</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">Query</span> <span class="keyword">Block</span> <span class="keyword">Name</span> / <span class="keyword">Object</span> <span class="keyword">Alias</span> (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">-------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - SEL$<span class="number">1</span></span>
+<span class="line">   <span class="number">2</span> - SEL$<span class="number">1</span> / EMP@SEL$<span class="number">1</span></span>
+<span class="line">   <span class="number">3</span> - SEL$<span class="number">2</span> / DEPT@SEL$<span class="number">2</span></span>
+<span class="line">   <span class="number">4</span> - SEL$<span class="number">2</span> / DEPT@SEL$<span class="number">2</span></span>
+</pre></td></tr></table></figure></p>
+<h3 id="OR条件展开"><a href="#OR条件展开" class="headerlink" title="OR条件展开"></a>OR条件展开</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> sal <span class="keyword">from</span> emp <span class="keyword">where</span> job=<span class="string">'CLERK'</span> <span class="keyword">or</span> deptno=<span class="number">10</span>;</span>
+<span class="line"></span>
+<span class="line">==&gt;</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> sal <span class="keyword">from</span> emp <span class="keyword">where</span> job=<span class="string">'CLERK'</span></span>
+<span class="line"><span class="keyword">UNION</span> ALL</span>
+<span class="line"><span class="keyword">select</span> sal <span class="keyword">from</span> emp <span class="keyword">where</span> deptno=<span class="number">10</span> <span class="keyword">and</span> job&lt;&gt;<span class="string">'CLERK'</span>;</span>
+</pre></td></tr></table></figure>
+<h2 id="绑定变量"><a href="#绑定变量" class="headerlink" title="绑定变量"></a>绑定变量</h2><ul>
+<li>作用：绑定变量可以减少硬解析</li>
+<li>副作用：使用绑定变量除了以上可以避免硬解析的好处之外，还有其自身的缺陷，就是这种纯绑定变量的使用适合于绑定变量列值比较均匀分布的情况，如果绑定变量列值有一些非均匀分布的特殊值，就可能会造成非高效的执行计划被选择（在生成执行的时候可能不够优化，固化了执行计划）</li>
+</ul>
+<h3 id="绑定变量的窥探"><a href="#绑定变量的窥探" class="headerlink" title="绑定变量的窥探"></a>绑定变量的窥探</h3><p>Oracle在处理带有绑定变量的SQL时候，只会在硬解析的时候才会“窥探”一下SQL中绑定变量的值，然后会根据窥探到的值来决定整个SQL的执行计划。参数：<code>_optim_peek_user_binds</code></p>
+<h3 id="绑定变量窥探案例"><a href="#绑定变量窥探案例" class="headerlink" title="绑定变量窥探案例"></a>绑定变量窥探案例</h3><p>构建测试数据<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">conn lyj/lyj</span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t8(<span class="keyword">id</span> <span class="built_in">int</span> ,<span class="keyword">name</span> varchar2(<span class="number">100</span>));</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line"> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span> .. <span class="number">10</span> <span class="keyword">loop</span></span>
+<span class="line">  <span class="keyword">insert</span> <span class="keyword">into</span> t8 <span class="keyword">values</span>(i,<span class="string">'B'</span>);</span>
+<span class="line">  <span class="keyword">end</span> <span class="keyword">loop</span>;</span>
+<span class="line">  <span class="keyword">commit</span>;</span>
+<span class="line"> <span class="keyword">end</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line"> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">11</span> .. <span class="number">100010</span> <span class="keyword">loop</span></span>
+<span class="line">  <span class="keyword">insert</span> <span class="keyword">into</span> t8 <span class="keyword">values</span>(i,<span class="string">'A'</span>);</span>
+<span class="line">  <span class="keyword">end</span> <span class="keyword">loop</span>;</span>
+<span class="line">  <span class="keyword">commit</span>;</span>
+<span class="line"> <span class="keyword">end</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line">col name for a10</span>
+<span class="line"><span class="keyword">select</span> <span class="keyword">name</span>,<span class="keyword">count</span>(*) <span class="keyword">from</span> t8 <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>;</span>
+<span class="line"></span>
+<span class="line">NAME         COUNT(*)</span>
+<span class="line"><span class="comment">---------- ----------</span></span>
+<span class="line">A              100000</span>
+<span class="line">B                  10</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">index</span> t_idx <span class="keyword">on</span> t8(<span class="keyword">name</span>);</span>
+</pre></td></tr></table></figure></p>
+<p>收集统计信息<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">begin</span></span>
+<span class="line">dbms_stats.gather_table_stats(ownname=&gt;<span class="string">'LYJ'</span>,</span>
+<span class="line">                              tabname=&gt;<span class="string">'T8'</span>,</span>
+<span class="line">                              <span class="keyword">cascade</span>=&gt;<span class="literal">true</span>);</span>
+<span class="line"><span class="keyword">end</span>;</span>
+<span class="line">/</span>
+</pre></td></tr></table></figure></p>
+<p>没有绑定变量的执行计划<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'A'</span>; </span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL_ID  61x85hfmkf5n3, child number 0</span>
+<span class="line"><span class="comment">-------------------------------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'A'</span></span>
+<span class="line"></span>
+<span class="line">Plan <span class="keyword">hash</span> <span class="keyword">value</span>: <span class="number">3870692729</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">| <span class="keyword">Id</span>  | Operation         | <span class="keyword">Name</span> | <span class="keyword">Rows</span>  | <span class="keyword">Bytes</span> | <span class="keyword">Cost</span> (%CPU)| <span class="keyword">Time</span>     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">|   <span class="number">0</span> | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>  |      |       |       |    <span class="number">70</span> (<span class="number">100</span>)|          |</span>
+<span class="line">|*  <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| T8   |   <span class="number">100</span>K|   <span class="number">683</span>K|    <span class="number">70</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |  <span class="comment">-- 全表扫描</span></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - filter(<span class="string">"NAME"</span>=<span class="string">'A'</span>)</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'B'</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL_ID  387rqpyaau6ag, child number 0</span>
+<span class="line"><span class="comment">-------------------------------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'B'</span></span>
+<span class="line"></span>
+<span class="line">Plan <span class="keyword">hash</span> <span class="keyword">value</span>: <span class="number">2794484989</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line">| <span class="keyword">Id</span>  | Operation                   | <span class="keyword">Name</span>  | <span class="keyword">Rows</span>  | <span class="keyword">Bytes</span> | <span class="keyword">Cost</span> (%CPU)| <span class="keyword">Time</span>     |</span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line">|   <span class="number">0</span> | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>            |       |       |       |     <span class="number">2</span> (<span class="number">100</span>)|          |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| T8    |    <span class="number">18</span> |   <span class="number">126</span> |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>          | T_IDX |    <span class="number">18</span> |       |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |  <span class="comment">-- 索引范围扫描</span></span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">2</span> - <span class="keyword">access</span>(<span class="string">"NAME"</span>=<span class="string">'B'</span>)</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 执行下面的语句可以看到，上面的两个SQL各被硬解析1次</span></span>
+<span class="line"><span class="keyword">col</span> SQL_TEXT <span class="keyword">for</span> a50</span>
+<span class="line"><span class="keyword">select</span> sql_text,sql_id,version_count <span class="keyword">from</span> v$sqlarea  <span class="keyword">where</span> sql_text <span class="keyword">like</span> <span class="string">'select * from t8%'</span>;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">SQL_TEXT                                           SQL_ID        VERSION_COUNT</span>
+<span class="line"><span class="comment">-------------------------------------------------- ------------- -------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'A'</span>                    <span class="number">61</span>x85hfmkf5n3             <span class="number">1</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8 <span class="keyword">where</span> <span class="keyword">name</span>=<span class="string">'B'</span>                    <span class="number">387</span>rqpyaau6ag             <span class="number">1</span></span>
+<span class="line">#==================================================================================</span>
+</pre></td></tr></table></figure></p>
+<p>使用绑定变量的执行计划<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 先清空一下</span></span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">flush</span> <span class="keyword">buffer_cache</span>;</span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">flush</span> <span class="keyword">shared_pool</span>;</span>
+<span class="line"></span>
+<span class="line">variable c varchar2(100);</span>
+<span class="line">exec :c := 'A';</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL_ID  83q59jq0sx58q, child number 0</span>
+<span class="line"><span class="comment">-------------------------------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c</span>
+<span class="line"></span>
+<span class="line">Plan <span class="keyword">hash</span> <span class="keyword">value</span>: <span class="number">3870692729</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">| <span class="keyword">Id</span>  | Operation         | <span class="keyword">Name</span> | <span class="keyword">Rows</span>  | <span class="keyword">Bytes</span> | <span class="keyword">Cost</span> (%CPU)| <span class="keyword">Time</span>     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">|   <span class="number">0</span> | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>  |      |       |       |    <span class="number">70</span> (<span class="number">100</span>)|          |</span>
+<span class="line">|*  <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| T8   | <span class="number">99992</span> |   <span class="number">683</span>K|    <span class="number">70</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - filter(<span class="string">"NAME"</span>=:C)</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line">exec :c := <span class="string">'B'</span>;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL_ID  83q59jq0sx58q, child number 0</span>
+<span class="line"><span class="comment">-------------------------------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c</span>
+<span class="line"></span>
+<span class="line">Plan <span class="keyword">hash</span> <span class="keyword">value</span>: <span class="number">3870692729</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">| <span class="keyword">Id</span>  | Operation         | <span class="keyword">Name</span> | <span class="keyword">Rows</span>  | <span class="keyword">Bytes</span> | <span class="keyword">Cost</span> (%CPU)| <span class="keyword">Time</span>     |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line">|   <span class="number">0</span> | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>  |      |       |       |    <span class="number">70</span> (<span class="number">100</span>)|          |</span>
+<span class="line">|*  <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">FULL</span>| T8   | <span class="number">99992</span> |   <span class="number">683</span>K|    <span class="number">70</span>   (<span class="number">3</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">1</span> - filter(<span class="string">"NAME"</span>=:C)</span>
+<span class="line">#==================================================================================</span>
+<span class="line"><span class="comment">-- 如果数据库版本是ORACLE 10G，有绑定变量窥探问题，SQL的执行计划取决于第一次硬解析时窥探的值</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 执行下面的语句可以看到，上面的两个SQL只被硬解析1次</span></span>
+<span class="line"><span class="keyword">col</span> SQL_TEXT <span class="keyword">for</span> a50</span>
+<span class="line"><span class="keyword">select</span> sql_text,sql_id,version_count <span class="keyword">from</span> v$sqlarea  <span class="keyword">where</span> sql_text <span class="keyword">like</span> <span class="string">'select * from t8%'</span>;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">SQL_TEXT                                           SQL_ID        VERSION_COUNT</span>
+<span class="line"><span class="comment">-------------------------------------------------- ------------- -------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c                  <span class="number">83</span>q59jq0sx58q             <span class="number">2</span></span>
+<span class="line">#==================================================================================</span>
+</pre></td></tr></table></figure></p>
+<p>收集直方图，然后后再查<code>name = :c</code>的执行计划<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span></span>
+<span class="line">  DBMS_STATS.GATHER_TABLE_STATS(ownname=&gt; <span class="string">'LYJ'</span>,</span>
+<span class="line">  tabname          =&gt; <span class="string">'T8'</span>,</span>
+<span class="line">  estimate_percent =&gt; <span class="number">100</span>,</span>
+<span class="line">  method_opt       =&gt; <span class="string">'for all columns size skewonly'</span>,</span>
+<span class="line">  no_invalidate    =&gt; <span class="literal">FALSE</span>,</span>
+<span class="line">  degree           =&gt; <span class="number">1</span>,</span>
+<span class="line">  <span class="keyword">cascade</span>          =&gt; <span class="literal">TRUE</span>);</span>
+<span class="line"><span class="keyword">END</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c;</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span>(dbms_xplan.display_cursor);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">PLAN_TABLE_OUTPUT</span>
+<span class="line"><span class="comment">----------------------------------------------------------------------------------------------------</span></span>
+<span class="line">SQL_ID  83q59jq0sx58q, child number 1</span>
+<span class="line"><span class="comment">-------------------------------------</span></span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> t8  <span class="keyword">where</span> <span class="keyword">name</span> = :c</span>
+<span class="line"></span>
+<span class="line">Plan <span class="keyword">hash</span> <span class="keyword">value</span>: <span class="number">2794484989</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line">| <span class="keyword">Id</span>  | Operation                   | <span class="keyword">Name</span>  | <span class="keyword">Rows</span>  | <span class="keyword">Bytes</span> | <span class="keyword">Cost</span> (%CPU)| <span class="keyword">Time</span>     |</span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line">|   <span class="number">0</span> | <span class="keyword">SELECT</span> <span class="keyword">STATEMENT</span>            |       |       |       |     <span class="number">2</span> (<span class="number">100</span>)|          |</span>
+<span class="line">|   <span class="number">1</span> |  <span class="keyword">TABLE</span> <span class="keyword">ACCESS</span> <span class="keyword">BY</span> <span class="keyword">INDEX</span> <span class="keyword">ROWID</span>| T8    |    <span class="number">18</span> |   <span class="number">126</span> |     <span class="number">2</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line">|*  <span class="number">2</span> |   <span class="keyword">INDEX</span> <span class="keyword">RANGE</span> <span class="keyword">SCAN</span>          | T_IDX |    <span class="number">18</span> |       |     <span class="number">1</span>   (<span class="number">0</span>)| <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> |</span>
+<span class="line"><span class="comment">-------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">Predicate Information (<span class="keyword">identified</span> <span class="keyword">by</span> operation <span class="keyword">id</span>):</span>
+<span class="line"><span class="comment">---------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">   <span class="number">2</span> - <span class="keyword">access</span>(<span class="string">"NAME"</span>=:C)</span>
+<span class="line">#==================================================================================</span>
+<span class="line"><span class="comment">-- 绑定变量窥探的情况下，可以利用到直方图，Oracle 11g中的adaptive cursor sharing能区别绑定敏感游标和非敏感游标</span></span>
+</pre></td></tr></table></figure></p>
+<h2 id="直方图"><a href="#直方图" class="headerlink" title="直方图"></a>直方图</h2><ul>
+<li>直方图是优化器使用的一种统计数据，里面可以看出记录的分布情况</li>
+<li>作用：当某列数据分布不均衡时，为了让CBO能生成最佳的执行计划，可能需要对表收集直方图，真方图最大的桶数(Bucket)是254</li>
+<li>两种直方图<ol>
+<li>频率直方图，当列中Distinct_key小于254，Oralce就会自动创建频率直方图，并且桶数(Bucket)等于Distinct_key</li>
+<li>高度直方图，当列中Distinct_key大于254，Oralce就会自动创建高度平衡直方图</li>
+</ol>
+</li>
+<li>收集直方图是一个很耗时的过程，如无必要，千万别去收集直方图<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 生成直方图</span></span>
+<span class="line"><span class="keyword">BEGIN</span></span>
+<span class="line">  DBMS_STATS.GATHER_TABLE_STATS(ownname=&gt; <span class="string">'LYJ'</span>,</span>
+<span class="line">  tabname          =&gt; <span class="string">'T8'</span>,</span>
+<span class="line">  estimate_percent =&gt; <span class="number">100</span>,</span>
+<span class="line">  method_opt       =&gt; <span class="string">'for all columns size 254'</span>,</span>
+<span class="line">  no_invalidate    =&gt; <span class="literal">FALSE</span>,</span>
+<span class="line">  degree           =&gt; <span class="number">1</span>,</span>
+<span class="line">  <span class="keyword">cascade</span>          =&gt; <span class="literal">TRUE</span>);</span>
+<span class="line"><span class="keyword">END</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 删除直方图</span></span>
+<span class="line"><span class="keyword">BEGIN</span></span>
+<span class="line">  DBMS_STATS.GATHER_TABLE_STATS(ownname=&gt; <span class="string">'LYJ'</span>,</span>
+<span class="line">  tabname          =&gt; <span class="string">'T8'</span>,</span>
+<span class="line">  estimate_percent =&gt; <span class="number">100</span>,</span>
+<span class="line">  method_opt       =&gt; <span class="string">'for all columns size 1'</span>,    <span class="comment">-- 删除时size设置为1</span></span>
+<span class="line">  no_invalidate    =&gt; <span class="literal">FALSE</span>,</span>
+<span class="line">  degree           =&gt; <span class="number">1</span>,</span>
+<span class="line">  <span class="keyword">cascade</span>          =&gt; <span class="literal">TRUE</span>);</span>
+<span class="line"><span class="keyword">END</span>;</span>
+<span class="line">/</span>
+</pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="统计信息"><a href="#统计信息" class="headerlink" title="统计信息"></a>统计信息</h2><h3 id="自动收集统计信息"><a href="#自动收集统计信息" class="headerlink" title="自动收集统计信息"></a>自动收集统计信息</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 默认情况下，Oracle启动了统计信息的自动收集功能</span></span>
+<span class="line"><span class="keyword">select</span> client_name,<span class="keyword">status</span> <span class="keyword">from</span> dba_autotask_client;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">CLIENT_NAME                                                      STATUS</span>
+<span class="line"><span class="comment">---------------------------------------------------------------- --------</span></span>
+<span class="line">auto optimizer stats collection                                  ENABLED   <span class="comment">-- 启动了统计信息的自动收集功能</span></span>
+<span class="line">auto space advisor                                               ENABLED</span>
+<span class="line">sql tuning advisor                                               ENABLED</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 查看统计信息自动启动时间</span></span>
+<span class="line"><span class="keyword">select</span> client_name,<span class="keyword">max</span>(job_start_time) <span class="keyword">from</span> dba_autotask_job_history <span class="keyword">group</span> <span class="keyword">by</span> client_name;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">CLIENT_NAME                              MAX(JOB_START_TIME)</span>
+<span class="line"><span class="comment">---------------------------------------- ----------------------------------------</span></span>
+<span class="line">auto optimizer stats collection          26-JUL-18 10.00.01.267145 PM PRC</span>
+<span class="line">auto space advisor                       26-JUL-18 10.00.01.282452 PM PRC</span>
+<span class="line">sql tuning advisor                       26-JUL-18 10.00.01.281525 PM PRC</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 具体设置</span></span>
+<span class="line">col WINDOW_NAME for a20</span>
+<span class="line">col REPEAT_INTERVAL for a60</span>
+<span class="line">col DURATION for a30</span>
+<span class="line"><span class="keyword">set</span> linesize <span class="number">120</span></span>
+<span class="line"><span class="keyword">SELECT</span> t1.window_name, t1.repeat_interval, t1.duration,enabled</span>
+<span class="line">    <span class="keyword">FROM</span> dba_scheduler_windows t1, dba_scheduler_wingroup_members t2</span>
+<span class="line">        <span class="keyword">WHERE</span> t1.window_name = t2.window_name</span>
+<span class="line">            <span class="keyword">AND</span> t2.window_group_name <span class="keyword">IN</span></span>
+<span class="line">            (<span class="string">'MAINTENANCE_WINDOW_GROUP'</span>, <span class="string">'BSLN_MAINTAIN_STATS_SCHED'</span>);</span>
+<span class="line">#==================================================================================</span>
+<span class="line">WINDOW_NAME          REPEAT_INTERVAL                                              DURATION                       ENABL</span>
+<span class="line"><span class="comment">-------------------- ------------------------------------------------------------ ------------------------------ -----</span></span>
+<span class="line">MONDAY_WINDOW        freq=daily;byday=MON;byhour=22;byminute=0; bysecond=0        +000 04:00:00                  TRUE</span>
+<span class="line">TUESDAY_WINDOW       freq=daily;byday=TUE;byhour=22;byminute=0; bysecond=0        +000 04:00:00                  TRUE</span>
+<span class="line">WEDNESDAY_WINDOW     freq=daily;byday=WED;byhour=22;byminute=0; bysecond=0        +000 04:00:00                  TRUE</span>
+<span class="line">THURSDAY_WINDOW      freq=daily;byday=THU;byhour=22;byminute=0; bysecond=0        +000 04:00:00                  TRUE</span>
+<span class="line">FRIDAY_WINDOW        freq=daily;byday=FRI;byhour=22;byminute=0; bysecond=0        +000 04:00:00                  TRUE</span>
+<span class="line">SATURDAY_WINDOW      freq=daily;byday=SAT;byhour=6;byminute=0; bysecond=0         +000 20:00:00                  TRUE</span>
+<span class="line">SUNDAY_WINDOW        freq=daily;byday=SUN;byhour=6;byminute=0; bysecond=0         +000 20:00:00                  TRUE</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 关闭自动收集统计信息，自动收集统计信息会消耗一部分系统资源，如果没有必要可以关闭该功能</span></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line">    dbms_auto_task_admin.disable(</span>
+<span class="line">        client_name=&gt;<span class="string">'auto optimizer stats collection'</span>,</span>
+<span class="line">        operation=&gt;<span class="literal">null</span>,window_name=&gt;<span class="literal">null</span>);</span>
+<span class="line"><span class="keyword">end</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> client_name,<span class="keyword">status</span> <span class="keyword">from</span> dba_autotask_client;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">CLIENT_NAME                              STATUS</span>
+<span class="line"><span class="comment">---------------------------------------- --------</span></span>
+<span class="line">auto optimizer stats collection          DISABLED</span>
+<span class="line">auto space advisor                       ENABLED</span>
+<span class="line">sql tuning advisor                       ENABLED</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 启用自动收集统计信息</span></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line">    dbms_auto_task_admin.enable(</span>
+<span class="line">        client_name=&gt;<span class="string">'auto optimizer stats collection'</span>,</span>
+<span class="line">        operation=&gt;<span class="literal">null</span>,window_name=&gt;<span class="literal">null</span>);</span>
+<span class="line"><span class="keyword">end</span>;</span>
+<span class="line">/</span>
+</pre></td></tr></table></figure>
+<p><a href="/2018/03/29/oracle/oracle%2011g%E4%BF%AE%E6%94%B9%E8%87%AA%E5%8A%A8%E6%94%B6%E9%9B%86%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></p>
+<h3 id="手动收集统计信息"><a href="#手动收集统计信息" class="headerlink" title="手动收集统计信息"></a>手动收集统计信息</h3><p>手动收集统计信息的场景：</p>
+<ul>
+<li>数据量修改很频繁的表</li>
+<li>直方图</li>
+<li>收集某些固定表的统计信息<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span></span>
+<span class="line">  DBMS_STATS.GATHER_TABLE_STATS(</span>
+<span class="line">  ownname          =&gt; <span class="string">'LYJ'</span>,</span>
+<span class="line">  tabname          =&gt; <span class="string">'T8'</span>,</span>
+<span class="line">  estimate_percent =&gt; dbms_stats.auto_sample_size,</span>
+<span class="line">  method_opt       =&gt; <span class="string">'for all columns size repeat'</span>,</span>
+<span class="line">  <span class="keyword">cascade</span>          =&gt; <span class="literal">TRUE</span>);</span>
+<span class="line"><span class="keyword">END</span>;</span>
+<span class="line">/</span>
+</pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="过时的统计信息"><a href="#过时的统计信息" class="headerlink" title="过时的统计信息"></a>过时的统计信息</h3><p>statistrics_level: TYPICAL or ALL<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">conn / as sysdba</span>
+<span class="line"><span class="keyword">show</span> parameter statistics_level</span>
+<span class="line">#==================================================================================</span>
+<span class="line"><span class="keyword">NAME</span>                                 <span class="keyword">TYPE</span>        <span class="keyword">VALUE</span></span>
+<span class="line"><span class="comment">------------------------------------ ----------- ------------------------------</span></span>
+<span class="line">statistics_level                     <span class="keyword">string</span>      TYPICAL</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">create</span> <span class="keyword">table</span> t20 <span class="keyword">as</span> <span class="keyword">select</span> * <span class="keyword">from</span> dba_objects <span class="keyword">where</span> <span class="keyword">rownum</span>&lt;=<span class="number">500</span>;</span>
+<span class="line">exec dbms_stats.gather_table_stats('SYS','T20');</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> num_rows,blocks,stale_stats <span class="keyword">from</span> user_tab_statistics <span class="keyword">where</span> table_name=<span class="string">'T20'</span>;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">  NUM_ROWS     BLOCKS STA</span>
+<span class="line"><span class="comment">---------- ---------- ---</span></span>
+<span class="line">       500          7 NO</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t20 <span class="keyword">select</span> * <span class="keyword">from</span> t20;</span>
+<span class="line"><span class="keyword">commit</span>;</span>
+<span class="line"><span class="keyword">select</span> num_rows,blocks,stale_stats <span class="keyword">from</span> user_tab_statistics <span class="keyword">where</span> table_name=<span class="string">'T20'</span>;</span>
+<span class="line">#==================================================================================</span>
+<span class="line">  NUM_ROWS     BLOCKS STA</span>
+<span class="line"><span class="comment">---------- ---------- ---</span></span>
+<span class="line">       500          7 NO</span>
+<span class="line">#==================================================================================</span>
+<span class="line"></span>
+<span class="line">exec dbms_stats.flush_database_monitoring_info;</span>
+<span class="line"></span>
+<span class="line">col TABLE_NAME for a10</span>
+<span class="line">col PARTITION_NAME for a15</span>
+<span class="line">col SUBPARTITION_NAME for a15</span>
+<span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_tab_modifications <span class="keyword">where</span> table_name=<span class="string">'T20'</span>;</span>
+<span class="line">#==================================================================================================================</span>
+<span class="line">TABLE_NAME PARTITION_NAME  SUBPARTITION_NA    INSERTS    UPDATES    DELETES TIMESTAMP           TRU DROP_SEGMENTS</span>
+<span class="line"><span class="comment">---------- --------------- --------------- ---------- ---------- ---------- ------------------- --- -------------</span></span>
+<span class="line">T20                                               500          0          0 2018-07-27 17:16:52 NO              0</span>
+<span class="line">#==================================================================================================================</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">begin</span></span>
+<span class="line">    dbms_stats.gather_schema_stats(</span>
+<span class="line">    ownname=&gt;<span class="string">'SYS'</span>,</span>
+<span class="line">    options=&gt;<span class="string">'GATHER STALE'</span>);</span>
+<span class="line"><span class="keyword">end</span>;</span>
+<span class="line">/</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">select</span> num_rows,blocks,stale_stats <span class="keyword">from</span> user_tab_statistics <span class="keyword">where</span> table_name=<span class="string">'T20'</span>;</span>
+<span class="line">#==================================================================================================================</span>
+<span class="line">  NUM_ROWS     BLOCKS STA</span>
+<span class="line"><span class="comment">---------- ---------- ---</span></span>
+<span class="line">      1000         15 NO</span>
+<span class="line">#==================================================================================================================</span>
+</pre></td></tr></table></figure></p>
+<h3 id="动态抽样"><a href="#动态抽样" class="headerlink" title="动态抽样"></a>动态抽样</h3><p>optimizer_dynamic_sampling: 可以将它设置为0-10，默认值是2，它指示优化器仅对未分析的表进行少量数据块抽样<br><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">show</span> parameter optimizer_dynamic_sampling</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">NAME</span>                                 <span class="keyword">TYPE</span>        <span class="keyword">VALUE</span></span>
+<span class="line"><span class="comment">------------------------------------ ----------- ------------------------------</span></span>
+<span class="line">optimizer_dynamic_sampling           <span class="built_in">integer</span>     <span class="number">2</span></span>
+</pre></td></tr></table></figure></p>
+<p>临时表的地方必须用动态采样，写上HINT强制它采样<code>/*+ dynamic_sampling(t 0) */</code></p>
+<h3 id="重要的统计变量"><a href="#重要的统计变量" class="headerlink" title="重要的统计变量"></a>重要的统计变量</h3><p><img src="http://p2c0rtsgc.bkt.clouddn.com/0725_sqltune_17.png" alt=""></p>
+<h2 id="附：构建测试数据"><a href="#附：构建测试数据" class="headerlink" title="附：构建测试数据"></a>附：构建测试数据</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建表与数据</span></span>
+<span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> EMP</span>
+<span class="line">(EMPNO <span class="built_in">NUMBER</span>(<span class="number">4</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span>
+<span class="line">ENAME VARCHAR2(<span class="number">10</span>),</span>
+<span class="line">JOB VARCHAR2(<span class="number">9</span>),</span>
+<span class="line">MGR <span class="built_in">NUMBER</span>(<span class="number">4</span>),</span>
+<span class="line">HIREDATE <span class="built_in">DATE</span>,</span>
+<span class="line">SAL <span class="built_in">NUMBER</span>(<span class="number">7</span>, <span class="number">2</span>),</span>
+<span class="line">COMM <span class="built_in">NUMBER</span>(<span class="number">7</span>, <span class="number">2</span>),</span>
+<span class="line">DEPTNO <span class="built_in">NUMBER</span>(<span class="number">2</span>)</span>
+<span class="line">);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7369</span>, <span class="string">'SMITH'</span>, <span class="string">'CLERK'</span>, <span class="number">7902</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'17-DEC-1980'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">800</span>, <span class="literal">NULL</span>, <span class="number">20</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7499</span>, <span class="string">'ALLEN'</span>, <span class="string">'SALESMAN'</span>, <span class="number">7698</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'20-FEB-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1600</span>, <span class="number">300</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7521</span>, <span class="string">'WARD'</span>, <span class="string">'SALESMAN'</span>, <span class="number">7698</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'22-FEB-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1250</span>, <span class="number">500</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7566</span>, <span class="string">'JONES'</span>, <span class="string">'MANAGER'</span>, <span class="number">7839</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'2-APR-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">2975</span>, <span class="literal">NULL</span>, <span class="number">20</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7654</span>, <span class="string">'MARTIN'</span>, <span class="string">'SALESMAN'</span>, <span class="number">7698</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'28-SEP-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1250</span>, <span class="number">1400</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7698</span>, <span class="string">'BLAKE'</span>, <span class="string">'MANAGER'</span>, <span class="number">7839</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'1-MAY-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">2850</span>, <span class="literal">NULL</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7782</span>, <span class="string">'CLARK'</span>, <span class="string">'MANAGER'</span>, <span class="number">7839</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'9-JUN-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">2450</span>, <span class="literal">NULL</span>, <span class="number">10</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7788</span>, <span class="string">'SCOTT'</span>, <span class="string">'ANALYST'</span>, <span class="number">7566</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'09-DEC-1982'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">3000</span>, <span class="literal">NULL</span>, <span class="number">20</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7839</span>, <span class="string">'KING'</span>, <span class="string">'PRESIDENT'</span>, <span class="literal">NULL</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'17-NOV-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">5000</span>, <span class="literal">NULL</span>, <span class="number">10</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7844</span>, <span class="string">'TURNER'</span>, <span class="string">'SALESMAN'</span>, <span class="number">7698</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'8-SEP-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1500</span>, <span class="number">0</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7876</span>, <span class="string">'ADAMS'</span>, <span class="string">'CLERK'</span>, <span class="number">7788</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'12-JAN-1983'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1100</span>, <span class="literal">NULL</span>, <span class="number">20</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7900</span>, <span class="string">'JAMES'</span>, <span class="string">'CLERK'</span>, <span class="number">7698</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'3-DEC-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">950</span>, <span class="literal">NULL</span>, <span class="number">30</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7902</span>, <span class="string">'FORD'</span>, <span class="string">'ANALYST'</span>, <span class="number">7566</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'3-DEC-1981'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">3000</span>, <span class="literal">NULL</span>, <span class="number">20</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> EMP <span class="keyword">VALUES</span> (<span class="number">7934</span>, <span class="string">'MILLER'</span>, <span class="string">'CLERK'</span>, <span class="number">7782</span>,</span>
+<span class="line"><span class="keyword">TO_DATE</span>(<span class="string">'23-JAN-1982'</span>, <span class="string">'DD-MON-YYYY'</span>), <span class="number">1300</span>, <span class="literal">NULL</span>, <span class="number">10</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> DEPT</span>
+<span class="line">(DEPTNO <span class="built_in">NUMBER</span>(<span class="number">2</span>),</span>
+<span class="line">DNAME VARCHAR2(<span class="number">14</span>),</span>
+<span class="line">LOC VARCHAR2(<span class="number">13</span>)</span>
+<span class="line">);</span>
+<span class="line"></span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> DEPT <span class="keyword">VALUES</span> (<span class="number">10</span>, <span class="string">'ACCOUNTING'</span>, <span class="string">'NEW YORK'</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> DEPT <span class="keyword">VALUES</span> (<span class="number">20</span>, <span class="string">'RESEARCH'</span>, <span class="string">'DALLAS'</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> DEPT <span class="keyword">VALUES</span> (<span class="number">30</span>, <span class="string">'SALES'</span>, <span class="string">'CHICAGO'</span>);</span>
+<span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> DEPT <span class="keyword">VALUES</span> (<span class="number">40</span>, <span class="string">'OPERATIONS'</span>, <span class="string">'BOSTON '</span>);</span>
+<span class="line"></span>
+<span class="line"><span class="comment">-- 添加约束</span></span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> emp <span class="keyword">add</span> <span class="keyword">constraint</span> emp_pk primary <span class="keyword">key</span>(empno);</span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> dept <span class="keyword">add</span> <span class="keyword">constraint</span> dept_pk primary <span class="keyword">key</span>(deptno);</span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> dept <span class="keyword">add</span> <span class="keyword">constraint</span> emp_fk_dept foreign <span class="keyword">key</span>(deptno) <span class="keyword">references</span> dept;</span>
+<span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> emp <span class="keyword">add</span> <span class="keyword">constraint</span> emp_fk_emp foreign <span class="keyword">key</span>(mgr) <span class="keyword">references</span> emp;</span>
+</pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/08/08/docker/13_docker应用-部署MYSQL服务/">
+                    Docker学习笔记_13 docker应用 - 部署MYSQL服务
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/">
+                    redis入门到精通 - 04 link链表
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RBO-amp-CBO优化器"><span class="toc-number">1.</span> <span class="toc-text">RBO & CBO优化器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于规则的优化器-RBO"><span class="toc-number">2.</span> <span class="toc-text">基于规则的优化器 - RBO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于RBO的测试"><span class="toc-number">3.</span> <span class="toc-text">基于RBO的测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CBO误区"><span class="toc-number">4.</span> <span class="toc-text">CBO误区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#理解CBO"><span class="toc-number">5.</span> <span class="toc-text">理解CBO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CBO成本计算"><span class="toc-number">6.</span> <span class="toc-text">CBO成本计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CBO的核心概念"><span class="toc-number">7.</span> <span class="toc-text">CBO的核心概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行计划"><span class="toc-number">8.</span> <span class="toc-text">执行计划</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单表访问路径"><span class="toc-number">9.</span> <span class="toc-text">单表访问路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Costing-Model-成本模型"><span class="toc-number">10.</span> <span class="toc-text">Costing Model 成本模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#全表扫描成本公式"><span class="toc-number">11.</span> <span class="toc-text">全表扫描成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引范围扫描成本公式"><span class="toc-number">12.</span> <span class="toc-text">索引范围扫描成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引快速全扫描成本公式"><span class="toc-number">13.</span> <span class="toc-text">索引快速全扫描成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Clustering-factor聚簇因子"><span class="toc-number">14.</span> <span class="toc-text">Clustering_factor聚簇因子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#嵌套循环连接成本公式"><span class="toc-number">15.</span> <span class="toc-text">嵌套循环连接成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#哈希连接成本公式"><span class="toc-number">16.</span> <span class="toc-text">哈希连接成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#排序合并连接成本公式"><span class="toc-number">17.</span> <span class="toc-text">排序合并连接成本公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选择率-Selectivity"><span class="toc-number">18.</span> <span class="toc-text">选择率 - Selectivity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基数-Cardinality"><span class="toc-number">19.</span> <span class="toc-text">基数 - Cardinality</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Oracle经典的查询转换"><span class="toc-number">20.</span> <span class="toc-text">Oracle经典的查询转换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#视图合并-view-merge"><span class="toc-number">20.1.</span> <span class="toc-text">视图合并(view merge)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#谓词推进-Predicate-Pushing"><span class="toc-number">20.2.</span> <span class="toc-text">谓词推进(Predicate Pushing)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#子查询非嵌套化-Subquery-Unnesting"><span class="toc-number">20.3.</span> <span class="toc-text">子查询非嵌套化(Subquery Unnesting)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OR条件展开"><span class="toc-number">20.4.</span> <span class="toc-text">OR条件展开</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#绑定变量"><span class="toc-number">21.</span> <span class="toc-text">绑定变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#绑定变量的窥探"><span class="toc-number">21.1.</span> <span class="toc-text">绑定变量的窥探</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#绑定变量窥探案例"><span class="toc-number">21.2.</span> <span class="toc-text">绑定变量窥探案例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#直方图"><span class="toc-number">22.</span> <span class="toc-text">直方图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#统计信息"><span class="toc-number">23.</span> <span class="toc-text">统计信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#自动收集统计信息"><span class="toc-number">23.1.</span> <span class="toc-text">自动收集统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#手动收集统计信息"><span class="toc-number">23.2.</span> <span class="toc-text">手动收集统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#过时的统计信息"><span class="toc-number">23.3.</span> <span class="toc-text">过时的统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#动态抽样"><span class="toc-number">23.4.</span> <span class="toc-text">动态抽样</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重要的统计变量"><span class="toc-number">23.5.</span> <span class="toc-text">重要的统计变量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附：构建测试数据"><span class="toc-number">24.</span> <span class="toc-text">附：构建测试数据</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/08/08/docker/13_docker应用-部署MYSQL服务/" title="上一篇: Docker学习笔记_13 docker应用 - 部署MYSQL服务">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/" title="下一篇: redis入门到精通 - 04 link链表">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/08/08/docker/13_docker应用-部署MYSQL服务/">Docker学习笔记_13 docker应用 - 部署MYSQL服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/">Oracle SQL Tuning_02 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/">redis入门到精通 - 04 link链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/18/redis/redis入门到精通-课程学习/03_redis入门到精通/">redis入门到精通 - 03 Redis字符串类型的操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/17/redis/redis入门到精通-课程学习/02_redis入门到精通/">redis入门到精通 - 02 通用key操作命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/16/redis/redis入门到精通-课程学习/01_redis入门到精通/">redis入门到精通 - 01 redis特点及安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/14/docker/12_docker应用-部署REDIS服务/">Docker学习笔记_12 docker应用 - 部署REDIS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/python/Python3自动化运维-课程学习/05_Python3自动化运维_函数入门/">Python3自动化运维 - 05 函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/">Docker学习笔记_11 docker应用 - 部署GITLAB服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/">Docker学习笔记_10 docker应用 - 部署TOMCAT服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/">注册美区Apple ID（无需信用卡）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/docker/09_docker应用-部署DNS服务/">Docker学习笔记_09 docker应用 - 部署DNS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/">Python3自动化运维 - 04 分支循环与深浅拷贝</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/">Python3自动化运维 - 03 运算表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/">Python3自动化运维 - 02 数据类型及引用计数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/03/python/Python3自动化运维-课程学习/01_Python3自动化运维_环境配置/">Python3自动化运维 - 01 环境配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/28/oracle/ORA/ORA-01157/">ORA-01157 ORA-01110 错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/20/oracle/Oracle_SQL_Tuning-课程学习/01_Oracle_SQL_Tuning/">Oracle SQL Tuning_01 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_12 Oracle坏块处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_11 ORA-8102 Index Corruption修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 Undo深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/10/docker/00_docker常用命令/">Docker学习笔记_00 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
