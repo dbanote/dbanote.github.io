@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="刘雅君" />
+
+
+
+<meta name="description" content="下载操作系统基镜像# 6.10
+docker pull oraclelinux:6.10
+docker tag oraclelinux:6.10 10.240.4.159/os/oraclelinux:6.10
+docker push 10.240.4.159/os/oraclelinux:6.10
+
+# 7.5
+docker pull oraclelinux:7.5
+docker tag ora">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker学习笔记_14 docker应用 - 部署ORACLE 11g单实例数据库.md">
+<meta property="og:url" content="/2018/09/19/docker/14_docker应用-部署ORACLE-11g单实例数据库/index.html">
+<meta property="og:site_name" content="一个DBA的工作学习笔记">
+<meta property="og:description" content="下载操作系统基镜像# 6.10
+docker pull oraclelinux:6.10
+docker tag oraclelinux:6.10 10.240.4.159/os/oraclelinux:6.10
+docker push 10.240.4.159/os/oraclelinux:6.10
+
+# 7.5
+docker pull oraclelinux:7.5
+docker tag ora">
+<meta property="og:updated_time" content="2018-10-10T06:53:27.583Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Docker学习笔记_14 docker应用 - 部署ORACLE 11g单实例数据库.md">
+<meta name="twitter:description" content="下载操作系统基镜像# 6.10
+docker pull oraclelinux:6.10
+docker tag oraclelinux:6.10 10.240.4.159/os/oraclelinux:6.10
+docker push 10.240.4.159/os/oraclelinux:6.10
+
+# 7.5
+docker pull oraclelinux:7.5
+docker tag ora">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="一个DBA的工作学习笔记" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Docker学习笔记_14 docker应用 - 部署ORACLE 11g单实例数据库.md | 一个DBA的工作学习笔记</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: false,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?2e7a5de312dd959398193e7e92a5cdce";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">刘雅君</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/11g/">11g</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/12c/">12c</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Centos/">Centos</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DSI/">DSI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ORA/">ORA-</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/audit/">audit</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dsi/">dsi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/expdp/">expdp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/flashback/">flashback</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlab/">gitlab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitlub/">gitlub</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/goldengate/">goldengate</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/harbor/">harbor</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/iDARC/">iDARC</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kubernetes/">kubernetes</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logminer/">logminer</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lvm/">lvm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/oracle/">oracle</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rancher/">rancher</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rman/">rman</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/scripts/">scripts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql优化/">sql优化</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sublime-text/">sublime text</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tools/">tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zabbix/">zabbix</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://support.oracle.com/">My Oracle Support</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://edelivery.oracle.com/">Oracle Edelivery</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://docs.oracle.com/">Oracle Help Center</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.dataguru.cn/">练数成金</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.santongit.com/">三通IT论坛</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.17zixueba.com/">一起自学吧</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://www.qiniu.com/">七牛云</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">刘雅君</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">刘雅君</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">欲事之无繁，则必劳于始而逸于终</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/dbanote" title="GitHub"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:15004618839@139.com" title="Email"></a>
+                            
+                                <a class="fa 新浪微博" target="_blank" href="http://weibo.com/foxbei" title="新浪微博"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-docker/14_docker应用-部署ORACLE-11g单实例数据库" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2018/09/19/docker/14_docker应用-部署ORACLE-11g单实例数据库/" class="article-date">
+      <time datetime="2018-09-18T16:00:00.000Z" itemprop="datePublished">2018-09-19</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Docker学习笔记_14 docker应用 - 部署ORACLE 11g单实例数据库.md
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Docker学习笔记/">Docker学习笔记</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/">docker</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="下载操作系统基镜像"><a href="#下载操作系统基镜像" class="headerlink" title="下载操作系统基镜像"></a>下载操作系统基镜像</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 6.10</span></span>
+<span class="line">docker pull oraclelinux:<span class="number">6.10</span></span>
+<span class="line">docker tag oraclelinux:<span class="number">6.10</span> <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oraclelinux:<span class="number">6.10</span></span>
+<span class="line">docker push <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oraclelinux:<span class="number">6.10</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># 7.5</span></span>
+<span class="line">docker pull oraclelinux:<span class="number">7.5</span></span>
+<span class="line">docker tag oraclelinux:<span class="number">7.5</span> <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oraclelinux:<span class="number">7.5</span></span>
+<span class="line">docker push <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oraclelinux:<span class="number">7.5</span></span>
+</pre></td></tr></table></figure>
+<h2 id="BUILD数据库软件镜像"><a href="#BUILD数据库软件镜像" class="headerlink" title="BUILD数据库软件镜像"></a>BUILD数据库软件镜像</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">mkdir -p /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">01</span>_database</span>
+<span class="line">cd /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">01</span>_database</span>
+<span class="line"></span>
+<span class="line">rz </span>
+<span class="line">rlwrap<span class="number">-0.42</span>.tar.gz</span>
+<span class="line">p13390677_112040_Linux-x86<span class="number">-64</span>_1of7.zip</span>
+<span class="line">p13390677_112040_Linux-x86<span class="number">-64</span>_2of7.zip</span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line">vi db_install.rsp</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line">oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v11_2_0</span>
+<span class="line">oracle.install.option=INSTALL_DB_SWONLY</span>
+<span class="line">ORACLE_HOSTNAME=oradb</span>
+<span class="line">UNIX_GROUP_NAME=oinstall</span>
+<span class="line">INVENTORY_LOCATION=/u01/app/oraInventory</span>
+<span class="line">SELECTED_LANGUAGES=en,zh_CN</span>
+<span class="line">ORACLE_HOME=/u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1</span>
+<span class="line">ORACLE_BASE=/u01/app/oracle</span>
+<span class="line">oracle.install.db.InstallEdition=EE</span>
+<span class="line">oracle.install.db.EEOptionsSelection=false</span>
+<span class="line">oracle.install.db.optionalComponents=oracle.rdbms.partitioning:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span>,oracle.oraolap:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span>,oracle.rdbms.dm:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span>,oracle.rdbms.dv:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span>,oracle.rdbms.lbac:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span>,oracle.rdbms.rat:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span><span class="number">.0</span></span>
+<span class="line">oracle.install.db.DBA_GROUP=dba</span>
+<span class="line">oracle.install.db.OPER_GROUP=dba</span>
+<span class="line">oracle.install.db.CLUSTER_NODES=</span>
+<span class="line">oracle.install.db.isRACOneInstall=</span>
+<span class="line">oracle.install.db.racOneServiceName=</span>
+<span class="line">oracle.install.db.config.starterdb.type=</span>
+<span class="line">oracle.install.db.config.starterdb.globalDBName=</span>
+<span class="line">oracle.install.db.config.starterdb.SID=</span>
+<span class="line">oracle.install.db.config.starterdb.characterSet=AL32UTF8</span>
+<span class="line">oracle.install.db.config.starterdb.memoryOption=true</span>
+<span class="line">oracle.install.db.config.starterdb.memoryLimit=</span>
+<span class="line">oracle.install.db.config.starterdb.installExampleSchemas=false</span>
+<span class="line">oracle.install.db.config.starterdb.enableSecuritySettings=true</span>
+<span class="line">oracle.install.db.config.starterdb.password.ALL=oracle</span>
+<span class="line">oracle.install.db.config.starterdb.password.SYS=</span>
+<span class="line">oracle.install.db.config.starterdb.password.SYSTEM=</span>
+<span class="line">oracle.install.db.config.starterdb.password.SYSMAN=</span>
+<span class="line">oracle.install.db.config.starterdb.password.DBSNMP=</span>
+<span class="line">oracle.install.db.config.starterdb.control=DB_CONTROL</span>
+<span class="line">oracle.install.db.config.starterdb.gridcontrol.gridControlServiceURL=</span>
+<span class="line">oracle.install.db.config.starterdb.automatedBackup.enable=false</span>
+<span class="line">oracle.install.db.config.starterdb.automatedBackup.osuid=</span>
+<span class="line">oracle.install.db.config.starterdb.automatedBackup.ospwd=</span>
+<span class="line">oracle.install.db.config.starterdb.storageType=</span>
+<span class="line">oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=</span>
+<span class="line">oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=</span>
+<span class="line">oracle.install.db.config.asm.diskGroup=</span>
+<span class="line">oracle.install.db.config.asm.ASMSNMPPassword=</span>
+<span class="line">MYORACLESUPPORT_USERNAME=</span>
+<span class="line">MYORACLESUPPORT_PASSWORD=</span>
+<span class="line">SECURITY_UPDATES_VIA_MYORACLESUPPORT=</span>
+<span class="line">DECLINE_SECURITY_UPDATES=true</span>
+<span class="line">PROXY_HOST=</span>
+<span class="line">PROXY_PORT=</span>
+<span class="line">PROXY_USER=</span>
+<span class="line">PROXY_PWD=</span>
+<span class="line">PROXY_REALM=</span>
+<span class="line">COLLECTOR_SUPPORTHUB_URL=</span>
+<span class="line">oracle.installer.autoupdates.option=</span>
+<span class="line">oracle.installer.autoupdates.downloadUpdatesLoc=</span>
+<span class="line">AUTOUPDATES_MYORACLESUPPORT_USERNAME=</span>
+<span class="line">AUTOUPDATES_MYORACLESUPPORT_PASSWORD=</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi Dockerfile</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line">FROM <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oralcelinux:<span class="number">6.10</span></span>
+<span class="line"></span>
+<span class="line">ADD rlwrap<span class="number">-0.42</span>.tar.gz /tmp/</span>
+<span class="line">ADD p13390677_112040_Linux-x86<span class="number">-64</span>_1of7.zip /tmp/</span>
+<span class="line">ADD p13390677_112040_Linux-x86<span class="number">-64</span>_2of7.zip /tmp/</span>
+<span class="line">ADD db_install.rsp /tmp/</span>
+<span class="line">RUN rpm --<span class="keyword">import</span> /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle &amp;&amp; \</span>
+<span class="line">    yum -y install oracle-rdbms-server<span class="number">-11</span>gR2-preinstall unzip readline-devel.x86_64 lrzsz &amp;&amp; \</span>
+<span class="line">    cd /tmp/rlwrap<span class="number">-0.42</span> &amp;&amp; ./configure &amp;&amp; make &amp;&amp; make install &amp;&amp; \</span>
+<span class="line">    echo <span class="string">"Create /u01/app dir..."</span> &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/dumpdir &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oradata &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oraInventory &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oracle &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1 &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /u01 &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p13390677_112040_Linux-x86<span class="number">-64</span>_1of7.zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p13390677_112040_Linux-x86<span class="number">-64</span>_2of7.zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /tmp/database  &amp;&amp; \</span>
+<span class="line">    printf <span class="string">"%s\n"</span>   <span class="string">'export ORACLE_SID=orcl'</span> \</span>
+<span class="line">                    <span class="string">'export ORACLE_BASE=/u01/app/oracle'</span> \</span>
+<span class="line">                    <span class="string">'export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/db_1'</span> \</span>
+<span class="line">                    <span class="string">'export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32'</span> \</span>
+<span class="line">                    <span class="string">'export PATH=$PATH:$ORACLE_HOME/bin:$ORACLE_HOME/OPatch'</span> \</span>
+<span class="line">                    <span class="string">'export NLS_LANG=AMERICAN_AMERICA.ZHS16GBK'</span> \</span>
+<span class="line">                    <span class="string">'export NLS_DATE_FORMAT="yyyy-mm-dd hh24:mi:ss"'</span> \</span>
+<span class="line">                    <span class="string">'alias sqlplus="rlwrap sqlplus"'</span> \</span>
+<span class="line">                    <span class="string">'alias rman="rlwrap rman"'</span> \</span>
+<span class="line">                     &gt;&gt;/home/oracle/.bash_profile  &amp;&amp; \</span>
+<span class="line">    cat /etc/security/limits.conf | grep -v oracle | tee /etc/security/limits.conf &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/tmp/database/runInstaller -ignorePrereq -ignoreSysPrereqs -waitforcompletion -silent -responseFile /tmp/db_install.rsp 2&gt;&amp;1"</span> &amp;&amp; \</span>
+<span class="line">    /u01/app/oraInventory/orainstRoot.sh &amp;&amp; \</span>
+<span class="line">    /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/root.sh &amp;&amp; \</span>
+<span class="line">    yum clean all &amp;&amp; \</span>
+<span class="line">    rm -rf /tmp/* &amp;&amp; rm -rf /var/log/* &amp;&amp; rm -rf /var/cache/*</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi build.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line">imagetag=<span class="string">"10.240.4.159/app/oracledatabase:11.2.0.4-software"</span></span>
+<span class="line">dockerfile=<span class="string">"Dockerfile"</span></span>
+<span class="line"></span>
+<span class="line">docker build --rm \</span>
+<span class="line">             --force-rm \</span>
+<span class="line">             --no-cache \</span>
+<span class="line">             --memory=<span class="number">4</span>g \</span>
+<span class="line">             --shm-size=<span class="number">4</span>g \</span>
+<span class="line">             -t $&#123;imagetag&#125; \</span>
+<span class="line">             -f $&#123;dockerfile&#125; .</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x build.sh</span>
+<span class="line">./build.sh</span>
+</pre></td></tr></table></figure>
+<h2 id="PSU"><a href="#PSU" class="headerlink" title="PSU"></a>PSU</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">mkdir -p /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">02</span>_psu</span>
+<span class="line">cd /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">02</span>_psu</span>
+<span class="line"></span>
+<span class="line">rz </span>
+<span class="line">ocm.rsp</span>
+<span class="line">p6880880_112000_Linux-x86<span class="number">-64.</span>zip</span>
+<span class="line">p27967757_112040_Linux-x86<span class="number">-64</span>_2of7.zip</span>
+<span class="line">p27923163_112040_Linux-x86<span class="number">-64</span>_2of7.zip</span>
+<span class="line"></span>
+<span class="line">vi Dockerfile</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line">FROM <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-software</span>
+<span class="line"></span>
+<span class="line">ADD ocm.rsp /tmp/ocm.rsp</span>
+<span class="line">ADD p6880880_112000_Linux-x86<span class="number">-64.</span>zip /tmp/ </span>
+<span class="line">ADD p27967757_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line">ADD p27923163_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line"></span>
+<span class="line">RUN printf <span class="string">"%s\n"</span>   <span class="string">'[GENERAL]'</span> \</span>
+<span class="line">                    <span class="string">'RESPONSEFILE_VERSION="11.2"'</span> \</span>
+<span class="line">                    <span class="string">'CREATE_TYPE="CUSTOM"'</span> \</span>
+<span class="line">                    <span class="string">'[oracle.net.ca]'</span> \</span>
+<span class="line">                    <span class="string">'INSTALLED_COMPONENTS=&#123;"server","net8","javavm"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'INSTALL_TYPE=""typical""'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_NUMBER=1'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_NAMES=&#123;"LISTENER"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_PROTOCOLS=&#123;"TCP;1521"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_START=""LISTENER""'</span> \</span>
+<span class="line">                    <span class="string">'NAMING_METHODS=&#123;"TNSNAMES","ONAMES","HOSTNAME"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_NUMBER=1'</span> \</span>
+<span class="line">                    <span class="string">'NSN_NAMES=&#123;"EXTPROC_CONNECTION_DATA"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_SERVICE=&#123;"PLSExtProc"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_PROTOCOLS=&#123;"TCP;HOSTNAME;1521"&#125;'</span> \</span>
+<span class="line">                     &gt;&gt;/tmp/netca.rsp &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p6880880_112000_Linux-x86<span class="number">-64.</span>zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    rm -rf /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/OPatch &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /tmp/OPatch &amp;&amp; \</span>
+<span class="line">    mv /tmp/OPatch /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/ &amp;&amp; \</span>
+<span class="line">    unzip -qo /tmp/p27967757_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">    unzip -qo /tmp/p27923163_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"opatch apply -silent -ocmrf /tmp/ocm.rsp -local /tmp/27967757/27734982"</span> &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"opatch apply -silent -ocmrf /tmp/ocm.rsp -local /tmp/27923163"</span> &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/u01/app/oracle/product/11.2.0/db_1/bin/netca -silent -responseFile /tmp/netca.rsp"</span> &amp;&amp; \</span>
+<span class="line">    yum clean all &amp;&amp; \</span>
+<span class="line">    rm -rf /tmp/* &amp;&amp; rm -rf /var/log/* &amp;&amp; rm -rf /var/cache/*</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi build.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line">imagetag=<span class="string">"10.240.4.159/app/oracledatabase:11.2.0.4-psu"</span></span>
+<span class="line">dockerfile=<span class="string">"Dockerfile"</span></span>
+<span class="line"></span>
+<span class="line">docker build --rm \</span>
+<span class="line">             --force-rm \</span>
+<span class="line">             --no-cache \</span>
+<span class="line">             --memory=<span class="number">4</span>g \</span>
+<span class="line">             --shm-size=<span class="number">4</span>g \</span>
+<span class="line">             -t $&#123;imagetag&#125; \</span>
+<span class="line">             -f $&#123;dockerfile&#125; .</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x build.sh</span>
+<span class="line">./build.sh</span>
+</pre></td></tr></table></figure>
+<h2 id="安装数据库"><a href="#安装数据库" class="headerlink" title="安装数据库"></a>安装数据库</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">mkdir -p /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">03</span>_db</span>
+<span class="line">cd /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">03</span>_db</span>
+<span class="line"></span>
+<span class="line">vi Dockerfile</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line">FROM <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-psu</span>
+<span class="line"></span>
+<span class="line">RUN printf <span class="string">"%s\n"</span>   <span class="string">'[GENERAL]'</span> \</span>
+<span class="line">                    <span class="string">'RESPONSEFILE_VERSION = "11.2.0"'</span> \</span>
+<span class="line">                    <span class="string">'OPERATION_TYPE = "createDatabase"'</span> \</span>
+<span class="line">                    <span class="string">'[CREATEDATABASE]'</span> \</span>
+<span class="line">                    <span class="string">'GDBNAME = "orcl"'</span> \</span>
+<span class="line">                    <span class="string">'DATABASECONFTYPE  = "SI"'</span> \</span>
+<span class="line">                    <span class="string">'SID = "orcl"'</span> \</span>
+<span class="line">                    <span class="string">'TEMPLATENAME = "General_Purpose.dbc"'</span> \</span>
+<span class="line">                    <span class="string">'SYSPASSWORD = "Center08"'</span> \</span>
+<span class="line">                    <span class="string">'SYSTEMPASSWORD = "Center08"'</span> \</span>
+<span class="line">                    <span class="string">'DATAFILEDESTINATION=/u01/app/oradata'</span> \</span>
+<span class="line">                    <span class="string">'RECOVERYAREADESTINATION=/u01/app/oradata'</span> \</span>
+<span class="line">                    <span class="string">'STORAGETYPE=FS'</span> \</span>
+<span class="line">                    <span class="string">'CHARACTERSET="ZHS16GBK"'</span> \</span>
+<span class="line">                    <span class="string">'INITPARAMS="java_jit_enabled=false,memory_target=0,sga_target=2048,pga_aggregate_target=300,processes=300,open_cursors=300"'</span> \</span>
+<span class="line">                    <span class="string">'AUTOMATICMEMORYMANAGEMENT="False"'</span> \</span>
+<span class="line">                     &gt; /tmp/dbca.rsp &amp;&amp; chown oracle:oinstall /tmp/dbca.rsp &amp;&amp; chmod +x /tmp/dbca.rsp &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/u01/app/oracle/product/11.2.0/db_1/bin/dbca -silent -responseFile /tmp/dbca.rsp"</span> &amp;&amp; \</span>
+<span class="line">    yum clean all &amp;&amp; \</span>
+<span class="line">    rm -rf /tmp/* &amp;&amp; rm -rf /var/log/* &amp;&amp; rm -rf /var/cache/*</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi build.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line">imagetag=<span class="string">"10.240.4.159/app/oracledatabase:11.2.0.4-db"</span></span>
+<span class="line">dockerfile=<span class="string">"Dockerfile"</span></span>
+<span class="line"></span>
+<span class="line">docker build --rm \</span>
+<span class="line">             --force-rm \</span>
+<span class="line">             --no-cache \</span>
+<span class="line">             --memory=<span class="number">4</span>g \</span>
+<span class="line">             --shm-size=<span class="number">4</span>g \</span>
+<span class="line">             -t $&#123;imagetag&#125; \</span>
+<span class="line">             -f $&#123;dockerfile&#125; .</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x build.sh</span>
+<span class="line">./build.sh</span>
+<span class="line"></span>
+<span class="line">docker push <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span></span>
+</pre></td></tr></table></figure>
+<h2 id="启机后数据库自行启动"><a href="#启机后数据库自行启动" class="headerlink" title="启机后数据库自行启动"></a>启机后数据库自行启动</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">mkdir -p /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">04</span>_run</span>
+<span class="line">cd /docker_build/oracle_database/oel<span class="number">-6.10</span>/<span class="number">04</span>_run</span>
+<span class="line">cp /usr/share/zoneinfo/Asia/Shanghai .</span>
+<span class="line"></span>
+<span class="line">vi entrypoint.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line">set -e</span>
+<span class="line">/etc/init.d/sshd start</span>
+<span class="line">chown -R oracle:oinstall /u01</span>
+<span class="line">su - oracle -c <span class="string">"/usr/sbin/entrypoint_oracle.sh"</span></span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x entrypoint.sh</span>
+<span class="line"></span>
+<span class="line">vi entrypoint_oracle.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line">set -e</span>
+<span class="line">source ~/.bashrc</span>
+<span class="line"></span>
+<span class="line">alert_log=<span class="string">"$ORACLE_BASE/diag/rdbms/orcl/$ORACLE_SID/trace/alert_$ORACLE_SID.log"</span></span>
+<span class="line">listener_log=<span class="string">"$ORACLE_BASE/diag/tnslsnr/$HOSTNAME/listener/trace/listener.log"</span></span>
+<span class="line">pfile=$ORACLE_HOME/dbs/init$ORACLE_SID.ora</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># monitor $logfile</span></span>
+<span class="line">monitor() &#123;</span>
+<span class="line">    tail -F -n <span class="number">0</span> $<span class="number">1</span> | <span class="keyword">while</span> read line; do echo -e <span class="string">"$2: $line"</span>; done</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">trap_db() &#123;</span>
+<span class="line">    trap <span class="string">"echo 'Caught SIGTERM signal, shutting down...'; stop_db"</span> SIGTERM;</span>
+<span class="line">    trap <span class="string">"echo 'Caught SIGINT signal, shutting down...'; stop_db"</span> SIGINT;</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Check shared memory</span></span>
+<span class="line">check_shm() &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Checking shared memory..."</span></span>
+<span class="line">    df -h | grep <span class="string">"Mounted on"</span> &amp;&amp; df -h | egrep --color <span class="string">"^.*/dev/shm"</span> || echo <span class="string">"Shared memory is not mounted."</span></span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Reconfig listener</span></span>
+<span class="line">reconfig_lsnr() &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Reconfig listener for hostname : [$HOSTNAME]..."</span></span>
+<span class="line">    sed -i <span class="string">"s/(HOST.*)(/(HOST = $HOSTNAME)(/g"</span> /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/network/admin/tnsnames.ora</span>
+<span class="line">    sed -i <span class="string">"s/(HOST.*)(/(HOST = $HOSTNAME)(/g"</span> /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/network/admin/listener.ora</span>
+<span class="line">    echo <span class="string">"Show tnsnames.ora..."</span></span>
+<span class="line">    cat /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/network/admin/tnsnames.ora</span>
+<span class="line">    echo <span class="string">"Show listener.ora..."</span></span>
+<span class="line">    cat /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/network/admin/listener.ora</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Start listener</span></span>
+<span class="line">start_lsnr() &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Starting listener..."</span></span>
+<span class="line">    monitor $listener_log listener &amp;</span>
+<span class="line">    lsnrctl start | <span class="keyword">while</span> read line; do echo -e <span class="string">"lsnrctl: $line"</span>; done</span>
+<span class="line">    MON_LSNR_PID=$!</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Start database</span></span>
+<span class="line">start_db() &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Starting database..."</span></span>
+<span class="line">    trap_db</span>
+<span class="line">    monitor $alert_log alertlog &amp;</span>
+<span class="line">    MON_ALERT_PID=$!</span>
+<span class="line">    sqlplus / <span class="keyword">as</span> sysdba &lt;&lt;-EOF |</span>
+<span class="line">        pro Starting <span class="keyword">with</span> pfile=<span class="string">'$pfile'</span> ...</span>
+<span class="line">        startup;</span>
+<span class="line">        alter system register;</span>
+<span class="line">        exit <span class="number">0</span></span>
+<span class="line">EOF</span>
+<span class="line">    <span class="keyword">while</span> read line; do echo -e <span class="string">"sqlplus: $line"</span>; done</span>
+<span class="line">    change_dpdump_dir</span>
+<span class="line">    change_profile_default_limit</span>
+<span class="line">    wait $MON_ALERT_PID</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Stop database</span></span>
+<span class="line">stop_db() &#123;</span>
+<span class="line">    trap <span class="string">''</span> SIGINT SIGTERM</span>
+<span class="line">    shut_immediate</span>
+<span class="line">    echo <span class="string">"Shutting down listener..."</span></span>
+<span class="line">    lsnrctl stop | <span class="keyword">while</span> read line; do echo -e <span class="string">"lsnrctl: $line"</span>; done</span>
+<span class="line">    kill $MON_ALERT_PID $MON_LSNR_PID</span>
+<span class="line">    exit <span class="number">0</span></span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line">shut_immediate() &#123;</span>
+<span class="line">    ps -ef | grep ora_pmon | grep -v grep &gt; /dev/null &amp;&amp; \</span>
+<span class="line">    echo <span class="string">"Shutting down the database..."</span> &amp;&amp; \</span>
+<span class="line">    sqlplus / <span class="keyword">as</span> sysdba &lt;&lt;-EOF |</span>
+<span class="line">        set echo on</span>
+<span class="line">        shutdown immediate;</span>
+<span class="line">        exit <span class="number">0</span></span>
+<span class="line">EOF</span>
+<span class="line">    <span class="keyword">while</span> read line; do echo -e <span class="string">"sqlplus: $line"</span>; done</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># change_dpdump_dir</span></span>
+<span class="line">change_dpdump_dir () &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Changing dpdump dir to /u01/app/dumpdir"</span></span>
+<span class="line">    sqlplus / <span class="keyword">as</span> sysdba &lt;&lt;-EOF |</span>
+<span class="line">        create <span class="keyword">or</span> replace directory data_pump_dir <span class="keyword">as</span> <span class="string">'/u01/app/dumpdir'</span>;</span>
+<span class="line">        commit;</span>
+<span class="line">        exit <span class="number">0</span></span>
+<span class="line">EOF</span>
+<span class="line">    <span class="keyword">while</span> read line; do echo -e <span class="string">"sqlplus: $line"</span>; done</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># change profile default limit</span></span>
+<span class="line">change_profile_default_limit() &#123;</span>
+<span class="line">    echo <span class="string">""</span></span>
+<span class="line">    echo <span class="string">"Changing profile default limit : password_life_time/failed_login_attempts"</span></span>
+<span class="line">    sqlplus / <span class="keyword">as</span> sysdba &lt;&lt;-EOF |</span>
+<span class="line">        alter profile default limit password_life_time unlimited;</span>
+<span class="line">        alter profile default limit failed_login_attempts unlimited;</span>
+<span class="line">        commit;</span>
+<span class="line">        exit <span class="number">0</span></span>
+<span class="line">EOF</span>
+<span class="line">    <span class="keyword">while</span> read line; do echo -e <span class="string">"sqlplus: $line"</span>; done</span>
+<span class="line">&#125;</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Check shared memory</span></span>
+<span class="line">check_shm</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Reconfig listener</span></span>
+<span class="line">reconfig_lsnr</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Start listener</span></span>
+<span class="line">start_lsnr</span>
+<span class="line"></span>
+<span class="line"><span class="comment"># Start database</span></span>
+<span class="line">start_db</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x entrypoint_oracle.sh</span>
+<span class="line"></span>
+<span class="line">vi Dockerfile</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line">FROM <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-db</span>
+<span class="line"></span>
+<span class="line">ADD Shanghai /etc/localtime</span>
+<span class="line">ADD entrypoint.sh /usr/sbin/entrypoint.sh</span>
+<span class="line">ADD entrypoint_oracle.sh /usr/sbin/entrypoint_oracle.sh</span>
+<span class="line"></span>
+<span class="line">RUN sed -i <span class="string">"s/#PermitRootLogin.*/PermitRootLogin yes/g"</span> /etc/ssh/sshd_config &amp;&amp; \</span>
+<span class="line">    echo <span class="string">"export LANG=en_US.utf8"</span> &gt;&gt; /etc/profile &amp;&amp; \</span>
+<span class="line">    echo <span class="string">'root:ydgw.cn'</span> | chpasswd</span>
+<span class="line"> </span>
+<span class="line">ENTRYPOINT [<span class="string">"/usr/sbin/entrypoint.sh"</span>]</span>
+<span class="line">CMD [<span class="string">""</span>]</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">vi build.sh</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"><span class="comment">#!/usr/bin/env bash</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># set env</span></span>
+<span class="line">imagetag=<span class="string">"10.240.4.159/app/oracledatabase:11.2.0.4-rundb"</span></span>
+<span class="line">dockerfile=<span class="string">"Dockerfile"</span></span>
+<span class="line"></span>
+<span class="line"><span class="comment"># do build</span></span>
+<span class="line">docker build --rm \</span>
+<span class="line">             --force-rm \</span>
+<span class="line">             --no-cache \</span>
+<span class="line">             --memory=<span class="number">4</span>g \</span>
+<span class="line">             --shm-size=<span class="number">4</span>g \</span>
+<span class="line">             -t $&#123;imagetag&#125; \</span>
+<span class="line">             -f $&#123;dockerfile&#125; .</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">chmod +x build.sh</span>
+<span class="line">./build.sh</span>
+</pre></td></tr></table></figure>
+<h2 id="部署ORACLE服务"><a href="#部署ORACLE服务" class="headerlink" title="部署ORACLE服务"></a>部署ORACLE服务</h2><ol>
+<li>登陆Rancher(1.6.21)，编排工具用的是默认的Cattle</li>
+<li>应用 - 用户 - 添加应用 - 名称：[ORACLE] - 创建(已有服务此步忽略)</li>
+<li>添加服务 - 在添加服务页面添写配置如下信息 - 创建<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">名称: erptest2<span class="number">-11</span>g</span>
+<span class="line">描述: 日结后</span>
+<span class="line">选择镜像: <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-database</span>
+<span class="line">端口映射: <span class="number">1521</span>:<span class="number">1522</span>/tcp  <span class="number">15620</span>:<span class="number">22</span>/tcp</span>
+<span class="line"></span>
+<span class="line">网络 - 主机名: erptest2 </span>
+<span class="line">安全/主机: 主机完全访问权限    内存限制 <span class="number">4096</span></span>
+<span class="line">调度 - 在指定主机上运行全部容器: docker156</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<p>4.启动应用(容器) - 检查检查并登录erptest2-11g服务，无问题后<code>shutdown immediate</code>数据库<br>5.登陆宿主机，执行以下命令<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">docker ps -a | grep oracle</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------------------</span></span>
+<span class="line">ab409de14588        <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-database   <span class="string">"/.r/r /entrypoint.s…"</span>   <span class="number">7</span> minutes ago       Up <span class="number">7</span> minutes                            r-Oracle-erptest1<span class="number">-11</span>g<span class="number">-1</span>-c16a25ba</span>
+<span class="line"><span class="number">295</span>f99a4f7d4        <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-database   <span class="string">"/.r/r /entrypoint.s…"</span>   <span class="number">3</span> hours ago         Up <span class="number">3</span> hours                              r-Oracle-erptest2<span class="number">-1</span>-efd39217</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">cd /docker_mnt/oracledb/erptest2<span class="number">-20180817</span></span>
+<span class="line">docker cp <span class="number">295</span>f99a4f7d4:/u01/app/oradata .</span>
+<span class="line">docker cp <span class="number">295</span>f99a4f7d4:/u01/app/dumpdir .</span>
+<span class="line">docker cp <span class="number">295</span>f99a4f7d4:/u01/app/oracle/fast_recovery_area .</span>
+<span class="line">docker cp <span class="number">295</span>f99a4f7d4:/u01/app/oracle/diag .</span>
+<span class="line">docker cp <span class="number">295</span>f99a4f7d4:/u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/dbs .</span>
+</pre></td></tr></table></figure></p>
+<p>6.升级erptest2-11g<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">卷 - 添加卷: /etc/localtime:/etc/localtime:ro</span>
+<span class="line">             /docker_mnt/oracledb/erptest2<span class="number">-20180817</span>/oradata:/u01/app/oradata</span>
+<span class="line">             /docker_mnt/oracledb/erptest2<span class="number">-20180817</span>/dpdump:/u01/app/dumpdir</span>
+<span class="line">             /docker_mnt/oracledb/erptest2<span class="number">-20180817</span>/fast_recovery_area:/u01/app/oracle/fast_recovery_area</span>
+<span class="line">             /docker_mnt/oracledb/erptest2<span class="number">-20180817</span>/diag:/u01/app/oracle/diag</span>
+<span class="line">             /docker_mnt/oracledb/erptest2<span class="number">-20180817</span>/dbs:/u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/dbs</span>
+</pre></td></tr></table></figure></p>
+<p>docker 限制内存, 报 not support swap limit capabilities<br>参考：<a href="https://segmentfault.com/q/1010000002888521" target="_blank" rel="external">https://segmentfault.com/q/1010000002888521</a><br><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 解决方法</span></span>
+<span class="line">Adjust memory <span class="keyword">and</span> swap accounting</span>
+<span class="line">When users run Docker, they may see these messages <span class="keyword">when</span> working with an image:</span>
+<span class="line"></span>
+<span class="line">WARNING: Your kernel does <span class="keyword">not</span> support cgroup swap limit. WARNING: Your</span>
+<span class="line">kernel does <span class="keyword">not</span> support swap limit capabilities. Limitation discarded.</span>
+<span class="line">To prevent these messages, enable memory <span class="keyword">and</span> swap accounting on your system. To enable these on <span class="keyword">system</span> using GNU GRUB (GNU GRand Unified Bootloader), <span class="keyword">do</span> the following.</span>
+<span class="line"></span>
+<span class="line">Log into Ubuntu as a user with sudo privileges.</span>
+<span class="line"></span>
+<span class="line">Edit the /etc/default/grub file.</span>
+<span class="line"></span>
+<span class="line">Set the GRUB_CMDLINE_LINUX value as follows:</span>
+<span class="line"></span>
+<span class="line">GRUB_CMDLINE_LINUX=<span class="string">"cgroup_enable=memory swapaccount=1"</span></span>
+<span class="line">Save <span class="keyword">and</span> <span class="keyword">close</span> the file.</span>
+<span class="line"></span>
+<span class="line">Update GRUB.</span>
+<span class="line"></span>
+<span class="line">$ sudo update-grub</span>
+<span class="line">Reboot your system.</span>
+</pre></td></tr></table></figure></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://gitee.com/rancococ-code/docker-oracle11g" target="_blank" rel="external">基于Oracle Linux 7.5实现了Oracle Database 11gR2 企业版容器化运行</a></li>
+<li><a href="https://zhangjoto.github.io/li-yong-dockerjian-li-oracle-11gshi-yan-huan-jing.html" target="_blank" rel="external">利用Docker建立Oracle 11g实验环境</a></li>
+<li>docker 限制内存, 报<code>not support swap limit capabilities</code>，解决方法：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Edit the /etc/default/grub file.</span>
+<span class="line"></span>
+<span class="line">Set the GRUB_CMDLINE_LINUX value as follows:</span>
+<span class="line"></span>
+<span class="line">GRUB_CMDLINE_LINUX=&quot;cgroup_enable=memory swapaccount=1&quot;</span>
+<span class="line">Save and close the file.</span>
+<span class="line"></span>
+<span class="line">Update GRUB.</span>
+<span class="line"></span>
+<span class="line">$ sudo update-grub</span>
+<span class="line">Reboot your system.</span>
+</pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="expect的用法示例"><a href="#expect的用法示例" class="headerlink" title="expect的用法示例"></a>expect的用法示例</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">RUN yum -y install expect &amp;&amp; \</span>
+<span class="line">        unzip -qo /tmp/p6880880_112000_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">        unzip -qo /tmp/p27967757_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">        unzip -qo /tmp/p27923163_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">        rm -rf /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/OPatch &amp;&amp; \</span>
+<span class="line">        chown -R oracle:oinstall /tmp/OPatch &amp;&amp; \</span>
+<span class="line">        mv /tmp/OPatch /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/ &amp;&amp; \</span>
+<span class="line">        printf <span class="string">"%s\n"</span>   <span class="string">'#!/usr/bin/expect'</span> \</span>
+<span class="line">                    <span class="string">'spawn opatch apply -local /tmp/27967757/27734982/'</span> \</span>
+<span class="line">                    <span class="string">'expect "*proceed*" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*Email*" &#123;send "\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*security*" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*patching" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'interact'</span> \</span>
+<span class="line">                    &gt;&gt; /tmp/<span class="number">27967757</span>/<span class="number">27734982</span>/psu_apply.sh &amp;&amp; \</span>
+<span class="line">        printf <span class="string">"%s\n"</span>   <span class="string">'#!/usr/bin/expect'</span> \</span>
+<span class="line">                    <span class="string">'spawn opatch apply -local /tmp/27923163/'</span> \</span>
+<span class="line">                    <span class="string">'expect "*proceed*" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*Email*" &#123;send "\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*security*" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'expect "*patching" &#123;send "y\r"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'interact'</span> \</span>
+<span class="line">                    &gt;&gt; /tmp/<span class="number">27923163</span>/jvm_apply.sh &amp;&amp; \</span>
+<span class="line">        chmod +x /tmp/<span class="number">27967757</span>/<span class="number">27734982</span>/psu_apply.sh &amp;&amp; \</span>
+<span class="line">        chmod +x /tmp/<span class="number">27923163</span>/jvm_apply.sh &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"/tmp/27967757/27734982/psu_apply.sh"</span> &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"/tmp/27923163/jvm_apply.sh"</span></span>
+</pre></td></tr></table></figure>
+<h2 id="整合成一个dockerfile"><a href="#整合成一个dockerfile" class="headerlink" title="整合成一个dockerfile"></a>整合成一个dockerfile</h2><h3 id="制作镜像"><a href="#制作镜像" class="headerlink" title="制作镜像"></a>制作镜像</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">FROM <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/os/oraclelinux:<span class="number">6.10</span></span>
+<span class="line"></span>
+<span class="line">ADD Shanghai /etc/localtime</span>
+<span class="line">ADD rlwrap<span class="number">-0.42</span>.tar.gz /tmp/</span>
+<span class="line">ADD p13390677_112040_Linux-x86<span class="number">-64</span>_1of7.zip /tmp/</span>
+<span class="line">ADD p13390677_112040_Linux-x86<span class="number">-64</span>_2of7.zip /tmp/</span>
+<span class="line">ADD p6880880_112000_Linux-x86<span class="number">-64.</span>zip /tmp/ </span>
+<span class="line">ADD p27967757_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line">ADD p27923163_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line">ADD db_install.rsp /tmp/</span>
+<span class="line">ADD ocm.rsp /tmp/ocm.rsp</span>
+<span class="line">ADD p6880880_112000_Linux-x86<span class="number">-64.</span>zip /tmp/ </span>
+<span class="line">ADD p27967757_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line">ADD p27923163_112040_Linux-x86<span class="number">-64.</span>zip /tmp/</span>
+<span class="line"></span>
+<span class="line">RUN rpm --<span class="keyword">import</span> /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle &amp;&amp; \</span>
+<span class="line">    yum -y install oracle-rdbms-server<span class="number">-11</span>gR2-preinstall unzip readline-devel.x86_64 lrzsz &amp;&amp; \</span>
+<span class="line">    cd /tmp/rlwrap<span class="number">-0.42</span> &amp;&amp; ./configure &amp;&amp; make &amp;&amp; make install &amp;&amp; \</span>
+<span class="line">    echo <span class="string">"Create /u01/app dir..."</span> &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/dumpdir &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oradata &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oraInventory &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oracle &amp;&amp; \</span>
+<span class="line">    mkdir -p -m <span class="number">755</span> /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1 &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /u01 &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p13390677_112040_Linux-x86<span class="number">-64</span>_1of7.zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p13390677_112040_Linux-x86<span class="number">-64</span>_2of7.zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /tmp/database  &amp;&amp; \</span>
+<span class="line">    printf <span class="string">"%s\n"</span>   <span class="string">'export ORACLE_SID=orcl'</span> \</span>
+<span class="line">                    <span class="string">'export ORACLE_BASE=/u01/app/oracle'</span> \</span>
+<span class="line">                    <span class="string">'export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/db_1'</span> \</span>
+<span class="line">                    <span class="string">'export LD_LIBRARY_PATH=$ORACLE_HOME/lib:$ORACLE_HOME/lib32'</span> \</span>
+<span class="line">                    <span class="string">'export PATH=$PATH:$ORACLE_HOME/bin:$ORACLE_HOME/OPatch'</span> \</span>
+<span class="line">                    <span class="string">'export NLS_LANG=AMERICAN_AMERICA.ZHS16GBK'</span> \</span>
+<span class="line">                    <span class="string">'export NLS_DATE_FORMAT="yyyy-mm-dd hh24:mi:ss"'</span> \</span>
+<span class="line">                    <span class="string">'alias sqlplus="rlwrap sqlplus"'</span> \</span>
+<span class="line">                    <span class="string">'alias rman="rlwrap rman"'</span> \</span>
+<span class="line">                     &gt;&gt;/home/oracle/.bash_profile  &amp;&amp; \</span>
+<span class="line">    cat /etc/security/limits.conf | grep -v oracle | tee /etc/security/limits.conf &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/tmp/database/runInstaller -ignorePrereq -ignoreSysPrereqs -waitforcompletion -silent -responseFile /tmp/db_install.rsp 2&gt;&amp;1"</span> &amp;&amp; \</span>
+<span class="line">    /u01/app/oraInventory/orainstRoot.sh &amp;&amp; \</span>
+<span class="line">    /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/root.sh &amp;&amp; \</span>
+<span class="line">    unzip -oq /tmp/p6880880_112000_Linux-x86<span class="number">-64.</span>zip -d /tmp/ &amp;&amp; \</span>
+<span class="line">    rm -rf /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/OPatch &amp;&amp; \</span>
+<span class="line">    chown -R oracle:oinstall /tmp/OPatch &amp;&amp; \</span>
+<span class="line">    mv /tmp/OPatch /u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/ &amp;&amp; \</span>
+<span class="line">    unzip -qo /tmp/p27967757_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">    unzip -qo /tmp/p27923163_112040_Linux-x86<span class="number">-64.</span>zip -d /tmp &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"opatch apply -silent -ocmrf /tmp/ocm.rsp -local /tmp/27967757/27734982"</span> &amp;&amp; \</span>
+<span class="line">    su - oracle -c <span class="string">"opatch apply -silent -ocmrf /tmp/ocm.rsp -local /tmp/27923163"</span> &amp;&amp; \</span>
+<span class="line">    printf <span class="string">"%s\n"</span>   <span class="string">'[GENERAL]'</span> \</span>
+<span class="line">                    <span class="string">'RESPONSEFILE_VERSION="11.2"'</span> \</span>
+<span class="line">                    <span class="string">'CREATE_TYPE="CUSTOM"'</span> \</span>
+<span class="line">                    <span class="string">'[oracle.net.ca]'</span> \</span>
+<span class="line">                    <span class="string">'INSTALLED_COMPONENTS=&#123;"server","net8","javavm"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'INSTALL_TYPE=""typical""'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_NUMBER=1'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_NAMES=&#123;"LISTENER"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_PROTOCOLS=&#123;"TCP;1521"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'LISTENER_START=""LISTENER""'</span> \</span>
+<span class="line">                    <span class="string">'NAMING_METHODS=&#123;"TNSNAMES","ONAMES","HOSTNAME"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_NUMBER=1'</span> \</span>
+<span class="line">                    <span class="string">'NSN_NAMES=&#123;"EXTPROC_CONNECTION_DATA"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_SERVICE=&#123;"PLSExtProc"&#125;'</span> \</span>
+<span class="line">                    <span class="string">'NSN_PROTOCOLS=&#123;"TCP;HOSTNAME;1521"&#125;'</span> \</span>
+<span class="line">                     &gt;&gt;/tmp/netca.rsp &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/u01/app/oracle/product/11.2.0/db_1/bin/netca -silent -responseFile /tmp/netca.rsp"</span> &amp;&amp; \</span>
+<span class="line">    printf <span class="string">"%s\n"</span>   <span class="string">'[GENERAL]'</span> \</span>
+<span class="line">                    <span class="string">'RESPONSEFILE_VERSION = "11.2.0"'</span> \</span>
+<span class="line">                    <span class="string">'OPERATION_TYPE = "createDatabase"'</span> \</span>
+<span class="line">                    <span class="string">'[CREATEDATABASE]'</span> \</span>
+<span class="line">                    <span class="string">'GDBNAME = "orcl"'</span> \</span>
+<span class="line">                    <span class="string">'DATABASECONFTYPE  = "SI"'</span> \</span>
+<span class="line">                    <span class="string">'SID = "orcl"'</span> \</span>
+<span class="line">                    <span class="string">'TEMPLATENAME = "General_Purpose.dbc"'</span> \</span>
+<span class="line">                    <span class="string">'SYSPASSWORD = "Center08"'</span> \</span>
+<span class="line">                    <span class="string">'SYSTEMPASSWORD = "Center08"'</span> \</span>
+<span class="line">                    <span class="string">'DATAFILEDESTINATION=/u01/app/oradata'</span> \</span>
+<span class="line">                    <span class="string">'RECOVERYAREADESTINATION=/u01/app/oradata'</span> \</span>
+<span class="line">                    <span class="string">'STORAGETYPE=FS'</span> \</span>
+<span class="line">                    <span class="string">'CHARACTERSET="ZHS16GBK"'</span> \</span>
+<span class="line">                    <span class="string">'INITPARAMS="java_jit_enabled=false,memory_target=0,sga_target=2048,pga_aggregate_target=300,processes=300,open_cursors=300"'</span> \</span>
+<span class="line">                    <span class="string">'AUTOMATICMEMORYMANAGEMENT="False"'</span> \</span>
+<span class="line">                     &gt; /tmp/dbca.rsp &amp;&amp; chown oracle:oinstall /tmp/dbca.rsp &amp;&amp; chmod +x /tmp/dbca.rsp &amp;&amp; \</span>
+<span class="line">    su oracle -c <span class="string">"/u01/app/oracle/product/11.2.0/db_1/bin/dbca -silent -responseFile /tmp/dbca.rsp"</span> &amp;&amp; \</span>
+<span class="line">    sed -i <span class="string">"s/#PermitRootLogin.*/PermitRootLogin yes/g"</span> /etc/ssh/sshd_config &amp;&amp; \</span>
+<span class="line">    echo <span class="string">"export LANG=en_US.utf8"</span> &gt;&gt; /etc/profile &amp;&amp; \</span>
+<span class="line">    yum clean all &amp;&amp; \</span>
+<span class="line">    rm -rf /tmp/* &amp;&amp; rm -rf /var/log/* &amp;&amp; rm -rf /var/cache/*</span>
+</pre></td></tr></table></figure>
+<h3 id="添加到rancher中"><a href="#添加到rancher中" class="headerlink" title="添加到rancher中"></a>添加到rancher中</h3><ol>
+<li>登陆Rancher(1.6.21)，编排工具用的是默认的Cattle</li>
+<li>应用 - 用户 - 添加应用 - 名称：[ORACLE] - 创建(已有服务此步忽略)</li>
+<li>添加服务 - 在添加服务页面添写配置如下信息 - 创建<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">名称: dev-erp</span>
+<span class="line">选择镜像: <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-run</span>
+<span class="line">端口映射: <span class="number">1521</span>:<span class="number">1521</span>/tcp  <span class="number">16221</span>:<span class="number">22</span>/tcp</span>
+<span class="line"></span>
+<span class="line">网络 - 主机名: dev-erp </span>
+<span class="line">安全/主机: 主机完全访问权限    内存限制 <span class="number">4096</span></span>
+<span class="line">调度 - 在指定主机上运行全部容器: docker162</span>
+</pre></td></tr></table></figure>
+</li>
+</ol>
+<p>4.启动应用(容器) - 检查检查并登录dev-erp服务，无问题后<code>shutdown immediate</code>数据库<br>5.登陆宿主机，执行以下命令<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">docker ps -a | grep erp</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------------------</span></span>
+<span class="line">cdf49b075fb6        <span class="number">10.240</span><span class="number">.4</span><span class="number">.159</span>/app/oracledatabase:<span class="number">11.2</span><span class="number">.0</span><span class="number">.4</span>-run   <span class="string">"/.r/r /usr/sbin/ent…"</span>   <span class="number">38</span> minutes ago      Up <span class="number">38</span> minutes  r-Oracle-erp-dev<span class="number">-1</span><span class="number">-77</span>fbbce2</span>
+<span class="line"><span class="comment">#--------------------------------------------------------------------------------------------</span></span>
+<span class="line"></span>
+<span class="line">mkdir -p /docker_mnt/oracledb/dev-erp<span class="number">-20180925</span></span>
+<span class="line">cd /docker_mnt/oracledb/dev-erp<span class="number">-20180925</span></span>
+<span class="line">docker cp cdf49b075fb6:/u01/app/oradata .</span>
+<span class="line">docker cp cdf49b075fb6:/u01/app/dumpdir .</span>
+<span class="line">docker cp cdf49b075fb6:/u01/app/oracle/fast_recovery_area .</span>
+<span class="line">docker cp cdf49b075fb6:/u01/app/oracle/diag .</span>
+<span class="line">docker cp cdf49b075fb6:/u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/dbs .</span>
+</pre></td></tr></table></figure></p>
+<p>6.升级<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">卷 - 添加卷: </span>
+<span class="line">/docker_mnt/oracledb/dev-pos<span class="number">-20180925</span>/oradata:/u01/app/oradata</span>
+<span class="line">/docker_mnt/oracledb/dev-pos<span class="number">-20180925</span>/dpdump:/u01/app/dumpdir</span>
+<span class="line">/docker_mnt/oracledb/dev-pos<span class="number">-20180925</span>/fast_recovery_area:/u01/app/oracle/fast_recovery_area</span>
+<span class="line">/docker_mnt/oracledb/dev-pos<span class="number">-20180925</span>/diag:/u01/app/oracle/diag</span>
+<span class="line">/docker_mnt/oracledb/dev-pos<span class="number">-20180925</span>/dbs:/u01/app/oracle/product/<span class="number">11.2</span><span class="number">.0</span>/db_1/dbs</span>
+</pre></td></tr></table></figure></p>
+<p>```</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/10/12/docker/15_docker应用-部署Goldengate/">
+                    Docker学习笔记_15 docker应用 - 部署Goldengate
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2018/09/11/oracle/20180911_crfclust.bdb文件过大处理/">
+                    crfclust.bdb文件过大处理
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#下载操作系统基镜像"><span class="toc-number">1.</span> <span class="toc-text">下载操作系统基镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BUILD数据库软件镜像"><span class="toc-number">2.</span> <span class="toc-text">BUILD数据库软件镜像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PSU"><span class="toc-number">3.</span> <span class="toc-text">PSU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装数据库"><span class="toc-number">4.</span> <span class="toc-text">安装数据库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启机后数据库自行启动"><span class="toc-number">5.</span> <span class="toc-text">启机后数据库自行启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署ORACLE服务"><span class="toc-number">6.</span> <span class="toc-text">部署ORACLE服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#expect的用法示例"><span class="toc-number">8.</span> <span class="toc-text">expect的用法示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#整合成一个dockerfile"><span class="toc-number">9.</span> <span class="toc-text">整合成一个dockerfile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#制作镜像"><span class="toc-number">9.1.</span> <span class="toc-text">制作镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加到rancher中"><span class="toc-number">9.2.</span> <span class="toc-text">添加到rancher中</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/10/12/docker/15_docker应用-部署Goldengate/" title="上一篇: Docker学习笔记_15 docker应用 - 部署Goldengate">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2018/09/11/oracle/20180911_crfclust.bdb文件过大处理/" title="下一篇: crfclust.bdb文件过大处理">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/10/18/linux/20181018_常用Linux命令/">常用Linux命令和脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/10/12/docker/15_docker应用-部署Goldengate/">Docker学习笔记_15 docker应用 - 部署Goldengate</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/19/docker/14_docker应用-部署ORACLE-11g单实例数据库/">Docker学习笔记_14 docker应用 - 部署ORACLE 11g单实例数据库.md</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/11/oracle/20180911_crfclust.bdb文件过大处理/">crfclust.bdb文件过大处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/11/linux/20180911_在Centos和Ubuntu中强制yum和Apt-get使用IPv4或IPv6/">��Centos��Ubuntu��ǿ��yum��Apt-getʹ��IPv4��IPv6</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/09/11/oracle/20180911_Oracle主库添加datafile备库空间不足错误处理/">Oracle主库添加datafile备库空间不足错误处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/09/oracle/Oracle_SQL_Tuning-课程学习/03_Oracle_SQL_Tuning/">Oracle SQL Tuning_03 CBO算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/08/08/docker/13_docker应用-部署MYSQL服务/">Docker学习笔记_13 docker应用 - 部署MYSQL服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/25/oracle/Oracle_SQL_Tuning-课程学习/02_Oracle_SQL_Tuning/">Oracle SQL Tuning_02 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/20/redis/redis入门到精通-课程学习/04_redis入门到精通/">redis入门到精通 - 04 link链表</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/18/redis/redis入门到精通-课程学习/03_redis入门到精通/">redis入门到精通 - 03 Redis字符串类型的操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/17/redis/redis入门到精通-课程学习/02_redis入门到精通/">redis入门到精通 - 02 通用key操作命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/16/redis/redis入门到精通-课程学习/01_redis入门到精通/">redis入门到精通 - 01 redis特点及安装</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/14/docker/12_docker应用-部署REDIS服务/">Docker学习笔记_12 docker应用 - 部署REDIS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/docker/11_docker应用-部署GITLAB服务/">Docker学习笔记_11 docker应用 - 部署GITLAB服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/13/python/Python3自动化运维-课程学习/05_Python3自动化运维_函数入门/">Python3自动化运维 - 05 函数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/12/docker/10_docker应用-部署TOMCAT服务/">Docker学习笔记_10 docker应用 - 部署TOMCAT服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/tools/20180711_注册美区Apple-ID-无需信用卡/">注册美区Apple ID（无需信用卡）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/11/docker/09_docker应用-部署DNS服务/">Docker学习笔记_09 docker应用 - 部署DNS服务</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/06/python/Python3自动化运维-课程学习/04_Python3自动化运维_分支循环与深浅拷贝/">Python3自动化运维 - 04 分支循环与深浅拷贝</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/02_Python3自动化运维_数据类型及引用计数/">Python3自动化运维 - 02 数据类型及引用计数</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/04/python/Python3自动化运维-课程学习/03_Python3自动化运维_运算表达式/">Python3自动化运维 - 03 运算表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/07/03/python/Python3自动化运维-课程学习/01_Python3自动化运维_环境配置/">Python3自动化运维 - 01 环境配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/28/oracle/ORA/ORA-01157/">ORA-01157 ORA-01110 错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/06/20/oracle/Oracle_SQL_Tuning-课程学习/01_Oracle_SQL_Tuning/">Oracle SQL Tuning_01 SQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/22/oracle/Oracle特殊恢复原理与实战-课程学习/12_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_12 Oracle坏块处理</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/17/oracle/Oracle特殊恢复原理与实战-课程学习/11_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_11 ORA-8102 Index Corruption修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/05/10/oracle/Oracle特殊恢复原理与实战-课程学习/10_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_10 恢复ora-600[4193][4194]的错误</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/26/oracle/Oracle特殊恢复原理与实战-课程学习/09_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_09 Undo深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/18/oracle/Oracle特殊恢复原理与实战-课程学习/08_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_08 Redo Architecture and Configuration</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/04/03/oracle/Oracle特殊恢复原理与实战-课程学习/07_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_07 归档模式下缺失Redo Log后的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/29/oracle/oracle 11g修改自动收集统计信息计划任务的执行时间/">oracle 11g修改自动收集统计信息计划任务的执行时间</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/28/oracle/Oracle特殊恢复原理与实战-课程学习/06_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_06 使用BBED手工修复block数据</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/26/oracle/Oracle特殊恢复原理与实战-课程学习/05_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_05 使用BBED跳过归档的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/16/oracle/Oracle特殊恢复原理与实战-课程学习/04_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_04 SYSTEM文件头损坏的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/10/oracle/Oracle特殊恢复原理与实战-课程学习/03_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_03 Control file深入内部解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/tools/github与gitlab一起使用/">一台电脑同时使用GitHub和GitLab仓库</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/27/docker/08_使用Rancher-pipeline搭建基于容器的CICD/">Docker学习笔记_08使用Rancher pipeline搭建基于容器的CICD</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/26/oracle/Oracle特殊恢复原理与实战-课程学习/02_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_02 Control file丢失的恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/02/25/oracle/Oracle特殊恢复原理与实战-课程学习/01_Oracle特殊恢复入门/">Oracle特殊恢复原理与实战_01 Oracle特殊恢复入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/30/docker/07_搭建harbor企业级register/">Docker学习笔记_07 搭建harbor企业级私有registry</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/22/docker/06_使用rancher搭建gitlab服务并启用https/">Docker学习笔记_06 使用rancher搭建gitlab服务并启用https</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/20/docker/05_rancher的访问控制/">Docker学习笔记_05 Rancher的访问控制</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/12/docker/04_rancher的部署安装/">Docker学习笔记_04 Rancher的部署安装(编排选用K8S)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/11/docker/03_docker的部署安装-Ubuntu/">Docker学习笔记_03 Docker的部署安装(Ubuntu)</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/01/10/linux/20180110_Ubuntu16.04.3安装图解/">Ubuntu Server 16.04.3安装及常用配置图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/12/docker/02_docker的部署安装-Centos/">Docker学习笔记_02 Docker的部署安装(CentOS)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/11/docker/01_docker的相关概念/">Docker学习笔记_01 Docker的相关概念</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/10/docker/00_docker常用命令/">Docker学习笔记_00 Docker常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/MySQL-性能优化最佳实践课程学习/12-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 12 MySQL性能优化的最佳20+条经验</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/12/05/mysql/20171205_CentOS7下MySQL57的安装-源码方式/">CentOS7下MySQL5.7.20的安装-源码方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/24/oracle/ORA/ORA-603/">Oracle Linux网卡参数默认设置导致ORA-603</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/11-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 11 MySQL锁优化分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/11/09/mysql/MySQL-性能优化最佳实践课程学习/10-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 10 MySQL写出高效SQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/24/mysql/MySQL-性能优化最佳实践课程学习/09-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 09 MySQL优化器算法解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/flashback常用命令整理/">flashback常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/19/oracle/RMAN常用命令整理/">RMAN (Recovery Manager) 常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/10/17/mysql/MySQL-性能优化最佳实践课程学习/08-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 08 SQL EXPLAIN解析</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/25/oracle/20170925_Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤/">Oracle RMAN异机恢复归档RMAN-07518（供日志挖掘使用）及修改dbid步骤</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/21/mysql/MySQL-性能优化最佳实践课程学习/07-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 07 MySQL索引设计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/13/oracle/oracle审计/">ORACLE审计</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/11/mysql/MySQL-性能优化最佳实践课程学习/06-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 06 MySQL设计与开发最佳实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/09/06/mysql/MySQL-性能优化最佳实践课程学习/05-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 05 MySQL核心参数优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/28/mysql/MySQL-性能优化最佳实践课程学习/04-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 04 MySQL优化之Linux系统层面调优</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/25/mysql/MySQL-性能优化最佳实践课程学习/03-MySQL-性能优化最佳实践 /">MySQL性能优化最佳实践 - 03 MySQL服务器优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/23/mysql/20170823_CentOS7下MySQL57的安装-RPM/">CentOS7下MySQL5.7的安装-RPM方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/19/mysql/MySQL-性能优化最佳实践课程学习/02-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 02 MySQL数据库性能衡量</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/08/04/mysql/MySQL-性能优化最佳实践课程学习/01-MySQL-性能优化最佳实践/">MySQL性能优化最佳实践 - 01 MySQL优化方法论</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/按SQLID一键获取执行计划索引分区等信息的脚本/">按SQLID一键获取执行计划索引分区等信息的脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/Scripts/一键获取数据库整体信息脚本/">一键获取数据库整体信息脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/28/oracle/收获不止SQL优化学习笔记/03_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第三章 循规蹈矩--如何读懂SQL执行计划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/01_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第一章 全局在胸--用工具对SQL整体优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/oracle/收获不止SQL优化学习笔记/02_收获不止SQL优化/">收获不止SQL优化读书笔记 - 第二章 风驰电掣--SQL优化过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/14/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/11_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-11 灾备维护经验总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/04/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/10_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-10 容灾切换和故障演练实践总结</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/09_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-09 12c 灾备环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/28/oracle/SQL优化--dbms_sqltune应用实例/">SQL优化--dbms_sqltune应用实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/23/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/08_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-08 容灾简介和环境搭建</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/16/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/07_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-07 升级数据库至12c</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/10/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/06_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-06 PDB备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/02/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/05_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-05 PDB迁移和克隆</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/linux/20170524_在DELL_R730物理机上安装配置Oracle_Linux_7.3/">在DELL R730物理机上安装配置Oracle Linux 7.3图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/24/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/04_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-04 CDB PDB对象管理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/23/tools/Dell iDRAC服务器远程控制图解/">使用Dell iDRAC服务器远程控制安装操作系统简要图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/17/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/03_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-03 创建与管理CDB和PDB</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/hugepage计算脚本/">Hugepage计算脚本</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/02_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-02 数据库环境初始化</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/05/oracle/Oracle_12c特性解读-容器数据库和灾备-课程学习/01_Oracle_12c特性解读-容器数据库和灾备/">Oracle 12c特性解读-容器数据库和灾备-01 Oracle 12c体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/02/mysql/MySQL-DBA从小白到大神实战课程学习/15-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-15 MySQL源码初探</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/25/mysql/MySQL-DBA从小白到大神实战课程学习/14-MySQL-DBA从小白到大神实战/">MySQL-DBA从小白到大神实战-14 运维MySQL过程中线上故障分析与排查</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/21/mysql/MySQL-DBA从小白到大神实战课程学习/13-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-13 深入分析Online DDL原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/18/oracle/那些12c中惹祸的特性关闭列表/">那些12c中惹祸的特性关闭列表</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/oracle/ORA/ORA-27086/">ORA-27086 unable to lock file - already in use</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/13/mysql/MySQL-DBA从小白到大神实战课程学习/12-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-12 MySQL构架设计与容量规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/06/mysql/MySQL-DBA从小白到大神实战课程学习/11-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-11 构建高可用MySQL系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/tools/Hexo文章的密码访问/">Hexo文章的密码访问</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/goldengate/GoldenGate 12.1.2 新特性参数部分解释/">GoldenGate 12.1.2 新特性参数部分解释</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle数据库补丁号码快速参考 (文档 ID 1922396.1)/">数据库GI PSU，SPU(CPU)，Bundle Patches 和 Patchsets 补丁号码快速参考 (文档 ID 1922396.1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle 11g工作中常用的命令和脚本整理/">Oracle Database 11g工作中常用的命令和脚本整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/oracle/Oracle_DataPump_INCLUDE_参数限制4000个字符解决办法/">Oracle expdp中INCLUDE参数限制4000个字符的解决办法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/31/mysql/MySQL-DBA从小白到大神实战课程学习/10-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-10 深入理解MySQL主从复制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/24/linux/20170324_Vmware_centos_虚拟机根分区磁盘扩容(基于LVM)/">VMWare CentOS 虚拟机根分区磁盘扩容(基于LVM)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/22/mysql/MySQL-DBA从小白到大神实战课程学习/09-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-09 MySQL性能优化的关键点</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/mysql/MySQL-DBA从小白到大神实战课程学习/08-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-08 MySQL监控系统之Zabbix</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/linux/20170318_CentOS7.3安装图解/">CentOS7.3安装图解</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/10/mysql/MySQL-DBA从小白到大神实战课程学习/07-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-07 MySQL锁机制与事务机制实现</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/06/mysql/MySQL-DBA从小白到大神实战课程学习/06-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-06 深入浅出MySQL备份与恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/tools/hexo解决代码块空行自动删除问题/">hexo解决代码块空行自动删除问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/24/mysql/MySQL-DBA从小白到大神实战课程学习/05-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-05 MySQL DBA日常操作</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/17/mysql/MySQL-DBA从小白到大神实战课程学习/04-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-04 揭密MySQL databock and binlog的格式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/16/oracle/那些在11gR2中可能惹祸的新特性/">那些在11gR2中可能惹祸的新特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo更换主题并个性化定制/">hexo更换主题并个性化定制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/hexo博客添加常用插件/">hexo博客添加常用插件</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/10/tools/git常用命令整理/">GIT常用命令整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/02/06/tools/hexo+github搭建个人博客/">hexo+github搭建个人博客</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/30/tools/Sublime常用快捷键/">Sublime Text 常用快捷键</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/mysql/MySQL-DBA从小白到大神实战课程学习/03-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-03 深入MySQL体系结构</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/28/tools/vim常用命令/">VIM常用命令</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/23/mysql/MySQL-DBA从小白到大神实战课程学习/02-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-02 MySQL标准化、自动化部署</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/09/mysql/MySQL-DBA从小白到大神实战课程学习/01-MySQL-DBA从小白到大神实战/">MySQL DBA从小白到大神实战-01 MySQL 高级DBA职业规划</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/04/08/oracle/Oracle职业直通车-课程学习/07_Oracle职业直通车/">Oracle职业直通车-07 重做日志、日志挖掘和回滚段</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/30/oracle/Oracle职业直通车-课程学习/06_Oracle职业直通车/">Oracle职业直通车-06 Oracle的内存结构与后台进程</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/23/oracle/Oracle职业直通车-课程学习/05_Oracle职业直通车/">Oracle职业直通车-05 数据字典&数据库的备份和恢复</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/16/oracle/Oracle职业直通车-课程学习/04_Oracle职业直通车/">Oracle职业直通车-04 复杂一点的SQL/PLSQL</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/09/oracle/Oracle职业直通车-课程学习/03_Oracle职业直通车/">Oracle职业直通车-03 Oracle数据库的安装和配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/03/02/oracle/Oracle职业直通车-课程学习/02_Oracle职业直通车/">Oracle职业直通车-02 从最简单的SQL语句开始</a></li><li class="post-list-item"><a class="post-list-link" href="/2015/02/10/oracle/Oracle职业直通车-课程学习/01_Oracle职业直通车/">Oracle职业直通车-01 轻松带你走进Oracle数据库的世界</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-right">
+                <i class="fa fa-copyright"></i> 
+                2017-2018 刘雅君
+            </div>
+            <!--
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>-->
+        </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+             post: ".article-entry a[href], .copyright a[href]", 
+            
+            
+            
+            
+            
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
